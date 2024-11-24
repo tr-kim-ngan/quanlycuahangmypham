@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h3 class="fw-bold mb-3">Quản lý sản phẩm</h3>
+							<h6 class="op-7 mb-2">Danh sách các sản phẩm</h6>
+						</div>
+						<!-- Nút Thêm sản phẩm -->
+						<div>
+							<a th:href="@{/admin/add-product}" class="btn btn-success btn-lg"
+								style="background-color: #28a745;">
+								Thêm sản phẩm
+							</a>
+						</div>
+					</div>
+
+					<!-- Bảng danh sách sản phẩm -->
+					<table class="table table-hover table-bordered"
+						style="background-color: white; border-radius: 8px;">
+						<thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
+							<tr>
+								<th style="text-align: center;">Stt</th>
+								<th style="text-align: center;">Tên sản phẩm</th>
+								<th style="text-align: center;">Hình ảnh</th>
+								<th style="text-align: center;">Mô tả</th>
+								<th style="text-align: center;">Số lượng</th>
+								<th style="text-align: center;">Đơn giá</th>
+								<th style="text-align: center;">Khuyến mãi</th>
+
+								
+								<th style="text-align: center;">Giá sau khi giảm</th>
+								<!--<th style="text-align: center;">Đơn vị tính</th>
+								<th style="text-align: center;">Danh mục</th>-->
+								<th style="text-align: center;">Hành động</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:if="${listSanPham.isEmpty()}">
+								<td colspan="8" class="text-center">Không có sản phẩm nào được tìm thấy</td>
+							</tr>
+							<!-- Dùng Thymeleaf để lặp qua danh sách sản phẩm -->
+							<tr th:each="sanPham, iterStat : ${listSanPham}">
+								<!-- Hiển thị số thứ tự -->
+								<td style="text-align: center;" th:text="${(currentPage * size) + iterStat.count}"></td>
+
+								<td style="text-align: center;" th:text="${sanPham.tenSanPham}"></td>
+
+								<td style="text-align: center;">
+									<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" style="width: 100px; height: auto;"
+										alt="Ảnh sản phẩm" />
+								</td>
+
+
+								<td style="text-align: center;" th:text="${sanPham.moTa}"></td>
+								<td style="text-align: center;" th:text="${sanPham.soLuong}"></td>
+								
+								<!-- Đơn giá -->
+								<td style="text-align: center;" th:text="${sanPham.donGiaBan} + ' VND'">
+								</td>
+								<!-- Cột khuyến mãi -->
+								<td style="text-align: center;">
+									<span th:if="${highestKhuyenMais[sanPham.maSanPham] == null}">
+										Không có khuyến mãi
+									</span>
+									<span th:if="${highestKhuyenMais[sanPham.maSanPham] != null}">
+										<span th:text="${highestKhuyenMais[sanPham.maSanPham].tenKhuyenMai}"></span>
+										<span
+											th:text="' - ' + ${highestKhuyenMais[sanPham.maSanPham].phanTramGiamGia} + '%'"></span>
+									</span>
+								</td>
+
+
+
+
+
+
+								
+								<!-- Cột giá sau khi giảm -->
+
+								<td style="text-align: center;">
+									<span th:if="${highestKhuyenMais[sanPham.maSanPham] != null}">
+										<!-- Tính toán giá sau khi giảm nếu có khuyến mãi -->
+										<span
+											th:text="${sanPham.donGiaBan.subtract(sanPham.donGiaBan.multiply(highestKhuyenMais[sanPham.maSanPham].phanTramGiamGia.divide(new java.math.BigDecimal(100))))} + ' VND'">
+										</span>
+									</span>
+									<span th:if="${highestKhuyenMais[sanPham.maSanPham] == null}">
+										<!-- Hiển thị đơn giá bán nếu không có khuyến mãi -->
+										<span th:text="${sanPham.donGiaBan} + ' VND'"></span>
+									</span>
+								</td>
+
+							<!--	<td style="text-align: center;" th:text="${sanPham.donViTinh.tenDonVi}"></td>
+
+								<td style="text-align: center;" th:text="${sanPham.danhMuc.tenDanhMuc}"></td>-->
+
+
+								<td style="text-align: center;">
+									<div style="display: flex; flex-direction: column; align-items: center;">
+										<!-- Nút xem chi tiết -->
+										<a class="btn btn-primary btn-sm mb-2" style="width: 100px;"
+											th:href="@{/admin/view-product/{id}(id=${sanPham.maSanPham})}">Xem chi
+											tiết</a>
+
+										<!-- Nút xóa -->
+										<form action="#"
+											th:action="@{/admin/delete-product/{id}(id=${sanPham.maSanPham})}"
+											method="post" style="display:inline;">
+											<input type="hidden" name="_method" value="DELETE" />
+											<button type="submit" class="btn btn-danger btn-sm" style="width: 100px;"
+												onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</button>
+										</form>
+									</div>
+								</td>
+
+
+
+							</tr>
+						</tbody>
+					</table>
+					<!-- Phân trang -->
+					<!-- Kiểm tra nếu có sản phẩm và tổng số trang lớn hơn 0 thì hiển thị phân trang -->
+					<div th:if="${totalPages > 0}">
+						<nav aria-label="Page navigation">
+							<ul class="pagination justify-content-center">
+								<!-- Nút mũi tên trái (trước) -->
+								<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+									<a class="page-link"
+										th:href="${keyword != null and keyword != ''} ? @{/admin/product(page=${currentPage - 1}, keyword=${keyword})} : @{/admin/product(page=${currentPage - 1})}"
+										aria-label="Previous">
+										<span aria-hidden="true">&laquo;</span>
+									</a>
+								</li>
+
+								<!-- Hiển thị các số trang -->
+								<li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+									th:classappend="${i == currentPage} ? 'active'">
+									<a class="page-link"
+										th:href="${keyword != null and keyword != ''} ? @{/admin/product(page=${i}, keyword=${keyword})} : @{/admin/product(page=${i})}"
+										th:text="${i + 1}"></a>
+								</li>
+
+								<!-- Nút mũi tên phải (sau) -->
+								<li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+									<a class="page-link"
+										th:href="${keyword != null and keyword != ''} ? @{/admin/product(page=${currentPage + 1}, keyword=${keyword})} : @{/admin/product(page=${currentPage + 1})}"
+										aria-label="Next">
+										<span aria-hidden="true">&raquo;</span>
+									</a>
+								</li>
+							</ul>
+						</nav>
+
+
+					</div>
+
+					<!-- Kết thúc phân trang -->
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<!-- Thông báo lỗi -->
+					<div th:if="${error}" class="alert alert-danger" role="alert">
+						<span th:text="${error}"></span>
+					</div>
+
+					<!-- Thông báo thành công -->
+					<div th:if="${success}" class="alert alert-success" role="alert">
+						<span th:text="${success}"></span>
+					</div>
+					<form th:action="@{/admin/update-product}" th:object="${sanPham}" method="post"
+						enctype="multipart/form-data">
+						<!-- Mã sản phẩm (ẩn) -->
+						<input type="hidden" th:field="*{maSanPham}" />
+
+						<!-- Tên sản phẩm -->
+						<div class="mb-3">
+							<label for="tenSanPham" class="form-label">Tên sản phẩm:</label>
+							<input type="text" th:field="*{tenSanPham}" class="form-control" id="tenSanPham" required />
+						</div>
+
+						<!-- Giá bán -->
+						<div class="mb-3">
+							<label for="donGiaBan" class="form-label">Giá bán:</label>
+							<input type="number" name="donGiaBan" th:field="*{donGiaBan}" class="form-control"
+								id="donGiaBan" min="0" step="0.01" required />
+						</div>
+
+
+
+						<!-- Số lượng tồn 
+						<div class="mb-3">
+							<label for="soLuong" class="form-label">Số lượng tồn:</label>
+							<input type="number" th:field="*{soLuong}" class="form-control" id="soLuong" min="0"
+								step="1" required />
+						</div>-->
+						<!-- Số lượng tồn -->
+						<!--<div class="mb-3">
+							<label for="soLuong" class="form-label">Số lượng tồn:</label>
+							
+							
+							<input type="number" th:field="*{soLuong}" class="form-control" id="soLuong" min="0"
+								th:min="${hasDetails ? 1 : 0}"
+								th:max="${hasDetails ? #lists.max(chiTietDonNhapHangList).soLuongNhap : null}"
+								th:disabled="${!hasDetails}" th:readonly="${!hasDetails}" />
+								
+								
+								
+							<small th:if="${!hasDetails}" class="text-muted">
+								Sản phẩm này chưa có đơn nhập hàng, số lượng không thể thay đổi.
+							</small>
+						</div>-->
+						<!-- Số lượng tồn -->
+						<!-- Số lượng tồn -->
+						<div class="mb-3">
+							<label for="soLuong" class="form-label">Số lượng tồn:</label>
+							<input type="number" th:field="*{soLuong}" class="form-control" id="soLuong"
+								th:min="${hasDetails ? 1 : 0}" th:max="${hasDetails ? maxSoLuongNhap : null}"
+								th:disabled="${!hasDetails}" th:readonly="${!hasDetails}" />
+							<small th:if="${!hasDetails}" class="text-muted">
+								Sản phẩm này chưa có đơn nhập hàng, số lượng không thể thay đổi.
+							</small>
+						</div>
+
+
+
+
+						<!-- Mô tả -->
+						<div class="mb-3">
+							<label for="moTa" class="form-label">Mô tả:</label>
+							<textarea th:field="*{moTa}" class="form-control" id="moTa" required></textarea>
+						</div>
+						<div>
+							<label>Đơn vị tính:</label>
+							<select th:field="*{donViTinh.maDonVi}" class="form-control">
+								<option value="" disabled>Chọn đơn vị tính</option>
+								<option th:each="donVi : ${listDonViTinh}" th:value="${donVi.maDonVi}"
+									th:text="${donVi.tenDonVi}"
+									th:selected="${sanPham.donViTinh != null and sanPham.donViTinh.maDonVi == donVi.maDonVi}">
+								</option>
+							</select>
+						</div>
+
+
+						<!-- Danh mục -->
+						<div class=" mb-3">
+							<label for="danhMuc" class="form-label">Tên danh mục:</label>
+							<select th:field="*{danhMuc.maDanhMuc}" class="form-select" id="danhMuc">
+								<option value="" disabled>Chọn danh mục</option>
+								<option th:each="danhMuc : ${listDanhMuc}" th:value="${danhMuc.maDanhMuc}"
+									th:text="${danhMuc.tenDanhMuc}"
+									th:selected="${sanPham.danhMuc.maDanhMuc == danhMuc.maDanhMuc}">
+								</option>
+							</select>
+						</div>
+
+						<!-- Hình ảnh sản phẩm -->
+						<div class="mb-3">
+							<label for="imageFile" class="form-label">Hình ảnh sản phẩm:</label>
+							<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+								style="width: 100px; height: auto;">
+							<input type="file" name="imageFile" class="form-control mt-2" id="imageFile" />
+						</div>
+
+
+						<!-- Nút lưu -->
+						<button type="submit" class="btn btn-success">Lưu</button>
+					</form>
+
+
+
+
+				</div>
+
+			</div>
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+
+
+	</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>

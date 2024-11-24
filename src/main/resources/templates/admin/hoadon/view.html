@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div th:replace="admin/fragments/sidebar :: sidebar"></div>
+        <!-- End Sidebar -->
+
+        <div class="main-panel">
+            <!-- Header -->
+            <div th:replace="admin/fragments/header :: header"></div>
+            <!-- End Header -->
+
+            <div class="container" style="background-color: #faeee7;">
+                <div class="container">
+                    <h2 class="mt-5">Chi Tiết Hóa Đơn</h2>
+
+                    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                        <span th:text="${errorMessage}"></span>
+                    </div>
+
+                    <!-- Thông tin hóa đơn -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h5>Thông Tin Hóa Đơn</h5>
+                            <p><strong>Mã Hóa Đơn:</strong> <span th:text="${hoaDon.maHoaDon}"></span></p>
+                            <p><strong>Ngày Xuất:</strong> <span
+                                    th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></span>
+                            </p>
+                            <p><strong>Tổng Tiền:</strong> <span th:text="${hoaDon.tongTien} + ' VND'"></span></p>
+                            <p><strong>Người Nhận:</strong> <span th:text="${hoaDon.tenNguoiNhan}"></span></p>
+                            <p><strong>Địa Chỉ:</strong> <span th:text="${hoaDon.diaChiGiaoHang}"></span></p>
+                            <p><strong>Số Điện Thoại:</strong> <span th:text="${hoaDon.soDienThoaiNhanHang}"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Chi tiết sản phẩm trong hóa đơn -->
+                    <h5 class="mt-5">Danh Sách Sản Phẩm Trong Hóa Đơn</h5>
+                    <table class="table table-bordered mt-4">
+                        <thead>
+                            <tr>
+                                <th>Mã Sản Phẩm</th>
+                                <th>Hình Ảnh</th>
+                                <th>Tên Sản Phẩm</th>
+                                <th>Số Lượng</th>
+                                <th>Giá Tại Thời Điểm Đặt</th>
+                                <th>Thành Tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="chiTiet : ${hoaDon.donHang.chiTietDonHangs}">
+                                <td th:text="${chiTiet.sanPham.maSanPham}"></td>
+                                <td style="text-align: center;">
+                                    <img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}"
+                                        style="width: 100px; height: auto;" alt="Ảnh sản phẩm" />
+                                </td>
+                                <td th:text="${chiTiet.sanPham.tenSanPham}"></td>
+                                <td th:text="${chiTiet.soLuong}"></td>
+                                <td th:text="${chiTiet.giaTaiThoiDiemDat} + ' VND'"></td>
+                                <td
+                                    th:text="${chiTiet.giaTaiThoiDiemDat.multiply(new java.math.BigDecimal(chiTiet.soLuong))} + ' VND'">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="mt-4">
+                        <a th:href="@{/admin/hoadon}" class="btn btn-secondary">Quay Lại</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div th:replace="admin/fragments/footer :: footer"></div>
+            <!-- End Footer -->
+        </div>
+    </div>
+
+    <!-- Core JS Files -->
+    <div th:replace="admin/fragments/script :: script"></div>
+    <!-- End JS -->
+</body>
+
+</html>

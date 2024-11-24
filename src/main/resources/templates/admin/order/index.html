@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head">
+	<!-- Tiêu đề này sẽ được truyền vào fragment 'head' -->
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h3 class="fw-bold mb-3">Đơn Hàng</h3>
+							<h6 class="op-7 mb-2">Danh sách các đơn hàng</h6>
+						</div>
+					</div>
+
+					<!-- Danh sách đơn hàng -->
+					<div th:if="${error}" class="alert alert-danger" role="alert">
+						<span th:text="${error}"></span>
+					</div>
+					<table class="table table-bordered mt-4">
+						<thead>
+							<tr>
+								<th>Mã Đơn Hàng</th>
+								<th>Tên Khách Hàng</th>
+								<th>Ngày Đặt</th>
+								<th>Trạng Thái</th>
+								<th>Hành Động</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="donHang : ${donHangs}">
+								<td th:text="${donHang.maDonHang}"></td>
+								<td
+									th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}">
+								</td>
+								<td th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
+								<td th:text="${donHang.trangThaiDonHang}"></td>
+								<td>
+									<a th:href="@{/admin/orders/{maDonHang}(maDonHang=${donHang.maDonHang})}"
+										class="btn btn-primary">Xem Chi Tiết</a>
+									<a th:if="${donHang.trangThaiDonHang == 'Đã hoàn thành'}"
+										th:href="@{/admin/hoadon/{maDonHang}(maDonHang=${donHang.maDonHang})}"
+										class="btn btn-success">Xem Hóa Đơn</a>
+
+								</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<!-- Phân trang -->
+					<div class="pagination mt-4">
+						<ul class="pagination justify-content-center">
+							<li th:if="${currentPage > 0}" class="page-item">
+								<a th:href="@{|/admin/orders?page=${currentPage - 1}&size=${size}|}"
+									class="page-link">Previous</a>
+							</li>
+							<li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item"
+								th:classappend="${i == currentPage} ? 'active'">
+								<a th:href="@{|/admin/orders?page=${i}&size=${size}|}" class="page-link"
+									th:text="${i + 1}">1</a>
+							</li>
+							<li th:if="${currentPage < totalPages - 1}" class="page-item">
+								<a th:href="@{|/admin/orders?page=${currentPage + 1}&size=${size}|}"
+									class="page-link">Next</a>
+							</li>
+						</ul>
+					</div>
+					<!-- Kết thúc phân trang -->
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer :: footer"></div>
+			<!-- End Footer -->
+		</div>
+
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script :: script"></div>
+	<!-- End JS -->
+
+</body>
+
+</html>

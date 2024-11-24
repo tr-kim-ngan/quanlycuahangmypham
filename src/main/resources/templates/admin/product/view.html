@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+
+					<h3 class="card-title">Thông tin sản phẩm</h3>
+
+					<!-- Thông tin sản phẩm -->
+					<div class="card mb-4">
+						<div class="card-body">
+							<h5 class="fw-bold mb-3">Chi tiết sản phẩm</h5>
+							<!-- Nút Chỉnh sửa -->
+							<a th:href="@{/admin/edit-product/{id}(id=${sanPham.maSanPham})}"
+								class="btn btn-warning  mb-3">
+								Chỉnh sửa
+							</a>
+
+							<a th:href="@{/admin/product}" class="btn btn-primary mb-3">
+								Quay về
+							</a>
+							<p>Tên sản phẩm: <span th:text="${sanPham.tenSanPham}"></span></p>
+							<p>Giá bán: <span th:text="${sanPham.donGiaBan}"></span></p>
+							<p>Số lượng tồn: <span th:text="${sanPham.soLuong}"></span></p>
+							<p>Mô tả: <span th:text="${sanPham.moTa}"></span></p>
+							<p>Tên đơn vị: <span th:text="${sanPham.donViTinh.tenDonVi}"></span></p>
+							<p>Tên danh mục: <span th:text="${danhMuc.tenDanhMuc}"></span></p>
+							<!-- Thông tin khuyến mãi -->
+							<div th:if="${highestKhuyenMai != null}">
+								<p>Khuyến mãi hiện tại: <span th:text="${highestKhuyenMai.tenKhuyenMai}"></span></p>
+								<p>Phần trăm khuyến mãi: <span th:text="${highestKhuyenMai.phanTramGiamGia}"></span>%
+								</p>
+								<p>Giá sau khi giảm:
+									<span
+										th:text="${sanPham.donGiaBan - (sanPham.donGiaBan * highestKhuyenMai.phanTramGiamGia / 100)}"></span>
+									VND
+								</p>
+
+							</div>
+							<div th:if="${highestKhuyenMai == null}">
+								<p>Không có khuyến mãi hiện tại.</p>
+							</div>
+
+
+
+							<!-- Hiển thị hình ảnh sản phẩm -->
+							<div>
+								<h5>Hình ảnh sản phẩm:</h5>
+								<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+									style="width: 100px; height: auto;">
+
+							</div>
+
+						</div>
+					</div>
+
+
+					<!-- Thông tin nhà cung cấp -->
+
+					<div th:if="${!hasDetails}">
+						<div class="card mb-4">
+							<div class="card-body">
+								<p>Sản phẩm chưa có trong bất kỳ đơn nhập hàng nào.</p>
+							</div>
+
+						</div>
+
+					</div>
+
+					<div th:if="${hasDetails}">
+
+						<!-- Chi tiết đơn nhập hàng liên quan -->
+						<div class="card mb-4">
+							<div class="card-body">
+								<h5 class="card-title">Chi tiết đơn nhập hàng</h5>
+								<table class="table table-bordered">
+									<thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
+										<tr>
+
+											<th>Mã đơn nhập hàng</th>
+											<th>Nhà Cung Cấp</th>
+											<th>Số lượng nhập</th>
+											<th>Đơn giá nhập</th>
+											<th>Ngày nhập</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="chiTiet : ${chiTietDonNhapHangList}">
+											<td th:text="${chiTiet.donNhapHang.maDonNhapHang}"></td>
+											<td th:text="${chiTiet.donNhapHang.nhaCungCap.tenNhaCungCap}"></td>
+											<td th:text="${chiTiet.soLuongNhap}"></td>
+											<td th:text="${chiTiet.donGiaNhap}"></td>
+											<td
+												th:text="${#temporals.format(chiTiet.donNhapHang.ngayNhapHang, 'dd-MM-yyyy')}">
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+
+
+	</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>

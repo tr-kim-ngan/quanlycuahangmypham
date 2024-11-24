@@ -1,0 +1,206 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="category">
+
+	<section class="py-5 overflow-hidden">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="section-header d-flex flex-wrap justify-content-between mb-5">
+						<h2 class="section-title">Danh mục sản phẩm</h2>
+						<div class="d-flex align-items-center">
+							<a href="javascript:void(0);" id="viewAllCategories"
+								class="btn-link text-decoration-none">Xem tất cả danh mục →</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<!-- Flexbox container for all categories -->
+					<div class="category-grid">
+						<!-- Danh mục hiện sẵn -->
+
+						<!--
+							chỗ này bạn sửa lại cho lấy các danh mục trong cơ sở dữ liệu cho hiện 1 cỡ 4 loại danh mục thôi ,
+							 khi nhấn vào xem tát cả mới cho hiện đủ nha 
+							 <a th:href="@{/}" class="nav-link category-item">
+							<img  alt="Category Thumbnail"
+								style="width: 80px; height: 80px; object-fit: contain;" class="category-image">
+							<h4 class="category-title">Chăm sóc da mặt</h4>
+						</a>
+						-->
+						<!--<div th:each="category : ${categories}">
+							<a th:href="@{'/category/' + ${category.maDanhMuc}}" class="nav-link category-item">
+								<h4 th:text="${category.tenDanhMuc}">Tên Danh Mục</h4>
+							</a>
+						</div>-->
+
+						<!-- Danh mục hiện sẵn -->
+						<div th:each="danhMuc : ${visibleDanhMucs}">
+							<a th:href="@{'/category/' + ${danhMuc.maDanhMuc}}" class="nav-link category-item">
+								<h4 th:text="${danhMuc.tenDanhMuc}">Tên Danh Mục</h4>
+							</a>
+						</div>
+
+
+
+						<!-- Danh mục ẩn ban đầu, thêm khi có nhiều hơn 6 danh mục -->
+
+						<!--
+							chỗ này khi người dùng nhấn vào xem tất cả danh mục bạn hãy cho hiện các danh mục đã có trong cơ sở dữ liệu tôi đã cho admin thêm nha ,
+							 tôi chỉ mới thêm cứng thôi
+							 
+							 <a th:href="@{/}" class="nav-link category-item hidden-category" style="display: none;">
+							<img th:src="@{/fe/images/cham-soc-da.png}" alt="Category Thumbnail" class="category-image">
+							<h3 class="category-title">Nước hoa</h3>
+						</a>
+						-->
+
+						<!--<div th:each="hiddenCategory : ${categories}" class="hidden-category" style="display: none;">
+							<a th:href="@{'/category/' + ${hiddenCategory.maDanhMuc}}" class="nav-link category-item">
+								<h4 class="category-title" th:text="${hiddenCategory.tenDanhMuc}"></h4>
+							</a>
+						</div>-->
+
+						<!-- Danh mục ẩn ban đầu, thêm khi có nhiều hơn 6 danh mục -->
+						<div th:each="danhMucAn : ${hiddenDanhMucs}" class="hidden-category" style="display: none;">
+							<a th:href="@{'/category/' + ${danhMucAn.maDanhMuc}}" class="nav-link category-item">
+								<h4 th:text="${danhMucAn.tenDanhMuc}">Tên Danh Mục Ẩn</h4>
+							</a>
+						</div>
+
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+    const viewAllCategoriesButton = document.getElementById('viewAllCategories');
+    const hiddenCategories = document.querySelectorAll('.hidden-category');
+
+    viewAllCategoriesButton.addEventListener('click', function () {
+        let isExpanded = viewAllCategoriesButton.getAttribute('data-expanded') === 'true';
+
+        hiddenCategories.forEach(function (category) {
+            category.style.display = isExpanded ? "none" : "block";
+        });
+
+        viewAllCategoriesButton.textContent = isExpanded ? "Xem tất cả danh mục →" : "Thu gọn danh mục ←";
+        viewAllCategoriesButton.setAttribute('data-expanded', !isExpanded);
+    });
+});
+
+	</script>
+
+
+	<style>
+		.category-grid {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 30px;
+			justify-content: flex-start;
+		}
+
+		.category-item {
+			width: 200px;
+			height: 150px;
+			text-align: center;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			border: 1px solid #ddd;
+			padding: 20px;
+			box-sizing: border-box;
+			border-radius: 15px;
+			transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+			background-color: #f9f9f9;
+			cursor: pointer;
+		}
+
+		.category-item:hover {
+			transform: scale(1.05);
+			box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
+			background-color: #f1f1f1;
+		}
+
+		.hidden-category {
+			display: none;
+		}
+
+		@media (max-width: 1200px) {
+			.category-item {
+				width: 180px;
+				height: 140px;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.category-item {
+				width: 150px;
+				height: 120px;
+			}
+		}
+
+		@media (max-width: 576px) {
+			.category-item {
+				width: 100%;
+				margin-bottom: 20px;
+			}
+		}
+	</style>
+
+	<!--<style>
+		.category-grid {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 20px;
+			/* Khoảng cách giữa các danh mục */
+		}
+
+		.category-item {
+			width: calc(100% / 6 - 20px);
+			/* 6 danh mục trên mỗi hàng */
+			text-align: center;
+			border: 1px solid #ddd;
+			padding: 10px;
+			box-sizing: border-box;
+			border-radius: 10px;
+			/* Bo tròn góc */
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+		}
+
+		.category-item:hover {
+			transform: scale(1.1);
+			/* Phóng to khi di chuột */
+			box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+			/* Hiệu ứng đổ bóng */
+		}
+
+		.category-image {
+			width: 80px;
+			height: 80px;
+			object-fit: contain;
+			border-radius: 50%;
+			/* Bo tròn góc của ảnh */
+		}
+
+		@media (max-width: 1200px) {
+			.category-item {
+				width: calc(100% / 4 - 20px);
+				/* 4 danh mục trên mỗi hàng ở màn hình nhỏ hơn */
+			}
+		}
+
+		@media (max-width: 768px) {
+			.category-item {
+				width: calc(100% / 2 - 20px);
+				/* 2 danh mục trên mỗi hàng ở màn hình điện thoại */
+			}
+		}
+	</style>-->
+
+</div>

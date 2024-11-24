@@ -1,0 +1,31 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<footer class="footer"  th:fragment="footer" style="background-color: #fff;">
+          <div class="container-fluid d-flex justify-content-between">
+            <nav class="pull-left">
+              <ul class="nav">
+                <li class="nav-item">
+                  <a class="nav-link" th:href="@{#}">
+                    Kim Ngân
+                  </a>
+                </li>
+                
+                <!--
+                <li class="nav-item">
+                  <a class="nav-link" th:href="@{#}"> Help </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" th:href="@{#}"> Licenses </a>
+                </li>
+                -->
+              </ul>
+            </nav>
+            <div class="copyright">
+              2024, Được tạo nên với <i class="fa fa-heart heart text-danger"></i> bởi
+              <a th:href="@{#}">Kim Ngân</a>
+            </div>
+            <div>
+              Được phân phối bởi Cửa hàng 
+              <a th:href="@{#}">Kim Ngân</a>.
+            </div>
+          </div>
+</footer>

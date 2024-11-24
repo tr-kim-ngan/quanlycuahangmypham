@@ -1,0 +1,117 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<div th:fragment="banners">
+	<section class="py-3"
+		style="background-image: url('/fe/images/background-pattern.jpg');background-repeat: no-repeat;background-size: cover;">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+
+					<div class="banner-blocks">
+
+						<div class="banner-ad large bg-info block-1">
+
+							<div class="swiper main-swiper">
+								<div class="swiper-wrapper">
+
+									<div class="swiper-slide">
+										<div class="row banner-content p-5">
+											<div class="content-wrapper col-md-7">
+												<div class="categories my-3">100% Organic</div>
+												<h3 class="display-4">Mặt Nạ Dưỡng Da Tự Nhiên</h3>
+												<p>Nuôi dưỡng làn da với mặt nạ 100% từ thiên nhiên, mang lại làn da
+													sáng mịn tự nhiên.</p>
+												<a th:href="@{#}"
+													class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1 px-4 py-3 mt-3">Mua
+													Ngay</a>
+											</div>
+											<div class="img-wrapper col-md-5" style="padding: 0; margin: 0;">
+												<img th:src="@{/fe/images/product-thumb-1.png}" class="img-fluid"
+													style="width: 100%; height: auto;">
+											</div>
+
+										</div>
+									</div>
+
+									<div class="swiper-slide">
+										<div class="row banner-content p-5">
+											<div class="content-wrapper col-md-7">
+												<div class="categories mb-3 pb-3">100% Organic</div>
+												<h3 class="banner-title">Kem Dưỡng Ẩm Cho Mọi Loại Da</h3>
+												<p>Cung cấp độ ẩm tối ưu giúp làn da mịn màng, tươi trẻ suốt ngày dài.
+												</p>
+												<a th:href="@{#}"
+													class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">Xem
+													Bộ Sưu Tập</a>
+											</div>
+											<div class="img-wrapper col-md-5">
+												<img th:src="@{/fe/images/product-thumb-3.png}" class="img-fluid">
+											</div>
+										</div>
+									</div>
+
+									<div class="swiper-slide">
+										<div class="row banner-content p-5">
+											<div class="content-wrapper col-md-7">
+												<div class="categories mb-3 pb-3">Bestseller</div>
+												<h3 class="banner-title">Son Môi Lì Cao Cấp</h3>
+												<p>Khám phá màu son lì tươi sáng, bền màu suốt cả ngày dài, phù hợp với
+													mọi phong cách.</p>
+												<a href="#"
+													class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">
+													Xem Bộ Sưu Tập</a>
+											</div>
+											<div class="img-wrapper col-md-5">
+												<img th:src="@{/fe/images/product-thumb-2.png}" class="img-fluid">
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="swiper-pagination"></div>
+
+							</div>
+						</div>
+
+						<div class="banner-ad bg-success-subtle block-2"
+							style="background:url('/fe/images/ad-image-5.png') no-repeat;background-position: right bottom">
+							<div class="row banner-content p-5">
+
+								<div class="content-wrapper col-md-7">
+									<div class="categories sale mb-3 pb-3">Giảm giá 20%</div>
+									<h3 class="banner-title">Mỹ phẩm thiên nhiên</h3>
+									<a th:href="@{#}" class="d-flex align-items-center nav-link">Mua Ngay <svg
+											width="24" height="24">
+											<use xlink:href="#arrow-right"></use>
+										</svg></a>
+								</div>
+
+							</div>
+						</div>
+
+						<div class="banner-ad bg-danger block-3" style="background:url('/fe/images/ad-image-2.png') no-repeat;
+            background-position: center right;
+            background-size: contain;">
+							<div class="row banner-content p-5">
+
+								<div class="content-wrapper col-md-7">
+									<div class="categories sale mb-3 pb-3">Giảm giá 15%</div>
+									<h3 class="item-title">Dưỡng da cao cấp</h3>
+									<a th:href="@{#}" class="d-flex align-items-center nav-link">Xem Bộ Sưu Tập <svg
+											width="24" height="24">
+											<use xlink:href="#arrow-right"></use>
+										</svg></a>
+								</div>
+
+							</div>
+						</div>
+
+					</div>
+					<!-- / Banner Blocks -->
+
+				</div>
+			</div>
+		</div>
+	</section>
+</div>

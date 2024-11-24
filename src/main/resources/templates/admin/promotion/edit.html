@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head::head">
+	<title>Chỉnh sửa Khuyến Mãi</title>
+</head>
+
+<body>
+	<div class="wrapper">
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<div class="main-panel">
+			<div th:replace="admin/fragments/header::header"></div>
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h3 class="fw-bold mb-3">Chỉnh Sửa Khuyến Mãi</h3>
+
+							<!-- Hiển thị thông tin khuyến mãi -->
+
+							<p>Tên khuyến mãi: <span th:text="${khuyenMai.tenKhuyenMai}"></span></p>
+							<p>Mô tả: <span th:text="${khuyenMai.moTa}"></span></p>
+
+							<p>Phần trăm giảm: <span th:text="${khuyenMai.phanTramGiamGia + '%'}"></span></p>
+
+							<p>Ngày bắt đầu: <span th:text="${khuyenMai.ngayBatDau}"></span></p>
+							<p>Ngày kết thúc: <span th:text="${khuyenMai.ngayKetThuc}"></span></p>
+
+							<!-- Form chỉnh sửa thông tin khuyến mãi -->
+							<form th:action="@{/admin/edit-promotion/{id}(id=${khuyenMai.maKhuyenMai})}" method="post">
+								<div class="form-group">
+									<label for="tenKhuyenMai">Tên khuyến mãi</label>
+									<input type="text" id="tenKhuyenMai" name="tenKhuyenMai" class="form-control"
+										th:value="${khuyenMai.tenKhuyenMai}" required>
+								</div>
+
+								<div class="form-group">
+									<label for="moTa">Mô tả</label>
+									<textarea id="moTa" name="moTa" class="form-control" rows="3" required
+										th:text="${khuyenMai.moTa}"></textarea>
+								</div>
+
+								<div class="form-group">
+									<label for="phanTramGiamGia">Phần trăm giảm</label>
+									<input type="number" id="phanTramGiamGia" name="phanTramGiamGia"
+										class="form-control" th:value="${khuyenMai.phanTramGiamGia}" min="0" max="100"
+										required>
+								</div>
+
+								<div class="form-group">
+									<label for="ngayBatDau">Ngày bắt đầu</label>
+									<input type="date" id="ngayBatDau" name="ngayBatDau" class="form-control"
+										th:value="${#dates.format(khuyenMai.ngayBatDau, 'yyyy-MM-dd')}" required>
+								</div>
+
+								<div class="form-group">
+									<label for="ngayKetThuc">Ngày kết thúc</label>
+									<input type="date" id="ngayKetThuc" name="ngayKetThuc" class="form-control"
+										th:value="${#dates.format(khuyenMai.ngayKetThuc, 'yyyy-MM-dd')}" required>
+								</div>
+
+
+
+
+								<button type="submit" class="btn btn-success mt-3">Cập nhật khuyến mãi</button>
+								<a th:href="@{/admin/promotion}" class="btn btn-secondary mt-3">Quay lại</a>
+							</form>
+
+
+
+							<!-- Bảng sản phẩm áp dụng khuyến mãi -->
+							<h3>Danh Sách Sản Phẩm Áp Dụng Khuyến Mãi</h3>
+							<table class="table table-bordered">
+								<thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
+									<tr>
+										<th>Sản phẩm</th>
+										<th>Thao tác</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="sanPham : ${khuyenMai.sanPhams}">
+										<td th:text="${sanPham.tenSanPham}"></td>
+										<td>
+											<form
+												th:action="@{/admin/remove-promotion-product/{id}/{maSanPham}(id=${khuyenMai.maKhuyenMai}, maSanPham=${sanPham.maSanPham})}"
+												method="post" onsubmit="return confirmDelete();">
+												<button type="submit" class="btn btn-danger">Xóa</button>
+											</form>
+											<!-- JavaScript để hiển thị thông báo xác nhận trước khi xóa -->
+											<script>
+												function confirmDelete() {
+													return confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi khuyến mãi?");
+												}
+											</script>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<!-- Form thêm sản phẩm vào khuyến mãi -->
+							<h3>Thêm Sản Phẩm Áp Dụng Khuyến Mãi</h3>
+							<form th:action="@{/admin/edit-promotion/{id}/add-product(id=${khuyenMai.maKhuyenMai})}"
+								method="post">
+								<label for="sanPham">Chọn sản phẩm:</label>
+								<select name="selectedProducts" id="sanPham" class="form-control">
+									<option th:each="sanPham : ${listSanPham}" th:value="${sanPham.maSanPham}"
+										th:text="${sanPham.tenSanPham}">
+									</option>
+								</select>
+								<button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div th:replace="admin/fragments/footer::footer"></div>
+		</div>
+	</div>
+
+	<div th:replace="admin/fragments/script::script"></div>
+</body>
+
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{customer/fragments/head :: head}"></head>
+
+<body>
+	<!-- Header -->
+	<div th:replace="~{customer/fragments/header :: header}"></div>
+	<!-- End Header -->
+	<main style="padding: 0px 300px; padding-top: 180px;">
+
+		<div class="container" style="background-color: #faeee7; border-radius: 20px; padding: 20px;">
+			<div class="page-inner" style="border-radius: 20px;">
+				<!-- Danh sách hóa đơn -->
+				<div class="d-flex justify-content-between align-items-center" style="border-radius: 10px;">
+					<div>
+						<h3 class="fw-bold mb-3">Danh Sách Hóa Đơn</h3>
+						<h6 class="op-7 mb-2">Thông tin các hóa đơn đã đặt</h6>
+					</div>
+				</div>
+
+				<div th:if="${hoaDons != null}">
+					<table class="table table-bordered mt-4" style="border-radius: 15px; overflow: hidden;">
+						<thead class="table-light" style="border-radius: 10px;">
+							<tr>
+								<th>Mã Hóa Đơn</th>
+								<th>Ngày Xuất</th>
+								<th>Tổng Tiền</th>
+								<th>Người Nhận</th>
+								<th>Thao Tác</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="hoaDon : ${hoaDons}">
+								<td th:text="${hoaDon.maHoaDon}"></td>
+								<td th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></td>
+								<td th:text="${hoaDon.tongTien} + ' VND'"></td>
+								<td th:text="${hoaDon.tenNguoiNhan}"></td>
+								<td>
+									<a th:href="@{/customer/hoadon/{maDonHang}(maDonHang=${hoaDon.donHang.maDonHang})}"
+										class="btn btn-primary">Xem Chi Tiết</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Chi tiết hóa đơn -->
+				<div class="mt-5" th:if="${hoaDon != null}">
+					<div class="card p-4" style="border-radius: 20px; background-color: #ffffff;">
+						<h5>Chi Tiết Hóa Đơn</h5>
+						<div class="row mt-4">
+							<div class="col-md-6">
+								<h5>Thông Tin Hóa Đơn</h5>
+								<p><strong>Mã Hóa Đơn:</strong> <span th:text="${hoaDon.maHoaDon}"></span></p>
+								<p><strong>Ngày Xuất:</strong> <span
+										th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></span>
+								</p>
+								<p><strong>Tổng Tiền:</strong> <span th:text="${formattedTotal} + ' VND'"></span></p>
+
+								<!--<p><strong>Tổng Tiền:</strong> <span th:text="${hoaDon.tongTien} + ' VND'"></span></p>-->
+								<p><strong>Người Nhận:</strong> <span th:text="${hoaDon.tenNguoiNhan}"></span></p>
+								<p><strong>Địa Chỉ:</strong> <span th:text="${hoaDon.diaChiGiaoHang}"></span></p>
+								<p><strong>Số Điện Thoại:</strong> <span th:text="${hoaDon.soDienThoaiNhanHang}"></span>
+								</p>
+							</div>
+						</div>
+
+						<!-- Danh sách sản phẩm trong hóa đơn -->
+						<h5 class="mt-5">Danh Sách Sản Phẩm Trong Đơn Hàng</h5>
+						<table class="table table-bordered mt-4" style="border-radius: 15px; overflow: hidden;">
+							<thead class="table-light" style="border-radius: 10px;">
+								<tr>
+									<th>Mã Sản Phẩm</th>
+									<th>Hình Ảnh</th>
+									<th>Tên Sản Phẩm</th>
+									<th>Số Lượng</th>
+									<th>Giá Tại Thời Điểm Đặt</th>
+									<th>Thành Tiền</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="chiTiet : ${hoaDon.donHang.chiTietDonHangs}">
+									<td th:text="${chiTiet.sanPham.maSanPham}"></td>
+									<td style="text-align: center;">
+										<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}"
+											style="width: 100px; height: auto; border-radius: 10px;"
+											alt="Ảnh sản phẩm" />
+									</td>
+									<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
+									<td th:text="${chiTiet.soLuong}"></td>
+									<td th:text="${chiTiet.giaTaiThoiDiemDat} + ' VND'"></td>
+									<td
+										th:text="${chiTiet.giaTaiThoiDiemDat.multiply(new java.math.BigDecimal(chiTiet.soLuong))} + ' VND'">
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="mt-4">
+							<a th:href="@{/customer/hoadon}" class="btn btn-secondary">Quay Lại</a>
+						</div>
+					</div>
+				</div>
+
+				<!-- Nút Quay lại -->
+				<!-- <div class="mt-4">
+                    <a th:href="@{/customer/hoadon}" class="btn btn-secondary">Quay Lại</a>
+                </div>-->
+			</div>
+		</div>
+
+	</main>
+	<!-- Footer -->
+	<div th:replace="~{customer/fragments/footer :: footer}"></div>
+	<!-- End Footer -->
+	<!-- Core JS Files -->
+	<div th:replace="~{customer/fragments/script :: script}"></div>
+	<!-- End JS -->
+</body>
+
+</html>

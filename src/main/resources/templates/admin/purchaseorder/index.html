@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center">
+
+						<div>
+							<h3 class="fw-bold mb-3">Quản lý Đơn Nhập Hàng</h3>
+							<h6 class="op-7 mb-2">Danh sách các đơn nhập hàng</h6>
+						</div>
+
+						<!-- Button to add new purchase order -->
+						<div>
+							<a th:href="@{/admin/add-purchase-order}" class="btn btn-success btn-lg"
+								style="background-color: #28a745;">
+								Thêm Đơn Nhập Hàng
+							</a>
+						</div>
+
+					</div>
+
+					<!-- Table of purchase orders -->
+					<!-- Table of purchase orders -->
+
+					<div th:if="${errorMessage}" class="alert alert-danger">
+						<span th:text="${errorMessage}"></span>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-hover table-bordered table-striped">
+							<thead  class="thead-dark" style="background-color: #ffc6c7; color: #333;">
+								<tr>
+									<th>STT</th> <!-- Cột Số thứ tự -->
+									<!--<th>Mã Đơn Nhập</th>-->
+									<th>Ngày Nhập</th>
+									<th>Nhà Cung Cấp</th>
+									<th>Tổng Số Tiền</th>
+									<th>Hành động</th>
+								</tr>
+							</thead>
+							<tbody>
+								
+								<tr th:if="${listDonNhapHang.isEmpty()}">
+									<td colspan="8" class="text-center">Không có đơn nhập hàng nào được tìm thấy</td>
+								</tr>
+								<!-- Loop through purchase order list -->
+								<tr th:each="donNhapHang, stat : ${listDonNhapHang}"
+									th:if="${donNhapHang.trangThai== true}">
+									<!-- STT (Số thứ tự) -->
+									<td th:text="${stat.count}"></td>
+									<!-- Mã Đơn Nhập là tên nhà cung cấp -->
+									<!--<td th:text="${donNhapHang.maDonNhapHang}"></td>-->
+									<!-- Ngày nhập hàng -->
+									<td th:text="${#temporals.format(donNhapHang.ngayNhapHang, 'yyyy-MM-dd')}"></td>
+									<!-- Nhà cung cấp -->
+									<td th:text="${donNhapHang.nhaCungCap.tenNhaCungCap}"></td>
+									<!-- Tổng giá trị nhập hàng -->
+									<td
+										th:text="${donNhapHang.tongGiaTriNhapHang != null ? donNhapHang.tongGiaTriNhapHang : 0.00}">
+									</td>
+
+									<!-- Hành động -->
+									<td>
+										<a th:href="@{/admin/edit/{id}(id=${donNhapHang.maDonNhapHang})}"
+											class="btn btn-warning btn-sm">Xem chi tiết</a>
+
+
+										<form
+											th:action="@{/admin/delete-purchase-order/{id}(id=${donNhapHang.maDonNhapHang})}"
+											method="post" style="display: inline;">
+											<button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+										</form>
+
+
+									</td>
+
+
+
+
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+
+					<!-- Phân trang -->
+					<div th:if="${totalPages > 0}">
+						<nav aria-label="Page navigation">
+							<ul class="pagination justify-content-center">
+								<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+									<a class="page-link" th:href="@{/admin/purchaseorder(page=${currentPage - 1})}"
+										aria-label="Previous">
+										<span aria-hidden="true">&laquo;</span>
+									</a>
+								</li>
+
+								<li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+									th:classappend="${i == currentPage} ? 'active'">
+									<a class="page-link" th:href="@{/admin/purchaseorder(page=${i})}"
+										th:text="${i + 1}"></a>
+								</li>
+
+								<li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+									<a class="page-link" th:href="@{/admin/purchaseorders(page=${currentPage + 1})}"
+										aria-label="Next">
+										<span aria-hidden="true">&raquo;</span>
+									</a>
+								</li>
+							</ul>
+						</nav>
+					</div>
+					<!-- Kết thúc phân trang -->
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>

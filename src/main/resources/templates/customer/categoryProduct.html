@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{customer/fragments/head :: head}">
+	<style>
+		.product-card {
+			border: 1px solid #ddd;
+			padding: 10px;
+			text-align: center;
+		}
+
+		.slider-container {
+			margin: 20px 0;
+		}
+
+		.price-display {
+			font-weight: bold;
+		}
+
+		.product-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+			gap: 20px;
+		}
+	</style>
+
+
+</head>
+
+<body>
+	<header th:replace="~{customer/fragments/header :: header}"></header>
+	<main style="display: flex; gap: 20px; padding: 0px 50px; padding-top: 180px;">
+
+
+
+		<!-- Cột 1: Danh sách danh mục -->
+		<div style="flex: 1;">
+			<h3 style="font-size: 1.5rem; font-weight: bold; color: #333; margin-bottom: 20px;">Danh mục</h3>
+			<ul style="list-style: none; padding: 0; margin: 0;">
+				<!-- Thêm mục "Tất cả" -->
+				<li style="padding: 10px 15px; margin-bottom: 8px; border-radius: 12px; transition: background-color 0.3s ease, transform 0.2s ease; cursor: pointer; font-size: 1.1rem; font-weight: 500; color: #34495e; display: flex; align-items: center;"
+					th:classappend="${maDanhMuc == 'all'} ? 'active' : ''"
+					onmouseover="this.style.backgroundColor='#d1e7ef'; this.style.color='#2c3e50'; this.style.transform='scale(1.02)';"
+					onmouseout="this.style.backgroundColor='transparent'; this.style.color='#34495e'; this.style.transform='scale(1)';">
+					<a th:href="@{'/category/all'}" style="text-decoration: none; color: inherit; flex-grow: 1;">
+						Tất cả
+					</a>
+					<svg width="16" height="16" fill="#3498db" style="margin-left: auto;">
+						<use xlink:href="#icon-chevron-right"></use>
+					</svg>
+				</li>
+
+				<!-- Các danh mục khác -->
+				<li th:each="category : ${categories}"
+					th:classappend="${category.maDanhMuc == maDanhMuc} ? 'active' : ''"
+					style="padding: 10px 15px; margin-bottom: 8px; border-radius: 12px; transition: background-color 0.3s ease, transform 0.2s ease; cursor: pointer; font-size: 1.1rem; font-weight: 500; color: #34495e; display: flex; align-items: center;"
+					onmouseover="this.style.backgroundColor='#d1e7ef'; this.style.color='#2c3e50'; this.style.transform='scale(1.02)';"
+					onmouseout="this.style.backgroundColor='transparent'; this.style.color='#34495e'; this.style.transform='scale(1)';">
+					<a th:href="@{'/category/' + ${category.maDanhMuc}}" th:text="${category.tenDanhMuc}"
+						style="text-decoration: none; color: inherit; flex-grow: 1;">
+						Tên danh mục
+					</a>
+					<svg width="16" height="16" fill="#3498db" style="margin-left: auto;">
+						<use xlink:href="#icon-chevron-right"></use>
+					</svg>
+				</li>
+			</ul>
+		</div>
+
+
+
+
+		<!-- Cột 2: Thanh kéo để chọn khoảng giá -->
+		<div style="flex: 1;">
+			<h3 style="font-weight: bold;">Khoảng giá</h3>
+			<label for="priceRange">Chọn giá tối đa:</label>
+			<input type="range" id="priceRange" min="0" max="2000000" value="2000000" step="50000">
+			<p>Giá hiện tại: <span id="priceDisplay" style="font-weight: bold;">2,000,000 VND</span></p>
+
+
+			<div style="margin-top: 20px;">
+				<!-- Thêm phần sắp xếp bên trên danh sách sản phẩm -->
+				<form method="get" action="" id="sortForm">
+					<label for="sortOrder">Sắp xếp theo giá:</label>
+					<select id="sortOrder" name="sortOrder" onchange="document.getElementById('sortForm').submit()">
+						<option value="asc" th:selected="${sortOrder == 'asc'}">Giá tăng dần</option>
+						<option value="desc" th:selected="${sortOrder == 'desc'}">Giá giảm dần</option>
+					</select>
+				</form>
+
+
+			</div>
+
+
+
+		</div>
+
+
+
+		<!-- Cột 3: Sản phẩm của danh mục đã chọn -->
+		<div style="flex: 3;">
+
+			<!--<h2>Sản phẩm theo danh mục: <span th:text="${selectedCategory.tenDanhMuc}"></span></h2>-->
+			<h2>Sản phẩm theo danh mục:
+				<span th:text="${selectedCategory}"></span>
+			</h2>
+			<!-- Hiển thị thông báo khi không có sản phẩm -->
+			<div th:if="${noResultsMessage != null}">
+				<p th:text="${noResultsMessage}" style="color: red; font-weight: bold; text-align: center;"></p>
+			</div>
+
+
+
+			<div id="productGrid" class="product-grid"
+				style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+				<div th:each="sanPham : ${sanPhams}" th:if="${sanPham.trangThai == true 
+				and !sanPham.chiTietDonNhapHangs.isEmpty()
+								
+			   and sanPham.chiTietDonNhapHangs.?[donNhapHang.tongGiaTriNhapHang > 0 
+			  and soLuongNhap > 0 and donGiaNhap > 0].size() > 0}" class="product-card"
+					th:data-price="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null ? sanPhamGiaSauGiamMap[sanPham.maSanPham] : sanPham.donGiaBan}"
+					style="position: relative; overflow: hidden; 
+					 border-radius: 30px;
+					width: 220px; height: 450px; margin: 10px; padding: 10px; text-align: center; border: 1px solid #ddd; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); transition: transform 0.3s ease;"
+					onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';">
+
+					<!-- Badge Khuyến mãi (góc trên bên trái) -->
+					<span class="badge bg-success"
+						style="position: absolute; top: 10px; left: 10px; font-size: 0.8rem; padding: 5px 10px;"
+						th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+						th:text="'-' + ${sanPhamKhuyenMaiMap[sanPham.maSanPham].phanTramGiamGia} + '%'">
+					</span>
+
+					<!-- Wishlist Icon (Heart) -->
+					<a href="javascript:void(0);" class="btn-wishlist"
+						th:if="${#authentication.name == 'anonymousUser'}" data-bs-toggle="offcanvas"
+						data-bs-target="#offcanvasLoginAlert" style="position: absolute; top: 10px; right: 10px; 
+           width: 40px; height: 40px; border-radius: 50%; 
+           display: flex; align-items: center; justify-content: center; 
+           background-color: white; color: black; border: 2px solid #ccc; 
+           transition: background-color 0.3s ease, color 0.3s ease;">
+						<svg width="24" height="24">
+							<use xlink:href="#heart"></use>
+						</svg>
+					</a>
+
+					<!-- Wishlist Icon for logged-in users -->
+					<a href="javascript:void(0);" th:if="${#authentication.name != 'anonymousUser'}"
+						th:onclick="'toggleFavorite(' + ${sanPham.maSanPham} + ')'"
+						th:classappend="${favoriteProductIds.contains(sanPham.maSanPham) ? 'btn-wishlist-liked' : 'btn-wishlist'}"
+						th:data-product-id="${sanPham.maSanPham}"
+						th:data-liked="${favoriteProductIds.contains(sanPham.maSanPham)}" class="btn-wishlist" th:style="${favoriteProductIds.contains(sanPham.maSanPham)} ? 
+              'position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; 
+               display: flex; align-items: center; justify-content: center; background-color: #e74c3c; color: white; 
+               border: 2px solid #ccc; transition: background-color 0.3s ease, color 0.3s ease;' : 
+              'position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; 
+               display: flex; align-items: center; justify-content: center; background-color: white; color: black; 
+               border: 2px solid #ccc; transition: background-color 0.3s ease, color 0.3s ease;'">
+						<svg width="24" height="24">
+							<use xlink:href="#heart"></use>
+						</svg>
+					</a>
+
+
+					<!-- Product Image -->
+					<figure style="margin-top: 30px;">
+						<a th:href="@{'/product/' + ${sanPham.maSanPham}}" title="Product Title">
+							<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+								style="width: 100%; height: auto;">
+						</a>
+					</figure>
+
+					<!-- Product Details -->
+					<div class="card-body" style="margin-top: 15px;">
+						<h4 th:text="${sanPham.tenSanPham}"
+							style="font-size: 0.9rem; margin: 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+							Tên sản phẩm</h4>
+						<!-- Đơn vị và đánh giá sao nằm trên cùng một dòng -->
+						<div
+							style="display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #555; margin-top: 5px;">
+							<span class="qty" th:text="${sanPham.donViTinh.tenDonVi}" style="margin-right: 5px;">Đơn
+								vị</span>
+							<span class="rating" style="color: #f39c12;">
+								<svg width="16" height="16">
+									<use xlink:href="#star-solid"></use>
+								</svg> 4.5
+							</span>
+						</div>
+						<!-- Hiển thị giá và khuyến mãi -->
+						<p th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+							style="color: red; margin-top: 5px;">
+							<span th:text="${sanPham.donGiaBan} + ' VND'"
+								style="text-decoration: line-through; color: red; font-size: 0.9rem;"></span><br>
+							<span th:text="${sanPhamGiaSauGiamMap[sanPham.maSanPham]} + ' VND'"
+								style="font-weight: bold;  color: #000;font-size: 1rem;"></span>
+						</p>
+						<p th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] == null}"
+							th:text="${sanPham.donGiaBan} + ' VND'"
+							style="font-weight: 600; font-family: Arial, sans-serif; color: #000; margin-top: 5px;">Giá
+							gốc</p>
+					</div>
+
+					<!-- Số lượng sản phẩm và nút thêm vào giỏ hàng (phần dưới cùng) -->
+					<div
+						style="display: flex; align-items: center; justify-content: center; margin-top: 15px; position: absolute; bottom: 10px; width: 100%;">
+
+						<label for="quantity" class="form-label me-2"></label>
+
+						<form th:action="@{/customer/cart/add}" method="post" class="d-flex align-items-center">
+							<!-- Ô nhập số lượng -->
+							<input type="number" name="quantity" value="1" min="1" class="form-control quantity-input"
+								style="width: 80px; border: 2px solid #000; text-align: center;"
+								th:id="'quantity_' + ${sanPham.maSanPham}" th:data-product-id="${sanPham.maSanPham}" />
+
+							<!-- Ẩn mã sản phẩm trong input hidden để gửi lên server -->
+							<input type="hidden" name="productId" th:value="${sanPham.maSanPham}" />
+							<button class="btn btn-warning add-to-cart d-flex align-items-center justify-content-center"
+								style="background-color: #fca503; color: #fff; border: none; transition: background-color 0.3s ease;"
+								onmouseover="this.style.backgroundColor='#e68a00';"
+								onmouseout="this.style.backgroundColor='#fca503';"
+								th:if="${#authentication.name == 'anonymousUser'}" data-bs-toggle="offcanvas"
+								data-bs-target="#offcanvasLoginAlert">
+								<span class="iconify" data-icon="uil:shopping-cart" data-inline="false"
+									style="font-size: 1.5rem; margin-right: 5px;"></span>
+							</button>
+
+							<!-- Nút thêm vào giỏ hàng khi người dùng đã đăng nhập -->
+							<button type="submit"
+								class="btn btn-warning add-to-cart d-flex align-items-center justify-content-center"
+								style="background-color: #fca503; color: #fff; border: none; transition: background-color 0.3s ease;"
+								onmouseover="this.style.backgroundColor='#e68a00';"
+								onmouseout="this.style.backgroundColor='#fca503';"
+								th:if="${#authentication.name != 'anonymousUser'}"
+								th:data-product-id="${sanPham.maSanPham}">
+								<span class="iconify" data-icon="uil:shopping-cart" data-inline="false"
+									style="font-size: 1.5rem; margin-right: 5px;"></span>
+							</button>
+
+
+							<!-- Nút thêm vào giỏ hàng -->
+
+						</form>
+
+
+
+
+
+
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+
+	</main>
+	<footer th:replace="customer/fragments/footer :: footer"></footer>
+
+	<script>
+
+
+		/* script cho nhấn nút yêu thích*/
+
+		function toggleFavorite(productId) {
+			const favoriteElement = document.querySelector('[data-product-id="' + productId + '"]');
+			const isLiked = favoriteElement.getAttribute('data-liked') === 'true';
+
+			fetch('/customer/favorites/' + (isLiked ? 'remove' : 'add'), {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					sanPhamId: productId
+				})
+			})
+				.then(response => {
+					if (response.ok) {
+						favoriteElement.classList.toggle('btn-wishlist-liked', !isLiked);
+						favoriteElement.classList.toggle('btn-wishlist', isLiked);
+						favoriteElement.setAttribute('data-liked', (!isLiked).toString());
+						favoriteElement.style.backgroundColor = isLiked ? 'white' : '#e74c3c';
+						favoriteElement.style.color = isLiked ? 'black' : 'white';
+					} else if (response.status === 401) {
+						alert('Bạn cần đăng nhập để sử dụng tính năng này.');
+					} else {
+						alert('Có lỗi xảy ra, vui lòng thử lại.');
+					}
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert('Có lỗi xảy ra, vui lòng thử lại.');
+				});
+		}
+		/* script cho nhấn nút yêu thích*/
+
+
+
+
+
+
+
+
+
+
+		const slider = document.getElementById('priceRange');
+		const priceDisplay = document.getElementById('priceDisplay');
+		const products = document.querySelectorAll('.product-card');
+		const sortOrderSelect = document.getElementById('sortOrder');
+
+		function filterAndSortProducts() {
+			const maxPrice = parseFloat(slider.value);
+			const sortOrder = sortOrderSelect.value;
+			console.log("Max Price:", maxPrice);
+
+			priceDisplay.innerText = maxPrice.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'});
+			// Log giá trị thanh trượt và giá trị sắp xếp
+			console.log("Max Price:", maxPrice);
+			console.log("Sort Order:", sortOrder);
+
+
+			const filteredProducts = Array.from(products).filter(product => {
+				const productPrice = parseFloat(product.getAttribute('data-price'));
+				console.log("Product Price:", productPrice);
+				return productPrice <= maxPrice;
+			});
+			// Log danh sách sản phẩm sau khi lọc
+			console.log("Filtered Products:", filteredProducts);
+
+			filteredProducts.sort((a, b) => {
+				const priceA = parseFloat(a.getAttribute('data-price'));
+				const priceB = parseFloat(b.getAttribute('data-price'));
+				return sortOrder === 'asc' ? priceA - priceB : priceB - priceA;
+			});
+
+			products.forEach(product => product.style.display = 'none');
+			filteredProducts.forEach(product => product.style.display = 'block');
+		}
+
+		slider.addEventListener('input', filterAndSortProducts);
+		sortOrderSelect.addEventListener('change', filterAndSortProducts);
+
+
+
+
+
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+	<div th:replace="customer/fragments/script :: script"></div>
+
+
+</body>
+
+</html>

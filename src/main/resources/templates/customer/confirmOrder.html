@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="customer/fragments/head :: head"></head>
+
+<body>
+	<header th:replace="customer/fragments/header :: header"></header>
+
+	<main class="container my-4" style="padding: 100px; padding-top:120px;">
+		<h2 class="my-5 text-center">Xác Nhận Đặt Hàng</h2>
+
+		<!-- Danh sách sản phẩm đã chọn -->
+		<div class="list-group">
+			<div th:each="item : ${cartItems}" class="list-group-item d-flex align-items-center">
+				<a th:href="@{'/product/' + ${item.sanPham.maSanPham}}">
+					<img th:src="@{'/upload/' + ${item.sanPham.hinhAnh}}" class="img-thumbnail me-4"
+						style="width: 120px;">
+				</a>
+				<div class="flex-grow-1">
+					<h5 th:text="${item.sanPham.tenSanPham}"></h5>
+					<p>Số lượng: <span th:text="${item.soLuong}"></span></p>
+
+					<!-- Hiển thị giá và phần trăm giảm giá -->
+					<div th:if="${phanTramGiamMap != null and phanTramGiamMap[item.sanPham.maSanPham] > 0}">
+						<p style="text-decoration: line-through; color: gray;"
+							th:text="${item.sanPham.donGiaBan} + ' VND'"></p>
+						<p style="color: red;" th:text="${sanPhamGiaSauGiamMap[item.sanPham.maSanPham]} + ' VND'"></p>
+						<p>Giảm giá: <span th:text="${phanTramGiamMap[item.sanPham.maSanPham]} + '%'"></span></p>
+					</div>
+					<div th:if="${phanTramGiamMap != null and phanTramGiamMap[item.sanPham.maSanPham] == 0}">
+						<p style="color: green;" th:text="${item.sanPham.donGiaBan} + ' VND'"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Tổng tiền và phí vận chuyển -->
+		<div class="text-center my-4">
+			<h4>Tổng tiền sản phẩm: <span style="color: blue;" th:text="${totalPrice} + ' VND'"></span></h4>
+			<h5>Phí vận chuyển toàn quốc: <span style="color: red;" th:text="'30000 VND'"></span></h5>
+		</div>
+
+
+		<!-- Form nhập thông tin -->
+		<form th:action="@{/customer/order/create}" method="POST" class="mt-4">
+			<div class="mb-3">
+				<label for="address">Địa chỉ giao hàng:</label>
+				<!-- Tự động điền địa chỉ của người dùng -->
+				<input type="text" id="address" name="address" th:value="${currentUser.diaChi}" class="form-control"
+					required>
+			</div>
+			<div class="mb-3">
+				<label for="phone">Số điện thoại:</label>
+				<!-- Tự động điền số điện thoại của người dùng -->
+				<input type="text" id="phone" name="phone" th:value="${currentUser.soDienThoai}" class="form-control"
+					required>
+			</div>
+			<a href="/customer/cart" class="btn btn-secondary">Quay lại giỏ hàng</a>
+			<button type="submit" class="btn btn-success">Xác nhận đặt hàng</button>
+		</form>
+		
+		
+	</main>
+	<script>
+
+		function updateCartIconCount() {
+			fetch('/customer/cart/total-items')
+				.then(response => response.json())
+				.then(totalItems => {
+					const cartCountElement = document.getElementById('cart-count');
+					if (cartCountElement) {
+						cartCountElement.textContent = totalItems;
+					}
+				})
+				.catch(error => {
+					console.error("Lỗi khi cập nhật số lượng giỏ hàng: ", error);
+				});
+		}
+
+		document.addEventListener("DOMContentLoaded", function () {
+			updateCartIconCount();
+		});
+	</script>
+
+	<footer th:replace="customer/fragments/footer :: footer"></footer>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

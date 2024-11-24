@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{customer/fragments/head :: head}"></head>
+
+<body>
+    <!-- Header -->
+    <div th:replace="~{customer/fragments/header :: header}"></div>
+    <!-- End Header -->
+
+    <main style="padding: 50px;">
+        <div class="container">
+            <h3>Đánh Giá Sản Phẩm</h3>
+            <div th:if="${sanPham != null}">
+                <p><strong>Tên Sản Phẩm:</strong> <span th:text="${sanPham.tenSanPham}"></span></p>
+
+                <form action="#" th:action="@{/customer/rating/create}" method="post">
+                    <input type="hidden" th:value="${sanPham.maSanPham}" name="maSanPham" />
+
+                    <div class="mb-3">
+                        <label for="soSao" class="form-label">Số Sao:</label>
+                        <select id="soSao" name="soSao" class="form-control">
+                            <option th:each="i : ${#numbers.sequence(1, 5)}" th:value="${i}" th:text="${i}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="noiDung" class="form-label">Nội Dung Đánh Giá:</label>
+                        <textarea id="noiDung" name="noiDung" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Gửi Đánh Giá</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{customer/fragments/footer :: footer}"></div>
+    <!-- End Footer -->
+    <!-- Core JS Files -->
+    <div th:replace="~{customer/fragments/script :: script}"></div>
+    <!-- End JS -->
+</body>
+
+</html>
