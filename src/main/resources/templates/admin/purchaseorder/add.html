@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<!-- Title -->
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h3 class="fw-bold mb-3">Thêm Chi Tiết Đơn Nhập Hàng</h3>
+						</div>
+					</div>
+
+					<!--<form th:action="@{/admin/save-purchase-order}" method="post">-->
+					<form th:action="@{/admin/save-purchase-order}" method="post">
+
+
+						<!-- Nhà cung cấp -->
+						<label for="provider">Chọn nhà cung cấp:</label>
+						<select name="maNhaCungCap" required>
+							<option th:each="provider : ${providers}" th:value="${provider.maNhaCungCap}"
+								th:text="${provider.tenNhaCungCap}"></option>
+						</select>
+
+						<!-- Ngày nhập hàng -->
+						<label for="ngayNhapHang">Ngày nhập hàng:</label>
+						<input type="date" name="ngayNhapHang" required>
+
+
+
+						<button type="submit">Lưu đơn nhập hàng</button>
+						<!-- Nếu có lỗi sẽ hiển thị thông báo -->
+						<div th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></div>
+
+
+					</form>
+
+
+
+
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Đăng Nhập</title>
+	<link rel="icon" th:href="@{/assets/img/kaiadmin/favicon.ico.png}" type="image/x-icon" />
+	<!-- Bao gồm Bootstrap CSS -->
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+		/* Hiệu ứng mờ dần cho hình ảnh */
+		.scaled-image {
+			width: 70%;
+			height: auto;
+			object-fit: cover;
+			margin-left: 400px;
+			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+			border-radius: 10px;
+			opacity: 0;
+			/* Bắt đầu với trạng thái ẩn */
+			animation: fadeIn 0.25s ease-in forwards;
+			/* Hiệu ứng xuất hiện dần */
+			animation: slideUp 0.5s ease-in forwards;
+			/* Hiệu ứng từ dưới lên */
+		}
+
+		/* Hiệu ứng xuất hiện từ dưới lên cho form đăng nhập */
+		.login-card {
+			max-width: 350px;
+			margin-left: -50px;
+			z-index: 1;
+			position: relative;
+			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+			border-radius: 10px;
+			transform: translateY(40%);
+			/* Đặt form ban đầu ở 40% màn hình */
+			opacity: 0;
+			/* Bắt đầu với trạng thái ẩn */
+			animation: slideUp 0.5s ease-in forwards;
+			/* Hiệu ứng từ dưới lên */
+
+		}
+
+		/* Hiệu ứng mờ dần cho hình ảnh */
+		@keyframes fadeIn {
+			0% {
+				opacity: 0;
+			}
+
+			100% {
+				opacity: 1;
+			}
+		}
+
+		/* Hiệu ứng trượt từ khoảng 40% màn hình xuống */
+		@keyframes slideUp {
+			0% {
+				transform: translateY(-20%);
+				/* Điều chỉnh form trượt từ vị trí 40% màn hình */
+				opacity: 0;
+			}
+
+			100% {
+				transform: translateY(0);
+				/* Đặt lại về vị trí bình thường */
+				opacity: 1;
+			}
+		}
+
+		.container-login {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+		}
+	</style>
+
+
+
+</head>
+
+<body style="background-color: #faeee7;">
+	<!-- Section: Design Block -->
+	<section class="text-center text-lg-start">
+		<!-- Jumbotron -->
+		<div class="container-login py-4">
+			<div class="row g-0 align-items-center">
+				<!-- Hình ảnh -->
+				<div class="col-lg-6 mb-5 mb-lg-0">
+					<img th:src="@{/assets/img/login.jpg}" class="scaled-image" alt="Ảnh minh họa" />
+				</div>
+
+				<!-- Form đăng nhập -->
+				<div class="col-lg-6 mb-5 mb-lg-0">
+					<div class="card login-card cascading-right bg-body-tertiary">
+						<div class="card-body p-5 text-center">
+							<h2 class="fw-bold mb-5">Đăng Nhập</h2>
+							<!-- Hiển thị thông báo khi có lỗi -->
+							<div th:if="${param.error}" class="alert alert-danger">
+								Tên đăng nhập hoặc mật khẩu không đúng!
+							</div>
+							<div th:if="${param.logout}" class="alert alert-success">
+								Bạn đã đăng xuất thành công.
+							</div>
+
+
+							<!-- Form đăng nhập -->
+							<form th:action="@{/login}" method="post">
+								<div class="form-outline mb-4">
+									<input type="text" id="username" name="username" class="form-control"
+										placeholder="Nhập tên" required />
+								</div>
+								<div class="form-outline mb-4">
+									<input type="password" id="password" name="password" class="form-control"
+										placeholder="Mật khẩu" required />
+								</div>
+								<button type="submit" class="btn btn-primary btn-block mb-4"
+									style="background-color: #ffc6c7; border:  2px solid black; color: black; outline: none;">Đăng
+									nhập</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Jumbotron -->
+	</section>
+	<!-- Section: Design Block -->
+
+	<!-- Bao gồm các JS scripts cho Bootstrap (không bắt buộc) -->
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

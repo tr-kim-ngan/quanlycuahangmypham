@@ -1,0 +1,170 @@
+<div th:fragment="script">
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script th:src="@{/fe/js/jquery-1.11.0.min.js}"></script>
+	<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+		crossorigin="anonymous"></script>
+	<script th:src="@{/fe/js/plugins.js}"></script>
+	<script th:src="@{/fe/js/script.js}"></script>
+	<!-- Thêm Bootstrap JavaScript và Popper.js -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+		crossorigin="anonymous"></script>
+	<!-- Bootstrap JS (Placed before closing body tag) -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+	<script>console.log("file Script  tải thành công.");
+	</script>
+	<!-- script.html -->
+	<!-- Đoạn mã script để cập nhật số lượng sản phẩm trong giỏ hàng -->
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			// Chọn tất cả các nút giỏ hàng yêu cầu hiển thị offcanvas khi chưa đăng nhập
+			const loginAlertButtons = document.querySelectorAll('.btn-warning.add-to-cart[data-bs-toggle="offcanvas"]');
+
+			loginAlertButtons.forEach(button => {
+				button.addEventListener('click', function (event) {
+					event.preventDefault(); // Ngăn chặn hành vi chuyển hướng mặc định khi nhấn nút
+
+					// Lấy phần tử offcanvas thông báo đăng nhập
+					const offcanvasElement = document.getElementById('offcanvasLoginAlert');
+
+					if (offcanvasElement) { // Kiểm tra nếu offcanvas tồn tại
+						const offcanvas = new bootstrap.Offcanvas(offcanvasElement);
+						offcanvas.show(); // Hiển thị offcanvas
+					} else {
+						console.error("Offcanvas element with ID 'offcanvasLoginAlert' not found.");
+					}
+				});
+			});
+		});
+
+	</script>
+
+
+	<script>
+
+
+
+
+
+		// Khởi động các hàm cập nhật ngay khi trang được tải
+		document.addEventListener("DOMContentLoaded", function () {
+			console.log("Trang đã tải hoàn tất");
+			setTimeout(updateCartCount, 200); // Thêm độ trễ để đảm bảo dữ liệu được tải
+		});
+
+		// Hàm cập nhật số lượng hiển thị giỏ hàng trên icon giỏ hàng
+		function updateCartCount() {
+			fetch('/customer/cart/count')
+				.then(response => response.json())
+				.then(count => {
+					console.log("Số lượng sản phẩm trong giỏ hàng:", count); // Kiểm tra giá trị
+					let cartCountElement = document.getElementById('cart-count');
+					if (cartCountElement) {
+						cartCountElement.textContent = count;
+					}
+				})
+				.catch(error => console.error('Error updating cart count:', error));
+		}
+
+		// Hàm reload nội dung giỏ hàng mà không tải lại toàn bộ trang
+		function reloadCartItems() {
+			fetch('/customer/cart/items')
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Lỗi mạng không mong muốn: ' + response.status);
+					}
+					return response.text();
+				})
+				.then(html => {
+					console.log("Nội dung giỏ hàng mới:", html); // Kiểm tra nội dung mới
+					document.querySelector("#cartItemsContainer").innerHTML = html;
+				})
+				.catch(error => {
+					console.error('Error:', error);
+				});
+		}
+
+
+
+		// Hàm kiểm tra và điều chỉnh số lượng hợp lệ
+		function validateQuantity(inputElement) {
+			if (inputElement.value < 1) {
+				inputElement.value = 1;
+			}
+			const maxLength = 5;
+			if (inputElement.value.length > maxLength) {
+				inputElement.value = inputElement.value.slice(0, maxLength);
+			}
+		}
+
+		// Xóa sản phẩm khỏi giỏ hàng trực tiếp từ Offcanvas giỏ hàng
+		function removeItemFromCart(sanPhamId) {
+			fetch('/customer/cart/remove', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+				body: new URLSearchParams({sanPhamId: sanPhamId})
+			})
+				.then(response => {
+					if (response.ok) {
+						alert("Sản phẩm đã được xóa khỏi giỏ hàng thành công!");
+						localStorage.setItem('offcanvasOpen', 'true');
+						updateCartCount();
+						location.reload();
+					} else {
+						throw new Error('Lỗi mạng không mong muốn: ' + response.status);
+					}
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert("Có lỗi xảy ra. Vui lòng thử lại!");
+				});
+		}
+
+		// Kiểm tra và mở lại Offcanvas nếu trước đó đã mở
+		document.addEventListener('DOMContentLoaded', function () {
+			if (localStorage.getItem('offcanvasOpen') === 'true') {
+				const offcanvasCart = new bootstrap.Offcanvas(document.getElementById('offcanvasCart'));
+				offcanvasCart.show();
+				localStorage.removeItem('offcanvasOpen');
+			}
+		});
+
+		// Cập nhật số lượng sản phẩm trực tiếp trong giỏ hàng
+		function updateItemQuantity(productId, newQuantity) {
+			if (isNaN(newQuantity) || newQuantity < 1) {
+				alert("Vui lòng nhập số lượng hợp lệ.");
+				return;
+			}
+
+			fetch('/customer/cart/updateQuantity', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({productId: productId, quantity: newQuantity})
+			})
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Lỗi mạng không mong muốn: ' + response.status);
+					}
+					return response.json();
+				})
+				.then(data => {
+					if (data.success) {
+						alert("Số lượng sản phẩm đã được cập nhật thành công!");
+					} else {
+						alert("Có lỗi xảy ra khi cập nhật. Vui lòng thử lại!");
+					}
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert("Có lỗi xảy ra khi cập nhật. Vui lòng thử lại!");
+				});
+		}
+	</script>
+
+
+</div>

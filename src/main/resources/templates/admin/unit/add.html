@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head::head">
+	<title>Thêm đơn vị</title>
+</head>
+
+<body>
+	<div class="wrapper">
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<div class="main-panel">
+			<div th:replace="admin/fragments/header::header"></div>
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h3 class="fw-bold mb-3">Thêm đơn vị</h3>
+							<!-- Hiển thị thông báo lỗi nếu có -->
+							<form th:action="@{/admin/add-unit}" th:object="${donViTinh}" method="post">
+								<div class="form-group">
+									<label for="tenDonVi">Tên Đơn Vị</label>
+									<input type="text" id="tenDonVi" th:field="*{tenDonVi}" class="form-control"
+										placeholder="Nhập tên đơn vị tính" required />
+								</div>
+
+								<!-- Hiển thị thông báo lỗi nếu có -->
+								<div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+
+								<button type="submit" class="btn btn-success">Thêm</button>
+								<a href="/admin/unit" class="btn btn-secondary">Hủy</a>
+							</form>
+						</div>
+
+
+					</div>
+				</div>
+			</div>
+			<div th:replace="admin/fragments/footer::footer"></div>
+		</div>
+	</div>
+	<div th:replace="admin/fragments/script::script"> </div>
+</body>
+
+</html>

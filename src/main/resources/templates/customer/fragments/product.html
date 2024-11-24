@@ -1,0 +1,520 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<section class="py-5" th:fragment="product">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="bootstrap-tabs product-tabs">
+					<div class="tabs-header d-flex justify-content-between border-bottom my-5">
+						<h3>Sản phẩm hot</h3>
+
+						<nav>
+							<div class="nav nav-tabs d-flex" id="nav-tab" role="tablist">
+								<!-- Tab "Tất cả" -->
+								<a href="#nav-all" class="nav-link text-uppercase fs-6 active" id="nav-all-tab"
+									data-bs-toggle="tab" role="tab">Tất cả</a>
+
+								<!-- Hiển thị một số danh mục chính -->
+								<span th:each="category, iterStat : ${danhMucs}">
+									<a th:if="${iterStat.index < 4}" href="#" class="nav-link text-uppercase fs-6"
+										th:id="'nav-' + ${category.maDanhMuc} + '-tab'"
+										th:data-bs-target="'#nav-' + ${category.maDanhMuc}"
+										th:text="${category.tenDanhMuc}" data-bs-toggle="tab" role="tab">
+									</a>
+								</span>
+
+								<!-- Dropdown cho các danh mục còn lại -->
+								<div class="nav-item dropdown" th:if="${danhMucs != null and danhMucs.size() > 4}">
+									<a class="nav-link dropdown-toggle text-uppercase fs-6" href="#"
+										id="dropdownMenuLink" role="button" data-bs-toggle="dropdown"
+										aria-expanded="false">
+										Danh mục khác
+									</a>
+									<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+										<li th:each="category, iterStat : ${danhMucs}">
+											<a th:if="${iterStat.index >= 4}" class="dropdown-item"
+												th:href="'#nav-' + ${category.maDanhMuc}" th:data-bs-toggle="tab"
+												th:attr="data-bs-target='#nav-' + ${category.maDanhMuc}"
+												th:text="${category.tenDanhMuc}">
+											</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</nav>
+					</div>
+
+					<div class="tab-content" id="nav-tabContent">
+						<!-- Hiển thị tất cả sản phẩm -->
+						<div class="tab-pane fade show active" id="nav-all" role="tabpanel"
+							aria-labelledby="nav-all-tab">
+							<div
+								class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+								<!-- Lặp qua tất cả các sản phẩm và hiển thị -->
+								<div class="col" th:each="sanPham : ${sanPhams}" style="min-height: 350px; 
+								display: flex; 
+								flex-direction: column; 
+								justify-content: space-between; 
+								transition: transform 0.2s ease, box-shadow 0.3s ease; 
+								border-radius: 30px; 
+								box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+								background-color: #fff;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.3)';"
+									onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
+									<div class="product-item" style="flex-grow: 1;">
+										<!-- Container sản phẩm -->
+										<div class="product-item" style="position: relative;">
+											<!-- Badge Khuyến mãi -->
+											<span class="badge bg-success position-absolute m-3"
+												th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+												th:text="'-' + ${sanPhamKhuyenMaiMap[sanPham.maSanPham].phanTramGiamGia} + '%'">
+											</span>
+
+											<!-- Nút yêu thích dành cho người chưa đăng nhập -->
+											<a href="javascript:void(0);" class="btn-wishlist"
+												th:if="${#authentication.name == 'anonymousUser'}"
+												data-bs-toggle="offcanvas" data-bs-target="#offcanvasLoginAlert">
+												<svg width="24" height="24">
+													<use xlink:href="#heart"></use>
+												</svg>
+											</a>
+											<!-- Nút yêu thích dành cho người đã đăng nhập -->
+											<a href="javascript:void(0);"
+												th:onclick="'toggleFavorite(' + ${sanPham.maSanPham} + ')'"
+												th:if="${#authentication.name != 'anonymousUser'}"
+												th:classappend="${favoriteProductIds.contains(sanPham.maSanPham) ? ' btn-wishlist-liked' : ' btn-wishlist'}"
+												th:id="'favorite-' + ${sanPham.maSanPham}"
+												th:data-liked="${favoriteProductIds.contains(sanPham.maSanPham)}"
+												class="btn-wishlist">
+												<svg class="heart-icon" width="24" height="24">
+													<use xlink:href="#heart"></use>
+												</svg>
+											</a>
+											<style>
+												/* Định dạng chung cho nút yêu thích - Đảm bảo vị trí không thay đổi */
+												.btn-wishlist,
+												.btn-wishlist-liked {
+													width: 40px !important;
+													height: 40px !important;
+													border-radius: 50% !important;
+													display: flex !important;
+													align-items: center !important;
+													justify-content: center !important;
+													transition: background-color 0.3s ease, color 0.3s ease !important;
+													position: absolute !important;
+													/* Giữ vị trí cố định */
+													top: 10px !important;
+													/* Cố định khoảng cách từ trên */
+													right: 10px !important;
+													/* Cố định khoảng cách từ bên phải */
+													z-index: 10 !important;
+													background-color: transparent !important;
+													color: black !important;
+													border: 2px solid #ccc !important;
+													/* Đường viền để tránh mất hình dạng */
+												}
+
+												/* Khi sản phẩm được yêu thích - Giữ nguyên vị trí */
+												.btn-wishlist-liked {
+													background-color: red !important;
+													/* Màu nền khi yêu thích */
+													color: white !important;
+												}
+											</style>
+
+											<!-- Hình ảnh sản phẩm -->
+											<figure th:if="${sanPham != null}">
+												<a th:href="@{'/product/' + ${sanPham.maSanPham}}"
+													th:title="${sanPham.tenSanPham}">
+													<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" class="tab-image"
+														alt="Sản phẩm">
+												</a>
+											</figure>
+											<h3 th:text="${sanPham.tenSanPham}"
+											style=" white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+											>Tên sản phẩm</h3>
+											
+											
+											
+											
+											<!-- Thêm thông tin số lượng còn lại -->
+											<span class="remaining-quantity"
+												style="font-size: 14px; color: #555; display: block; margin-top: 5px;">
+												Số lượng còn lại: <span th:text="${sanPham.soLuong}">0</span>
+											</span>
+											<span class="qty" th:text="${sanPham.donViTinh.tenDonVi}">Đơn vị tính</span>
+											<!-- Hiển thị giá -->
+											<div>
+
+												<!-- Nếu có khuyến mãi, hiển thị giá gốc gạch ngang -->
+												<span
+													style="font-size: 12px; color: red; text-decoration: line-through; display: block;"
+													th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+													th:text="${sanPham.donGiaBan} + ' VND'">
+												</span>
+
+												<!-- Nếu có khuyến mãi và giá sau giảm không null -->
+												<span
+													style="font-size: 18px; color: black; font-weight: bold; display: block;"
+													th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+													th:text="${sanPhamGiaSauGiamMap[sanPham.maSanPham]} + ' VND'">
+												</span>
+
+
+
+												<!-- Nếu không có khuyến mãi hoặc không tính được giá sau giảm, hiển thị giá gốc -->
+												<span
+													style="font-size: 18px; color: black; font-weight: bold; display: block;"
+													th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] == null}"
+													th:text="${sanPham.donGiaBan} + ' VND'">
+												</span>
+
+											</div>
+											<!-- Số lượng sản phẩm và nút thêm vào giỏ hàng -->
+
+
+											<div class="product-quantity-container d-flex justify-content-center align-items-center mt-3"
+												style="gap: 10px;">
+												<form th:action="@{/customer/cart/add}" method="post"
+													class="d-flex align-items-center">
+													<!-- Ô nhập số lượng -->
+													<input type="number" name="quantity" value="1" min="1"
+														class="form-control quantity-input"
+														style="width: 80px; border: 2px solid #000; text-align: center;"
+														th:id="'quantity_' + ${sanPham.maSanPham}"
+														th:data-product-id="${sanPham.maSanPham}" />
+
+													<!-- Ẩn mã sản phẩm trong input hidden để gửi lên server -->
+													<input type="hidden" name="productId"
+														th:value="${sanPham.maSanPham}" />
+													<button
+														class="btn btn-warning add-to-cart d-flex align-items-center justify-content-center"
+														style="background-color: #fca503; color: #fff; border: none; transition: background-color 0.3s ease;"
+														onmouseover="this.style.backgroundColor='#e68a00';"
+														onmouseout="this.style.backgroundColor='#fca503';"
+														th:if="${#authentication.name == 'anonymousUser'}"
+														data-bs-toggle="offcanvas"
+														data-bs-target="#offcanvasLoginAlert">
+														<span class="iconify" data-icon="uil:shopping-cart"
+															data-inline="false"
+															style="font-size: 1.5rem; margin-right: 5px;"></span>
+													</button>
+
+													<!-- Nút thêm vào giỏ hàng khi người dùng đã đăng nhập -->
+													<button type="submit"
+														class="btn btn-warning add-to-cart d-flex align-items-center justify-content-center"
+														style="background-color: #fca503; color: #fff; border: none; transition: background-color 0.3s ease;"
+														onmouseover="this.style.backgroundColor='#e68a00';"
+														onmouseout="this.style.backgroundColor='#fca503';"
+														th:if="${#authentication.name != 'anonymousUser'}"
+														th:data-product-id="${sanPham.maSanPham}">
+														<span class="iconify" data-icon="uil:shopping-cart"
+															data-inline="false"
+															style="font-size: 1.5rem; margin-right: 5px;"></span>
+													</button>
+
+
+													<!-- Nút thêm vào giỏ hàng -->
+
+												</form>
+											</div>
+
+
+
+
+
+
+
+
+
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Hiển thị sản phẩm theo danh mục -->
+						<div class="tab-pane fade" th:each="category : ${danhMucs}"
+							th:id="'nav-' + ${category.maDanhMuc}" role="tabpanel"
+							th:aria-labelledby="'nav-' + ${category.maDanhMuc} + '-tab'">
+							<div
+								class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+								<div class="col" th:each="sanPham : ${category.sanPhams}" th:if="${sanPham.trangThai == true 
+								  and !sanPham.chiTietDonNhapHangs.isEmpty()
+								  and sanPham.chiTietDonNhapHangs.?[donNhapHang.tongGiaTriNhapHang > 0 
+								  and soLuongNhap > 0 and donGiaNhap > 0].size() > 0}" style="min-height: 350px; 
+									display: flex; 
+									flex-direction: column; 
+									justify-content: space-between; 
+									transition: transform 0.2s ease, box-shadow 0.3s ease; 
+									border-radius: 30px; 
+									box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+									background-color: #fff;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.3)';"
+									onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
+									<div class="product-item" style="flex-grow: 1;">
+										<!-- Container sản phẩm -->
+										<div class="product-item" style="position: relative;">
+											<!-- Badge Khuyến mãi -->
+											<span class="badge bg-success position-absolute m-3"
+												th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+												th:text="'-' + ${sanPhamKhuyenMaiMap[sanPham.maSanPham].phanTramGiamGia} + '%'">
+											</span>
+
+											<!-- Nút yêu thích dành cho người chưa đăng nhập -->
+											<!-- Nút yêu thích dành cho người chưa đăng nhập -->
+											<a href="javascript:void(0);" class="btn-wishlist"
+												th:if="${#authentication.name == 'anonymousUser'}"
+												data-bs-toggle="offcanvas" data-bs-target="#offcanvasLoginAlert">
+												<svg width="24" height="24">
+													<use xlink:href="#heart"></use>
+												</svg>
+											</a>
+											<!-- Nút yêu thích dành cho người đã đăng nhập -->
+											<a href="javascript:void(0);"
+												th:onclick="'toggleFavorite(' + ${sanPham.maSanPham} + ')'"
+												th:if="${#authentication.name != 'anonymousUser'}"
+												th:classappend="${favoriteProductIds.contains(sanPham.maSanPham) ? ' btn-wishlist-liked' : ' btn-wishlist'}"
+												th:id="'favorite-' + ${sanPham.maSanPham}"
+												th:data-liked="${favoriteProductIds.contains(sanPham.maSanPham)}"
+												class="btn-wishlist">
+												<svg class="heart-icon" width="24" height="24">
+													<use xlink:href="#heart"></use>
+												</svg>
+											</a>
+											<style>
+												/* Định dạng chung cho nút yêu thích - Đảm bảo vị trí không thay đổi */
+												.btn-wishlist,
+												.btn-wishlist-liked {
+													width: 40px !important;
+													height: 40px !important;
+													border-radius: 50% !important;
+													display: flex !important;
+													align-items: center !important;
+													justify-content: center !important;
+													transition: background-color 0.3s ease, color 0.3s ease !important;
+													position: absolute !important;
+													/* Giữ vị trí cố định */
+													top: 10px !important;
+													/* Cố định khoảng cách từ trên */
+													right: 10px !important;
+													/* Cố định khoảng cách từ bên phải */
+													z-index: 10 !important;
+													background-color: transparent !important;
+													color: black !important;
+													border: 2px solid #ccc !important;
+													/* Đường viền để tránh mất hình dạng */
+												}
+
+												/* Khi sản phẩm được yêu thích - Giữ nguyên vị trí */
+												.btn-wishlist-liked {
+													background-color: red !important;
+													/* Màu nền khi yêu thích */
+													color: white !important;
+												}
+											</style>
+
+											<!-- Hình ảnh sản phẩm -->
+											<figure th:if="${sanPham != null}">
+												<a th:href="@{'/product/' + ${sanPham.maSanPham}}"
+													th:title="${sanPham.tenSanPham}">
+													<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" class="tab-image"
+														alt="Sản phẩm">
+												</a>
+											</figure>
+											<h3 th:text="${sanPham.tenSanPham}"
+											style=" white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+											>Tên sản phẩm</h3>
+											<!-- Thêm thông tin số lượng còn lại -->
+											<span class="remaining-quantity"
+												style="font-size: 14px; color: #555; display: block; margin-top: 5px;">
+												Số lượng còn lại: <span th:text="${sanPham.soLuong}">0</span>
+											</span>
+											<span class="qty" th:text="${sanPham.donViTinh.tenDonVi}">Đơn vị tính</span>
+											<!-- Hiển thị giá -->
+											<div>
+
+												<!-- Nếu có khuyến mãi, hiển thị giá gốc gạch ngang -->
+												<span
+													style="font-size: 12px; color: red; text-decoration: line-through; display: block;"
+													th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+													th:text="${sanPham.donGiaBan} + ' VND'">
+												</span>
+
+												<!-- Nếu có khuyến mãi và giá sau giảm không null -->
+												<span
+													style="font-size: 18px; color: black; font-weight: bold; display: block;"
+													th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+													th:text="${sanPhamGiaSauGiamMap[sanPham.maSanPham]} + ' VND'">
+												</span>
+
+
+
+												<!-- Nếu không có khuyến mãi hoặc không tính được giá sau giảm, hiển thị giá gốc -->
+												<span
+													style="font-size: 18px; color: black; font-weight: bold; display: block;"
+													th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] == null}"
+													th:text="${sanPham.donGiaBan} + ' VND'">
+												</span>
+
+											</div>
+
+											<div
+												class="product-quantity-container d-flex justify-content-center align-items-center mt-3">
+												<label for="quantity" class="form-label me-2"></label>
+
+												<!-- Ô nhập số lượng (luôn được render) -->
+
+												<form th:action="@{/customer/cart/add}" method="post"
+													class="d-flex align-items-center">
+													<!-- Ô nhập số lượng -->
+													<input type="number" name="quantity" value="1" min="1"
+														class="form-control quantity-input"
+														style="width: 80px; border: 2px solid #000; text-align: center;"
+														th:id="'quantity_' + ${sanPham.maSanPham}"
+														th:data-product-id="${sanPham.maSanPham}" />
+
+													<!-- Ẩn mã sản phẩm trong input hidden để gửi lên server -->
+													<input type="hidden" name="productId"
+														th:value="${sanPham.maSanPham}" />
+													<button
+														class="btn btn-warning add-to-cart d-flex align-items-center justify-content-center"
+														style="background-color: #fca503; color: #fff; border: none; transition: background-color 0.3s ease;"
+														onmouseover="this.style.backgroundColor='#e68a00';"
+														onmouseout="this.style.backgroundColor='#fca503';"
+														th:if="${#authentication.name == 'anonymousUser'}"
+														data-bs-toggle="offcanvas"
+														data-bs-target="#offcanvasLoginAlert">
+														<span class="iconify" data-icon="uil:shopping-cart"
+															data-inline="false"
+															style="font-size: 1.5rem; margin-right: 5px;"></span>
+													</button>
+
+													<!-- Nút thêm vào giỏ hàng khi người dùng đã đăng nhập -->
+													<button type="submit"
+														class="btn btn-warning add-to-cart d-flex align-items-center justify-content-center"
+														style="background-color: #fca503; color: #fff; border: none; transition: background-color 0.3s ease;"
+														onmouseover="this.style.backgroundColor='#e68a00';"
+														onmouseout="this.style.backgroundColor='#fca503';"
+														th:if="${#authentication.name != 'anonymousUser'}"
+														th:data-product-id="${sanPham.maSanPham}">
+														<span class="iconify" data-icon="uil:shopping-cart"
+															data-inline="false"
+															style="font-size: 1.5rem; margin-right: 5px;"></span>
+													</button>
+
+
+													<!-- Nút thêm vào giỏ hàng -->
+
+												</form>
+
+
+
+
+											</div>
+
+
+
+
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+
+
+
+
+<style>
+	/* Định dạng chung cho nút yêu thích */
+	/* CSS cho nút yêu thích - Giữ vị trí cố định */
+
+
+	.price {
+		font-size: 10px;
+		/* Kích thước mặc định cho giá */
+		font-weight: bold;
+		color: black;
+		/* Màu đen cho giá chính */
+	}
+
+	.text-danger {
+		font-size: 15px;
+		/* Kích thước lớn hơn cho giá đã giảm */
+		font-weight: bold;
+		color: black;
+		/* Đổi lại màu đen cho giá sau giảm */
+	}
+
+	.text-muted {
+		font-size: 6px;
+		/* Kích thước nhỏ hơn cho giá gốc */
+		color: red;
+		/* Màu đỏ cho giá gốc */
+		text-decoration: line-through;
+		/* Gạch ngang cho giá gốc */
+		display: block;
+		margin-bottom: 5px;
+		/* Khoảng cách giữa giá gốc và giá sau khi giảm */
+	}
+
+
+	/* CSS để đảm bảo các khung sản phẩm đồng đều */
+	.product-item {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		height: 100%;
+		/* Đảm bảo khung sản phẩm bao phủ toàn bộ chiều cao */
+		border: 1px solid #ddd;
+		padding: 10px;
+		box-sizing: border-box;
+		border-radius: 10px;
+		transition: transform 0.3s ease, box-shadow 0.3s ease;
+	}
+
+	.product-item figure {
+		flex-grow: 1;
+		/* Giúp phần hình ảnh sản phẩm mở rộng */
+		text-align: center;
+	}
+
+	.product-item h3 {
+		margin: 10px 0;
+		font-size: 1.2rem;
+		line-height: 1.4;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		/* Giới hạn hiển thị tên sản phẩm tối đa 2 dòng */
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		/* Thêm dấu ba chấm nếu tên sản phẩm quá dài */
+	}
+
+	.qty,
+	.price {
+		margin-bottom: 10px;
+	}
+
+	.product-grid .col {
+		display: flex;
+		justify-content: center;
+	}
+
+	.product-item .d-flex {
+		justify-content: space-between;
+		align-items: center;
+		margin-top: auto;
+		/* Đẩy phần cuối cùng xuống dưới cùng */
+	}
+</style>
+
+</html>

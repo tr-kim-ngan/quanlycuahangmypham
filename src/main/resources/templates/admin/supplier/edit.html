@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div th:replace="admin/fragments/sidebar::sidebar"></div>
+        <!-- End Sidebar -->
+
+        <div class="main-panel">
+            <!-- Header -->
+            <div th:replace="admin/fragments/header :: header"></div>
+            <!-- End Header -->
+
+            <div class="container" style="background-color: #faeee7;">
+                <div class="page-inner">
+                    <h4 class="page-title">Sửa Nhà Cung Cấp</h4>
+
+                    <form th:action="@{/admin/edit-supplier/{id}(id=${nhaCungCap.maNhaCungCap})}" th:object="${nhaCungCap}" method="post" enctype="multipart/form-data">
+                        <!-- Tên nhà cung cấp -->
+                        <div class="form-group">
+                            <label for="tenNhaCungCap">Tên Nhà Cung Cấp:</label>
+                            <input type="text" class="form-control" id="tenNhaCungCap" name="tenNhaCungCap"
+                                   th:field="*{tenNhaCungCap}" placeholder="Nhập tên nhà cung cấp" required>
+                        </div>
+
+                        <!-- Số điện thoại -->
+                        <div class="form-group">
+                            <label for="sdtNhaCungCap">Số điện thoại:</label>
+                            <input type="tel" class="form-control" id="sdtNhaCungCap" name="sdtNhaCungCap"
+                                   th:field="*{sdtNhaCungCap}" placeholder="Nhập số điện thoại" required
+                                   pattern="[0-9]{10,11}" title="Vui lòng nhập số điện thoại hợp lệ (10-11 số)">
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="emailNhaCungCap">Email:</label>
+                            <input type="email" class="form-control" id="emailNhaCungCap" name="emailNhaCungCap"
+                                   th:field="*{emailNhaCungCap}" placeholder="Nhập email" required
+                                   pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Vui lòng nhập email hợp lệ">
+                        </div>
+
+                        <!-- Địa chỉ nhà cung cấp -->
+                        <div class="form-group">
+                            <label for="diaChiNhaCungCap">Địa chỉ:</label>
+                            <input type="text" class="form-control" id="diaChiNhaCungCap" name="diaChiNhaCungCap"
+                                   th:field="*{diaChiNhaCungCap}" placeholder="Nhập địa chỉ" required>
+                        </div>
+
+                        <!-- Nút lưu -->
+                        <button type="submit" class="btn btn-primary">Lưu</button>
+                        <a th:href="@{/admin/supplier}" class="btn btn-secondary">Hủy</a>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="admin/fragments/footer::footer"></div>
+            <!-- End Footer -->
+        </div>
+    </div>
+
+    <!-- Core JS Files -->
+    <div th:replace="admin/fragments/script::script"></div>
+    <!-- End JS -->
+</body>
+
+</html>

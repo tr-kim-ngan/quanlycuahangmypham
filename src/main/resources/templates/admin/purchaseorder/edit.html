@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head::head">
+	
+	<title>Chỉnh sửa danh mục</title>
+	
+</head>
+
+<body>
+	<div class="wrapper">
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<div class="main-panel">
+			<div th:replace="admin/fragments/header::header"></div>
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h3 class="fw-bold mb-3">Chỉnh Chi Tiết Đơn Nhập Hàng</h3>
+
+							<!-- Hiển thị thông tin đơn nhập hàng -->
+							<p>Mã đơn nhập: <span th:text="${donNhapHang.maDonNhapHang}"></span></p>
+							<p>Ngày nhập: <span th:text="${donNhapHang.ngayNhapHang}"></span></p>
+							<p>Nhà cung cấp: <span th:text="${donNhapHang.nhaCungCap.tenNhaCungCap}"></span></p>
+
+							<!-- Bảng chi tiết đơn nhập hàng -->
+							<table class="table table-bordered">
+								<thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
+									<tr>
+										<th>Sản phẩm</th>
+										<th>Số lượng nhập</th>
+										<th>Đơn giá nhập</th>
+										<th>Thao tác</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="chiTiet : ${chiTietList}" th:if="${chiTiet.soLuongNhap > 0}">
+										<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
+										<td th:text="${chiTiet.soLuongNhap}"></td>
+										<td th:text="${chiTiet.donGiaNhap}"></td>
+										<td>
+											<a th:href="@{/admin/hide-purchase-order-detail/{maDonNhapHang}/{maSanPham}(maDonNhapHang=${chiTiet.id.maDonNhapHang}, maSanPham=${chiTiet.id.maSanPham})}"
+												class="btn btn-danger">Xóa</a>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<!-- Form thêm chi tiết mới -->
+							<h3>Thêm chi tiết đơn nhập hàng</h3>
+							<form
+								th:action="@{/admin/add-purchase-order-detail/{maDonNhapHang}(maDonNhapHang=${donNhapHang.maDonNhapHang})}"
+								method="post">
+
+								<label for="sanPhamId">Sản phẩm:</label>
+								<select name="sanPhamIds" class="form-control">
+									<option th:each="sanPham : ${sanPhams}" th:value="${sanPham.maSanPham}"
+										th:text="${sanPham.tenSanPham}"></option>
+								</select>
+
+								<label for="soLuongNhap">Số lượng nhập:</label>
+								<input type="number" name="soLuongNhap" placeholder="Số lượng nhập" class="form-control"
+									required>
+
+								<label for="donGiaNhap">Đơn giá nhập:</label>
+								<input type="number" name="donGiaNhap" placeholder="Đơn giá nhập" class="form-control"
+									required>
+
+								<button type="submit" class="btn btn-success">Thêm chi tiết</button>
+								<a href="/admin/purchaseorder" class="btn btn-secondary" >Quay lại</a>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div th:replace="admin/fragments/footer::footer"></div>
+		</div>
+	</div>
+	<div th:replace="admin/fragments/script::script"></div>
+	
+
+</body>
+
+</html>

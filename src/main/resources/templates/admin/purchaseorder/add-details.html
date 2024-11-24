@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h3 class="fw-bold mb-3">Đã Tạo Đơn Nhập Hàng</h3>
+						</div>
+
+					</div>
+
+					<!-- Form thêm nhà cung cấp -->
+
+					<form
+						th:action="@{/admin/save-purchase-order-details/{maDonNhapHang}(maDonNhapHang=${donNhapHang.maDonNhapHang})}"
+						method="post">
+						<!-- Hiển thị thông tin đơn nhập hàng -->
+						<div class="form-group">
+							<label>Mã Đơn Nhập: </label>
+							<input type="text" th:value="${donNhapHang.maDonNhapHang}" readonly class="form-control">
+						</div>
+
+						<div class="form-group">
+							<label>Nhà Cung Cấp: </label>
+							<input type="text" th:value="${donNhapHang.nhaCungCap.tenNhaCungCap}" readonly
+								class="form-control">
+						</div>
+
+						<div class="form-group">
+							<label>Ngày Nhập Hàng: </label>
+							<input type="text" th:value="${donNhapHang.ngayNhapHang}" readonly class="form-control">
+						</div>
+
+						
+					</form>
+
+					<!-- Nút quay lại -->
+					<a th:href="@{/admin/purchaseorder}" class="btn btn-secondary">Quay lại</a>
+
+					<!-- Phân trang -->
+					<!-- Kiểm tra nếu có sản phẩm và tổng số trang lớn hơn 0 thì hiển thị phân trang -->
+					
+					<!-- Kết thúc phân trang -->
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>

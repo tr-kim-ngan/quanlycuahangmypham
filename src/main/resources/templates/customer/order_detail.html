@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{customer/fragments/head :: head}"></head>
+
+<body>
+	<header th:replace="~{customer/fragments/header :: header}"></header>
+
+	<main class="container my-4" style="padding: 100px; padding-top:120px;">
+		<h2 class="my-5 text-center">Chi Tiết Đơn Hàng</h2>
+
+		<!-- Thông tin đơn hàng -->
+		<div class="mb-4">
+			<p><strong>Mã đơn hàng:</strong> <span th:text="${donHang.maDonHang}"></span></p>
+			<p><strong>Ngày đặt hàng:</strong> <span
+					th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></span></p>
+			<p><strong>Địa chỉ giao hàng:</strong> <span th:text="${donHang.diaChiGiaoHang}"></span></p>
+			<p><strong>Số điện thoại:</strong> <span th:text="${donHang.sdtNhanHang}"></span></p>
+			<p><strong>Tổng giá trị:</strong> <span th:text="${donHang.tongGiaTriDonHang} + ' VND'"></span></p>
+			<p><strong>Trạng thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span></p>
+		</div>
+
+		<!-- Danh sách sản phẩm trong đơn hàng -->
+		<!-- Danh sách sản phẩm trong đơn hàng -->
+		<table class="table">
+			<thead>
+				<tr>
+					<th>STT</th>
+					<th>Hình ảnh</th>
+					<th>Sản Phẩm</th>
+					<th>Số Lượng</th>
+					<th>Giá</th>
+					<th>Thành Tiền</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="chiTiet, iterStat : ${donHang.chiTietDonHangs}">
+					<td th:text="${iterStat.count}"></td>
+					<td>
+						<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}" style="width: 100px; height: auto;"
+							alt="Ảnh sản phẩm" />
+					</td>
+					<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
+					<td th:text="${chiTiet.soLuong}"></td>
+					<td th:text="${chiTiet.giaTaiThoiDiemDat} + ' VND'"></td>
+					<!--<td th:text="${thanhTienMap[chiTiet]} + ' VND'"></td>-->
+					<td th:text="${thanhTienMap.get(chiTiet)} + ' VND'"></td>
+				</tr>
+			</tbody>
+
+		</table>
+
+
+
+		<!-- Nút quay lại -->
+		<div class="text-center">
+			<a th:href="@{/customer/order}" class="btn btn-secondary">Quay Lại Danh Sách Đơn Hàng</a>
+		</div>
+	</main>
+	<script>
+
+		function updateCartIconCount() {
+			fetch('/customer/cart/total-items')
+				.then(response => response.json())
+				.then(totalItems => {
+					const cartCountElement = document.getElementById('cart-count');
+					if (cartCountElement) {
+						cartCountElement.textContent = totalItems;
+					}
+				})
+				.catch(error => {
+					console.error("Lỗi khi cập nhật số lượng giỏ hàng: ", error);
+				});
+		}
+
+		document.addEventListener("DOMContentLoaded", function () {
+			updateCartIconCount();
+		});
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<footer th:replace="~{customer/fragments/footer :: footer}"></footer>
+</body>
+
+</html>

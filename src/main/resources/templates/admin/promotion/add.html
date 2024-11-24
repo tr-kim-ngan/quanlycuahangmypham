@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head::head">
+    <title>Thêm Khuyến Mãi</title>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div th:replace="admin/fragments/sidebar::sidebar"> </div>
+        <!-- End Sidebar -->
+
+        <div class="main-panel">
+            <!-- Header -->
+            <div th:replace="admin/fragments/header::header"> </div>
+            <!-- End Header -->
+
+            <div class="container" style="background-color: #faeee7;">
+                <div class="page-inner">
+                    <h3 class="fw-bold mb-3">Thêm chương trình khuyến mãi</h3>
+
+                    <!-- Form thêm khuyến mãi -->
+                    <form th:action="@{/admin/add-promotion}" method="post" th:object="${khuyenMai}">
+                        
+                        <!-- Tên khuyến mãi -->
+                        <div class="form-group">
+                            <label for="tenKhuyenMai">Tên khuyến mãi</label>
+                            <input type="text" class="form-control" id="tenKhuyenMai" placeholder="Nhập tên khuyến mãi"
+                                   th:field="*{tenKhuyenMai}" required>
+                        </div>
+
+                        <!-- Mô tả -->
+                        <div class="form-group">
+                            <label for="moTa">Mô tả</label>
+                            <textarea class="form-control" id="moTa" rows="3" placeholder="Nhập mô tả"
+                                      th:field="*{moTa}" required></textarea>
+                        </div>
+
+                        <!-- Phần trăm giảm giá -->
+                        <div class="form-group">
+                            <label for="phanTramGiamGia">Phần trăm giảm giá (%)</label>
+                            <input type="number" class="form-control" id="phanTramGiamGia" min="0" max="100"
+                                   placeholder="Nhập phần trăm giảm giá" th:field="*{phanTramGiamGia}" required>
+                        </div>
+
+                        <!-- Ngày bắt đầu -->
+                        <div class="form-group">
+                            <label for="ngayBatDau">Ngày bắt đầu</label>
+                            <input type="date" class="form-control" id="ngayBatDau"
+                                   th:field="*{ngayBatDau}" required>
+                        </div>
+
+                        <!-- Ngày kết thúc -->
+                        <div class="form-group">
+                            <label for="ngayKetThuc">Ngày kết thúc</label>
+                            <input type="date" class="form-control" id="ngayKetThuc"
+                                   th:field="*{ngayKetThuc}" required>
+                        </div>
+
+                        <!-- Nút thêm khuyến mãi -->
+                        <button type="submit" class="btn btn-success mt-3">Thêm khuyến mãi</button>
+                        <a th:href="@{/admin/promotion}" class="btn btn-secondary mt-3">Quay lại</a>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="admin/fragments/footer::footer"></div>
+            <!-- End Footer -->
+        </div>
+    </div>
+
+    <!-- JS -->
+    <div th:replace="admin/fragments/script::script"> </div>
+</body>
+
+</html>

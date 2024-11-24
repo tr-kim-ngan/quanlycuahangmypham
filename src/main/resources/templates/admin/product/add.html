@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h3 class="fw-bold mb-3">Thêm sản phẩm mới</h3>
+						</div>
+					</div>
+
+					<!-- Form thêm sản phẩm -->
+					<div th:if="${errorMessage != null}" class="alert alert-danger" role="alert">
+						<span th:text="${errorMessage}"></span>
+					</div>
+					<form th:action="@{/admin/add-product}" th:object="${sanPham}" method="post"
+						enctype="multipart/form-data">
+						<div class="form-group">
+							<label for="tenSanPham">Tên sản phẩm:</label>
+							<input type="text" th:field="*{tenSanPham}" class="form-control"
+								placeholder="Nhập tên sản phẩm" required>
+						</div>
+
+						<div class="form-group">
+							<label for="moTa">Mô tả:</label>
+							<textarea th:field="*{moTa}" class="form-control" rows="3" placeholder="Nhập mô tả sản phẩm"
+								required></textarea>
+						</div>
+
+						<div class="form-group">
+							<label for="soLuong">Số lượng:</label>
+							<input type="number" th:field="*{soLuong}" min="0" class="form-control"
+								placeholder="0" disabled pattern="[0-9]*">
+						</div>
+
+						<!---<div class="form-group">
+							<label for="donGiaBan">Đơn giá bán:</label>
+							<input type="number" name="donGiaBan" class="form-control" placeholder="Nhập đơn giá bán"
+								required step="0.01" min="0">
+						</div>-->
+						<!-- Giá bán -->
+						<div class="form-group">
+							<label for="donGiaBan" class="form-label">Giá bán:</label>
+							<input type="number" th:field="*{donGiaBan}" class="form-control" id="donGiaBan" min="0"
+								step="0.01" required />
+						</div>
+
+
+						<!-- Đơn vị tính -->
+
+						<div class="form-group">
+							<label for="donViTinh">Đơn vị tính</label>
+							<select id="donViTinh" name="donViTinh" class="form-control" required>
+								<option value="" disabled selected>Chọn đơn vị tính</option>
+								<option th:each="donViTinh : ${listDonViTinh}" th:value="${donViTinh.maDonVi}"
+									th:text="${donViTinh.tenDonVi}">
+								</option>
+							</select>
+						</div>
+
+						<!-- Dropdown nhà cung cấp -->
+						<div class="form-group">
+							<label for="nhaCungCap">Nhà cung cấp:</label>
+							<select id="nhaCungCap" name="nhaCungCapId" class="form-control" required>
+								<option value="" disabled selected>Chọn nhà cung cấp</option>
+								<option th:each="nhaCungCap : ${activeSuppliers}" th:value="${nhaCungCap.maNhaCungCap}"
+									th:text="${nhaCungCap.tenNhaCungCap}">
+								</option>
+							</select>
+						</div>
+
+
+						<!--<div class="form-group">
+							<label for="thoiDiemBan">Thời điểm bán:</label>
+							<input type="datetime-local" id="thoiDiemBan" step="1" name="thoiDiemBan"
+								class="form-control" required onclick="setCurrentDateTime()">
+						</div>-->
+
+
+
+						<div class="form-group">
+							<label for="danhMuc">Danh mục:</label>
+							<select th:field="*{danhMuc}" class="form-control" required>
+								<option value="">Chọn danh mục</option>
+								<option th:each="danhMuc : ${listDanhMuc}" th:value="${danhMuc.maDanhMuc}"
+									th:text="${danhMuc.tenDanhMuc}"></option>
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label for="imageFile">Hình ảnh sản phẩm:</label>
+							<input type="file" name="imageFile" class="form-control" accept="image/*" required>
+						</div>
+
+						<button type="submit" class="btn btn-success">Lưu</button>
+						<a th:href="@{/admin/product}" class="btn btn-secondary">Quay lại</a>
+					</form>
+					<script>
+						document.getElementById("soLuong").addEventListener("keydown", function (e) {
+							// Ngăn chặn ký tự 'e', 'E', '+', '-' và '.'
+							if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-' || e.key === '.') {
+								e.preventDefault();
+							}
+						});
+
+					</script>
+					<script>
+						function setCurrentDateTime() {
+							const input = document.getElementById('thoiDiemBan');
+							const now = new Date();
+							const year = now.getFullYear();
+							const month = String(now.getMonth() + 1).padStart(2, '0');
+							const day = String(now.getDate()).padStart(2, '0');
+							const hours = String(now.getHours()).padStart(2, '0');
+							const minutes = String(now.getMinutes()).padStart(2, '0');
+							const seconds = String(now.getSeconds()).padStart(2, '0');
+
+							// Định dạng thành chuỗi datetime-local: yyyy-MM-ddTHH:mm:ss (24 giờ)
+							const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+
+							input.value = formattedDateTime;  // Đặt giá trị đã định dạng vào input
+						}
+
+					</script>
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>
