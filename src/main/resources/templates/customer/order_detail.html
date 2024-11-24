@@ -47,6 +47,21 @@
 					<td th:text="${thanhTienMap.get(chiTiet)} + ' VND'"></td>
 				</tr>
 			</tbody>
+			<!--<tbody>
+				<tr th:each="chiTiet, iterStat : ${chiTietDonHangs}">
+					<td th:text="${iterStat.count}"></td>
+					<td>
+						<img th:src="@{${#servletContext.contextPath()}/upload/${chiTiet.sanPham.hinhAnh}}"
+							style="width: 100px; height: auto;" alt="Ảnh sản phẩm" />
+
+					</td>
+					<td th:text="${chiTiet.get('tenSanPham')}"></td>
+					<td th:text="${chiTiet.get('soLuong')}"></td>
+					<td th:text="${chiTiet.get('giaTaiThoiDiemDat')}"></td>
+					<td th:text="${chiTiet.get('thanhTien')}"></td>
+				</tr>
+			</tbody>-->
+
 
 		</table>
 

@@ -118,30 +118,41 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 				</div>
 			</div>
 
 			<!-- Mô tả chi tiết sản phẩm -->
 			<div class="row mt-5">
-				<div class="col-md-6">
+				<!--<div class="col-md-6">
 					<h3>Mô tả chi tiết sản phẩm</h3>
 					<p th:text="${sanPham.moTa}" style="text-align: justify;"></p>
+				</div>-->
+				<div class="col-md-6">
+					<!-- Hàng 1: Mô tả chi tiết -->
+					<div>
+						<h3>Mô tả chi tiết sản phẩm</h3>
+						<p th:text="${sanPham.moTa}" style="text-align: justify;"></p>
+					</div>
+					<!-- Hàng 2: Đánh giá -->
+					<div class="mt-4">
+						<h3>Đánh giá sản phẩm</h3>
+						<div th:if="${danhGias != null and !danhGias.isEmpty()}">
+							<div th:each="danhGia : ${danhGias}" style="margin-bottom: 15px;">
+								<p><strong>Người đánh giá:</strong> <span
+										th:text="${danhGia.nguoiDung.tenNguoiDung}"></span></p>
+								<p><strong>Số sao:</strong> <span th:text="${danhGia.soSao}"></span></p>
+								<p><strong>Nội dung:</strong> <span th:text="${danhGia.noiDung}"></span></p>
+								<hr>
+							</div>
+						</div>
+						<div th:if="${danhGias == null || danhGias.isEmpty()}">
+							<p>Chưa có đánh giá nào cho sản phẩm này.</p>
+						</div>
+					</div>
 				</div>
+
+
+
 				<!-- Sản phẩm liên quan -->
 				<div class="col-md-6">
 					<h3>Sản phẩm liên quan</h3>
@@ -274,6 +285,8 @@
 
 
 			</div>
+
+
 		</div>
 	</main>
 

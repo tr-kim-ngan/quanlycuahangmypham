@@ -47,11 +47,34 @@ public class DanhGiaServiceImpl implements DanhGiaService {
 		return danhGiaRepository.save(danhGia);
 	}
 
+	
+
 	@Override
-	public boolean existsByHoaDonAndNguoiDung(Integer maHoaDon, Integer maNguoiDung) {
-		HoaDon hoaDon = hoaDonService.getHoaDonById(maHoaDon);
-		NguoiDung nguoiDung = nguoiDungService.findById(maNguoiDung);
-		return danhGiaRepository.existsByHoaDonAndNguoiDung(hoaDon, nguoiDung);
+	public boolean existsByHoaDonAndNguoiDung(HoaDon hoaDon, NguoiDung nguoiDung) {
+		// TODO Auto-generated method stub
+        return danhGiaRepository.existsByHoaDonAndNguoiDung(hoaDon, nguoiDung);
 	}
+
+	@Override
+	public DanhGia findByHoaDonAndSanPhamAndNguoiDung(HoaDon hoaDon, SanPham sanPham, NguoiDung nguoiDung) {
+		// TODO Auto-generated method stub
+		return danhGiaRepository.findByHoaDonAndSanPhamAndNguoiDung(hoaDon, sanPham, nguoiDung)
+	            .orElse(null);
+	}
+
+	@Override
+	public boolean existsByHoaDonAndSanPhamAndNguoiDung(HoaDon hoaDon, SanPham sanPham, NguoiDung nguoiDung) {
+		// TODO Auto-generated method stub
+        return danhGiaRepository.existsByHoaDonAndSanPhamAndNguoiDung(hoaDon, sanPham, nguoiDung);
+	}
+
+	@Override
+	public List<DanhGia> findBySanPham(SanPham sanPham) {
+		// TODO Auto-generated method stub
+		 return danhGiaRepository.findBySanPham(sanPham);
+	}
+
+	
+
 
 }

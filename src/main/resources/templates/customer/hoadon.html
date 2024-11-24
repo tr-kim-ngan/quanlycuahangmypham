@@ -40,6 +40,8 @@
 									<a th:href="@{/customer/hoadon/{maDonHang}(maDonHang=${hoaDon.donHang.maDonHang})}"
 										class="btn btn-primary">Xem Chi Tiết</a>
 								</td>
+
+
 							</tr>
 						</tbody>
 					</table>
@@ -56,9 +58,9 @@
 								<p><strong>Ngày Xuất:</strong> <span
 										th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></span>
 								</p>
-								<p><strong>Tổng Tiền:</strong> <span th:text="${formattedTotal} + ' VND'"></span></p>
+								<!--<p><strong>Tổng Tiền:</strong> <span th:text="${formattedTotal} + ' VND'"></span></p>-->
 
-								<!--<p><strong>Tổng Tiền:</strong> <span th:text="${hoaDon.tongTien} + ' VND'"></span></p>-->
+								<p><strong>Tổng Tiền:</strong> <span th:text="${hoaDon.tongTien} + ' VND'"></span></p>
 								<p><strong>Người Nhận:</strong> <span th:text="${hoaDon.tenNguoiNhan}"></span></p>
 								<p><strong>Địa Chỉ:</strong> <span th:text="${hoaDon.diaChiGiaoHang}"></span></p>
 								<p><strong>Số Điện Thoại:</strong> <span th:text="${hoaDon.soDienThoaiNhanHang}"></span>
@@ -77,11 +79,14 @@
 									<th>Số Lượng</th>
 									<th>Giá Tại Thời Điểm Đặt</th>
 									<th>Thành Tiền</th>
+									<th>Đánh giá</th>
 								</tr>
 							</thead>
+
+
 							<tbody>
-								<tr th:each="chiTiet : ${hoaDon.donHang.chiTietDonHangs}">
-									<td th:text="${chiTiet.sanPham.maSanPham}"></td>
+								<tr th:each="chiTiet, iterStat : ${hoaDon.donHang.chiTietDonHangs}">
+									<td th:text="${iterStat.count}"></td>
 									<td style="text-align: center;">
 										<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}"
 											style="width: 100px; height: auto; border-radius: 10px;"
@@ -93,8 +98,24 @@
 									<td
 										th:text="${chiTiet.giaTaiThoiDiemDat.multiply(new java.math.BigDecimal(chiTiet.soLuong))} + ' VND'">
 									</td>
+									<td>
+										<div th:if="${!danhGiaStatuses[iterStat.index]}">
+											<a th:href="@{/customer/hoadon/{maHoaDon}/danhgia/{maSanPham}(maHoaDon=${hoaDon.maHoaDon}, maSanPham=${chiTiet.sanPham.maSanPham})}"
+												class="btn btn-warning">Đánh Giá</a>
+										</div>
+										<!--<div th:if="${danhGiaStatuses[iterStat.index]}">
+											<a th:href="@{/customer/hoadon/{maHoaDon}/danhgia/{maSanPham}/view(maHoaDon=${hoaDon.maHoaDon}, maSanPham=${chiTiet.sanPham.maSanPham})}"
+												class="btn btn-info">Xem Đánh Giá</a>
+										</div>-->
+										<div
+											th:if="${danhGiaStatuses != null and danhGiaStatuses.size() > iterStat.index and danhGiaStatuses[iterStat.index]}">
+											<a th:href="@{/customer/hoadon/{maHoaDon}/danhgia/{maSanPham}/view(maHoaDon=${hoaDon.maHoaDon}, maSanPham=${chiTiet.sanPham.maSanPham})}"
+												class="btn btn-info">Xem Đánh Giá</a>
+										</div>
+									</td>
 								</tr>
 							</tbody>
+
 						</table>
 						<div class="mt-4">
 							<a th:href="@{/customer/hoadon}" class="btn btn-secondary">Quay Lại</a>

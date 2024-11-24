@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.kimngan.ComesticAdmin.entity.DanhGia;
 import com.kimngan.ComesticAdmin.entity.DanhMuc;
 import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
@@ -19,6 +20,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import com.kimngan.ComesticAdmin.services.DanhGiaService;
 import com.kimngan.ComesticAdmin.services.DanhMucService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
@@ -54,161 +56,8 @@ public class CustomerController {
 	@Autowired
 	private YeuThichService yeuThichService;
 
-	// Trang index, có thể truy cập không cần đăng nhập
-//	@GetMapping({ "/", "/index" })
-//	public String homeOrIndex(Model model, @RequestParam(defaultValue = "0") int page,
-//			Authentication authentication) {
-//		NguoiDung currentUser = null;
-//		if (authentication != null && authentication.isAuthenticated()) {
-//	        currentUser = (NguoiDung) authentication.getPrincipal();
-//	        System.out.println("Current user: " + currentUser.getTenNguoiDung());
-//	    } else {
-//	        System.out.println("User is not authenticated.");
-//	        return "redirect:/customer/login";
-//	    }
-//
-//		System.out.println("Current user: " + currentUser.getTenNguoiDung());
-//		// Kiểm tra nếu currentUser không null, nghĩa là người dùng đã đăng nhập
-//		// Lấy danh sách ID các sản phẩm yêu thích của người dùng hiện tại
-//		Set<Integer> favoriteProductIds = yeuThichService.getFavoriteProductIdsForUser(currentUser);
-//		System.out.println("favoriteProductIds: " + favoriteProductIds);
-//		model.addAttribute("favoriteProductIds", favoriteProductIds != null ? favoriteProductIds : new HashSet<>());
-//
-//		Pageable pageable = PageRequest.of(page, 15);
-//		Page<SanPham> sanPhams = sanPhamService.getProductsInOrderDetails(pageable);
-//		LocalDate today = LocalDate.now();
-//
-//		// Sử dụng Map với maSanPham làm key
-//		Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
-//		Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
-//
-//		// Tính khuyến mãi cao nhất cho từng sản phẩm và giá sau khi giảm
-//		for (SanPham sanPham : sanPhams) {
-//			Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
-//					.filter(km -> km.getTrangThai()) // Chỉ lấy khuyến mãi có trạng thái true
-//					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
-//							&& !km.getNgayKetThuc().toLocalDate().isBefore(today)) // Chỉ lấy khuyến mãi còn hạn
-//					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia)); // Lấy khuyến mãi cao nhất
-//
-//			BigDecimal giaSauGiam = sanPham.getDonGiaBan();
-//			if (highestCurrentKhuyenMai.isPresent()) {
-//				BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
-//				giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-//				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
-//			} else {
-//				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), null);
-//			}
-//
-//			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
-//		}
-//		// Lấy danh sách danh mục
-//		List<DanhMuc> danhMucs = danhMucService.getAll(); // Giả định rằng bạn có phương thức này
-//		List<DanhMuc> categories = danhMucService.getAll();
-//		// Tự động chia danh mục thành 2 nhóm: hiển thị và ẩn
-//		int maxVisible = 4; // Số lượng danh mục hiển thị ban đầu
-//		List<DanhMuc> visibleDanhMucs = danhMucs.subList(0, Math.min(danhMucs.size(), maxVisible));
-//		List<DanhMuc> hiddenDanhMucs = danhMucs.size() > maxVisible ? danhMucs.subList(maxVisible, danhMucs.size())
-//				: new ArrayList<>();
-//
-//		model.addAttribute("sanPhams", sanPhams);
-//		model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap); // Map khuyến mãi cao nhất cho từng sản phẩm
-//		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap); // Giá sau khi giảm
-//		model.addAttribute("danhMucs", danhMucs);
-//		model.addAttribute("currentPage", page);
-//		model.addAttribute("totalPages", sanPhams.getTotalPages());
-//
-//		// Thêm vào model để sử dụng trong view
-//		model.addAttribute("visibleDanhMucs", visibleDanhMucs);
-//		model.addAttribute("hiddenDanhMucs", hiddenDanhMucs);
-//		model.addAttribute("categories", categories);
-//
-//		System.out.println("Danh sách danh mục: " + danhMucs.size());
-//
-//		return "index"; // Trả về trang index hiển thị tổng quan các sản phẩm
-//	}
-
-//	@GetMapping({ "/", "/index" })
-//	public String homeOrIndex(Model model, @RequestParam(defaultValue = "0") int page, Authentication authentication) {
-//	    NguoiDung currentUser = null;
-//	    if (authentication != null && authentication.isAuthenticated()) {
-//	        Object principal = authentication.getPrincipal();
-//	        if (principal instanceof NguoiDungDetails) {
-//	            // Ép kiểu principal thành NguoiDungDetails và lấy NguoiDung
-//	            NguoiDungDetails userDetails = (NguoiDungDetails) principal;
-//	            currentUser = userDetails.getNguoiDung();
-//	            System.out.println("Current user: " + currentUser.getTenNguoiDung());
-//	        } else {
-//	            System.out.println("Principal is not of type NguoiDungDetails.");
-//	        }
-//	    } else {
-//	        System.out.println("User is not authenticated.");
-//	        return "redirect:/customer/login";
-//	    }
-//
-//	    if (currentUser == null) {
-//	        System.out.println("User is null after authentication check.");
-//	        return "redirect:/customer/login";
-//	    }
-//
-//	    // Lấy danh sách ID các sản phẩm yêu thích của người dùng hiện tại
-//	    Set<Integer> favoriteProductIds = yeuThichService.getFavoriteProductIdsForUser(currentUser);
-//	    System.out.println("favoriteProductIds: " + favoriteProductIds);
-//	    model.addAttribute("favoriteProductIds", favoriteProductIds != null ? favoriteProductIds : new HashSet<>());
-//
-//	    Pageable pageable = PageRequest.of(page, 15);
-//	    Page<SanPham> sanPhams = sanPhamService.getProductsInOrderDetails(pageable);
-//	    LocalDate today = LocalDate.now();
-//
-//	    // Sử dụng Map với maSanPham làm key
-//	    Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
-//	    Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
-//
-//	    // Tính khuyến mãi cao nhất cho từng sản phẩm và giá sau khi giảm
-//	    for (SanPham sanPham : sanPhams) {
-//	        Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
-//	                .filter(km -> km.getTrangThai()) // Chỉ lấy khuyến mãi có trạng thái true
-//	                .filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
-//	                        && !km.getNgayKetThuc().toLocalDate().isBefore(today)) // Chỉ lấy khuyến mãi còn hạn
-//	                .max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia)); // Lấy khuyến mãi cao nhất
-//
-//	        BigDecimal giaSauGiam = sanPham.getDonGiaBan();
-//	        if (highestCurrentKhuyenMai.isPresent()) {
-//	            BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
-//	            giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-//	            sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
-//	        } else {
-//	            sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), null);
-//	        }
-//
-//	        sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
-//	    }
-//
-//	    // Lấy danh sách danh mục
-//	    List<DanhMuc> danhMucs = danhMucService.getAll();
-//	    List<DanhMuc> categories = danhMucService.getAll();
-//
-//	    // Tự động chia danh mục thành 2 nhóm: hiển thị và ẩn
-//	    int maxVisible = 4; // Số lượng danh mục hiển thị ban đầu
-//	    List<DanhMuc> visibleDanhMucs = danhMucs.subList(0, Math.min(danhMucs.size(), maxVisible));
-//	    List<DanhMuc> hiddenDanhMucs = danhMucs.size() > maxVisible ? danhMucs.subList(maxVisible, danhMucs.size())
-//	            : new ArrayList<>();
-//
-//	    model.addAttribute("sanPhams", sanPhams);
-//	    model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap); // Map khuyến mãi cao nhất cho từng sản phẩm
-//	    model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap); // Giá sau khi giảm
-//	    model.addAttribute("danhMucs", danhMucs);
-//	    model.addAttribute("currentPage", page);
-//	    model.addAttribute("totalPages", sanPhams.getTotalPages());
-//
-//	    // Thêm vào model để sử dụng trong view
-//	    model.addAttribute("visibleDanhMucs", visibleDanhMucs);
-//	    model.addAttribute("hiddenDanhMucs", hiddenDanhMucs);
-//	    model.addAttribute("categories", categories);
-//
-//	    System.out.println("Danh sách danh mục: " + danhMucs.size());
-//
-//	    return "index"; // Trả về trang index hiển thị tổng quan các sản phẩm
-//	}
+	@Autowired
+	private DanhGiaService danhGiaService;
 
 	@GetMapping({ "/", "/index" })
 	public String homeOrIndex(Model model, @RequestParam(defaultValue = "0") int page, Authentication authentication) {
@@ -321,6 +170,9 @@ public class CustomerController {
 		SanPham sanPham = sanPhamService.findById(productId);
 		if (sanPham != null) {
 			model.addAttribute("sanPham", sanPham);
+			// Lấy danh sách đánh giá sản phẩm
+	        List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
+	        model.addAttribute("danhGias", danhGias);
 			BigDecimal giaSauGiam = sanPham.getDonGiaBan() != null ? sanPham.getDonGiaBan() : BigDecimal.ZERO;
 
 			Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{customer/fragments/head :: head}"></head>
+
+<body>
+	<!-- Header -->
+	<div th:replace="~{customer/fragments/header :: header}"></div>
+	<!-- End Header -->
+
+	<main style="padding: 50px;">
+		<div class="container" style=" padding: 0px 200px ;padding-top: 180px; background-color: rgb(192, 192, 192);">
+			<h3>Chi Tiết Đánh Giá</h3>
+			<div th:if="${danhGia != null}">
+				<p><strong>Tên Sản Phẩm:</strong> <span th:text="${danhGia.sanPham.tenSanPham}"></span></p>
+				<p><strong>Số Sao:</strong> <span th:text="${danhGia.soSao}"></span></p>
+				<p><strong>Nội Dung Đánh Giá:</strong> <span th:text="${danhGia.noiDung}"></span></p>
+				<p><strong>Thời Gian Đánh Giá:</strong> <span
+						th:text="${#temporals.format(danhGia.thoiGianDanhGia, 'dd/MM/yyyy HH:mm')}"></span></p>
+			</div>
+			<a th:href="@{/customer/hoadon/{maDonHang}(maDonHang=${danhGia.hoaDon.donHang.maDonHang})}"
+				class="btn btn-secondary">Quay Lại</a>
+
+		</div>
+	</main>
+
+
+	<!-- Footer -->
+	<div th:replace="~{customer/fragments/footer :: footer}"></div>
+	<!-- End Footer -->
+	<!-- Core JS Files -->
+	<div th:replace="~{customer/fragments/script :: script}"></div>
+	<!-- End JS -->
+</body>
+
+</html>

@@ -4,43 +4,38 @@
 <head th:replace="~{customer/fragments/head :: head}"></head>
 
 <body>
-    <!-- Header -->
-    <div th:replace="~{customer/fragments/header :: header}"></div>
-    <!-- End Header -->
+	<div th:replace="~{customer/fragments/header :: header}"></div>
+	<main style="padding: 0px 170px; padding-top: 180px;">
+		<div class="container">
+			<div th:if="${errorMessage != null and #strings.contains(errorMessage, 'không thành công')}"
+				class="alert alert-danger">
+				<p th:text="${errorMessage}"></p>
+			</div>
 
-    <main style="padding: 50px;">
-        <div class="container">
-            <h3>Đánh Giá Sản Phẩm</h3>
-            <div th:if="${sanPham != null}">
-                <p><strong>Tên Sản Phẩm:</strong> <span th:text="${sanPham.tenSanPham}"></span></p>
-
-                <form action="#" th:action="@{/customer/rating/create}" method="post">
-                    <input type="hidden" th:value="${sanPham.maSanPham}" name="maSanPham" />
-
-                    <div class="mb-3">
-                        <label for="soSao" class="form-label">Số Sao:</label>
-                        <select id="soSao" name="soSao" class="form-control">
-                            <option th:each="i : ${#numbers.sequence(1, 5)}" th:value="${i}" th:text="${i}"></option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="noiDung" class="form-label">Nội Dung Đánh Giá:</label>
-                        <textarea id="noiDung" name="noiDung" class="form-control" rows="4"></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Gửi Đánh Giá</button>
-                </form>
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <div th:replace="~{customer/fragments/footer :: footer}"></div>
-    <!-- End Footer -->
-    <!-- Core JS Files -->
-    <div th:replace="~{customer/fragments/script :: script}"></div>
-    <!-- End JS -->
+			<h3>Đánh Giá Sản Phẩm</h3>
+			<div th:if="${sanPham != null}">
+				<p><strong>Tên Sản Phẩm:</strong> <span th:text="${sanPham.tenSanPham}"></span></p>
+				<form
+					th:action="@{/customer/hoadon/{maHoaDon}/danhgia/{maSanPham}(maHoaDon=${hoaDon.maHoaDon}, maSanPham=${sanPham.maSanPham})}"
+					method="post">
+					<input type="hidden" th:value="${sanPham.maSanPham}" name="maSanPham" />
+					<div class="mb-3">
+						<label for="rating" class="form-label">Số Sao:</label>
+						<select id="rating" name="rating" class="form-control" required>
+							<option th:each="i : ${#numbers.sequence(1, 5)}" th:value="${i}" th:text="${i}"></option>
+						</select>
+					</div>
+					<div class="mb-3">
+						<label for="comment" class="form-label">Nội Dung Đánh Giá:</label>
+						<textarea id="comment" name="comment" class="form-control" rows="4" required></textarea>
+					</div>
+					<button type="submit" class="btn btn-primary">Gửi Đánh Giá</button>
+				</form>
+			</div>
+		</div>
+	</main>
+	<div th:replace="~{customer/fragments/footer :: footer}"></div>
+	<div th:replace="~{customer/fragments/script :: script}"></div>
 </body>
 
 </html>
