@@ -1,74 +1,91 @@
-<!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="admin/fragments/head :: head"></head>
+<head th:replace="admin/fragments/head :: head">
+	<title>Thêm Chi Tiết Đơn Nhập Hàng</title>
+</head>
 
 <body>
 	<div class="wrapper">
-		<!-- Sidebar -->
 		<div th:replace="admin/fragments/sidebar::sidebar"></div>
-		<!-- End Sidebar -->
-
 		<div class="main-panel">
-			<!-- Header -->
 			<div th:replace="admin/fragments/header :: header"></div>
-			<!-- End Header -->
-
 			<div class="container" style="background-color: #faeee7;">
 				<div class="page-inner">
-
 					<div class="d-flex justify-content-between align-items-center">
 						<div>
-							<h3 class="fw-bold mb-3">Đã Tạo Đơn Nhập Hàng</h3>
-						</div>
+							<h3 class="fw-bold mb-3">Thêm Chi Tiết Đơn Nhập Hàng</h3>
 
+							<!-- Hiển thị thông tin đơn nhập hàng -->
+							<p>Mã đơn nhập: <span th:text="${donNhapHang.maDonNhapHang}"></span></p>
+							<p>Ngày nhập: <span th:text="${donNhapHang.ngayNhapHang}"></span></p>
+							<p>Nhà cung cấp: <span th:text="${donNhapHang.nhaCungCap.tenNhaCungCap}"></span></p>
+
+							
+							<h3>Chi Tiết Đơn Nhập Hàng Đã Thêm</h3>
+							<table class="table table-bordered mt-4">
+								<thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
+									<tr>
+										<th>Sản phẩm</th>
+										<th>Số lượng nhập</th>
+										<th>Đơn giá nhập</th>
+										<th>Thao tác</th> <!-- Thêm cột Thao tác -->
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="chiTiet : ${chiTietList}" th:if="${chiTiet.soLuongNhap > 0}">
+										<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
+										<td th:text="${chiTiet.soLuongNhap}"></td>
+										<td th:text="${chiTiet.donGiaNhap}"></td>
+										<td>
+											<!-- Nút Xóa -->
+											<a th:href="@{/admin/hide-purchase-order-detail/{maDonNhapHang}/{maSanPham}(
+                        maDonNhapHang=${chiTiet.id.maDonNhapHang}, maSanPham=${chiTiet.id.maSanPham})}"
+												class="btn btn-danger">Xóa</a>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<!-- Form thêm chi tiết đơn nhập hàng mới -->
+							<div>
+								<h3>Thêm Chi Tiết Đơn Nhập Hàng Mới</h3>
+								<form
+									th:action="@{/admin/add-purchase-order-detail/{maDonNhapHang}(maDonNhapHang=${donNhapHang.maDonNhapHang})}"
+									method="post">
+
+									<label for="sanPhamId">Sản phẩm:</label>
+									<select name="sanPhamIds" class="form-control">
+										<option th:each="sanPham : ${sanPhams}" th:value="${sanPham.maSanPham}"
+											th:text="${sanPham.tenSanPham}"></option>
+									</select>
+
+									<label for="soLuongNhap">Số lượng nhập:</label>
+									<input type="number" name="soLuongNhap" placeholder="Số lượng nhập"
+										class="form-control" required>
+
+									<label for="donGiaNhap">Đơn giá nhập:</label>
+									<input type="number" name="donGiaNhap" placeholder="Đơn giá nhập"
+										class="form-control" required>
+
+									<button type="submit" class="btn btn-success mt-3">Thêm chi tiết</button>
+								</form>
+							</div>
+
+							<!-- Nút quay lại -->
+							<div>
+								<a href="/admin/purchaseorder" class="btn btn-secondary mt-3">Quay lại</a>
+							</div>
+
+						</div>
 					</div>
-
-					<!-- Form thêm nhà cung cấp -->
-
-					<form
-						th:action="@{/admin/save-purchase-order-details/{maDonNhapHang}(maDonNhapHang=${donNhapHang.maDonNhapHang})}"
-						method="post">
-						<!-- Hiển thị thông tin đơn nhập hàng -->
-						<div class="form-group">
-							<label>Mã Đơn Nhập: </label>
-							<input type="text" th:value="${donNhapHang.maDonNhapHang}" readonly class="form-control">
-						</div>
-
-						<div class="form-group">
-							<label>Nhà Cung Cấp: </label>
-							<input type="text" th:value="${donNhapHang.nhaCungCap.tenNhaCungCap}" readonly
-								class="form-control">
-						</div>
-
-						<div class="form-group">
-							<label>Ngày Nhập Hàng: </label>
-							<input type="text" th:value="${donNhapHang.ngayNhapHang}" readonly class="form-control">
-						</div>
-
-						
-					</form>
-
-					<!-- Nút quay lại -->
-					<a th:href="@{/admin/purchaseorder}" class="btn btn-secondary">Quay lại</a>
-
-					<!-- Phân trang -->
-					<!-- Kiểm tra nếu có sản phẩm và tổng số trang lớn hơn 0 thì hiển thị phân trang -->
-					
-					<!-- Kết thúc phân trang -->
-
 				</div>
 			</div>
-
-			<!-- Footer -->
 			<div th:replace="admin/fragments/footer::footer"></div>
-			<!-- End Footer -->
 		</div>
 	</div>
-
-	<!-- Core JS Files -->
 	<div th:replace="admin/fragments/script::script"></div>
-	<!-- End JS -->
+
 </body>
 
 </html>

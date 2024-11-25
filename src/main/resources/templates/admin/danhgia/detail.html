@@ -4,86 +4,114 @@
 <head th:replace="admin/fragments/head :: head"></head>
 
 <body>
-    <div class="wrapper">
-        <!-- Sidebar -->
-        <div th:replace="admin/fragments/sidebar :: sidebar"></div>
-        <!-- End Sidebar -->
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+		<!-- End Sidebar -->
 
-        <div class="main-panel">
-            <!-- Header -->
-            <div th:replace="admin/fragments/header :: header"></div>
-            <!-- End Header -->
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
 
-            <!-- Main Content -->
-            <div class="content" style="background-color: #faeee7;">
-                <div class="container-fluid">
-                    <h2 class="my-5 text-center">Chi Tiết Đánh Giá</h2>
+			<!-- Main Content -->
+			<div class="content" style="background-color: #faeee7;">
+				<div class="container-fluid">
+					<h2 class="my-5 text-center">Chi Tiết Đánh Giá</h2>
 
-                    <!-- Thông tin chi tiết đánh giá -->
-                    <div class="card p-4 mb-4" style="border-radius: 10px;">
-                        <h5 class="fw-bold">Đánh giá số: <span th:text="${danhGia.maDanhGia}"></span></h5>
-                        <p><strong>Tên sản phẩm:</strong> <span th:text="${danhGia.sanPham.tenSanPham}"></span></p>
+					<!-- Thông tin chi tiết đánh giá -->
+					<div class="card p-4 mb-4" style="border-radius: 10px;">
+						<h5 class="fw-bold">Đánh giá số: <span th:text="${danhGia.maDanhGia}"></span></h5>
+						<p><strong>Tên sản phẩm:</strong> <span th:text="${danhGia.sanPham.tenSanPham}"></span></p>
 
-                        <!-- Hiển thị hình ảnh sản phẩm -->
-                        <div class="text-center my-3">
-                            <img th:src="@{'/upload/' + ${danhGia.sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
-                                class="img-fluid" style="max-width: 200px; height: auto; border-radius: 10px;">
-                        </div>
+						<!-- Hiển thị hình ảnh sản phẩm -->
+						<div class="text-center my-3">
+							<img th:src="@{'/upload/' + ${danhGia.sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+								class="img-fluid" style="max-width: 200px; height: auto; border-radius: 10px;">
+						</div>
 
-                        <p><strong>Người đánh giá:</strong> <span th:text="${danhGia.nguoiDung.tenNguoiDung}"></span></p>
+						<p><strong>Người đánh giá:</strong> <span th:text="${danhGia.nguoiDung.tenNguoiDung}"></span>
+						</p>
 
-                        <!-- Hiển thị số sao bằng biểu tượng -->
-                        <p><strong>Số sao:</strong>
-                            <span th:each="i : ${#numbers.sequence(1, danhGia.soSao)}">
-                                <i class="fas fa-star" style="color: #ffc107;"></i> <!-- Biểu tượng sao vàng -->
-                            </span>
-                            <span th:each="i : ${#numbers.sequence(danhGia.soSao + 1, 5)}">
-                                <i class="far fa-star" style="color: #ffc107;"></i> <!-- Biểu tượng sao rỗng -->
-                            </span>
-                        </p>
+						<!-- Hiển thị số sao bằng biểu tượng -->
+						<div class="rating-container">
+							<strong>Số Sao:</strong>
+							<div class="rating-view">
+								<span th:each="i : ${#numbers.sequence(1, 5)}"
+									th:class="${i <= danhGia.soSao ? 'filled-star' : 'empty-star'}">&#9733;</span>
+							</div>
+						</div>
+						<style>
+							.rating-container {
+								display: flex;
+								align-items: center;
+								gap: 10px;
+								/* Giảm khoảng cách giữa "Số Sao:" và các ngôi sao */
+								margin-bottom: 10px;
+								/* Khoảng cách dưới dòng "Số Sao:" */
+							}
 
-                        <p><strong>Nội dung đánh giá:</strong> <span th:text="${danhGia.noiDung}"></span></p>
-                        <p><strong>Thời gian đánh giá:</strong> <span
-                                th:text="${#temporals.format(danhGia.thoiGianDanhGia, 'dd/MM/yyyy HH:mm')}"></span></p>
+							.rating-view {
+								display: flex;
+								gap: 3px;
+								/* Giảm khoảng cách giữa các ngôi sao */
+							}
 
-                        <!-- Phần phản hồi của admin -->
-                        <div class="form-group mt-4">
-                            <label for="adminReply"><strong>Phản hồi của Admin:</strong></label>
-                            <textarea id="adminReply" name="adminReply" class="form-control" rows="3"
-                                th:if="${danhGia.adminReply != null}" th:text="${danhGia.adminReply}"
-                                disabled></textarea>
-                        </div>
-                    </div>
+							.rating-view .filled-star {
+								font-size: 2em;
+								color: #ffd700;
+							}
 
-                    <!-- Form phản hồi -->
-                    <form th:action="@{/admin/danhgia/{maDanhGia}/reply(maDanhGia=${danhGia.maDanhGia})}" method="post">
-                        <div class="form-group">
-                            <label for="adminReply">Phản hồi của Admin:</label>
-                            <textarea id="adminReply" name="adminReply" class="form-control" rows="3"
-                                th:text="${danhGia.adminReply != null} ? ${danhGia.adminReply} : ''"></textarea>
-                        </div>
-                        <!-- Nút hành động -->
-                        <div class="d-flex justify-content-start mt-3">
-                            <button type="submit" class="btn btn-primary me-2">Gửi phản hồi</button>
-                            <a th:href="@{/admin/danhgia}" class="btn btn-secondary">Quay về</a>
-                        </div>
-                    </form>
+							.rating-view .empty-star {
+								font-size: 2em;
+								color: #ccc;
+							}
+						</style>
 
-                </div>
-            </div>
-            <!-- End Main Content -->
 
-            <!-- Footer -->
-            <div th:replace="admin/fragments/footer :: footer"></div>
-            <!-- End Footer -->
-        </div>
-    </div>
 
-    <!-- Core JS Files -->
-    <div th:replace="admin/fragments/script :: script"></div>
-    <!-- End JS -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <!-- Thêm link để sử dụng fontawesome -->
+						<p><strong>Nội dung đánh giá:</strong> <span th:text="${danhGia.noiDung}"></span></p>
+						<p><strong>Thời gian đánh giá:</strong> <span
+								th:text="${#temporals.format(danhGia.thoiGianDanhGia, 'dd/MM/yyyy HH:mm')}"></span></p>
+
+						<!-- Phần phản hồi của admin -->
+						<div class="form-group mt-4">
+							<label for="adminReply"><strong>Phản hồi của Admin:</strong></label>
+							<textarea id="adminReply" name="adminReply" class="form-control" rows="3"
+								th:if="${danhGia.adminReply != null}" th:text="${danhGia.adminReply}"
+								disabled></textarea>
+						</div>
+					</div>
+
+					<!-- Form phản hồi -->
+					<form th:action="@{/admin/danhgia/{maDanhGia}/reply(maDanhGia=${danhGia.maDanhGia})}" method="post">
+						<div class="form-group">
+							<label for="adminReply">Phản hồi của Admin:</label>
+							<textarea id="adminReply" name="adminReply" class="form-control" rows="3"
+								th:text="${danhGia.adminReply != null} ? ${danhGia.adminReply} : ''"></textarea>
+						</div>
+						<!-- Nút hành động -->
+						<div class="d-flex justify-content-start mt-3">
+							<button type="submit" class="btn btn-primary me-2">Gửi phản hồi</button>
+							<a th:href="@{/admin/danhgia}" class="btn btn-secondary">Quay về</a>
+						</div>
+					</form>
+
+				</div>
+			</div>
+			<!-- End Main Content -->
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer :: footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script :: script"></div>
+	<!-- End JS -->
+	<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+	<!-- Thêm link để sử dụng fontawesome -->
 </body>
 
 </html>

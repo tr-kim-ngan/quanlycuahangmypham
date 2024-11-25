@@ -32,21 +32,25 @@
 					</div>
 					<div class="row mt-4">
 						<div class="col-md-6">
+							<div th:if="${errorMessage != null}" class="alert alert-danger" role="alert">
+								<span th:text="${errorMessage}"></span>
+							</div>
+
 							<h5>Thông Tin Đơn Hàng</h5>
 							<p><strong>Mã Đơn Hàng:</strong> <span th:text="${donHang.maDonHang}"></span></p>
 							<p><strong>Khách Hàng:</strong> <span th:text="${donHang.nguoiDung.tenNguoiDung}"></span>
 							</p>
 							<p><strong>Ngày Đặt:</strong> <span
 									th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></span></p>
-							
-							
-							
-							
-							
+
+
+
+
+
 							<p><strong>Địa Chỉ Giao Hàng:</strong> <span th:text="${donHang.diaChiGiaoHang}"></span></p>
-							
-							
-							
+
+
+
 							<p><strong>Số Điện Thoại Nhận Hàng:</strong> <span th:text="${donHang.sdtNhanHang}"></span>
 							</p>
 							<p><strong>Trạng Thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span></p>

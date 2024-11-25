@@ -61,21 +61,7 @@ public class OrderController {
 		return "admin/order/index";
 	}
 
-//	// Xem chi tiết đơn hàng
-//	@GetMapping("/orders/{maDonHang}")
-//	public String viewOrder(@PathVariable("maDonHang") Integer maDonHang, Model model) {
-//		DonHang donHang = donHangService.getDonHangById(maDonHang);
-//		model.addAttribute("donHang", donHang);
-//		model.addAttribute("chiTietDonHangList", donHang.getChiTietDonHangs()); // Đảm bảo chi tiết đơn hàng được thêm
-//																				// vào model
-//
-//		/// Thêm đoạn code lấy thông tin người dùng
-//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
-//		model.addAttribute("user", userDetails);
-//
-//		return "admin/order/view";
-//	}
+
 
 	// Xem chi tiết đơn hàng (cho phép admin sửa trạng thái đơn hàng)
 	@GetMapping("/orders/{maDonHang}")
@@ -100,29 +86,6 @@ public class OrderController {
 	
 	
 
-
-
-
-
-	// Cập nhật trạng thái đơn hàng
-//	@PostMapping("/orders/{maDonHang}/update-status")
-//	public String updateOrderStatus(@PathVariable("maDonHang") Integer maDonHang, @RequestParam("status") String newStatus,
-//			RedirectAttributes redirectAttributes) {
-//	    try {
-//	        DonHang donHang = donHangService.getDonHangById(maDonHang);
-//	        if (donHang != null) {
-//	            donHang.setTrangThaiDonHang(newStatus);
-//	            donHangService.updateDonHang(donHang); // Lưu lại đơn hàng với trạng thái mới
-//	            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công.");
-//	        } else {
-//	            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng để cập nhật.");
-//	        }
-//	    } catch (Exception e) {
-//	        redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi cập nhật trạng thái đơn hàng: " + e.getMessage());
-//	    }
-//	    return "redirect:/admin/orders"; // Chuyển hướng về danh sách đơn hàng sau khi cập nhật
-//	}
-
 	// Cập nhật trạng thái đơn hàng
 	@PostMapping("/orders/{maDonHang}/update-status")
 	public String updateOrderStatus(@PathVariable("maDonHang") Integer maDonHang,
@@ -136,7 +99,47 @@ public class OrderController {
 					redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
 					return "redirect:/admin/orders/" + maDonHang; // Chuyển hướng lại trang chi tiết đơn hàng
 				}
-				
+//				 // Kiểm tra số lượng sản phẩm trước khi xác nhận đơn hàng
+//	            if ("Đã xác nhận".equals(newStatus)) {
+//	                for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+//	                    SanPham sanPham = chiTiet.getSanPham();
+//	                    int soLuongYeuCau = chiTiet.getSoLuong();
+//
+//	                    // Nếu số lượng yêu cầu lớn hơn số lượng tồn kho
+//	                    if (soLuongYeuCau > sanPham.getSoLuong()) {
+//	                        redirectAttributes.addFlashAttribute("errorMessage", 
+//	                                "Sản phẩm '" + sanPham.getTenSanPham() + "' không đủ số lượng tồn kho để xác nhận đơn hàng.");
+//	                        return "redirect:/admin/orders/" + maDonHang; // Quay lại trang chi tiết đơn hàng
+//	                    }
+//	                }
+//	            }
+				// Kiểm tra số lượng tồn kho cho tất cả các đơn hàng trước khi xác nhận
+//	            if ("Đã xác nhận".equals(newStatus)) {
+//	                List<DonHang> allOrders = donHangService.getAllOrdersSortedByNgayDat();
+//	                for (DonHang order : allOrders) {
+//	                    if (order.getMaDonHang().equals(maDonHang)) {
+//	                        // Kiểm tra số lượng sản phẩm của đơn hàng hiện tại
+//	                        for (ChiTietDonHang chiTiet : order.getChiTietDonHangs()) {
+//	                            SanPham sanPham = chiTiet.getSanPham();
+//	                            int soLuongYeuCau = chiTiet.getSoLuong();
+//
+//	                            // Nếu số lượng yêu cầu lớn hơn số lượng tồn kho
+//	                            if (soLuongYeuCau > sanPham.getSoLuong()) {
+//	                                redirectAttributes.addFlashAttribute("errorMessage",
+//	                                        "Sản phẩm '" + sanPham.getTenSanPham() + "' không đủ số lượng tồn kho để xác nhận đơn hàng.");
+//	                                return "redirect:/admin/orders/" + maDonHang; // Quay lại trang chi tiết đơn hàng
+//	                            }
+//	                        }
+//	                        break;
+//	                    }
+//	                }
+//	            }
+//				
+	            
+	            
+	            
+	            
+	            
 				if ("Đã hủy".equals(newStatus)) {
 					for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
 						SanPham sanPham = chiTiet.getSanPham();

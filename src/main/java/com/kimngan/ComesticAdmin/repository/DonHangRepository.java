@@ -29,6 +29,6 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 
 	@Query("SELECT SUM(d.tongGiaTriDonHang) FROM DonHang d WHERE d.nguoiDung.maNguoiDung = :maNguoiDung AND d.trangThaiDonHang = 'Đã hoàn thành'")
 	BigDecimal findTotalOrderValueByNguoiDung(@Param("maNguoiDung") Integer maNguoiDung);
-
+	List<DonHang> findAllByOrderByNgayDatAsc();
 	
 }

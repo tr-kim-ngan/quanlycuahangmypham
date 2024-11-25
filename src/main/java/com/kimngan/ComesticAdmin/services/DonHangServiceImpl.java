@@ -243,6 +243,12 @@ public class DonHangServiceImpl implements DonHangService {
 	    nguoiDungService.updateLoaiKhachHangBasedOnTotalOrders(donHang.getNguoiDung().getMaNguoiDung());
 	}
 
+	@Override
+	public List<DonHang> getAllOrdersSortedByNgayDat() {
+		// TODO Auto-generated method stub
+		return donHangRepository.findAllByOrderByNgayDatAsc();
+	}
+
 //	@Override
 //	public void updateOrderStatus(Integer maDonHang, String trangThaiMoi) {
 //		DonHang donHang = donHangRepository.findById(maDonHang)

@@ -13,9 +13,9 @@
 
 		<!-- Danh sách sản phẩm trong giỏ hàng -->
 		<div class="list-group">
-			<div th:each="item : ${cartItems}"  th:if="${item.sanPham.soLuong > 0}"  class="list-group-item d-flex align-items-center"
+			<div th:each="item : ${cartItems}"  class="list-group-item d-flex align-items-center"
 				style="border: 2px solid #00bcd4; border-radius: 10px; margin-bottom: 20px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); position: relative;">
-
+<!-- th:if="${item.sanPham.soLuong > 0}" -->
 
 
 				<!-- Hình ảnh sản phẩm -->
@@ -51,7 +51,7 @@
 							<input type="hidden" name="sanPhamId" th:value="${item.sanPham.maSanPham}">
 							<input type="number" name="quantity" th:value="${item.soLuong}" min="1"
 								th:max="${item.sanPham.soLuong}" class="form-control me-2" style="width: 80px;">
-							<button type="submit" class="btn btn-info">Cập nhật</button>
+							<button type="submit" class="btn btn-info">Tính tiền</button>
 						</form>
 
 					</div>

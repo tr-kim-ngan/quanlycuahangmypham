@@ -2,6 +2,7 @@ package com.kimngan.ComesticAdmin.services;
 
 import com.kimngan.ComesticAdmin.entity.ChiTietGioHang;
 import com.kimngan.ComesticAdmin.entity.GioHang;
+import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 
 import java.util.List;
@@ -13,5 +14,5 @@ public interface ChiTietGioHangService {
     void delete(ChiTietGioHang chiTietGioHang);  // Xóa chi tiết sản phẩm khỏi giỏ hàng
     void addOrUpdateChiTietGioHang(GioHang gioHang, SanPham sanPham, int soLuong);
 
-
+   
 }
