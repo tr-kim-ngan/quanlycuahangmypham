@@ -39,6 +39,8 @@
 								<td>
 									<a th:href="@{/customer/hoadon/{maDonHang}(maDonHang=${hoaDon.donHang.maDonHang})}"
 										class="btn btn-primary">Xem Chi Tiết</a>
+
+
 								</td>
 
 
@@ -98,21 +100,20 @@
 									<td
 										th:text="${chiTiet.giaTaiThoiDiemDat.multiply(new java.math.BigDecimal(chiTiet.soLuong))} + ' VND'">
 									</td>
+									
 									<td>
-										<div th:if="${!danhGiaStatuses[iterStat.index]}">
-											<a th:href="@{/customer/hoadon/{maHoaDon}/danhgia/{maSanPham}(maHoaDon=${hoaDon.maHoaDon}, maSanPham=${chiTiet.sanPham.maSanPham})}"
-												class="btn btn-warning">Đánh Giá</a>
-										</div>
-										<!--<div th:if="${danhGiaStatuses[iterStat.index]}">
-											<a th:href="@{/customer/hoadon/{maHoaDon}/danhgia/{maSanPham}/view(maHoaDon=${hoaDon.maHoaDon}, maSanPham=${chiTiet.sanPham.maSanPham})}"
-												class="btn btn-info">Xem Đánh Giá</a>
-										</div>-->
-										<div
-											th:if="${danhGiaStatuses != null and danhGiaStatuses.size() > iterStat.index and danhGiaStatuses[iterStat.index]}">
-											<a th:href="@{/customer/hoadon/{maHoaDon}/danhgia/{maSanPham}/view(maHoaDon=${hoaDon.maHoaDon}, maSanPham=${chiTiet.sanPham.maSanPham})}"
-												class="btn btn-info">Xem Đánh Giá</a>
-										</div>
+										<!-- Hiển thị nút "Xem Đánh Giá" hoặc "Đánh Giá" -->
+										<a th:if="${danhGiaStatuses[iterStat.index]}"
+											th:href="@{'/customer/hoadon/' + ${hoaDon.maHoaDon} + '/danhgia/' + ${chiTiet.sanPham.maSanPham} + '/view'}"
+											class="btn btn-primary">
+											Xem Đánh Giá
+										</a>
+										<a th:if="${!danhGiaStatuses[iterStat.index]}"
+											th:href="@{'/customer/hoadon/' + ${hoaDon.maHoaDon} + '/danhgia/' + ${chiTiet.sanPham.maSanPham}}"
+											class="btn btn-secondary">Đánh Giá</a>
 									</td>
+
+
 								</tr>
 							</tbody>
 
@@ -136,6 +137,8 @@
 	<!-- End Footer -->
 	<!-- Core JS Files -->
 	<div th:replace="~{customer/fragments/script :: script}"></div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 	<!-- End JS -->
 </body>
 

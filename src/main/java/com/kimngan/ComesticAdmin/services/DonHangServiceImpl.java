@@ -58,17 +58,29 @@ public class DonHangServiceImpl implements DonHangService {
 		if (donHangRepository.existsById(maDonHang)) {
 			donHangRepository.deleteById(maDonHang);
 		} else {
-			throw new RuntimeException("Đơn hàng không tồn tại với mã: " + maDonHang);
+			throw new RuntimeException("Đơn hà ng không tồn tại với mã: " + maDonHang);
 		}
 
 	}
 
+//	@Override
+//	public DonHang getDonHangById(Integer maDonHang) {
+//		 System.out.println("Lấy đơn hàng với mã: " + maDonHang);
+//		// TODO Auto-generated method stub
+//		return donHangRepository.findById(maDonHang)
+//				.orElseThrow(() -> new RuntimeException(" đánh dấu trong DonHang getDonHangById(Integer maDonHang)  Đơn hàng không tồn tại với mã: " + maDonHang));
+//	}
 	@Override
 	public DonHang getDonHangById(Integer maDonHang) {
-		// TODO Auto-generated method stub
-		return donHangRepository.findById(maDonHang)
-				.orElseThrow(() -> new RuntimeException("Đơn hàng không tồn tại với mã: " + maDonHang));
+	    System.out.println("Lấy đơn hàng với mã: " + maDonHang);
+	    Optional<DonHang> donHang = donHangRepository.findById(maDonHang);
+	    if (donHang.isEmpty()) {
+	        System.out.println(" public DonHang getDonHangById(Integer maDonHang) Không tìm thấy đơn hàng với mã: " + maDonHang);
+	        return null; // Hoặc throw custom exception
+	    }
+	    return donHang.get();
 	}
+
 
 	@Override
 	public List<DonHang> getAllDonHangs() {
