@@ -134,21 +134,93 @@
 						<p th:text="${sanPham.moTa}" style="text-align: justify;"></p>
 					</div>
 					<!-- Hàng 2: Đánh giá -->
+					<!-- Hàng 2: Đánh giá -->
+					<!-- Hàng 2: Đánh giá -->
 					<div class="mt-4">
 						<h3>Đánh giá sản phẩm</h3>
 						<div th:if="${danhGias != null and !danhGias.isEmpty()}">
-							<div th:each="danhGia : ${danhGias}" style="margin-bottom: 15px;">
-								<p><strong>Người đánh giá:</strong> <span
-										th:text="${danhGia.nguoiDung.tenNguoiDung}"></span></p>
-								<p><strong>Số sao:</strong> <span th:text="${danhGia.soSao}"></span></p>
-								<p><strong>Nội dung:</strong> <span th:text="${danhGia.noiDung}"></span></p>
-								<hr>
+							<button class="btn btn-outline-primary" type="button" onclick="toggleAllReviews()">
+								<span>Xem tất cả đánh giá</span> <span id="arrow">&#9660;</span>
+							</button>
+							<div id="all-reviews" style="display: none; margin-top: 10px;">
+								<div th:each="danhGia : ${danhGias}" style="margin-bottom: 15px;">
+									<p><strong>Người đánh giá:</strong> <span
+											th:text="${danhGia.nguoiDung.tenNguoiDung}"></span></p>
+									<div class="rating-container">
+										<strong>Số sao:</strong>
+										<div class="rating-view">
+											<span th:each="i : ${#numbers.sequence(1, 5)}"
+												th:class="${i <= danhGia.soSao ? 'filled-star' : 'empty-star'}">&#9733;</span>
+										</div>
+									</div>
+									<p><strong>Nội dung:</strong> <span th:text="${danhGia.noiDung}"></span></p>
+									<hr>
+								</div>
 							</div>
 						</div>
 						<div th:if="${danhGias == null || danhGias.isEmpty()}">
 							<p>Chưa có đánh giá nào cho sản phẩm này.</p>
 						</div>
 					</div>
+
+					<!-- JavaScript to toggle the display of all reviews -->
+					<script>
+						function toggleAllReviews() {
+							const reviewContainer = document.getElementById('all-reviews');
+							const arrow = document.getElementById('arrow');
+							if (reviewContainer.style.display === "none") {
+								reviewContainer.style.display = "block";
+								arrow.innerHTML = "&#9650;"; // Mũi tên hướng lên
+							} else {
+								reviewContainer.style.display = "none";
+								arrow.innerHTML = "&#9660;"; // Mũi tên hướng xuống
+							}
+						}
+					</script>
+
+					<!-- CSS for Star Rating -->
+					<style>
+						.rating-container {
+							display: flex;
+							align-items: center;
+							gap: 5px;
+							margin-bottom: 10px;
+						}
+
+						.rating-view {
+							display: flex;
+							gap: 3px;
+						}
+
+						.rating-view .filled-star {
+							font-size: 1.5em;
+							color: #ffd700;
+							/* Màu vàng cho ngôi sao đã chọn */
+						}
+
+						.rating-view .empty-star {
+							font-size: 1.5em;
+							color: #ccc;
+							/* Màu xám cho ngôi sao chưa chọn */
+						}
+
+						.btn-outline-primary {
+							color: #ffa726;
+							border-color: #ffa726;
+						}
+
+						.btn-outline-primary:hover {
+							color: #fff;
+							background-color: #ffa726;
+							border-color: #ffa726;
+						}
+
+						#arrow {
+							margin-left: 10px;
+							font-size: 1.2em;
+						}
+					</style>
+
 				</div>
 
 
