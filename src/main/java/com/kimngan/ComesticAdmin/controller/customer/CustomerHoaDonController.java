@@ -36,246 +36,182 @@ import com.kimngan.ComesticAdmin.services.SanPhamService;
 @RequestMapping("/customer")
 public class CustomerHoaDonController {
 
-    @Autowired
-    private HoaDonService hoaDonService;
+	@Autowired
+	private HoaDonService hoaDonService;
 
-    @Autowired
-    private DonHangService donHangService;
-    
-    @Autowired
-    private NguoiDungService nguoiDungService;
-    
-    @Autowired
-    private SanPhamService sanPhamService;
-    
-    @Autowired
-    private DanhGiaService danhGiaService;
+	@Autowired
+	private DonHangService donHangService;
 
-    // Xem danh sách hóa đơn
-    @GetMapping("/hoadon")
-    public String getHoaDons(Model model) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<HoaDon> hoaDons = hoaDonService.getHoaDonsByCustomer(username);
-        model.addAttribute("hoaDons", hoaDons);
-        return "customer/hoadon";
-    }
+	@Autowired
+	private NguoiDungService nguoiDungService;
 
-//    // Xem chi tiết hóa đơn
-//    @GetMapping("/hoadon/{maDonHang}")
-//    public String viewHoaDon(@PathVariable("maDonHang") Integer maDonHang, 
-//    		Principal principal,
-//    		Model model) {
-//        DonHang donHang = donHangService.getDonHangById(maDonHang);
-//        if (donHang == null) {
-//            model.addAttribute("errorMessage", "Không tìm thấy đơn hàng này.");
-//            return "customer/hoadon"; // Chuyển về trang danh sách hóa đơn nếu đơn hàng không tồn tại
-//        }
-//
-//        HoaDon hoaDon = hoaDonService.getHoaDonByDonHang(donHang);
-//        if (hoaDon == null) {
-//            model.addAttribute("errorMessage", "Không tìm thấy hóa đơn cho đơn hàng này.");
-//            return "customer/hoadon"; // Chuyển về trang danh sách hóa đơn nếu hóa đơn không tồn tại
-//        }
-//        DecimalFormat formatter = new DecimalFormat("#,###.##");
-//        String formattedTotal = formatter.format(hoaDon.getTongTien());
-//        model.addAttribute("formattedTotal", formattedTotal);
-//
-//        model.addAttribute("hoaDon", hoaDon);
-//        return "customer/hoadon"; // Trả về view để hiển thị chi tiết hóa đơn
-//    }
+	@Autowired
+	private SanPhamService sanPhamService;
 
-//    
-  
+	@Autowired
+	private DanhGiaService danhGiaService;
 
-    @GetMapping("/hoadon/{maDonHang}")
-    public String viewHoaDon(@PathVariable("maDonHang") Integer maDonHang, Model model, Principal principal) {
-        DonHang donHang = donHangService.getDonHangById(maDonHang);
-//        if (donHang == null) {
-//        	
-//            model.addAttribute("errorMessage", "Không tìm thấy đơn hàng này.");
-//            return "customer/hoadon"; // Quay lại trang hóa đơn nếu không tìm thấy đơn hàng
-//        }
-        
-        if (donHang == null) {
-            throw new RuntimeException("Đơn hàng không tồn tại với mã: " + maDonHang);
-        }
+	// Xem danh sách hóa đơn
+	@GetMapping("/hoadon")
+	public String getHoaDons(Model model) {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		List<HoaDon> hoaDons = hoaDonService.getHoaDonsByCustomer(username);
+		model.addAttribute("hoaDons", hoaDons);
+		return "customer/hoadon";
+	}
 
-        HoaDon hoaDon = hoaDonService.getHoaDonByDonHang(donHang);
-        if (hoaDon == null) {
-        	
-            System.out.println("Không tìm thấy đơn hàng với mã: " + maDonHang);
-
-            model.addAttribute("errorMessage", "Không tìm thấy hóa đơn cho đơn hàng này.");
-            return "customer/hoadon"; // Quay lại trang hóa đơn nếu không tìm thấy hóa đơn
-        
-        }
-
-        String username = principal.getName();
-        NguoiDung nguoiDung = nguoiDungService.findByTenNguoiDung(username);
-        System.out.println("Người dùng hiện tại: " + username);
-        
-        // Thêm danh sách chi tiết đơn hàng vào model
-        List<ChiTietDonHang> chiTietDonHangs = hoaDon.getDonHang().getChiTietDonHangs();
-        model.addAttribute("chiTietDonHangs", chiTietDonHangs);
-
-        // Kiểm tra trạng thái đánh giá của từng sản phẩm
-        List<Boolean> danhGiaStatuses = new ArrayList<>();
-//        for (ChiTietDonHang chiTiet : chiTietDonHangs) {
-//
-//            boolean daDanhGia = danhGiaService.existsByHoaDonAndNguoiDung(hoaDon, nguoiDung);
-//            danhGiaStatuses.add(daDanhGia);
-//            System.out.println("Sản phẩm: " + chiTiet.getSanPham().getTenSanPham() + " đã được đánh giá: " + daDanhGia);
-//
-//        }
-        if (chiTietDonHangs != null && !chiTietDonHangs.isEmpty()) {
-            for (ChiTietDonHang chiTiet : chiTietDonHangs) {
-                boolean daDanhGia = danhGiaService.existsByHoaDonAndNguoiDung(hoaDon, nguoiDung);
-                danhGiaStatuses.add(daDanhGia);
-            }
-        }
-        model.addAttribute("danhGiaStatuses", danhGiaStatuses);
-     
-        model.addAttribute("danhGiaStatuses", danhGiaStatuses);
-        model.addAttribute("danhGiaStatuses", danhGiaStatuses);
-        model.addAttribute("hoaDon", hoaDon);
-        model.addAttribute("nguoiDung", nguoiDung);
-
-        DecimalFormat formatter = new DecimalFormat("#,###.##");
-        String formattedTotal = formatter.format(hoaDon.getTongTien());
-        model.addAttribute("formattedTotal", formattedTotal);
-
-        return "customer/hoadon";
-    }
-
-   
-
-    @GetMapping("/hoadon/{maHoaDon}/danhgia/{maSanPham}/view")
-    public String viewRating(
-            @PathVariable("maHoaDon") Integer maHoaDon,
-            @PathVariable("maSanPham") Integer maSanPham,
-            Model model,
-            Principal principal) {
-
-        String username = principal.getName();
-        NguoiDung nguoiDung = nguoiDungService.findByTenNguoiDung(username);
-        HoaDon hoaDon = hoaDonService.getHoaDonById(maHoaDon);
-        SanPham sanPham = sanPhamService.findById(maSanPham);
-
-        if (hoaDon == null || sanPham == null || nguoiDung == null) {
-            model.addAttribute("errorMessage", "Không tìm thấy hóa đơn, sản phẩm hoặc người dùng để xem đánh giá.");
-            return "redirect:/customer/hoadon/" + maHoaDon;
-        }
-
-        DanhGia danhGia = danhGiaService.findByHoaDonAndSanPhamAndNguoiDung(hoaDon, sanPham, nguoiDung);
-
-        if (danhGia == null) {
-            model.addAttribute("errorMessage", "Không tìm thấy đánh giá cho sản phẩm này.");
-            return "redirect:/customer/hoadon/"  + hoaDon.getDonHang().getMaDonHang();
-        }
-
-        model.addAttribute("danhGia", danhGia);
-        return "customer/view_rating";
-    }
-
-    
-
-    @GetMapping("/hoadon/{maHoaDon}/danhgia/{maSanPham}")
-    public String showRatingForm(@PathVariable("maHoaDon") Integer maHoaDon,
-                                 @PathVariable("maSanPham") Integer maSanPham,
-                                 Model model, Principal principal, 
-                                 RedirectAttributes redirectAttributes) {
-        // Lấy thông tin hóa đơn và sản phẩm
-        HoaDon hoaDon = hoaDonService.getHoaDonById(maHoaDon);
-        SanPham sanPham = sanPhamService.findById(maSanPham);
-        
-        if (hoaDon == null || sanPham == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy hóa đơn hoặc sản phẩm để đánh giá.");
-            return "redirect:/customer/hoadon" + hoaDon.getDonHang().getMaDonHang();
-        }
-
-        String username = principal.getName();
-        NguoiDung nguoiDung = nguoiDungService.findByTenNguoiDung(username);
-
-        // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
-        if (danhGiaService.existsByHoaDonAndNguoiDung(hoaDon, nguoiDung)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Bạn đã đánh giá sản phẩm này rồi.");
-            return "redirect:/customer/hoadon/" + maHoaDon;
-        }
-
-        // Thêm thông tin sản phẩm vào model để hiển thị trên form
-        model.addAttribute("hoaDon", hoaDon);
-        model.addAttribute("sanPham", sanPham);
-        model.addAttribute("errorMessage", ""); // Gán giá trị mặc định cho errorMessage
-        return "customer/rating_form";
-    }
  
 
+	@GetMapping("/hoadon/{maDonHang}")
+	public String viewHoaDon(@PathVariable("maDonHang") Integer maDonHang, Model model, Principal principal) {
+		// Lấy đơn hàng từ mã đơn hàng
+		System.out.println(" của viewRating Lấy đơn hàng với mã: " + maDonHang);
+		System.out.println("URL gọi với maDonHang: " + maDonHang); 
+		DonHang donHang = donHangService.getDonHangById(maDonHang);
+		if (donHang == null) {
+	        System.out.println("Không tìm thấy đơn hàng với mã: " + maDonHang);
+	        throw new RuntimeException("Đơn hàng không tồn tại với mã: " + maDonHang);
+	    }
+		System.out.println("của viewRating Lấy hóa đơn liên kết với đơn hàng: " + donHang.getMaDonHang());
+		// Lấy hóa đơn từ đơn hàng
+		HoaDon hoaDon = hoaDonService.getHoaDonByDonHang(donHang);
+		if (hoaDon == null) {
+			model.addAttribute("errorMessage", "Không tìm thấy hóa đơn liên kết với đơn hàng.");
+			return "redirect:/customer/hoadon";
+		}
 
-   
-    @PostMapping("/hoadon/{maHoaDon}/danhgia/{maSanPham}")
-    public String submitRating(
-            @PathVariable("maHoaDon") Integer maHoaDon,
-            @PathVariable("maSanPham") Integer maSanPham,
-            @RequestParam("rating") int rating,  // Đảm bảo tên 'rating' khớp với form
-            @RequestParam("comment") String comment,  // Đảm bảo tên 'comment' khớp với form
-            Principal principal,
-            RedirectAttributes redirectAttributes) {
+		String username = principal.getName();
+		NguoiDung nguoiDung = nguoiDungService.findByTenNguoiDung(username);
 
-        String username = principal.getName();
-        NguoiDung nguoiDung = nguoiDungService.findByTenNguoiDung(username);
-        HoaDon hoaDon = hoaDonService.getHoaDonById(maHoaDon);
-        SanPham sanPham = sanPhamService.findById(maSanPham);
-        
-        // In ra để kiểm tra
-        System.out.println("=== Start submitRating Method ===");
-        System.out.println("Username: " + username);
-        System.out.println("HoaDon (maHoaDon=" + maHoaDon + "): " + (hoaDon != null ? hoaDon.toString() : "null"));
-        System.out.println("SanPham (maSanPham=" + maSanPham + "): " + (sanPham != null ? sanPham.toString() : "null"));
+		// Lấy danh sách chi tiết đơn hàng
+		List<ChiTietDonHang> chiTietDonHangs = donHang.getChiTietDonHangs();
+		model.addAttribute("chiTietDonHangs", chiTietDonHangs);
+
+		// Kiểm tra trạng thái đánh giá cho từng sản phẩm trong đơn hàng
+		List<Boolean> danhGiaStatuses = new ArrayList<>();
+		for (ChiTietDonHang chiTiet : chiTietDonHangs) {
+			boolean daDanhGia = danhGiaService.existsByHoaDonAndSanPhamAndNguoiDung(hoaDon, chiTiet.getSanPham(),
+					nguoiDung);
+			danhGiaStatuses.add(daDanhGia);
+		}
+
+		// Gửi dữ liệu tới view
+		model.addAttribute("hoaDon", hoaDon);
+		model.addAttribute("danhGiaStatuses", danhGiaStatuses);
+		model.addAttribute("nguoiDung", nguoiDung);
+
+		// Định dạng tổng giá trị
+		DecimalFormat formatter = new DecimalFormat("#,###.##");
+		String formattedTotal = formatter.format(hoaDon.getTongTien());
+		model.addAttribute("formattedTotal", formattedTotal);
+
+		return "customer/hoadon";
+	}
+
+	
+	@GetMapping("/hoadon/{maHoaDon}/danhgia/{maSanPham}")
+	public String showRatingForm(@PathVariable("maHoaDon") Integer maHoaDon,
+	                             @PathVariable("maSanPham") Integer maSanPham,
+	                             Model model, Principal principal) {
+	    // Lấy thông tin hóa đơn và sản phẩm
+	    HoaDon hoaDon = hoaDonService.getHoaDonById(maHoaDon);
+	    SanPham sanPham = sanPhamService.findById(maSanPham);
+
+	    if (hoaDon == null || sanPham == null) {
+	        model.addAttribute("errorMessage", "Không tìm thấy hóa đơn hoặc sản phẩm để đánh giá.");
+	        return "redirect:/customer/hoadon/" + maHoaDon;
+	    }
+
+	    String username = principal.getName();
+	    NguoiDung nguoiDung = nguoiDungService.findByTenNguoiDung(username);
+
+	    // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
+	    if (danhGiaService.existsByHoaDonAndSanPhamAndNguoiDung(hoaDon, sanPham, nguoiDung)) {
+	        model.addAttribute("errorMessage", "Bạn đã đánh giá sản phẩm này rồi.");
+	        return "redirect:/customer/hoadon/" + maHoaDon;
+	    }
+
+	    // Thêm thông tin sản phẩm vào model để hiển thị trên form
+	    model.addAttribute("hoaDon", hoaDon);
+	    model.addAttribute("sanPham", sanPham);
+	    return "customer/rating_form";
+	}
+
+	@PostMapping("/hoadon/{maHoaDon}/danhgia/{maSanPham}")
+	public String submitRating(@PathVariable("maHoaDon") Integer maHoaDon,
+	                           @PathVariable("maSanPham") Integer maSanPham,
+	                           @RequestParam("rating") int rating,
+	                           @RequestParam("comment") String comment,
+	                           Principal principal,
+	                           RedirectAttributes redirectAttributes) {
+	    String username = principal.getName();
+	    NguoiDung nguoiDung = nguoiDungService.findByTenNguoiDung(username);
+
+	    HoaDon hoaDon = hoaDonService.getHoaDonById(maHoaDon);
+	    if (hoaDon == null) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy hóa đơn với mã: " + maHoaDon);
+	        return "redirect:/customer/hoadon";
+	    }
+
+	    SanPham sanPham = sanPhamService.findById(maSanPham);
+	    if (sanPham == null) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy sản phẩm với mã: " + maSanPham);
+	        return "redirect:/customer/hoadon/" + maHoaDon;
+	    }
+
+	    if (danhGiaService.existsByHoaDonAndSanPhamAndNguoiDung(hoaDon, sanPham, nguoiDung)) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Bạn đã đánh giá sản phẩm này rồi.");
+	        return "redirect:/customer/hoadon/" + maHoaDon;
+	    }
+
+	    // Tạo đánh giá mới
+	    DanhGia danhGia = new DanhGia();
+	    danhGia.setHoaDon(hoaDon);
+	    danhGia.setSanPham(sanPham);
+	    danhGia.setNguoiDung(nguoiDung);
+	    danhGia.setSoSao(rating);
+	    danhGia.setNoiDung(comment);
+	    danhGia.setThoiGianDanhGia(LocalDateTime.now());
+	    danhGiaService.create(danhGia);
+
+	    // Chuyển hướng về trang xem đánh giá sau khi đánh giá xong
+	    redirectAttributes.addFlashAttribute("successMessage", "Cảm ơn bạn đã đánh giá sản phẩm.");
+	    return "redirect:/customer/hoadon/" + maHoaDon + "/danhgia/" + maSanPham + "/view";
+	}
 
 
-        if (hoaDon == null || sanPham == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy hóa đơn hoặc sản phẩm để đánh giá.");
-            return "redirect:/customer/hoadon";
-        }
-        DonHang donHang = hoaDon.getDonHang();
-        if (donHang == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Đơn hàng không tồn tại.");
-            return "redirect:/customer/hoadon";
-        }
+	@GetMapping("/hoadon/{maHoaDon}/danhgia/{maSanPham}/view")
+	public String viewRating(@PathVariable("maHoaDon") Integer maHoaDon,
+	                         @PathVariable("maSanPham") Integer maSanPham,
+	                         Model model,
+	                         Principal principal) {
+	    String username = principal.getName();
+	    NguoiDung nguoiDung = nguoiDungService.findByTenNguoiDung(username);
+	    HoaDon hoaDon = hoaDonService.getHoaDonById(maHoaDon);
+	    SanPham sanPham = sanPhamService.findById(maSanPham);
 
-        // Kiểm tra xem người dùng đã đánh giá sản phẩm này trong hóa đơn này chưa
-        if (danhGiaService.existsByHoaDonAndNguoiDung(hoaDon, nguoiDung)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Bạn đã đánh giá sản phẩm này rồi.");
-            return "redirect:/customer/hoadon/" + hoaDon.getDonHang().getMaDonHang();
-        }
+	    if (hoaDon == null) {
+	        model.addAttribute("errorMessage", "Không tìm thấy hóa đơn với mã: " + maHoaDon);
+	        return "redirect:/customer/hoadon";
+	    }
 
-        DanhGia danhGia = new DanhGia();
-        danhGia.setHoaDon(hoaDon);
-        danhGia.setSanPham(sanPham);
-        danhGia.setNguoiDung(nguoiDung);
-        danhGia.setSoSao(rating);
-        danhGia.setNoiDung(comment);
-        danhGia.setThoiGianDanhGia(LocalDateTime.now());
-        danhGiaService.create(danhGia);
+	    if (sanPham == null) {
+	        model.addAttribute("errorMessage", "Không tìm thấy sản phẩm với mã: " + maSanPham);
+	        return "redirect:/customer/hoadon/" + maHoaDon;
+	    }
 
-     // Kiểm tra thông tin trước khi lưu
-        System.out.println("DanhGia sẽ lưu:");
-        System.out.println(" - MaHoaDon: " + danhGia.getHoaDon().getMaHoaDon());
-        System.out.println(" - MaSanPham: " + danhGia.getSanPham().getMaSanPham());
-        System.out.println(" - MaNguoiDung: " + danhGia.getNguoiDung().getMaNguoiDung());
-        System.out.println(" - Số Sao: " + danhGia.getSoSao());
-        System.out.println(" - Nội Dung: " + danhGia.getNoiDung());
+	    DanhGia danhGia = danhGiaService.findByHoaDonAndSanPhamAndNguoiDung(hoaDon, sanPham, nguoiDung);
 
-        // Lưu đánh giá
-        danhGiaService.create(danhGia);
-        System.out.println("=== End submitRating Method ===");
+	    if (danhGia == null) {
+	        model.addAttribute("errorMessage", "Không tìm thấy đánh giá cho sản phẩm này.");
+	        return "redirect:/customer/hoadon/" + maHoaDon;
+	    }
 
-        redirectAttributes.addFlashAttribute("successMessage", "Cảm ơn bạn đã đánh giá sản phẩm.");
-        return "redirect:/customer/hoadon/" + hoaDon.getDonHang().getMaDonHang();
-    }
+	    model.addAttribute("danhGia", danhGia);
+	    return "customer/view_rating"; // Đảm bảo view này tồn tại và đường dẫn đúng
+	}
 
 
 
 
 }
-
