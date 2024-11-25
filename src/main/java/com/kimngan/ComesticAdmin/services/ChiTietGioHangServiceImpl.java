@@ -3,6 +3,7 @@ package com.kimngan.ComesticAdmin.services;
 import com.kimngan.ComesticAdmin.entity.ChiTietGioHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietGioHangId;
 import com.kimngan.ComesticAdmin.entity.GioHang;
+import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.repository.ChiTietGioHangRepository;
 
@@ -83,4 +84,5 @@ public class ChiTietGioHangServiceImpl implements ChiTietGioHangService {
         // Lưu thông tin cập nhật vào cơ sở dữ liệu
         chiTietGioHangRepository.save(chiTiet);
     }
+
 }

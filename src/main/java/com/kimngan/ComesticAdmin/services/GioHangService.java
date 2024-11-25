@@ -24,6 +24,6 @@ public interface GioHangService {
     void clearCart(NguoiDung nguoiDung);
    // DonHang createOrderFromCart(String username, List<Integer> productIds) throws Exception;
     List<ChiTietGioHang> getSelectedItems(NguoiDung nguoiDung, List<Integer> productIds);
-
+   
 
 }

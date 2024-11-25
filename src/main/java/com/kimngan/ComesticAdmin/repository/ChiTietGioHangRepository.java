@@ -16,6 +16,7 @@ public interface ChiTietGioHangRepository extends JpaRepository<ChiTietGioHang, 
     // Thêm phương thức xóa tất cả các ChiTietGioHang của một giỏ hàng cụ thể
     void deleteByGioHang(GioHang gioHang);
     
+    
 
     
 }

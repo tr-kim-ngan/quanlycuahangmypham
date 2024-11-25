@@ -114,9 +114,13 @@ public class GioHangServiceImpl implements GioHangService {
 
 	@Override
 	public void clearCart(NguoiDung nguoiDung) {
-		GioHang gioHang = getCartByUser(nguoiDung);
-		gioHang.getChiTietGioHangs().clear();
-		gioHangRepository.save(gioHang);
+		GioHang gioHang = nguoiDung.getGioHang();
+	    if (gioHang != null) {
+	        List<ChiTietGioHang> cartItems = chiTietGioHangRepository.findByGioHang(gioHang);
+	        if (!cartItems.isEmpty()) {
+	            chiTietGioHangRepository.deleteAll(cartItems);
+	        }
+	    }
 
 	}
 
