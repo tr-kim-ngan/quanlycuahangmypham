@@ -135,31 +135,41 @@
 					</div>
 					<!-- Hàng 2: Đánh giá -->
 					<!-- Hàng 2: Đánh giá -->
-					<!-- Hàng 2: Đánh giá -->
 					<div class="mt-4">
-						<h3>Đánh giá sản phẩm</h3>
+						<h3 class="text-center mb-4" style="font-weight: bold;">Đánh giá sản phẩm</h3>
 						<div th:if="${danhGias != null and !danhGias.isEmpty()}">
-							<button class="btn btn-outline-primary" type="button" onclick="toggleAllReviews()">
+							<button class="btn btn-outline-primary mb-3" type="button" onclick="toggleAllReviews()">
 								<span>Xem tất cả đánh giá</span> <span id="arrow">&#9660;</span>
 							</button>
 							<div id="all-reviews" style="display: none; margin-top: 10px;">
-								<div th:each="danhGia : ${danhGias}" style="margin-bottom: 15px;">
-									<p><strong>Người đánh giá:</strong> <span
-											th:text="${danhGia.nguoiDung.tenNguoiDung}"></span></p>
-									<div class="rating-container">
-										<strong>Số sao:</strong>
-										<div class="rating-view">
-											<span th:each="i : ${#numbers.sequence(1, 5)}"
-												th:class="${i <= danhGia.soSao ? 'filled-star' : 'empty-star'}">&#9733;</span>
+								<div th:each="danhGia : ${danhGias}" class="review-card card shadow-sm mb-4 p-3"
+									style="border-radius: 15px;">
+									<div class="card-body">
+										<div class="d-flex justify-content-between align-items-center mb-2">
+											<h5 class="card-title"><strong>Tên:</strong> <span
+													th:text="${danhGia.nguoiDung.tenNguoiDung}"></span></h5>
+											<div class="rating-container">
+												<div class="rating-view">
+													<span th:each="i : ${#numbers.sequence(1, 5)}"
+														th:class="${i <= danhGia.soSao ? 'filled-star' : 'empty-star'}">&#9733;</span>
+												</div>
+											</div>
+										</div>
+										<p class="card-text"><strong></strong> <span
+												th:text="${danhGia.noiDung}"></span></p>
+
+										<!-- Phần hiển thị phản hồi của Admin nếu có -->
+										<div th:if="${danhGia.adminReply != null}" class="admin-reply-box mt-3 p-3"
+											style="background-color: #f1f1f1; border-radius: 10px;">
+											<p><strong></strong> <span
+													th:text="${danhGia.adminReply}"></span></p>
 										</div>
 									</div>
-									<p><strong>Nội dung:</strong> <span th:text="${danhGia.noiDung}"></span></p>
-									<hr>
 								</div>
 							</div>
 						</div>
 						<div th:if="${danhGias == null || danhGias.isEmpty()}">
-							<p>Chưa có đánh giá nào cho sản phẩm này.</p>
+							<p class="text-center text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
 						</div>
 					</div>
 
@@ -178,13 +188,17 @@
 						}
 					</script>
 
-					<!-- CSS for Star Rating -->
+					<!-- CSS for Styling Reviews -->
 					<style>
+						.review-card {
+							background-color: #ffffff;
+							border: 1px solid #e0e0e0;
+						}
+
 						.rating-container {
 							display: flex;
 							align-items: center;
 							gap: 5px;
-							margin-bottom: 10px;
 						}
 
 						.rating-view {
@@ -219,7 +233,22 @@
 							margin-left: 10px;
 							font-size: 1.2em;
 						}
+
+						.admin-reply-box {
+							border-left: 4px solid #ffa726;
+						}
+
+						.card-title {
+							font-weight: bold;
+							color: #333;
+						}
+
+						.card-text {
+							color: #666;
+						}
 					</style>
+
+
 
 				</div>
 
