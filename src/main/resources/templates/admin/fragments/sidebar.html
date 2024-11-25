@@ -60,7 +60,7 @@
 								</a>
 
 							</li>
-							
+
 							<li class="nav-item">
 								<a th:href="@{/admin/unit}">
 									<i class="fa fa-cubes"></i>
@@ -158,7 +158,7 @@
 								<a th:href="@{/admin/orders}">
 									<span class="sub-item">Đơn hàng</span>
 								</a>
-								
+
 							</li>
 							<!--<li>
 								<a th:href="@{/maps/jsvectormap.html}">
@@ -169,26 +169,45 @@
 					</div>
 				</li>
 				<li class="nav-item">
-					<a data-bs-toggle="collapse" th:href="@{#charts}">
+					<a data-bs-toggle="collapse" th:href="@{#danhgia}">
 						<i class="far fa-chart-bar"></i>
 						<p>Quản lý hóa đơn</p>
 						<span class="caret"></span>
 					</a>
-					<div class="collapse" id="charts">
+					<div class="collapse" id="danhgia">
 						<ul class="nav nav-collapse">
 							<li>
 								<a th:href="@{/admin/hoadon}">
 									<span class="sub-item">Danh sách hóa đơn</span>
 								</a>
 							</li>
-							
+
 						</ul>
 					</div>
 				</li>
 				<li class="nav-item">
+					<a data-bs-toggle="collapse" href="#charts">
+						<i class="far fa-chart-bar"></i>
+						<p>Quản lý đánh giá</p>
+						<span class="caret"></span>
+					</a>
+					<div class="collapse" id="charts">
+						<ul class="nav nav-collapse">
+							<li>
+								<a th:href="@{/admin/danhgia}">
+									<span class="sub-item">Danh sách các đánh giá</span>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</li>
+
+
+
+				<li class="nav-item">
 					<a th:href="@{/widgets.html}">
 						<i class="fas fa-desktop"></i>
-						<p>Widgets</p>
+						<p>Quản lý đánh giá</p>
 						<span class="badge badge-success">4</span>
 					</a>
 				</li>

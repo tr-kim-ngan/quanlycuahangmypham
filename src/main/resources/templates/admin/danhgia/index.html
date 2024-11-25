@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head ::head">
+	<!-- Tiêu đề này sẽ được truyền vào fragment 'head' -->
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"> </div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!--  đầu header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- kết thúc header  -->
+
+			<!-- Nội dung chính -->
+			<div class="container-fluid" style="background-color: #faeee7;">
+				<div class="row">
+					<div class="col-12 text-center mb-4">
+						<h3 class="fw-bold">Danh Sách Đánh Giá</h3>
+						<h6 class="text-muted">Danh sách các đánh giá của khách hàng</h6>
+					</div>
+
+					<!-- Danh sách đánh giá -->
+					<!-- Danh sách đánh giá theo sản phẩm -->
+					<!-- Danh sách đánh giá theo sản phẩm -->
+					<div th:each="sanPham : ${sanPhams}" class="mb-4">
+						<div th:if="${!sanPham.danhGias.isEmpty()}">
+							<h4 class="fw-bold mt-4" th:text="${sanPham.tenSanPham}"></h4>
+							<div th:each="danhGia : ${sanPham.danhGias}" class="card p-3 my-3"
+								style="border-radius: 10px;">
+								<div class="card-body">
+									<p><strong>Người đánh giá:</strong> <span
+											th:text="${danhGia.nguoiDung.tenNguoiDung}"></span></p>
+									<p><strong>Số sao:</strong>
+										<span th:each="i : ${#numbers.sequence(1, danhGia.soSao)}">
+											<i class="fas fa-star" style="color: #ffc107;"></i>
+										</span>
+										<span th:each="i : ${#numbers.sequence(danhGia.soSao + 1, 5)}">
+											<i class="far fa-star" style="color: #ffc107;"></i>
+										</span>
+									</p>
+									<p><strong>Ngày đánh giá:</strong>
+										<span
+											th:text="${#temporals.format(danhGia.thoiGianDanhGia, 'dd/MM/yyyy HH:mm')}"></span>
+									</p>
+									<p><strong>Nội dung đánh giá:</strong> <span th:text="${danhGia.noiDung}"></span>
+									</p>
+									<a th:href="@{/admin/danhgia/{maDanhGia}(maDanhGia=${danhGia.maDanhGia})}"
+										class="btn btn-info btn-sm mt-2">
+										Xem Chi Tiết
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Kết thúc danh sách đánh giá -->
+
+
+					<!-- Phân trang -->
+					<div class="col-12 mt-4">
+						<nav aria-label="Page navigation" class="d-flex justify-content-center">
+							<ul class="pagination">
+								<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+									<a th:href="@{/admin/danhgia(page=${currentPage - 1}, size=${size})}"
+										class="page-link" style="color: #333;">Trước</a>
+								</li>
+								<li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}" class="page-item"
+									th:classappend="${pageNum == currentPage} ? 'active'">
+									<a th:href="@{/admin/danhgia(page=${pageNum}, size=${size})}" class="page-link"
+										th:style="${pageNum == currentPage} ? 'background-color: #007bff; color: white;' : 'background-color: #ffffff; color: #333;'"
+										th:text="${pageNum + 1}">1</a>
+								</li>
+								<li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+									<a th:href="@{/admin/danhgia(page=${currentPage + 1}, size=${size})}"
+										class="page-link" style="color: #333;">Tiếp</a>
+								</li>
+							</ul>
+						</nav>
+					</div>
+				</div>
+			</div>
+			<!-- kết thúc nội dung chính-->
+
+			<!--mở đầu footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!--kết thúc footer -->
+
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+	<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+	<!-- Thêm link để sử dụng fontawesome -->
+</body>
+
+</html>

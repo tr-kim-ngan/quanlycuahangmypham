@@ -48,7 +48,7 @@
 							<ul class="pagination">
 								<li th:classappend="${currentPage == 0} ? 'disabled'">
 									<a th:href="@{|/admin/hoadon?page=${currentPage - 1}&size=${size}|}"
-										class="page-link">Previous</a>
+										class="page-link">Trước</a>
 								</li>
 								<li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
 									th:classappend="${currentPage == i} ? 'active'">
@@ -57,7 +57,7 @@
 								</li>
 								<li th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
 									<a th:href="@{|/admin/hoadon?page=${currentPage + 1}&size=${size}|}"
-										class="page-link">Next</a>
+										class="page-link">Sau</a>
 								</li>
 							</ul>
 						</nav>

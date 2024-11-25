@@ -60,23 +60,38 @@
 					</table>
 
 					<!-- Phân trang -->
+					<!-- Phân trang -->
 					<div class="pagination mt-4">
 						<ul class="pagination justify-content-center">
+							<!-- Nút "Trước" - chỉ hiện khi không ở trang đầu -->
 							<li th:if="${currentPage > 0}" class="page-item">
-								<a th:href="@{|/admin/orders?page=${currentPage - 1}&size=${size}|}"
-									class="page-link">Previous</a>
+								<a th:href="@{|/admin/orders?page=${currentPage - 1}&size=${size}|}" class="page-link"
+									style="background-color: #ffffff; color: #000000;">
+									Trước
+								</a>
 							</li>
+
+							<!-- Các trang -->
 							<li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item"
 								th:classappend="${i == currentPage} ? 'active'">
 								<a th:href="@{|/admin/orders?page=${i}&size=${size}|}" class="page-link"
-									th:text="${i + 1}">1</a>
+									th:text="${i + 1}"
+									th:style="${currentPage == i} ? 'background-color: #007bff; color: white;' : 'background-color: #ffffff; color: #000000;'">
+									1
+								</a>
 							</li>
+
+							<!-- Nút "Sau" - chỉ hiện khi không ở trang cuối -->
 							<li th:if="${currentPage < totalPages - 1}" class="page-item">
-								<a th:href="@{|/admin/orders?page=${currentPage + 1}&size=${size}|}"
-									class="page-link">Next</a>
+								<a th:href="@{|/admin/orders?page=${currentPage + 1}&size=${size}|}" class="page-link"
+									style="background-color: #ffffff; color: #000000;">
+									Sau
+								</a>
 							</li>
 						</ul>
 					</div>
+					<!-- Kết thúc phân trang -->
+
 					<!-- Kết thúc phân trang -->
 
 				</div>
