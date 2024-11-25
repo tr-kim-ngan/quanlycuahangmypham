@@ -7,6 +7,6 @@ public interface NguoiDungService {
 	void saveCustomer(NguoiDung nguoiDung);
 	void save(NguoiDung nguoiDung);
 	NguoiDung findById(Integer id);
-
+	void updateLoaiKhachHangBasedOnTotalOrders(Integer maNguoiDung);
 	
 }

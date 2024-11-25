@@ -39,7 +39,7 @@ public class OrderController {
 	// Hiển thị danh sách đơn hàng
 	@GetMapping("/orders")
 	public String getOrders(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "5") int size) {
+			@RequestParam(value = "size", defaultValue = "10") int size) {
 
 		// Kiểm tra nếu page nhỏ hơn 0 thì đặt lại giá trị page về 0
 	    if (page < 0) {

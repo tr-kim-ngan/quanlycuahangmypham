@@ -51,7 +51,20 @@ public class DonHangController {
 
 	@Autowired
 	private SanPhamService sanPhamService;
+	@ModelAttribute
+	public void addAttributes(Model model, Principal principal) {
+	    if (principal != null) {
+	        // Lấy tên đăng nhập từ Principal
+	        String username = principal.getName();
 
+	        // Tìm thông tin người dùng
+	        NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
+
+	        // Thêm thông tin người dùng và timestamp vào Model
+	        model.addAttribute("currentUser", currentUser);
+	        model.addAttribute("timestamp", System.currentTimeMillis()); // Timestamp luôn được cập nhật
+	    }
+	}
 	// Hiển thị danh sách đơn hàng của người dùng hiện tại
 	@GetMapping
 	public String viewOrders(Principal principal, Model model) {
@@ -66,10 +79,6 @@ public class DonHangController {
 		model.addAttribute("donHangs", donHangs);
 		return "customer/order";
 	}
-
-
-
-	// Phương thức hiển thị chi tiết đơn hàng
 	// Phương thức hiển thị chi tiết đơn hàng
 	@GetMapping("/{maDonHang}")
 	public String viewOrderDetail(@PathVariable Integer maDonHang, Model model) {
@@ -95,38 +104,7 @@ public class DonHangController {
 		return "customer/order_detail"; // Trả về trang order_detail.html
 	}
 	// Phương thức hiển thị chi tiết đơn hàng
-//    @GetMapping("/{maDonHang}")
-//    public String viewOrderDetail(@PathVariable Integer maDonHang, Model model) {
-//        DonHang donHang = donHangService.getDonHangById(maDonHang);
-//        LocalDate today = LocalDate.now();
-//
-//        // Tính giá trị thành tiền cho từng sản phẩm trong đơn hàng và định dạng
-//        DecimalFormat formatter = new DecimalFormat("#,###.##");
-//        List<Map<String, String>> formattedChiTietDonHangs = new ArrayList<>();
-//        
-//        for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-//            Map<String, String> formattedChiTiet = new HashMap<>();
-//            formattedChiTiet.put("maSanPham", chiTiet.getSanPham().getMaSanPham().toString());
-//            formattedChiTiet.put("tenSanPham", chiTiet.getSanPham().getTenSanPham());
-//            formattedChiTiet.put("soLuong", String.valueOf(chiTiet.getSoLuong()));
-//            
-//            // Định dạng giá tại thời điểm đặt
-//            BigDecimal giaTaiThoiDiemDat = chiTiet.getGiaTaiThoiDiemDat();
-//            formattedChiTiet.put("giaTaiThoiDiemDat", formatter.format(giaTaiThoiDiemDat) + " VND");
-//            
-//            // Tính thành tiền và định dạng
-//            BigDecimal thanhTien = giaTaiThoiDiemDat.multiply(BigDecimal.valueOf(chiTiet.getSoLuong()));
-//            formattedChiTiet.put("thanhTien", formatter.format(thanhTien) + " VND");
-//
-//            formattedChiTietDonHangs.add(formattedChiTiet);
-//        }
-//
-//        // Đưa `formattedChiTietDonHangs` vào model để sử dụng trong view
-//        model.addAttribute("donHang", donHang);
-//        model.addAttribute("chiTietDonHangs", formattedChiTietDonHangs);
-//
-//        return "customer/order_detail"; // Trả về trang order_detail.html
-//    }
+
 	@PostMapping("/create")
 	public String createOrder(Principal principal, @RequestParam("address") String address,
 			@RequestParam("phone") String phone, Model model) {

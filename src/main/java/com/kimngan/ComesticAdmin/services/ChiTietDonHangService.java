@@ -11,6 +11,6 @@ public interface ChiTietDonHangService {
     ChiTietDonHang getChiTietDonHangById(ChiTietDonHangId id); // Lấy thông tin chi tiết đơn hàng theo mã
     List<ChiTietDonHang> getChiTietDonHangsByDonHangId(Integer maDonHang); // Lấy tất cả chi tiết của một đơn hàng
     ChiTietDonHang save(ChiTietDonHang chiTietDonHang);
-
+    Integer getSoldQuantityBySanPhamId(Integer sanPhamId);
 
 }

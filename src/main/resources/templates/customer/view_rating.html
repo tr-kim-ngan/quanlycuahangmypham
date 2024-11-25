@@ -25,10 +25,14 @@
                 <p><strong>Nội Dung Đánh Giá:</strong> <span th:text="${danhGia.noiDung}"></span></p>
                 <p><strong>Thời Gian Đánh Giá:</strong> <span
                         th:text="${#temporals.format(danhGia.thoiGianDanhGia, 'dd/MM/yyyy HH:mm')}"></span></p>
+                
+                <!-- Thêm phần Phản hồi của Admin nếu có -->
+                <div th:if="${danhGia.adminReply != null}">
+                    <p><strong>Phản Hồi :</strong> <span th:text="${danhGia.adminReply}"></span></p>
+                </div>
             </div>
             <a th:href="@{/customer/hoadon/{maDonHang}(maDonHang=${danhGia.hoaDon.donHang.maDonHang})}"
                 class="btn btn-secondary">Quay Lại</a>
-
         </div>
     </main>
 

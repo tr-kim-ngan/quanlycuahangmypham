@@ -5,6 +5,8 @@ import com.kimngan.ComesticAdmin.entity.ChiTietDonHangId;
 import com.kimngan.ComesticAdmin.repository.ChiTietDonHangRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -52,4 +54,17 @@ public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
     public ChiTietDonHang save(ChiTietDonHang chiTietDonHang) {
         return chiTietDonHangRepository.save(chiTietDonHang);
     }
+
+    @Override
+    public Integer getSoldQuantityBySanPhamId(Integer sanPhamId) {
+        // Lấy danh sách chi tiết đơn hàng với trạng thái "Đã xác nhận", "Đang giao hàng" hoặc "Đã hoàn thành"
+        List<ChiTietDonHang> chiTietDonHangList = chiTietDonHangRepository.findBySanPhamMaSanPhamAndDonHangTrangThaiDonHangIn(
+                sanPhamId, Arrays.asList("Đã xác nhận", "Đang giao hàng", "Đã hoàn thành"));
+
+        // Tính tổng số lượng đã bán từ các chi tiết đơn hàng
+        return chiTietDonHangList.stream().mapToInt(ChiTietDonHang::getSoLuong).sum();
+    }
+
+	
+	
 }

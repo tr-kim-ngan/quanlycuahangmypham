@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHangId;
@@ -22,7 +23,7 @@ import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.repository.ChiTietDonHangRepository;
 import com.kimngan.ComesticAdmin.repository.DonHangRepository;
 import com.kimngan.ComesticAdmin.repository.NguoiDungRepository;
-
+import org.springframework.http.HttpStatus;
 @Service
 public class DonHangServiceImpl implements DonHangService {
 	@Autowired
@@ -36,7 +37,8 @@ public class DonHangServiceImpl implements DonHangService {
 	private ChiTietDonHangRepository chiTietDonHangRepository;
 	@Autowired
 	private NguoiDungService nguoiDungService;
-
+    @ Autowired
+    private SanPhamService sanPhamService;
 	@Override
 	public DonHang createDonHang(DonHang donHang) {
 		// TODO Auto-generated method stub
@@ -174,13 +176,6 @@ public class DonHangServiceImpl implements DonHangService {
 	}
 
 
-
-
-
-
-
-
-
 	@Override
 	public DonHang save(DonHang donHang) {
 		return donHangRepository.save(donHang);
@@ -235,5 +230,66 @@ public class DonHangServiceImpl implements DonHangService {
 		// TODO Auto-generated method stub
 		   return donHangRepository.findAll(pageable);
 	}
+
+	@Override
+	public void completeOrder(DonHang donHang) {
+	    donHang.setTrangThaiDonHang("Đã hoàn thành"); // Đặt trạng thái đơn hàng là 'Đã hoàn thành'
+	    donHangRepository.save(donHang);
+	    
+	    // Ghi log để kiểm tra việc hoàn thành đơn hàng
+	    System.out.println("Hoàn thành đơn hàng cho người dùng: " + donHang.getNguoiDung().getMaNguoiDung());
+
+	    // Cập nhật loại khách hàng dựa trên tổng giá trị đơn hàng
+	    nguoiDungService.updateLoaiKhachHangBasedOnTotalOrders(donHang.getNguoiDung().getMaNguoiDung());
+	}
+
+//	@Override
+//	public void updateOrderStatus(Integer maDonHang, String trangThaiMoi) {
+//		DonHang donHang = donHangRepository.findById(maDonHang)
+//		         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng"));
+//
+//	    String trangThaiCu = donHang.getTrangThaiDonHang();
+//
+//	    // Chỉ cập nhật nếu trạng thái mới khác trạng thái cũ
+//	    if (!trangThaiCu.equals(trangThaiMoi)) {
+//	        donHang.setTrangThaiDonHang(trangThaiMoi);
+//	        donHangRepository.save(donHang);
+//
+//	        // Nếu đơn hàng chuyển sang trạng thái "Đã xác nhận", cập nhật số lượng đã bán
+//	        if ("Đã xác nhận".equalsIgnoreCase(trangThaiMoi)) {
+//	            updateSoldQuantityForOrder(donHang);
+//	        }
+//	        // Nếu trạng thái chuyển từ "Đã xác nhận" sang "Hủy bỏ", trả lại số lượng tồn kho
+//	        else if ("Hủy bỏ".equalsIgnoreCase(trangThaiMoi) && "Đã xác nhận".equalsIgnoreCase(trangThaiCu)) {
+//	            revertSoldQuantityForOrder(donHang);
+//	        }
+//	    }
+//		
+//	}
+
+//	@Override
+//	public void updateSoldQuantityForOrder(DonHang donHang) {
+//		// TODO Auto-generated method stub
+//		List<ChiTietDonHang> chiTietDonHangList = donHang.getChiTietDonHangs();
+//	    for (ChiTietDonHang chiTiet : chiTietDonHangList) {
+//	        SanPham sanPham = chiTiet.getSanPham();
+//	        Integer soLuongBan = chiTiet.getSoLuong();
+//	        sanPham.setSoLuong(sanPham.getSoLuong() - soLuongBan);
+//	        sanPhamService.update(sanPham);
+//	    }
+//	}
+//
+//	@Override
+//	public void revertSoldQuantityForOrder(DonHang donHang) {
+//		// TODO Auto-generated method stub
+//		List<ChiTietDonHang> chiTietDonHangList = donHang.getChiTietDonHangs();
+//	    for (ChiTietDonHang chiTiet : chiTietDonHangList) {
+//	        SanPham sanPham = chiTiet.getSanPham();
+//	        Integer soLuongBan = chiTiet.getSoLuong();
+//	        sanPham.setSoLuong(sanPham.getSoLuong() + soLuongBan);
+//	        sanPhamService.update(sanPham);
+//	    }
+//	}
+
 
 }

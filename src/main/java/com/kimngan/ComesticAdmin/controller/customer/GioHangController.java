@@ -59,6 +59,21 @@ public class GioHangController {
 	@Autowired
 	private DonHangService donHangService;
 
+	@ModelAttribute
+	public void addAttributes(Model model, Principal principal) {
+		if (principal != null) {
+			// Lấy tên đăng nhập từ Principal
+			String username = principal.getName();
+
+			// Tìm thông tin người dùng
+			NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
+
+			// Thêm thông tin người dùng và timestamp vào Model
+			model.addAttribute("currentUser", currentUser);
+			model.addAttribute("timestamp", System.currentTimeMillis()); // Timestamp luôn được cập nhật
+		}
+	}
+
 	@GetMapping
 	public String viewCart(Model model, Principal principal,
 			@RequestParam(value = "selectedProducts", required = false) List<Integer> selectedProducts) {
@@ -75,8 +90,11 @@ public class GioHangController {
 		NguoiDung nguoiDung = getCurrentUser(principal);
 
 		// Lấy danh sách sản phẩm trong giỏ hàng
-		List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(nguoiDung);
-
+		 // Lấy danh sách sản phẩm trong giỏ hàng và lọc chỉ những sản phẩm còn hàng
+	    List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(nguoiDung).stream()
+	            .filter(item -> item.getSanPham().getSoLuong() > 0)
+	            .collect(Collectors.toList());
+	    
 		// Tính tổng giá trị và phần trăm giảm giá
 		BigDecimal totalPrice = BigDecimal.ZERO;
 		Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
@@ -206,143 +224,77 @@ public class GioHangController {
 		return "redirect:/customer/cart";
 	}
 
-	
-	
-	
-	
-//	
-//	@PostMapping("/checkout")
-//	public String checkout(Principal principal, Model model, RedirectAttributes redirectAttributes) {
-//		if (principal == null) {
-//			return "redirect:/customer/login";
-//		}
-//
-//		// Lấy thông tin người dùng hiện tại
-//		NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
-//		if (currentUser == null) {
-//			redirectAttributes.addFlashAttribute("errorMessage", "Không thể tìm thấy thông tin người dùng.");
-//			return "redirect:/customer/cart";
-//		}
-//
-//		// Lấy giỏ hàng
-//		List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(currentUser);
-//
-//		if (cartItems.isEmpty()) {
-//			redirectAttributes.addFlashAttribute("errorMessage", "Giỏ hàng của bạn đang trống.");
-//			return "redirect:/customer/cart";
-//		}
-//
-//		// Tính tổng giá trị giỏ hàng
-//		BigDecimal totalPrice = BigDecimal.ZERO;
-//		Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
-//		Map<Integer, BigDecimal> phanTramGiamMap = new HashMap<>(); // Map để lưu % giảm giá
-//
-//		LocalDate today = LocalDate.now();
-//		for (ChiTietGioHang item : cartItems) {
-//			SanPham sanPham = item.getSanPham();
-//			BigDecimal giaSauGiam = sanPham.getDonGiaBan();
-//
-//			// Kiểm tra khuyến mãi
-//			Optional<KhuyenMai> khuyenMaiOptional = sanPham.getKhuyenMais().stream().filter(KhuyenMai::getTrangThai)
-//					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
-//							&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
-//					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
-//
-//			if (khuyenMaiOptional.isPresent()) {
-//				BigDecimal phanTramGiam = khuyenMaiOptional.get().getPhanTramGiamGia();
-//				phanTramGiamMap.put(sanPham.getMaSanPham(), phanTramGiam); // Lưu % giảm giá
-//				giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-//			} else {
-//				phanTramGiamMap.put(sanPham.getMaSanPham(), BigDecimal.ZERO); // Không có giảm giá
-//			}
-//
-//			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
-//			totalPrice = totalPrice.add(giaSauGiam.multiply(BigDecimal.valueOf(item.getSoLuong())));
-//		}
-//
-//		// Truyền dữ liệu vào model
-//		model.addAttribute("currentUser", currentUser); // Thêm thông tin người dùng
-//		model.addAttribute("cartItems", cartItems);
-//		model.addAttribute("totalPrice", totalPrice);
-//		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
-//		model.addAttribute("phanTramGiamMap", phanTramGiamMap); // Thêm map phần trăm giảm giá vào model
-//
-//		return "customer/confirmOrder"; // Chuyển đến trang confirmOrder
-//	}
 
-	
-	
+
 	@PostMapping("/checkout")
 	public String checkout(Principal principal, Model model, RedirectAttributes redirectAttributes) {
-	    if (principal == null) {
-	        return "redirect:/customer/login";
-	    }
+		if (principal == null) {
+			return "redirect:/customer/login";
+		}
 
-	    // Lấy thông tin người dùng hiện tại
-	    NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
-	    if (currentUser == null) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "Không thể tìm thấy thông tin người dùng.");
-	        return "redirect:/customer/cart";
-	    }
+		// Lấy thông tin người dùng hiện tại
+		NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
+		if (currentUser == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không thể tìm thấy thông tin người dùng.");
+			return "redirect:/customer/cart";
+		}
 
-	    // Lấy giỏ hàng
-	    List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(currentUser);
+		// Lấy giỏ hàng
+		List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(currentUser);
 
-	    if (cartItems.isEmpty()) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "Giỏ hàng của bạn đang trống.");
-	        return "redirect:/customer/cart";
-	    }
+		if (cartItems.isEmpty()) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Giỏ hàng của bạn đang trống.");
+			return "redirect:/customer/cart";
+		}else {
+		    System.out.println("Cart items found: " + cartItems.size());
+		}
 
-	    // Kiểm tra số lượng còn lại và tính tổng giá trị giỏ hàng
-	    BigDecimal totalPrice = BigDecimal.ZERO;
-	    Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
-	    Map<Integer, BigDecimal> phanTramGiamMap = new HashMap<>(); // Map để lưu % giảm giá
+		// Kiểm tra số lượng còn lại và tính tổng giá trị giỏ hàng
+		BigDecimal totalPrice = BigDecimal.ZERO;
+		Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
+		Map<Integer, BigDecimal> phanTramGiamMap = new HashMap<>(); // Map để lưu % giảm giá
 
-	    LocalDate today = LocalDate.now();
-	    for (ChiTietGioHang item : cartItems) {
-	        SanPham sanPham = item.getSanPham();
+		LocalDate today = LocalDate.now();
+		for (ChiTietGioHang item : cartItems) {
+			SanPham sanPham = item.getSanPham();
 
-	        // Kiểm tra số lượng tồn kho
-	        if (item.getSoLuong() > sanPham.getSoLuong()) {
-	            redirectAttributes.addFlashAttribute("errorMessage", "Sản phẩm '" + sanPham.getTenSanPham() 
-	                + "' không đủ số lượng tồn kho. Vui lòng điều chỉnh lại số lượng trong giỏ hàng.");
-	            return "redirect:/customer/cart";
-	        }
+			// Kiểm tra số lượng tồn kho
+			if (item.getSoLuong() > sanPham.getSoLuong()) {
+				redirectAttributes.addFlashAttribute("errorMessage", "Sản phẩm '" + sanPham.getTenSanPham()
+						+ "' không đủ số lượng tồn kho. Vui lòng điều chỉnh lại số lượng trong giỏ hàng.");
+				return "redirect:/customer/cart";
+			}
 
-	        BigDecimal giaSauGiam = sanPham.getDonGiaBan();
+			BigDecimal giaSauGiam = sanPham.getDonGiaBan();
 
-	        // Kiểm tra khuyến mãi
-	        Optional<KhuyenMai> khuyenMaiOptional = sanPham.getKhuyenMais().stream().filter(KhuyenMai::getTrangThai)
-	                .filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
-	                        && !km.getNgayKetThuc().toLocalDate().isBefore(today))
-	                .max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+			// Kiểm tra khuyến mãi
+			Optional<KhuyenMai> khuyenMaiOptional = sanPham.getKhuyenMais().stream().filter(KhuyenMai::getTrangThai)
+					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
+							&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
+					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
 
-	        if (khuyenMaiOptional.isPresent()) {
-	            BigDecimal phanTramGiam = khuyenMaiOptional.get().getPhanTramGiamGia();
-	            phanTramGiamMap.put(sanPham.getMaSanPham(), phanTramGiam); // Lưu % giảm giá
-	            giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-	        } else {
-	            phanTramGiamMap.put(sanPham.getMaSanPham(), BigDecimal.ZERO); // Không có giảm giá
-	        }
+			if (khuyenMaiOptional.isPresent()) {
+				BigDecimal phanTramGiam = khuyenMaiOptional.get().getPhanTramGiamGia();
+				phanTramGiamMap.put(sanPham.getMaSanPham(), phanTramGiam); // Lưu % giảm giá
+				giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
+			} else {
+				phanTramGiamMap.put(sanPham.getMaSanPham(), BigDecimal.ZERO); // Không có giảm giá
+			}
 
-	        sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
-	        totalPrice = totalPrice.add(giaSauGiam.multiply(BigDecimal.valueOf(item.getSoLuong())));
-	    }
+			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
+			totalPrice = totalPrice.add(giaSauGiam.multiply(BigDecimal.valueOf(item.getSoLuong())));
+		}
 
-	    // Truyền dữ liệu vào model
-	    model.addAttribute("currentUser", currentUser); // Thêm thông tin người dùng
-	    model.addAttribute("cartItems", cartItems);
-	    model.addAttribute("totalPrice", totalPrice);
-	    model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
-	    model.addAttribute("phanTramGiamMap", phanTramGiamMap); // Thêm map phần trăm giảm giá vào model
+		// Truyền dữ liệu vào model
+		model.addAttribute("currentUser", currentUser); // Thêm thông tin người dùng
+		model.addAttribute("cartItems", cartItems);
+		model.addAttribute("totalPrice", totalPrice);
+		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
+		model.addAttribute("phanTramGiamMap", phanTramGiamMap); // Thêm map phần trăm giảm giá vào model
 
-	    return "customer/confirmOrder"; // Chuyển đến trang confirmOrder
+		return "customer/confirmOrder"; // Chuyển đến trang confirmOrder
 	}
 
-	
-	
-	
-	
 	@PostMapping("/update-quantity")
 	public String updateCartItemQuantity(@RequestParam("sanPhamId") Integer sanPhamId,
 			@RequestParam("quantity") Integer newQuantity, Principal principal, RedirectAttributes redirectAttributes) {
@@ -359,8 +311,6 @@ public class GioHangController {
 		redirectAttributes.addFlashAttribute("successMessage", "Số lượng đã được cập nhật thành công!");
 		return "redirect:/customer/cart";
 	}
-
-
 
 	@PostMapping("/calculate-total")
 	@ResponseBody
@@ -400,9 +350,13 @@ public class GioHangController {
 
 		NguoiDung currentUser = getCurrentUser(principal);
 		List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(currentUser);
-
+		 // Đếm số loại sản phẩm trong giỏ hàng có số lượng lớn hơn 0
+	    long totalItems = cartItems.stream()
+	                               .filter(item -> item.getSanPham().getSoLuong() > 0)
+	                               .count();
 		// Trả về số loại sản phẩm trong giỏ hàng
-		return cartItems.size();
+		//return cartItems.size();
+	    return (int) totalItems;
 	}
 
 	@ModelAttribute("cartItems")

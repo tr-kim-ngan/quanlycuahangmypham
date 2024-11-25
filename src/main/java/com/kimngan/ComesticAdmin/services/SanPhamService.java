@@ -55,9 +55,9 @@ public interface SanPhamService {
 	Page<SanPham> searchAllActiveProductsWithOrderDetails(String keyword, Pageable pageable);
 
 	Page<SanPham> searchByCategoryWithOrderDetails(Integer categoryId, String keyword, Pageable pageable);
+	 Double getAverageRatingForProduct(Integer maSanPham);
 
-
-
+	 
 
 
 

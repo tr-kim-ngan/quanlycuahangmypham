@@ -54,7 +54,7 @@
 							<li class="nav-item">
 								<a th:href="@{/admin/category}">
 
-									<i class="fas fa-layer-group"></i>
+									<i class="fas fa-th-large"></i>
 									<p>Danh mục sản phẩm</p>
 
 								</a>
@@ -63,7 +63,7 @@
 
 							<li class="nav-item">
 								<a th:href="@{/admin/unit}">
-									<i class="fa fa-cubes"></i>
+									<i class="fas fa-balance-scale"></i>
 									<p>Đơn vị</p>
 
 								</a>
@@ -71,7 +71,7 @@
 							</li>
 							<li class="nav-item">
 								<a th:href="@{/admin/product}">
-									<i class="fas fa-th-list"></i>
+									<i class="fas fa-box"></i>
 									<p>Sản Phẩm</p>
 
 								</a>
@@ -79,7 +79,7 @@
 							</li>
 							<li class="nav-item">
 								<a th:href="@{/admin/promotion}">
-									<i class="fa fa-cubes"></i>
+									<i class="fas fa-tags"></i>
 									<p>Khuyến Mãi</p>
 
 								</a>
@@ -91,39 +91,9 @@
 
 
 
-
-
-
-
-
-				<!--<li class="nav-item">
-					<a th:href="@{/admin/category}">
-
-						<i class="fas fa-layer-group"></i>
-						<p>Danh mục sản phẩm</p>
-
-					</a>
-
-				</li>
-				<li class="nav-item">
-					<a th:href="@{/admin/product}">
-						<i class="fas fa-th-list"></i>
-						<p>Sản Phẩm</p>
-
-					</a>
-
-				</li>
-				<li class="nav-item">
-					<a th:href="@{/admin/unit}">
-						<i class="fa fa-cubes"></i>
-						<p>Đơn vị</p>
-
-					</a>
-
-				</li> -->
 				<li class="nav-item">
 					<a data-bs-toggle="collapse" href="#collapseNhapHang" aria-expanded="false" class="nav-link">
-						<i class="fas fa-table"></i>
+						<i class="fas fa-warehouse"></i>
 						<p> Quản Lý Nhập Hàng</p>
 						<span class="caret"></span>
 					</a>
@@ -131,12 +101,16 @@
 						<ul class="nav nav-collapse">
 							<li>
 								<a th:href="@{/admin/supplier}">
-									<span class="sub-item">Nhà cung cấp</span>
+									 <i class="fas fa-user-tie"></i>
+									 <p>Nhà cung cấp</p>
+									
 								</a>
 							</li>
 							<li>
 								<a th:href="@{/admin/purchaseorder}">
-									<span class="sub-item">Đơn nhập hàng</span>
+									<i class="fas fa-file-invoice"></i>
+									
+									<p>Đơn nhập hàng</p>
 								</a>
 							</li>
 						</ul>
@@ -145,7 +119,7 @@
 
 				<li class="nav-item">
 					<a data-bs-toggle="collapse" th:href="@{#maps}">
-						<i class="fas fa-map-marker-alt"></i>
+						<i class="fas fa-truck"></i>
 						<p>Quản lý đơn hàng</p>
 						<span class="caret"></span>
 					</a>
@@ -156,7 +130,8 @@
 									<span class="sub-item">Google Maps</span>
 								</a>-->
 								<a th:href="@{/admin/orders}">
-									<span class="sub-item">Đơn hàng</span>
+									<i class="fas fa-box"></i> 
+									<p>Đơn hàng</p>
 								</a>
 
 							</li>
@@ -170,7 +145,7 @@
 				</li>
 				<li class="nav-item">
 					<a data-bs-toggle="collapse" th:href="@{#danhgia}">
-						<i class="far fa-chart-bar"></i>
+						<i class="fas fa-file-invoice"></i>
 						<p>Quản lý hóa đơn</p>
 						<span class="caret"></span>
 					</a>
@@ -178,7 +153,8 @@
 						<ul class="nav nav-collapse">
 							<li>
 								<a th:href="@{/admin/hoadon}">
-									<span class="sub-item">Danh sách hóa đơn</span>
+									 <i class="fas fa-file-invoice"></i>
+									 <p>Danh sách hóa đơn</p>
 								</a>
 							</li>
 
@@ -187,7 +163,7 @@
 				</li>
 				<li class="nav-item">
 					<a data-bs-toggle="collapse" href="#charts">
-						<i class="far fa-chart-bar"></i>
+						<i class="fas fa-comment-dots"></i>
 						<p>Quản lý đánh giá</p>
 						<span class="caret"></span>
 					</a>
@@ -195,12 +171,32 @@
 						<ul class="nav nav-collapse">
 							<li>
 								<a th:href="@{/admin/danhgia}">
-									<span class="sub-item">Danh sách các đánh giá</span>
+									<i class="fas fa-star"></i>
+									<p>Danh sách các đánh giá</p>
+									
 								</a>
 							</li>
 						</ul>
 					</div>
 				</li>
+				<li class="nav-item">
+					<a data-bs-toggle="collapse" href="#khachhang">
+						<i class="far fa-user"></i> <!-- Đổi icon nếu cần thiết -->
+						<p>Khách Hàng</p>
+						<span class="caret"></span>
+					</a>
+					<div class="collapse" id="khachhang">
+						<ul class="nav nav-collapse">
+							<li>
+								<a th:href="@{/admin/loai-khach-hang}">
+									<i class="fas fa-users"></i> 
+									<p >Danh sách loại khách hàng</p>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</li>
+
 
 
 

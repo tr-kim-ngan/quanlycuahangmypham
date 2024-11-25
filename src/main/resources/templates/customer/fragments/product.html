@@ -51,7 +51,7 @@
 							<div
 								class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
 								<!-- Lặp qua tất cả các sản phẩm và hiển thị -->
-								<div class="col" th:each="sanPham : ${sanPhams}" style="min-height: 350px; 
+								<div class="col" th:each="sanPham : ${sanPhams}" th:if="${sanPham.soLuong > 0}" style="min-height: 350px; 
 								display: flex; 
 								flex-direction: column; 
 								justify-content: space-between; 
@@ -130,12 +130,28 @@
 												</a>
 											</figure>
 											<h3 th:text="${sanPham.tenSanPham}"
-											style=" white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-											>Tên sản phẩm</h3>
-											
-											
-											
-											
+												style=" white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+												Tên sản phẩm</h3>
+
+											<div class="average-rating" style="font-size: 1.5em; color: #f39c12;">
+												<span th:each="i : ${#numbers.sequence(1, 5)}"
+													th:classappend="${i <= sanPhamAverageRatingMap[sanPham.maSanPham] ? 'filled-star' : 'empty-star'}">&#9733;</span>
+											</div>
+
+
+											<style>
+												.filled-star {
+													color: #ffd700;
+													/* Màu vàng cho sao đã đánh giá */
+												}
+
+												.empty-star {
+													color: #ccc;
+													/* Màu xám cho sao chưa đánh giá */
+												}
+											</style>
+
+
 											<!-- Thêm thông tin số lượng còn lại -->
 											<span class="remaining-quantity"
 												style="font-size: 14px; color: #555; display: block; margin-top: 5px;">
@@ -239,6 +255,7 @@
 							<div
 								class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
 								<div class="col" th:each="sanPham : ${category.sanPhams}" th:if="${sanPham.trangThai == true 
+								  and sanPham.soLuong > 0
 								  and !sanPham.chiTietDonNhapHangs.isEmpty()
 								  and sanPham.chiTietDonNhapHangs.?[donNhapHang.tongGiaTriNhapHang > 0 
 								  and soLuongNhap > 0 and donGiaNhap > 0].size() > 0}" style="min-height: 350px; 
@@ -321,8 +338,8 @@
 												</a>
 											</figure>
 											<h3 th:text="${sanPham.tenSanPham}"
-											style=" white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-											>Tên sản phẩm</h3>
+												style=" white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+												Tên sản phẩm</h3>
 											<!-- Thêm thông tin số lượng còn lại -->
 											<span class="remaining-quantity"
 												style="font-size: 14px; color: #555; display: block; margin-top: 5px;">

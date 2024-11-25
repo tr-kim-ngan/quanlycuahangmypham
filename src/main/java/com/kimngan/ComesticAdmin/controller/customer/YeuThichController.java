@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -43,7 +44,20 @@ public class YeuThichController {
 
 	@Autowired
 	private YeuThichService yeuThichService;
+	@ModelAttribute
+	public void addAttributes(Model model, Principal principal) {
+	    if (principal != null) {
+	        // Lấy tên đăng nhập từ Principal
+	        String username = principal.getName();
 
+	        // Tìm thông tin người dùng
+	        NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
+
+	        // Thêm thông tin người dùng và timestamp vào Model
+	        model.addAttribute("currentUser", currentUser);
+	        model.addAttribute("timestamp", System.currentTimeMillis()); // Timestamp luôn được cập nhật
+	    }
+	}
 	@GetMapping("/index")
 	public String viewIndex(Model model, Principal principal) {
 		List<Integer> favoriteProductIds = new ArrayList<>();

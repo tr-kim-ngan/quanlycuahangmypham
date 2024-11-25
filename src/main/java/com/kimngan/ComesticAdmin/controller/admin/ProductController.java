@@ -10,6 +10,7 @@ import com.kimngan.ComesticAdmin.entity.DonViTinh;
 import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.entity.NhaCungCap;
+import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
 import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DanhMucService;
 //import com.kimngan.ComesticAdmin.services.DonGiaBanHangService;
@@ -71,6 +72,9 @@ public class ProductController {
 
 	@Autowired
 	private DonViTinhService donViTinhService;
+	
+	@Autowired
+	private ChiTietDonHangService chiTietDonHangService;
 
 	// Hiển thị danh sách sản phẩm
 	@GetMapping("/product")
@@ -236,12 +240,17 @@ public class ProductController {
 		
 		
 		 // Tìm giá trị lớn nhất của soLuongNhap nếu có chi tiết đơn nhập hàng
-	    Integer maxSoLuongNhap = hasDetails ? chiTietDonNhapHangList.stream()
-	            .mapToInt(ChiTietDonNhapHang::getSoLuongNhap)
-	            .max()
-	            .orElse(0) : 0;
+		// Tính tổng số lượng nhập từ tất cả các đơn nhập hàng nếu có chi tiết đơn nhập hàng
+		Integer maxSoLuongNhap = hasDetails ? chiTietDonNhapHangList.stream()
+		        .mapToInt(ChiTietDonNhapHang::getSoLuongNhap)
+		        .sum() : 0;
+
 		
-		
+		 // Tính tổng số lượng đã bán
+	    Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(id);
+
+	    // Tính số lượng tối đa có thể chỉnh sửa
+	    Integer editableMaxQuantity = maxSoLuongNhap - soldQuantity;
 		
 		
 		
@@ -249,7 +258,7 @@ public class ProductController {
 		model.addAttribute("sanPham", sanPham);
 		model.addAttribute("listDonViTinh", listDonViTinh);
 		model.addAttribute("hasDetails", hasDetails);
-	    model.addAttribute("maxSoLuongNhap", maxSoLuongNhap);
+	    model.addAttribute("maxSoLuongNhap", editableMaxQuantity);
 
 		// Lấy danh sách danh mục để hiển thị trong form
 		List<DanhMuc> listDanhMuc = danhMucService.getAll();
@@ -285,13 +294,20 @@ public class ProductController {
 	    boolean hasDetails = !chiTietDonNhapHangList.isEmpty();
 
 	    if (hasDetails) {
-	        Integer maxSoLuongNhap = chiTietDonNhapHangList.stream()
+	        // Tính tổng số lượng nhập từ tất cả các đơn nhập hàng
+	        Integer totalSoLuongNhap = chiTietDonNhapHangList.stream()
 	                .mapToInt(ChiTietDonNhapHang::getSoLuongNhap)
-	                .max()
-	                .orElse(0);
+	                .sum();
 
-	        if (sanPham.getSoLuong() <= 0 || sanPham.getSoLuong() > maxSoLuongNhap) {
-	            redirectAttributes.addFlashAttribute("error", "Số lượng phải lớn hơn 0 và nhỏ hơn hoặc bằng số lượng nhập.");
+	        // Lấy số lượng đã bán
+	        Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(sanPham.getMaSanPham());
+
+	        // Tính số lượng tối đa có thể chỉnh sửa
+	        Integer editableMaxQuantity = totalSoLuongNhap - soldQuantity;
+
+	        // Kiểm tra số lượng tồn
+	        if (sanPham.getSoLuong() < 0 || sanPham.getSoLuong() > editableMaxQuantity) {
+	        	redirectAttributes.addFlashAttribute("error", "Vui lòng nhập số lượng từ 0 đến " + editableMaxQuantity + ". Số lượng tồn khả dụng được xác định dựa trên số lượng nhập và số lượng đã bán.");
 	            return "redirect:/admin/edit-product/" + sanPham.getMaSanPham();
 	        }
 	    }
@@ -390,6 +406,15 @@ public class ProductController {
 						&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
 				.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
 
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		// Thêm sản phẩm và khuyến mãi cao nhất vào model
 		model.addAttribute("sanPham", sanPham);
 		model.addAttribute("highestKhuyenMai", highestCurrentKhuyenMai.orElse(null));
@@ -406,21 +431,20 @@ public class ProductController {
 		// Lấy thông tin danh mục và nhà cung cấp liên quan đến sản phẩm
 		DanhMuc danhMuc = sanPham.getDanhMuc();
 		Set<NhaCungCap> nhaCungCaps = sanPham.getNhaCungCaps();
-
+		// Tính tổng số lượng đã bán
+	    Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(id);
 		// Lấy giá bán mới nhất
-		// BigDecimal giaBanHienTai = sanPham.getLatestDonGiaBan(); // Lấy giá bán mới
-		// nhất
-		// Đưa sản phẩm, danh mục, nhà cung cấp và danh sách chi tiết đơn nhập hàng vào
-		// Model để hiển thị
+		
 		model.addAttribute("sanPham", sanPham);
 		model.addAttribute("hasDetails", hasDetails);
 		model.addAttribute("danhMuc", danhMuc);
+		
 		// model.addAttribute("nhaCungCap", nhaCungCaps);
 		model.addAttribute("chiTietDonNhapHangList", chiTietDonNhapHangList);
 		model.addAttribute("nhaCungCaps", nhaCungCaps);
+		model.addAttribute("soldQuantity", soldQuantity);
 		System.out.println(nhaCungCaps);
 
-		// model.addAttribute("giaBanHienTai", giaBanHienTai);
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
