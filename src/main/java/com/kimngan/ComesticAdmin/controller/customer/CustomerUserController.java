@@ -155,7 +155,7 @@ public class CustomerUserController {
 				return "redirect:/customer/account";
 			}
 			// Cập nhật thông tin cơ bản
-			currentUser.setTenNguoiDung(updatedUser.getTenNguoiDung());
+			//currentUser.setTenNguoiDung(updatedUser.getTenNguoiDung());
 			currentUser.setEmail(updatedUser.getEmail());
 			currentUser.setSoDienThoai(updatedUser.getSoDienThoai());
 			currentUser.setDiaChi(updatedUser.getDiaChi());

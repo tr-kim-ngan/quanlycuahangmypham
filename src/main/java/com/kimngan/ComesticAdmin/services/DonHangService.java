@@ -20,5 +20,8 @@ public interface DonHangService {
     DonHang createTemporaryOrder(String username, List<Integer> productIds);
     void confirmOrder(Integer maDonHang, String address, String phone);
     Page<DonHang> getAllDonHangs(Pageable pageable);
+    void completeOrder(DonHang donHang);
+    
+    //void updateOrderStatus(Integer maDonHang, String trangThaiMoi) ;
     
 }

@@ -10,7 +10,11 @@
 		<h2 class="my-5">Danh sách yêu thích</h2>
 		<div class="row row-cols-1 row-cols-md-3 g-4"
 			style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0px;">
-			<div th:each="sanPham : ${yeuThichList}" class="col">
+			<div th:each="sanPham : ${yeuThichList}" 
+			
+			th:if="${sanPham.soLuong > 0}"
+			
+			class="col">
 				<div class="card h-100"
 					style="position: relative; border: none; width: 240px; height: 300px; margin: 0 auto; transform: scale(1);">
 					<!-- Badge Khuyến mãi -->

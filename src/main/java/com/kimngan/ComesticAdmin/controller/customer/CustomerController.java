@@ -26,6 +26,7 @@ import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.YeuThichService;
 import com.kimngan.ComesticAdmin.entity.SanPham;
+import com.kimngan.ComesticAdmin.repository.DanhGiaRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,6 +59,8 @@ public class CustomerController {
 
 	@Autowired
 	private DanhGiaService danhGiaService;
+	@Autowired
+	private DanhGiaRepository danhGiaRepository;
 
 	@GetMapping({ "/", "/index" })
 	public String homeOrIndex(Model model, @RequestParam(defaultValue = "0") int page, Authentication authentication) {
@@ -69,14 +72,14 @@ public class CustomerController {
 				NguoiDungDetails userDetails = (NguoiDungDetails) principal;
 				currentUser = userDetails.getNguoiDung();
 				System.out.println("Current user: " + currentUser.getTenNguoiDung());
-				
+
 			}
 		}
-		 if (currentUser != null) {
-		        model.addAttribute("currentUser", currentUser); // Thêm currentUser vào model
-		    }
+		if (currentUser != null) {
+			model.addAttribute("currentUser", currentUser); // Thêm currentUser vào model
+		}
 
-		    model.addAttribute("timestamp", System.currentTimeMillis());
+		model.addAttribute("timestamp", System.currentTimeMillis());
 
 		// Nếu người dùng đã đăng nhập, lấy danh sách sản phẩm yêu thích
 		Set<Integer> favoriteProductIds = new HashSet<>();
@@ -93,7 +96,7 @@ public class CustomerController {
 		// Sử dụng Map với maSanPham làm key
 		Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
 		Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
-
+		Map<Integer, Double> sanPhamAverageRatingMap = new HashMap<>();
 		// Tính khuyến mãi cao nhất cho từng sản phẩm và giá sau khi giảm
 		for (SanPham sanPham : sanPhams) {
 			Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
@@ -112,6 +115,14 @@ public class CustomerController {
 			}
 
 			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
+			// Lấy danh sách đánh giá sản phẩm
+			List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
+
+			// Tính trung bình số sao
+			Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0); // Nếu chưa có
+																										// đánh giá thì
+																										// trả về 0
+			sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
 		}
 
 		// Lấy danh sách danh mục
@@ -127,6 +138,7 @@ public class CustomerController {
 		model.addAttribute("sanPhams", sanPhams);
 		model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap); // Map khuyến mãi cao nhất cho từng sản phẩm
 		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap); // Giá sau khi giảm
+		model.addAttribute("sanPhamAverageRatingMap", sanPhamAverageRatingMap);
 		model.addAttribute("danhMucs", danhMucs);
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", sanPhams.getTotalPages());
@@ -156,6 +168,10 @@ public class CustomerController {
 				System.out.println("Current user: " + currentUser.getTenNguoiDung());
 			}
 		}
+		if (currentUser != null) {
+			model.addAttribute("currentUser", currentUser);
+		}
+		model.addAttribute("timestamp", System.currentTimeMillis()); // Thêm timestamp vào Model
 
 		// Nếu người dùng đã đăng nhập, lấy danh sách sản phẩm yêu thích
 		Set<Integer> favoriteProductIds = new HashSet<>();
@@ -171,8 +187,14 @@ public class CustomerController {
 		if (sanPham != null) {
 			model.addAttribute("sanPham", sanPham);
 			// Lấy danh sách đánh giá sản phẩm
-	        List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
-	        model.addAttribute("danhGias", danhGias);
+			List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
+			model.addAttribute("danhGias", danhGias);
+			// Tính trung bình số sao
+			Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0); // Nếu chưa có
+																										// đánh giá thì
+																										// trả về 0
+			model.addAttribute("averageRating", averageRating);
+
 			BigDecimal giaSauGiam = sanPham.getDonGiaBan() != null ? sanPham.getDonGiaBan() : BigDecimal.ZERO;
 
 			Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
@@ -207,8 +229,14 @@ public class CustomerController {
 
 			Map<Integer, KhuyenMai> relatedSanPhamKhuyenMaiMap = new HashMap<>();
 			Map<Integer, BigDecimal> relatedSanPhamGiaSauGiamMap = new HashMap<>();
+			Map<Integer, Double> relatedSanPhamAverageRatingMap = new HashMap<>();
 
 			for (SanPham relatedSanPham : relatedSanPhams) {
+				List<DanhGia> relatedDanhGias = danhGiaService.findBySanPham(relatedSanPham);
+				Double relatedAverageRating = relatedDanhGias.stream().mapToInt(DanhGia::getSoSao).average()
+						.orElse(0.0);
+				relatedSanPhamAverageRatingMap.put(relatedSanPham.getMaSanPham(), relatedAverageRating);
+
 				BigDecimal relatedGiaSauGiam = relatedSanPham.getDonGiaBan() != null ? relatedSanPham.getDonGiaBan()
 						: BigDecimal.ZERO;
 				Optional<KhuyenMai> relatedHighestCurrentKhuyenMai = relatedSanPham.getKhuyenMais().stream()
@@ -232,6 +260,7 @@ public class CustomerController {
 			model.addAttribute("relatedSanPhams", relatedSanPhams);
 			model.addAttribute("relatedSanPhamKhuyenMaiMap", relatedSanPhamKhuyenMaiMap);
 			model.addAttribute("relatedSanPhamGiaSauGiamMap", relatedSanPhamGiaSauGiamMap);
+			model.addAttribute("relatedSanPhamAverageRatingMap", relatedSanPhamAverageRatingMap);
 
 			// Thêm danh sách danh mục để hiển thị trong dropdown tìm kiếm
 			List<DanhMuc> categories = danhMucService.getAll();

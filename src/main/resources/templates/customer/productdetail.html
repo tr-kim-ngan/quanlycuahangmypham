@@ -17,6 +17,23 @@
 				<!-- Thông tin sản phẩm -->
 				<div class="col-md-6 product-info">
 					<h2 th:text="${sanPham.tenSanPham}">Tên sản phẩm</h2>
+					<!-- Hiển thị số sao trung bình -->
+					<div class="average-rating" style="font-size: 1.5em; color: #f39c12;">
+						<span th:each="i : ${#numbers.sequence(1, 5)}"
+							th:classappend="${i <= averageRating ? 'filled-star' : 'empty-star'}">&#9733;</span>
+					</div>
+
+					<style>
+						.filled-star {
+							color: #ffd700;
+							/* Màu vàng cho sao đã đánh giá */
+						}
+
+						.empty-star {
+							color: #ccc;
+							/* Màu xám cho sao chưa đánh giá */
+						}
+					</style>
 
 					<!-- Hiển thị thông tin khuyến mãi -->
 					<div class="promotion-info" th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}">
@@ -161,8 +178,7 @@
 										<!-- Phần hiển thị phản hồi của Admin nếu có -->
 										<div th:if="${danhGia.adminReply != null}" class="admin-reply-box mt-3 p-3"
 											style="background-color: #f1f1f1; border-radius: 10px;">
-											<p><strong></strong> <span
-													th:text="${danhGia.adminReply}"></span></p>
+											<p><strong></strong> <span th:text="${danhGia.adminReply}"></span></p>
 										</div>
 									</div>
 								</div>
@@ -258,7 +274,8 @@
 				<div class="col-md-6">
 					<h3>Sản phẩm liên quan</h3>
 					<div class="related-products-list row row-cols-1 row-cols-md-3 g-4">
-						<div th:each="relatedSanPham : ${relatedSanPhams}" class="col mb-4" style="border-radius: 30px;
+						<div th:each="relatedSanPham : ${relatedSanPhams}" th:if="${relatedSanPham.soLuong > 0}"
+							class="col mb-4" style="border-radius: 30px;
 						box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 						transition: transform 0.2s ease, box-shadow 0.3s ease;  "
 							onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.3)';"
@@ -308,10 +325,30 @@
 										style="font-size: 0.9rem; margin: 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 5px;">
 										Tên sản phẩm liên quan
 									</h3>
-									<span style="color: #555;">Số lượng còn lại: <span
-											th:text="${sanPham.soLuong}"></span></span>
+									<div class="average-rating"
+										style="font-size: 1.2em; color: #f39c12; margin-bottom: 10px;">
+										<span th:each="i : ${#numbers.sequence(1, 5)}"
+											th:classappend="${i <= relatedSanPhamAverageRatingMap[relatedSanPham.maSanPham] ? 'filled-star' : 'empty-star'}">&#9733;</span>
+									</div>
 
-									<span class="qty" th:text="${relatedSanPham.donViTinh.tenDonVi}">Đơn vị</span>
+									<style>
+										.filled-star {
+											color: #ffd700;
+											/* Màu vàng cho sao đã đánh giá */
+										}
+
+										.empty-star {
+											color: #ccc;
+											/* Màu xám cho sao chưa đánh giá */
+										}
+									</style>
+									<!-- Sửa phần này để hiển thị số lượng chính xác của sản phẩm liên quan -->
+									<span style="color: #555; font-size: 12px;">Số lượng còn lại:
+										<span th:text="${relatedSanPham.soLuong}"></span>
+									</span>
+
+									<span class="qty" style="font-size: 13px;"
+										th:text="${relatedSanPham.donViTinh.tenDonVi}">Đơn vị</span>
 
 									<!-- Hiển thị giá -->
 									<div>

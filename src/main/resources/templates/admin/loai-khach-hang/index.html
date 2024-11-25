@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+			<div class="container" style="background-color: #faeee7;">
+				<div class="container">
+					<h2 class="mt-5">Danh Sách Các Lọại Khách Hàng</h2>
+					<div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+						<span th:text="${errorMessage}"></span>
+					</div>
+
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Mã Loại Khách Hàng</th>
+								<th>Tên Loại</th>
+								<th>Mô Tả</th>
+								<th>Trạng Thái</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="loaiKH : ${loaiKhachHangList}">
+								<td th:text="${loaiKH.maLoaiKhachHang}"></td>
+								<td th:text="${loaiKH.tenLoaiKH}"></td>
+								<td th:text="${loaiKH.moTa}"></td>
+								<td th:text="${loaiKH.trangThai ? 'Hoạt động' : 'Không hoạt động'}"></td>
+							</tr>
+						</tbody>
+					</table>
+
+				</div>
+			</div>
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer :: footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script :: script"></div>
+	<!-- End JS -->
+</body>
+
+</html>

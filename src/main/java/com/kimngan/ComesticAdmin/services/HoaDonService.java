@@ -15,6 +15,6 @@ public interface HoaDonService {
     Page<HoaDon> getAllHoaDons(Pageable pageable);
     List<HoaDon> getHoaDonsByCustomer(String username);
     HoaDon findById(Integer id);
-
-
+   // void completeOrder(HoaDon hoaDon);
+   
 }

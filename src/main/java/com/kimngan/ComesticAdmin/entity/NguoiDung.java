@@ -30,6 +30,9 @@ public class NguoiDung {
     @ManyToOne
     @JoinColumn(name = "maQuyen", referencedColumnName ="maQuyen") // Khóa ngoại trỏ đến bảng QuyenTruyCap
     private QuyenTruyCap quyenTruyCap;
+    @ManyToOne
+    @JoinColumn(name = "maLoaiKhachHang", referencedColumnName = "maLoaiKhachHang")
+    private LoaiKhachHang loaiKhachHang;
     
  // Quan hệ n-1 với PhieuGiamGia
     @ManyToOne
@@ -47,8 +50,13 @@ public class NguoiDung {
     public NguoiDung() {}    
   
 
+	
+
+
+
 	public NguoiDung(Integer maNguoiDung, String tenNguoiDung, String matKhau, String email, String soDienThoai,
-			String diaChi, String avatar, QuyenTruyCap quyenTruyCap, PhieuGiamGia phieuGiamGia, GioHang gioHang) {
+			String diaChi, String avatar, QuyenTruyCap quyenTruyCap, LoaiKhachHang loaiKhachHang,
+			PhieuGiamGia phieuGiamGia, GioHang gioHang) {
 		super();
 		this.maNguoiDung = maNguoiDung;
 		this.tenNguoiDung = tenNguoiDung;
@@ -58,9 +66,13 @@ public class NguoiDung {
 		this.diaChi = diaChi;
 		this.avatar = avatar;
 		this.quyenTruyCap = quyenTruyCap;
+		this.loaiKhachHang = loaiKhachHang;
 		this.phieuGiamGia = phieuGiamGia;
 		this.gioHang = gioHang;
 	}
+
+
+
 
 
 
@@ -139,6 +151,15 @@ public class NguoiDung {
 	public void setAvatar(String avatar) {
 		this.avatar = avatar;
 	}
+
+	public LoaiKhachHang getLoaiKhachHang() {
+		return loaiKhachHang;
+	}
+
+	public void setLoaiKhachHang(LoaiKhachHang loaiKhachHang) {
+		this.loaiKhachHang = loaiKhachHang;
+	}
+	
 
 
      

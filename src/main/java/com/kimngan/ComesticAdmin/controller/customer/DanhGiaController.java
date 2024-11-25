@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +32,20 @@ public class DanhGiaController {
 
     @Autowired
     private NguoiDungService nguoiDungService;
+    @ModelAttribute
+	public void addAttributes(Model model, Principal principal) {
+	    if (principal != null) {
+	        // Lấy tên đăng nhập từ Principal
+	        String username = principal.getName();
 
+	        // Tìm thông tin người dùng
+	        NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
+
+	        // Thêm thông tin người dùng và timestamp vào Model
+	        model.addAttribute("currentUser", currentUser);
+	        model.addAttribute("timestamp", System.currentTimeMillis()); // Timestamp luôn được cập nhật
+	    }
+	}
     // Hiển thị form đánh giá sản phẩm
     @GetMapping("/create/{maSanPham}")
     public String showRatingForm(@PathVariable Integer maSanPham, Model model, Principal principal) {

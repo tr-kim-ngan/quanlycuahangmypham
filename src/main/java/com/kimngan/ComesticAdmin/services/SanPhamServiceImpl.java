@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.kimngan.ComesticAdmin.entity.SanPham;
+import com.kimngan.ComesticAdmin.repository.DanhGiaRepository;
 import com.kimngan.ComesticAdmin.repository.SanPhamRepository;
 
 @Service
@@ -18,7 +19,10 @@ public class SanPhamServiceImpl implements SanPhamService {
 
 	@Autowired
 	private SanPhamRepository sanPhamRepository;
-
+	@Autowired
+	private DanhGiaRepository danhGiaRepository;
+	@Autowired
+    private ChiTietDonHangService chiTietDonHangService;
 	@Override
 	public List<SanPham> getAll() {
 		// TODO Auto-generated method stub
@@ -72,7 +76,7 @@ public class SanPhamServiceImpl implements SanPhamService {
 	@Override
 	public Page<SanPham> searchActiveByName(String tenSanPham, Pageable pageable) {
 		// TODO Auto-generated method stub
-		return sanPhamRepository.findByTenSanPhamContainingIgnoreCaseAndTrangThai(tenSanPham,true, pageable);
+		return sanPhamRepository.findByTenSanPhamContainingIgnoreCaseAndTrangThai(tenSanPham, true, pageable);
 	}
 
 	@Override
@@ -107,22 +111,24 @@ public class SanPhamServiceImpl implements SanPhamService {
 	@Override
 	public Page<SanPham> findByDanhMucAndTrangThai(Integer maDanhMuc, Boolean trangThai, Pageable pageable) {
 		// TODO Auto-generated method stub
-        return sanPhamRepository.findByDanhMucAndTrangThai(maDanhMuc, trangThai, pageable);
+		return sanPhamRepository.findByDanhMucAndTrangThai(maDanhMuc, trangThai, pageable);
 	}
 
 	@Override
-	 public Page<SanPham> getAllActiveProducts(Pageable pageable) {
-        return sanPhamRepository.findByTrangThaiTrue(pageable);
-    }
+	public Page<SanPham> getAllActiveProducts(Pageable pageable) {
+		return sanPhamRepository.findByTrangThaiTrue(pageable);
+	}
+
 //Dùng khi bạn muốn lấy tất cả sản phẩm có trạng thái active 
-	//và có trong chi tiết đơn nhập hàng (bất kể danh mục).
+	// và có trong chi tiết đơn nhập hàng (bất kể danh mục).
 	@Override
 	public Page<SanPham> getProductsInOrderDetails(Pageable pageable) {
 		// TODO Auto-generated method stub
 		return sanPhamRepository.findActiveProductsInOrderDetails(pageable);
 	}
+
 //Dùng khi bạn muốn lấy sản phẩm có trạng thái active theo một danh mục cụ thể 
-	//và có trong chi tiết đơn nhập hàng.
+	// và có trong chi tiết đơn nhập hàng.
 	@Override
 	public Page<SanPham> findActiveProductsInOrderDetailsByCategory(Integer maDanhMuc, Pageable pageable) {
 		// TODO Auto-generated method stub
@@ -132,39 +138,41 @@ public class SanPhamServiceImpl implements SanPhamService {
 	@Override
 	public List<SanPham> findByDanhMucAndTrangThai(Integer maDanhMuc, Boolean trangThai) {
 		// TODO Auto-generated method stub
-	    return sanPhamRepository.findByDanhMuc_MaDanhMucAndTrangThai(maDanhMuc, trangThai);
+		return sanPhamRepository.findByDanhMuc_MaDanhMucAndTrangThai(maDanhMuc, trangThai);
 	}
 
 	@Override
 	public List<SanPham> searchAllCategories(String keyword, Pageable pageable) {
-	    return sanPhamRepository.findByTenSanPhamContaining(keyword, pageable);
+		return sanPhamRepository.findByTenSanPhamContaining(keyword, pageable);
 	}
 
 	@Override
 	public List<SanPham> searchByCategory(Integer categoryId, String keyword, Pageable pageable) {
 		// TODO Auto-generated method stub
-	    return sanPhamRepository.findByDanhMuc_MaDanhMucAndTenSanPhamContaining(categoryId, keyword, pageable);
+		return sanPhamRepository.findByDanhMuc_MaDanhMucAndTenSanPhamContaining(categoryId, keyword, pageable);
 	}
 
 	@Override
 	public Page<SanPham> searchAllActiveProductsWithOrderDetails(String keyword, Pageable pageable) {
 		// TODO Auto-generated method stub
-	    return sanPhamRepository.searchAllActiveProductsWithOrderDetails(keyword, pageable);
+		return sanPhamRepository.searchAllActiveProductsWithOrderDetails(keyword, pageable);
 	}
 
 	@Override
 	public Page<SanPham> searchByCategoryWithOrderDetails(Integer categoryId, String keyword, Pageable pageable) {
 		// TODO Auto-generated method stub
-	    return sanPhamRepository.searchByCategoryWithOrderDetails(categoryId, keyword, pageable);
+		return sanPhamRepository.searchByCategoryWithOrderDetails(categoryId, keyword, pageable);
+	}
+
+	@Override
+	public Double getAverageRatingForProduct(Integer maSanPham) {
+		// TODO Auto-generated method stub
+		Double averageRating = danhGiaRepository.findAverageRatingBySanPhamId(maSanPham);
+		return (averageRating != null) ? averageRating : 0.0; // Nếu chưa có đánh giá, trả về 0
+
 	}
 
 	
-	
-	
-	
-
-	
-
 
 	
 

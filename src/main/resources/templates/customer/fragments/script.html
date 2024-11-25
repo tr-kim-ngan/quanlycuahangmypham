@@ -59,7 +59,7 @@
 
 		// Hàm cập nhật số lượng hiển thị giỏ hàng trên icon giỏ hàng
 		function updateCartCount() {
-			fetch('/customer/cart/count')
+			fetch('/customer/cart/total-items')
 				.then(response => response.json())
 				.then(count => {
 					console.log("Số lượng sản phẩm trong giỏ hàng:", count); // Kiểm tra giá trị

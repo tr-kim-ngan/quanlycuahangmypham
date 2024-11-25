@@ -13,65 +13,56 @@ import jakarta.persistence.Table;
 @Table(name = "LoaiKhachHang")
 public class LoaiKhachHang {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "maLoaiKhachHang")  // Đặt tên cho cột ID
-    private Integer maLoaiKhachHang;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "maLoaiKhachHang") // Đặt tên cho cột ID
+	private Integer maLoaiKhachHang;
 
-    @Column(name = "tenLoaiKH", nullable = false, length = 100) // Đặt tên cho cột Tên loại khách hàng
-    private String tenLoaiKH;
+	@Column(name = "tenLoaiKH", nullable = false, length = 100) // Đặt tên cho cột Tên loại khách hàng
+	private String tenLoaiKH;
 
-    @Column(name = "moTa", nullable = true, columnDefinition = "TEXT") // Đặt tên cho cột Mô tả
-    private String moTa;
-
-    @Column(name = "trangThai", nullable = false) // Đặt tên cho cột Trạng thái
+	@Column(name = "moTa", nullable = true, columnDefinition = "TEXT") // Đặt tên cho cột Mô tả
+	private String moTa;
+	@Column(name = "trangThai", nullable = false)
     private Boolean trangThai;
 
-    // One-to-One relationship with PhieuGiamGia
-    @OneToOne(mappedBy = "loaiKhachHang", cascade = CascadeType.ALL)
-    private PhieuGiamGia phieuGiamGia;
+//    // One-to-One relationship with PhieuGiamGia
+//    @OneToOne(mappedBy = "loaiKhachHang", cascade = CascadeType.ALL)
+//    private PhieuGiamGia phieuGiamGia;
 
-    // Constructors, Getters, and Setters
-    public LoaiKhachHang() {}
-
-  
-
-    public LoaiKhachHang(Integer maLoaiKhachHang, String tenLoaiKH, String moTa, Boolean trangThai,
-			PhieuGiamGia phieuGiamGia) {
-		super();
-		this.maLoaiKhachHang = maLoaiKhachHang;
-		this.tenLoaiKH = tenLoaiKH;
-		this.moTa = moTa;
-		this.trangThai = trangThai;
-		this.phieuGiamGia = phieuGiamGia;
+	// Constructors, Getters, and Setters
+	public LoaiKhachHang() {
 	}
 
-
+	public LoaiKhachHang(String tenLoaiKH, String moTa) {
+		this.tenLoaiKH = tenLoaiKH;
+		this.moTa = moTa;
+	}
 
 	public Integer getMaLoaiKhachHang() {
-        return maLoaiKhachHang;
-    }
+		return maLoaiKhachHang;
+	}
 
-    public void setMaLoaiKhachHang(Integer maLoaiKhachHang) {
-        this.maLoaiKhachHang = maLoaiKhachHang;
-    }
+	public void setMaLoaiKhachHang(Integer maLoaiKhachHang) {
+		this.maLoaiKhachHang = maLoaiKhachHang;
+	}
 
-    public String getTenLoaiKH() {
-        return tenLoaiKH;
-    }
+	public String getTenLoaiKH() {
+		return tenLoaiKH;
+	}
 
-    public void setTenLoaiKH(String tenLoaiKH) {
-        this.tenLoaiKH = tenLoaiKH;
-    }
+	public void setTenLoaiKH(String tenLoaiKH) {
+		this.tenLoaiKH = tenLoaiKH;
+	}
 
-    public String getMoTa() {
-        return moTa;
-    }
+	public String getMoTa() {
+		return moTa;
+	}
 
-    public void setMoTa(String moTa) {
-        this.moTa = moTa;
-    }
-
+	public void setMoTa(String moTa) {
+		this.moTa = moTa;
+	}
+	 // Getters and Setters for all fields
     public Boolean getTrangThai() {
         return trangThai;
     }
@@ -80,11 +71,11 @@ public class LoaiKhachHang {
         this.trangThai = trangThai;
     }
 
-    public PhieuGiamGia getPhieuGiamGia() {
-        return phieuGiamGia;
-    }
-
-    public void setPhieuGiamGia(PhieuGiamGia phieuGiamGia) {
-        this.phieuGiamGia = phieuGiamGia;
-    }
+//    public PhieuGiamGia getPhieuGiamGia() {
+//        return phieuGiamGia;
+//    }
+//
+//    public void setPhieuGiamGia(PhieuGiamGia phieuGiamGia) {
+//        this.phieuGiamGia = phieuGiamGia;
+//    }
 }

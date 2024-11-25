@@ -26,7 +26,7 @@
 								<th>Mã Hóa Đơn</th>
 								<th>Ngày Xuất</th>
 								<th>Tổng Tiền</th>
-								<th>Người Nhận</th>
+								<!--<th>Người Nhận</th>-->
 								<th>Thao Tác</th>
 							</tr>
 						</thead>
@@ -35,7 +35,7 @@
 								<td th:text="${hoaDon.maHoaDon}"></td>
 								<td th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></td>
 								<td th:text="${hoaDon.tongTien} + ' VND'"></td>
-								<td th:text="${hoaDon.tenNguoiNhan}"></td>
+								<!--<td th:text="${hoaDon.tenNguoiNhan}"></td>-->
 								<td>
 									<a th:href="@{/customer/hoadon/{maDonHang}(maDonHang=${hoaDon.donHang.maDonHang})}"
 										class="btn btn-primary">Xem Chi Tiết</a>

@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,6 +51,21 @@ public class CustomerHoaDonController {
 
 	@Autowired
 	private DanhGiaService danhGiaService;
+	@ModelAttribute
+	public void addAttributes(Model model, Principal principal) {
+	    if (principal != null) {
+	        // Lấy tên đăng nhập từ Principal
+	        String username = principal.getName();
+
+	        // Tìm thông tin người dùng
+	        NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
+
+	        // Thêm thông tin người dùng và timestamp vào Model
+	        model.addAttribute("currentUser", currentUser);
+	        model.addAttribute("timestamp", System.currentTimeMillis()); // Timestamp luôn được cập nhật
+	    }
+	}
+
 
 	// Xem danh sách hóa đơn
 	@GetMapping("/hoadon")
@@ -59,6 +75,7 @@ public class CustomerHoaDonController {
 		model.addAttribute("hoaDons", hoaDons);
 		return "customer/hoadon";
 	}
+	
 
  
 
@@ -210,8 +227,6 @@ public class CustomerHoaDonController {
 	    model.addAttribute("danhGia", danhGia);
 	    return "customer/view_rating"; // Đảm bảo view này tồn tại và đường dẫn đúng
 	}
-
-
 
 
 }

@@ -1,6 +1,7 @@
 package com.kimngan.ComesticAdmin.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.kimngan.ComesticAdmin.entity.DanhGia;
 import com.kimngan.ComesticAdmin.entity.HoaDon;
@@ -22,4 +23,7 @@ public interface DanhGiaRepository extends JpaRepository<DanhGia, Integer> {
     boolean existsByHoaDonAndSanPhamAndNguoiDung(HoaDon hoaDon, SanPham sanPham, NguoiDung nguoiDung);
  // Thêm phương thức findAll với Pageable
     Page<DanhGia> findAll(Pageable pageable);
+    
+    @Query("SELECT AVG(d.soSao) FROM DanhGia d WHERE d.sanPham.maSanPham = :maSanPham")
+    Double findAverageRatingBySanPhamId(Integer maSanPham);
 }
