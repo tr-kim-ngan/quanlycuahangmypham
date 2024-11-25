@@ -27,11 +27,13 @@ public class DanhGia {
     private Integer soSao; // Số sao đánh giá, từ 1-5
     private String noiDung; // Nội dung đánh giá
     private LocalDateTime thoiGianDanhGia;
+    private String adminReply; 
     
     public DanhGia() {}
 	
+	
 	public DanhGia(Integer maDanhGia, SanPham sanPham, NguoiDung nguoiDung, HoaDon hoaDon, Integer soSao,
-			String noiDung, LocalDateTime thoiGianDanhGia) {
+			String noiDung, LocalDateTime thoiGianDanhGia, String adminReply) {
 		super();
 		this.maDanhGia = maDanhGia;
 		this.sanPham = sanPham;
@@ -40,7 +42,9 @@ public class DanhGia {
 		this.soSao = soSao;
 		this.noiDung = noiDung;
 		this.thoiGianDanhGia = thoiGianDanhGia;
+		this.adminReply = adminReply;
 	}
+
 
 	public Integer getMaDanhGia() {
 		return maDanhGia;
@@ -85,6 +89,16 @@ public class DanhGia {
 
 	public void setHoaDon(HoaDon hoaDon) {
 		this.hoaDon = hoaDon;
+	}
+
+
+	public String getAdminReply() {
+		return adminReply;
+	}
+
+
+	public void setAdminReply(String adminReply) {
+		this.adminReply = adminReply;
 	}
 	
 	

@@ -1,6 +1,8 @@
 package com.kimngan.ComesticAdmin.services;
 
 import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,7 +76,27 @@ public class DanhGiaServiceImpl implements DanhGiaService {
 		 return danhGiaRepository.findBySanPham(sanPham);
 	}
 
+	@Override
+	public DanhGia findById(Integer maDanhGia) {
+		// TODO Auto-generated method stub
+		return danhGiaRepository.findById(maDanhGia).orElse(null);
+	}
+
+	
+	@Override
+	public Page<DanhGia> getAllDanhGias(Pageable pageable) {
+	    return danhGiaRepository.findAll(pageable);
+	}
+
+	@Override
+	public DanhGia save(DanhGia danhGia) {
+		// TODO Auto-generated method stub
+		return danhGiaRepository.save(danhGia);
+	}
+
+
 	
 
+	
 
 }
