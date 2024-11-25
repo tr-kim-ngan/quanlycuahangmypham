@@ -4,35 +4,68 @@
 <head th:replace="~{customer/fragments/head :: head}"></head>
 
 <body>
-	<!-- Header -->
-	<div th:replace="~{customer/fragments/header :: header}"></div>
-	<!-- End Header -->
+    <!-- Header -->
+    <div th:replace="~{customer/fragments/header :: header}"></div>
+    <!-- End Header -->
 
-	<main style="padding: 0px 300px; padding-top: 180px;">
-		<div class="container" style=" padding: 100px 150px ; background-color: #faeee7; border-radius: 20px; ">
-			<h3>Chi Tiết Đánh Giá</h3>
-			<div th:if="${danhGia != null}">
-				<p><strong>Tên Sản Phẩm:</strong> <span th:text="${danhGia.sanPham.tenSanPham}"></span></p>
-				<p><strong>Số Sao:</strong> <span th:text="${danhGia.soSao}"></span></p>
-				<p><strong>Nội Dung Đánh Giá:</strong> <span th:text="${danhGia.noiDung}"></span></p>
-				<p><strong>Thời Gian Đánh Giá:</strong> <span
-						th:text="${#temporals.format(danhGia.thoiGianDanhGia, 'dd/MM/yyyy HH:mm')}"></span></p>
-			</div>
-			<a th:href="@{/customer/hoadon/{maDonHang}(maDonHang=${danhGia.hoaDon.donHang.maDonHang})}"
-				class="btn btn-secondary">Quay Lại</a>
+    <main style="padding: 0px 300px; padding-top: 180px;">
+        <div class="container" style="padding: 100px 150px; background-color: #faeee7; border-radius: 20px;">
+            <h3>Chi Tiết Đánh Giá</h3>
+            <div th:if="${danhGia != null}">
+                <p><strong>Tên Sản Phẩm:</strong> <span th:text="${danhGia.sanPham.tenSanPham}"></span></p>
+                
+                <div class="rating-container">
+                    <strong>Số Sao:</strong>
+                    <div class="rating-view">
+                        <span th:each="i : ${#numbers.sequence(1, 5)}"
+                              th:class="${i <= danhGia.soSao ? 'filled-star' : 'empty-star'}">&#9733;</span>
+                    </div>
+                </div>
+                
+                <p><strong>Nội Dung Đánh Giá:</strong> <span th:text="${danhGia.noiDung}"></span></p>
+                <p><strong>Thời Gian Đánh Giá:</strong> <span
+                        th:text="${#temporals.format(danhGia.thoiGianDanhGia, 'dd/MM/yyyy HH:mm')}"></span></p>
+            </div>
+            <a th:href="@{/customer/hoadon/{maDonHang}(maDonHang=${danhGia.hoaDon.donHang.maDonHang})}"
+                class="btn btn-secondary">Quay Lại</a>
 
-		</div>
-	</main>
+        </div>
+    </main>
 
+    <!-- Footer -->
+    <div th:replace="~{customer/fragments/footer :: footer}"></div>
+    <!-- End Footer -->
+    
+    <!-- Core JS Files -->
+    <div th:replace="~{customer/fragments/script :: script}"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- End JS -->
 
-	<!-- Footer -->
-	<div th:replace="~{customer/fragments/footer :: footer}"></div>
-	<!-- End Footer -->
-	<!-- Core JS Files -->
-	<div th:replace="~{customer/fragments/script :: script}"></div>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- CSS for Star Rating -->
+    <style>
+        .rating-container {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Giảm khoảng cách giữa "Số Sao:" và các ngôi sao */
+            margin-bottom: 10px; /* Khoảng cách dưới dòng "Số Sao:" */
+        }
 
-	<!-- End JS -->
+        .rating-view {
+            display: flex;
+            gap: 3px; /* Giảm khoảng cách giữa các ngôi sao */
+        }
+
+        .rating-view .filled-star {
+            font-size: 2em;
+            color: #ffd700;
+        }
+
+        .rating-view .empty-star {
+            font-size: 2em;
+            color: #ccc;
+        }
+    </style>
+
 </body>
 
 </html>
