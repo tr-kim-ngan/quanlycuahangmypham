@@ -56,7 +56,7 @@
 							<p><strong>Trạng Thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span></p>
 							<!-- Form cập nhật trạng thái đơn hàng -->
 							<div
-								th:if="${donHang.trangThaiDonHang != 'Đã hoàn thành' and donHang.trangThaiDonHang != 'Đã hủy'}">
+								th:if="${donHang.trangThaiDonHang != 'Đã hoàn thành' and donHang.trangThaiDonHang != 'Đã hủy' and donHang.trangThaiDonHang != 'Bị hủy do không đủ hàng'}">
 
 								<form
 									th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
@@ -86,8 +86,9 @@
 									</div>
 									<!--	<button type="submit" class="btn btn-primary mt-3">Cập Nhật Trạng Thái</button>-->
 									<button type="submit" class="btn btn-primary mt-3"
-										th:disabled="${donHang.trangThaiDonHang == 'Đã hủy'}">Cập nhật trạng
-										thái</button>
+										th:disabled="${donHang.trangThaiDonHang == 'Đã hủy' or donHang.trangThaiDonHang == 'Bị hủy do không đủ hàng'}">
+										Cập nhật trạng thái
+									</button>
 								</form>
 							</div>
 							<!-- Thông báo nếu đơn hàng không thể cập nhật trạng thái -->

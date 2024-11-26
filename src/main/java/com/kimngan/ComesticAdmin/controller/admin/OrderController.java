@@ -136,20 +136,96 @@ public class OrderController {
 //	            }
 //				
 	            
-	            
-	            
-	            
-	            
-				if ("Đã hủy".equals(newStatus)) {
-					for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-						SanPham sanPham = chiTiet.getSanPham();
-						int soLuongHienTai = sanPham.getSoLuong();
-						int soLuongTraLai = chiTiet.getSoLuong();
-						sanPham.setSoLuong(soLuongHienTai + soLuongTraLai);
-						// Lưu lại sản phẩm sau khi cộng số lượng
-						sanPhamService.update(sanPham);
-					}
-				}
+				 // Kiểm tra số lượng tồn kho cho đơn hàng trước khi xác nhận
+
+				// Kiểm tra số lượng tồn kho và cập nhật số lượng khi xác nhận đơn hàng
+//	            if ("Đã xác nhận".equals(newStatus)) {
+//	                for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+//	                    SanPham sanPham = chiTiet.getSanPham();
+//	                    int soLuongYeuCau = chiTiet.getSoLuong();
+//
+//	                    // Nếu số lượng yêu cầu lớn hơn số lượng tồn kho
+//	                    if (soLuongYeuCau > sanPham.getSoLuong()) {
+//	                        redirectAttributes.addFlashAttribute("errorMessage", 
+//	                                "Sản phẩm '" + sanPham.getTenSanPham() + "' không đủ số lượng tồn kho để xác nhận đơn hàng.");
+//	                        return "redirect:/admin/orders/" + maDonHang; // Quay lại trang chi tiết đơn hàng
+//	                    }
+//	                }
+//
+//	                // Sau khi kiểm tra đủ tồn kho, tiến hành cập nhật lại số lượng tồn kho
+//	                for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+//	                    SanPham sanPham = chiTiet.getSanPham();
+//	                    int soLuongYeuCau = chiTiet.getSoLuong();
+//
+//	                    // Trừ số lượng đã bán ra khỏi tồn kho
+//	                    int soLuongTonHienTai = sanPham.getSoLuong();
+//	                    sanPham.setSoLuong(soLuongTonHienTai - soLuongYeuCau);
+//	                    sanPhamService.update(sanPham); // Lưu lại sản phẩm với số lượng mới
+//	                }
+//	            }
+//	            
+//				if ("Đã hủy".equals(newStatus)) {
+//					for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+//						SanPham sanPham = chiTiet.getSanPham();
+//						int soLuongHienTai = sanPham.getSoLuong();
+//						int soLuongTraLai = chiTiet.getSoLuong();
+//						sanPham.setSoLuong(soLuongHienTai + soLuongTraLai);
+//						// Lưu lại sản phẩm sau khi cộng số lượng
+//						sanPhamService.update(sanPham);
+//					}
+//				}
+				
+				// Kiểm tra số lượng tồn kho trước khi xác nhận đơn hàng
+	            if ("Đã xác nhận".equals(newStatus)) {
+	                for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+	                    SanPham sanPham = chiTiet.getSanPham();
+	                    int soLuongYeuCau = chiTiet.getSoLuong();
+
+	                    // Nếu số lượng yêu cầu lớn hơn số lượng tồn kho
+	                    if (soLuongYeuCau > sanPham.getSoLuong()) {
+	                        // Đơn hàng phải hủy vì không đủ tồn kho
+	                        redirectAttributes.addFlashAttribute("errorMessage",
+	                                "Sản phẩm '" + sanPham.getTenSanPham() + "' không đủ số lượng tồn kho để xác nhận đơn hàng. Đơn hàng cần phải hủy.");
+	                        // Lưu trạng thái đơn hàng là "Bị hủy do không đủ hàng" để không cộng lại số lượng vào kho
+	                        donHang.setTrangThaiDonHang("Bị hủy do không đủ hàng");
+	                        donHangService.updateDonHang(donHang);
+	                        return "redirect:/admin/orders/" + maDonHang; // Quay lại trang chi tiết đơn hàng
+	                    }
+	                }
+
+	                // Sau khi kiểm tra đủ tồn kho, tiến hành cập nhật lại số lượng tồn kho
+	                for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+	                    SanPham sanPham = chiTiet.getSanPham();
+	                    int soLuongYeuCau = chiTiet.getSoLuong();
+
+	                    // Trừ số lượng đã bán ra khỏi tồn kho
+	                    int soLuongTonHienTai = sanPham.getSoLuong();
+	                    sanPham.setSoLuong(soLuongTonHienTai - soLuongYeuCau);
+	                    sanPhamService.update(sanPham); // Lưu lại sản phẩm với số lượng mới
+	                }
+	            }
+
+	            // Xử lý khi đơn hàng bị hủy
+	            if ("Đã hủy".equals(newStatus)) {
+	                // Kiểm tra xem đơn hàng có bị hủy do không đủ tồn kho hay không
+	                if (!"Bị hủy do không đủ hàng".equals(donHang.getTrangThaiDonHang())) {
+	                    // Nếu đơn hàng không bị hủy do thiếu tồn kho, tiến hành cộng lại số lượng tồn kho
+	                    for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+	                        SanPham sanPham = chiTiet.getSanPham();
+	                        int soLuongHienTai = sanPham.getSoLuong();
+	                        int soLuongTraLai = chiTiet.getSoLuong();
+	                        sanPham.setSoLuong(soLuongHienTai + soLuongTraLai);
+	                        sanPhamService.update(sanPham); // Lưu lại sản phẩm sau khi cộng số lượng
+	                    }
+	                }
+	            }
+				
+				
+				
+				
+				
+				
+				
 				// Tạo hóa đơn khi đơn hàng chuyển sang "Đã hoàn thành"
 	            if ("Đã hoàn thành".equals(newStatus)) {
 	                HoaDon hoaDon = new HoaDon();

@@ -274,8 +274,9 @@
 				<div class="col-md-6">
 					<h3>Sản phẩm liên quan</h3>
 					<div class="related-products-list row row-cols-1 row-cols-md-3 g-4">
-						<div th:each="relatedSanPham : ${relatedSanPhams}" th:if="${relatedSanPham.soLuong > 0}"
-							class="col mb-4" style="border-radius: 30px;
+						<div th:each="relatedSanPham : ${relatedSanPhams}" 
+						th:if="${relatedSanPham.soLuong > 0}"
+						class="col mb-4" style="border-radius: 30px;
 						box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 						transition: transform 0.2s ease, box-shadow 0.3s ease;  "
 							onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.3)';"

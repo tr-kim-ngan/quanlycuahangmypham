@@ -10,7 +10,7 @@
 		<h2 class="my-5 text-center">Chi Tiết Đơn Hàng</h2>
 
 		<!-- Thông tin đơn hàng -->
-		<div class="mb-4">
+		<div class="mb-4" style="line-height: 1.8; color: #555;">
 			<p><strong>Mã đơn hàng:</strong> <span th:text="${donHang.maDonHang}"></span></p>
 			<p><strong>Ngày đặt hàng:</strong> <span
 					th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></span></p>
@@ -22,19 +22,20 @@
 
 		<!-- Danh sách sản phẩm trong đơn hàng -->
 		<!-- Danh sách sản phẩm trong đơn hàng -->
-		<table class="table">
-			<thead>
+		<table class="table"
+			style="background-color: #ffffff; border: 3px solid rgb(64, 0, 64); border-radius: 10px; overflow: hidden;">
+			<thead style="background-color: rgb(192, 192, 192); color: #ffffff;">
 				<tr>
-					<th>STT</th>
-					<th>Hình ảnh</th>
-					<th>Sản Phẩm</th>
-					<th>Số Lượng</th>
-					<th>Giá</th>
-					<th>Thành Tiền</th>
+					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">STT</th>
+					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">Hình ảnh</th>
+					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">Sản Phẩm</th>
+					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">Số Lượng</th>
+					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">Giá</th>
+					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">Thành Tiền</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="chiTiet, iterStat : ${donHang.chiTietDonHangs}">
+				<tr th:each="chiTiet, iterStat : ${donHang.chiTietDonHangs}" style="border: 1px solid rgb(64, 0, 64);">
 					<td th:text="${iterStat.count}"></td>
 					<td>
 						<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}" style="width: 100px; height: auto;"
