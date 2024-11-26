@@ -468,8 +468,8 @@ public class PurchaseOrderController {
 			donNhapHangService.update(donNhapHang);
 			// }
 		}
-
-		return "redirect:/admin/edit/" + maDonNhapHang;
+		return "redirect:/admin/add-purchase-order-detail/" + maDonNhapHang;
+		//return "redirect:/admin/edit/" + maDonNhapHang;
 	}
 
 //	@PostMapping("/delete-purchase-order/{maDonNhapHang}")

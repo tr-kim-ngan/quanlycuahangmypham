@@ -3,29 +3,34 @@
 
 <head th:replace="customer/fragments/head :: head"></head>
 
-<body>
+<body >
 	<header th:replace="customer/fragments/header :: header"></header>
 
 	<main class="container my-4" style="padding: 100px; padding-top:120px;">
-		<h2 class="my-5 text-center">Danh Sách Đơn Hàng</h2>
+		<h2 class="my-5 text-center" style="color: #333; font-weight: bold;">Danh Sách Đơn Hàng</h2>
 
 		<!-- Danh sách đơn hàng -->
 		<div class="list-group">
-			<div th:each="order : ${donHangs}" class="list-group-item my-2">
-				<h5>Đơn hàng số: <span th:text="${order.maDonHang}"></span></h5>
+			<div th:each="order : ${donHangs}"
+			style="background-color: #ffffff; border: 1px solid rgb(64, 0, 64); border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: transform 0.2s, box-shadow 0.2s;"
+			 class="list-group-item my-2">
+				<h5  style="color: #007bff;" >Đơn hàng số: <span th:text="${order.maDonHang}"></span></h5>
 				<p>Ngày đặt: <span th:text="${#temporals.format(order.ngayDat, 'dd/MM/yyyy HH:mm')}"></span></p>
 				<p>Địa chỉ giao hàng: <span th:text="${order.diaChiGiaoHang}"></span></p>
 				<p>Trạng thái: <span th:text="${order.trangThaiDonHang}"></span></p>
 				<p>Phí vận chuyển: <span th:text="${order.phiVanChuyen} + ' VND'"></span></p>
 				<p>Tổng tiền: <span th:text="${order.tongGiaTriDonHang} + ' VND'"></span></p>
-				<a th:href="@{/customer/order/{maDonHang}(maDonHang=${order.maDonHang})}" class="btn btn-info btn-sm mt-2">
+				<a th:href="@{/customer/order/{maDonHang}(maDonHang=${order.maDonHang})}" class="btn btn-info btn-sm mt-2"
+				style="border-radius: 5px; font-size: 0.9rem; padding: 6px 12px; background-color: #007bff; color: white; opacity: 0.9;">
 					Xem Chi Tiết
 				</a>
 				
 				<!-- Nút hủy đơn hàng (chỉ hiển thị nếu đơn hàng đang ở trạng thái 'Đang xử lý') -->
 				<form th:action="@{/customer/order/cancel}" method="POST" class="mt-2" th:if="${order.trangThaiDonHang == 'Đang xử lý'}">
 					<input type="hidden" name="maDonHang" th:value="${order.maDonHang}" />
-					<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
+					<button type="submit" class="btn btn-danger btn-sm" 
+				style="border-radius: 5px; font-size: 0.9rem; padding: 6px 12px; background-color: #dc3545; color: white; opacity: 0.9;"
+					onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
 						Hủy Đơn Hàng
 					</button>
 				</form>

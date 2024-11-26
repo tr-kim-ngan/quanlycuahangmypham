@@ -114,7 +114,8 @@
 
 			<div id="productGrid" class="product-grid"
 				style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-				<div th:each="sanPham : ${sanPhams}" th:if="${sanPham.trangThai == true 
+				<div th:each="sanPham : ${sanPhams}" 
+				th:if="${sanPham.trangThai == true 
 				and !sanPham.chiTietDonNhapHangs.isEmpty()
 				and sanPham.soLuong > 0				
 			   and sanPham.chiTietDonNhapHangs.?[donNhapHang.tongGiaTriNhapHang > 0 
