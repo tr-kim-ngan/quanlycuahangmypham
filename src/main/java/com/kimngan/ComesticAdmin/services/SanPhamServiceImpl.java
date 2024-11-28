@@ -208,6 +208,12 @@ public class SanPhamServiceImpl implements SanPhamService {
 		return sanPhamRepository.findAllWithDanhGiasAndTrangThaiTrueBySoSao(soSao);
 	}
 
+	@Override
+	public long countActiveProducts() {
+		// TODO Auto-generated method stub
+		return sanPhamRepository.countByTrangThaiTrue();
+	}
+
 	
 	
 

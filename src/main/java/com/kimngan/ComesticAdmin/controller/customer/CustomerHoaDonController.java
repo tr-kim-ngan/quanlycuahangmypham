@@ -32,6 +32,7 @@ import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.HoaDonService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/customer")
@@ -70,12 +71,16 @@ public class CustomerHoaDonController {
 	// Xem danh sách hóa đơn
 	@GetMapping("/hoadon")
 	public String getHoaDons(Model model) {
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		List<HoaDon> hoaDons = hoaDonService.getHoaDonsByCustomer(username);
-		model.addAttribute("hoaDons", hoaDons);
-		return "customer/hoadon";
+	    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	    List<HoaDon> hoaDons = hoaDonService.getHoaDonsByCustomer(username)
+	                                        .stream()
+	                                        .filter(hoaDon -> "Đã xác nhận".equals(hoaDon.getTrangThaiThanhToan()) ||
+	                                                          "Đã hoàn thành".equals(hoaDon.getTrangThaiThanhToan()))
+	                                        .collect(Collectors.toList());
+	    model.addAttribute("hoaDons", hoaDons);
+	    return "customer/hoadon";
 	}
-	
+
 
  
 

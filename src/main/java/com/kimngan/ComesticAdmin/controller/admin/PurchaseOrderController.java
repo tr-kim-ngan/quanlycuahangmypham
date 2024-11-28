@@ -46,7 +46,7 @@ public class PurchaseOrderController {
 	// Hiển thị danh sách đơn nhập hàng
 	@GetMapping("/purchaseorder")
 	public String index(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "5") int size,
+			@RequestParam(value = "size", defaultValue = "10") int size,
 			@RequestParam(value = "keyword", required = false) String keyword) {
 
 		// Tạo đối tượng PageRequest để phân trang
@@ -143,58 +143,6 @@ public class PurchaseOrderController {
 		return "admin/purchaseorder/add-details";
 	}
 
-	// Lưu chi tiết đơn nhập hàng và cập nhật tổng giá trị
-//	@PostMapping("/save-purchase-order-details/{maDonNhapHang}")
-//	public String savePurchaseOrderDetails(@PathVariable("maDonNhapHang") Integer maDonNhapHang,
-//			@RequestParam("sanPhamIds") List<Integer> sanPhamIds,
-//			@RequestParam("soLuongNhap") List<Integer> soLuongNhap,
-//			@RequestParam("donGiaNhap") List<BigDecimal> donGiaNhap, Model model) {
-//		System.out.println("San Pham IDs: " + sanPhamIds);
-//		System.out.println("So Luong Nhap: " + soLuongNhap);
-//		System.out.println("Don Gia Nhap: " + donGiaNhap);
-//
-//		DonNhapHang donNhapHang = donNhapHangService.findById(maDonNhapHang);
-//		if (donNhapHang == null) {
-//			model.addAttribute("errorMessage", "Không tìm thấy đơn nhập hàng.");
-//			// return "redirect:/admin/purchaseorder";
-//			return "admin/purchaseorder/add-details";
-//		}
-//		
-//		
-//		
-//		
-//		
-//
-//		BigDecimal tongGiaTriNhap = BigDecimal.ZERO; // Tính tổng giá trị nhập
-//
-//		// Lưu từng chi tiết đơn nhập hàng
-//		for (int i = 0; i < sanPhamIds.size(); i++) {
-//
-//			if (soLuongNhap.get(i) == null || donGiaNhap.get(i) == null) {
-//				model.addAttribute("errorMessage", "Số lượng và đơn giá không được để trống.");
-//				return "redirect:/admin/add-details/" + maDonNhapHang;
-//			}
-//			ChiTietDonNhapHang chiTiet = new ChiTietDonNhapHang();
-//			chiTiet.setDonNhapHang(donNhapHang);
-//			chiTiet.setSanPham(sanPhamService.findById(sanPhamIds.get(i)));
-//			chiTiet.setSoLuongNhap(soLuongNhap.get(i));
-//			chiTiet.setDonGiaNhap(donGiaNhap.get(i));
-//
-//			BigDecimal giaTriNhap = donGiaNhap.get(i).multiply(new BigDecimal(soLuongNhap.get(i)));
-//			tongGiaTriNhap = tongGiaTriNhap.add(giaTriNhap);
-//
-//			chiTietDonNhapHangService.create(chiTiet);
-//		}
-//
-//		// Cập nhật tổng giá trị nhập hàng trong đơn nhập hàng
-//		donNhapHang.setTongGiaTriNhapHang(tongGiaTriNhap);
-//		donNhapHangService.update(donNhapHang);
-//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
-//		model.addAttribute("user", userDetails);
-//
-//		return "redirect:/admin/purchaseorder"; // Điều hướng về trang danh sách đơn nhập hàng
-//	}
 
 	@PostMapping("/save-purchase-order-details/{maDonNhapHang}")
 	public String savePurchaseOrderDetails(@PathVariable("maDonNhapHang") Integer maDonNhapHang,

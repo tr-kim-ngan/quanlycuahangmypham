@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +29,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 @Controller
 @RequestMapping("/admin")
 public class HoaDonController {
@@ -39,67 +41,68 @@ public class HoaDonController {
     @Autowired
     private DonHangService donHangService;
 
-    // Hiển thị danh sách hóa đơn
     @GetMapping("/hoadon")
     public String getHoaDons(
-    		HttpServletRequest request,
-    		Model model, 
-    		@RequestParam(value = "tenNguoiNhan", required = false) String tenNguoiNhan,
-    		@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-    	    @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
-    		@RequestParam(value = "page", defaultValue = "0") int page,
+            HttpServletRequest request,
+            Model model,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
 
-        // Kiểm tra nếu page nhỏ hơn 0 thì đặt lại giá trị page về 0
         if (page < 0) {
             page = 0;
         }
 
-      //  Page<HoaDon> hoaDonPage = hoaDonService.getAllHoaDons(PageRequest.of(page, size));
-        Page<HoaDon> hoaDonPage;
+        Page<HoaDon> hoaDonPage = Page.empty();
 
-        // Nếu có từ khóa tìm kiếm theo ngày xuất
-     // Nếu có từ khóa tìm kiếm tên người nhận và ngày xuất
-        // Nếu có từ khóa tìm kiếm tên người nhận và ngày xuất
-     // Nếu có từ khóa tìm kiếm tên người nhận và ngày xuất hóa đơn
-        if ((tenNguoiNhan != null && !tenNguoiNhan.isEmpty()) && (startDate != null && endDate != null && !endDate.isBefore(startDate))) {
-            LocalDateTime startDateTime = startDate.atStartOfDay();
-            LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-            hoaDonPage = hoaDonService.searchByTenNguoiNhanAndNgayXuatHoaDon(tenNguoiNhan, startDateTime, endDateTime, PageRequest.of(page, size));
-            model.addAttribute("tenNguoiNhan", tenNguoiNhan);
-            model.addAttribute("startDate", startDate);
-            model.addAttribute("endDate", endDate);
+        // Kiểm tra nếu ngày bắt đầu sau ngày kết thúc
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            model.addAttribute("errorMessage", "Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+        } else {
+            // Lọc theo trạng thái nếu được cung cấp
+            if (status != null && !status.isEmpty()) {
+                hoaDonPage = hoaDonService.searchByStatus(status, PageRequest.of(page, size));
+                model.addAttribute("selectedStatus", status);
+            }
+            // Nếu có từ khóa tìm kiếm theo ngày xuất
+            else if (startDate != null && endDate != null) {
+                LocalDateTime startDateTime = startDate.atStartOfDay();
+                LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+                hoaDonPage = hoaDonService.searchByNgayXuat(startDateTime, endDateTime, PageRequest.of(page, size));
+                model.addAttribute("startDate", startDate);
+                model.addAttribute("endDate", endDate);
+            }
+            // Nếu không có từ khóa tìm kiếm, lấy tất cả hóa đơn
+            else {
+                hoaDonPage = hoaDonService.getAllHoaDons(PageRequest.of(page, size));
+            }
+
+            // Kiểm tra nếu không có kết quả
+            if (hoaDonPage.isEmpty()) {
+                model.addAttribute("message", "Không tìm thấy kết quả nào cho thông tin tìm kiếm của bạn.");
+            }
         }
 
-        // Nếu có từ khóa tìm kiếm theo ngày xuất
-        else if (startDate != null && endDate != null && !endDate.isBefore(startDate)) {
-            LocalDateTime startDateTime = startDate.atStartOfDay();
-            LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-            hoaDonPage = hoaDonService.searchByNgayXuat(startDateTime, endDateTime, PageRequest.of(page, size));
-            model.addAttribute("startDate", startDate);
-            model.addAttribute("endDate", endDate);
-        } 
-        // Nếu có từ khóa tìm kiếm tên người nhận
-        else if (tenNguoiNhan != null && !tenNguoiNhan.isEmpty()) {
-            hoaDonPage = hoaDonService.searchByTenNguoiNhan(tenNguoiNhan, PageRequest.of(page, size));
-            model.addAttribute("tenNguoiNhan", tenNguoiNhan);
-        } 
-        // Nếu không có từ khóa tìm kiếm, lấy tất cả hóa đơn
-        else {
-            hoaDonPage = hoaDonService.getAllHoaDons(PageRequest.of(page, size));
-        }
+        // Định dạng ngày thành chuỗi để truyền vào model
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedStartDate = (startDate != null) ? startDate.format(formatter) : "";
+        String formattedEndDate = (endDate != null) ? endDate.format(formatter) : "";
+        boolean isEmpty = hoaDonPage.isEmpty();
 
-        // Kiểm tra nếu không có kết quả
-        if (hoaDonPage.isEmpty()) {
-            model.addAttribute("message", "Không tìm thấy kết quả nào cho thông tin tìm kiếm của bạn.");
-        }
-
+        model.addAttribute("isEmpty", isEmpty);
+        model.addAttribute("formattedStartDate", formattedStartDate);
+        model.addAttribute("formattedEndDate", formattedEndDate);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
         model.addAttribute("hoaDons", hoaDonPage.getContent());
         model.addAttribute("currentPage", hoaDonPage.getNumber());
         model.addAttribute("totalPages", hoaDonPage.getTotalPages());
         model.addAttribute("size", size);
         model.addAttribute("searchAction", "/admin/hoadon");
         model.addAttribute("requestUri", request.getRequestURI());
+
         // Thêm thông tin người dùng vào model
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
@@ -108,49 +111,69 @@ public class HoaDonController {
         return "admin/hoadon/index";
     }
 
-    // Xem chi tiết hóa đơn
+
+
+
+ // Xem chi tiết hóa đơn
     @GetMapping("/hoadon/{maDonHang}")
     public String viewHoaDon(
-    		@PathVariable("maDonHang") Integer maDonHang,
+            @PathVariable("maDonHang") Integer maDonHang,
             HttpServletRequest request,
             Model model,
-            @RequestParam(value = "tenNguoiNhan", required = false) String tenNguoiNhan,
+            @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size
-    		
-    		) {
-    	 // Nếu có từ khóa tìm kiếm, chuyển hướng về danh sách hóa đơn với các tham số tìm kiếm
-        if ((tenNguoiNhan != null && !tenNguoiNhan.isEmpty()) || 
-            (startDate != null && endDate != null && !endDate.isBefore(startDate))) {
+            @RequestParam(value = "size", defaultValue = "5") int size) {
 
+    	
+    	
+    	// Điều hướng về trang danh sách hóa đơn nếu nhấn tìm kiếm
+        if (status != null || startDate != null || endDate != null) {
             String redirectUrl = "/admin/hoadon?";
-            if (tenNguoiNhan != null && !tenNguoiNhan.isEmpty()) {
-                redirectUrl += "tenNguoiNhan=" + tenNguoiNhan + "&";
+
+            if (status != null) {
+                try {
+                    redirectUrl += "status=" + URLEncoder.encode(status, StandardCharsets.UTF_8.toString()) + "&";
+                } catch (Exception e) {
+                    // Log lỗi nếu mã hóa thất bại
+                    e.printStackTrace();
+                }
             }
-            if (startDate != null && endDate != null) {
-                redirectUrl += "startDate=" + startDate + "&endDate=" + endDate + "&";
+
+            if (startDate != null) {
+                redirectUrl += "startDate=" + startDate + "&";
             }
+
+            if (endDate != null) {
+                redirectUrl += "endDate=" + endDate + "&";
+            }
+
             redirectUrl += "page=" + page + "&size=" + size;
 
             return "redirect:" + redirectUrl;
         }
-
+        // Lấy thông tin đơn hàng
         DonHang donHang = donHangService.getDonHangById(maDonHang);
         if (donHang == null) {
             return "redirect:/admin/orders"; // Nếu đơn hàng không tồn tại, chuyển về danh sách đơn hàng
         }
 
+        // Lấy thông tin hóa đơn liên kết với đơn hàng
         HoaDon hoaDon = hoaDonService.getHoaDonByDonHang(donHang);
         if (hoaDon == null) {
             model.addAttribute("errorMessage", "Không tìm thấy hóa đơn cho đơn hàng này.");
             return "redirect:/admin/orders"; // Nếu hóa đơn không tồn tại, chuyển về danh sách đơn hàng
         }
 
+        // Đưa dữ liệu cần thiết vào model
         model.addAttribute("hoaDon", hoaDon);
-        model.addAttribute("requestUri", "/admin/hoadon"); // Hoặc "/admin/hoadon/{maDonHang}"
-
+        model.addAttribute("status", status);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
+        model.addAttribute("requestUri", request.getRequestURI());
 
         // Thêm thông tin người dùng vào model
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -159,4 +182,20 @@ public class HoaDonController {
 
         return "admin/hoadon/view"; // Trả về view để hiển thị chi tiết hóa đơn
     }
+
+    @PostMapping("/hoadon/xacnhan/{maHoaDon}")
+    public String xacNhanThanhToanHoaDon(@PathVariable("maHoaDon") Integer maHoaDon, RedirectAttributes redirectAttributes) {
+        try {
+            hoaDonService.xacNhanThanhToan(maHoaDon);
+            redirectAttributes.addFlashAttribute("successMessage", "Xác nhận thanh toán hóa đơn thành công.");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        // Chuyển hướng về chi tiết hóa đơn dựa vào mã đơn hàng liên kết với hóa đơn
+        HoaDon hoaDon = hoaDonService.getHoaDonById(maHoaDon);
+        Integer maDonHang = hoaDon.getDonHang().getMaDonHang();
+        return "redirect:/admin/hoadon/" + maDonHang;
+    }
+
+
 }

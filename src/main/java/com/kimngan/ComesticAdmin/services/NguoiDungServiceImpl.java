@@ -89,6 +89,12 @@ public class NguoiDungServiceImpl implements NguoiDungService {
 	    }
 	}
 
+	@Override
+	public long countCustomers() {
+		// TODO Auto-generated method stub
+		 return nguoiDungRepository.countByQuyenTruyCap_TenQuyen("CUSTOMER");
+	}
+
 
 
 

@@ -10,5 +10,5 @@ public interface  NguoiDungRepository extends JpaRepository<NguoiDung, Integer>{
 
 	NguoiDung findByTenNguoiDung(String tenNguoiDung);
 	//Optional<NguoiDung> findByTenNguoiDung(String tenNguoiDung);
-
+	 long countByQuyenTruyCap_TenQuyen(String tenQuyen);
 }

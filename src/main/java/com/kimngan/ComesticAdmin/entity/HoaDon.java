@@ -26,19 +26,28 @@ public class HoaDon {
 
     @Column(nullable = false)
     private String soDienThoaiNhanHang;
-
+    @Column(nullable = false)
+    private String trangThaiThanhToan; 
     // Constructors
     public HoaDon() {
     }
 
-    public HoaDon(DonHang donHang, LocalDateTime ngayXuatHoaDon, BigDecimal tongTien, String tenNguoiNhan, String diaChiGiaoHang, String soDienThoaiNhanHang) {
-        this.donHang = donHang;
-        this.ngayXuatHoaDon = ngayXuatHoaDon;
-        this.tongTien = tongTien;
-        this.tenNguoiNhan = tenNguoiNhan;
-        this.diaChiGiaoHang = diaChiGiaoHang;
-        this.soDienThoaiNhanHang = soDienThoaiNhanHang;
-    }
+    
+
+	public HoaDon(Integer maHoaDon, DonHang donHang, LocalDateTime ngayXuatHoaDon, BigDecimal tongTien,
+			String tenNguoiNhan, String diaChiGiaoHang, String soDienThoaiNhanHang, String trangThaiThanhToan) {
+		super();
+		this.maHoaDon = maHoaDon;
+		this.donHang = donHang;
+		this.ngayXuatHoaDon = ngayXuatHoaDon;
+		this.tongTien = tongTien;
+		this.tenNguoiNhan = tenNguoiNhan;
+		this.diaChiGiaoHang = diaChiGiaoHang;
+		this.soDienThoaiNhanHang = soDienThoaiNhanHang;
+		this.trangThaiThanhToan = trangThaiThanhToan;
+	}
+
+
 
 	public Integer getMaHoaDon() {
 		return maHoaDon;
@@ -108,7 +117,16 @@ public class HoaDon {
                 ", soDienThoaiNhanHang='" + soDienThoaiNhanHang + '\'' +
                 '}';
     }
+
+	public String getTrangThaiThanhToan() {
+		return trangThaiThanhToan;
+	}
+
+	public void setTrangThaiThanhToan(String trangThaiThanhToan) {
+		this.trangThaiThanhToan = trangThaiThanhToan;
+	}
 	
+    
 
     
 }

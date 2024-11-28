@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -88,11 +89,46 @@ public class HoaDonServiceImpl implements HoaDonService {
 		return hoaDonRepository.findByTenNguoiNhanContainingAndNgayXuatHoaDonBetween(tenNguoiNhan, startDateTime, endDateTime, pageable);
 	}
 
-//	@Override
-//	public Integer getSoldQuantityBySanPhamId(Integer sanPhamId) {
-//	    List<ChiTietDonHang> chiTietDonHangList = chiTietDonHangRepository.findBySanPhamIdAndTrangThai(sanPhamId, "Đã hoàn thành");
-//	    return chiTietDonHangList.stream().mapToInt(ChiTietDonHang::getSoLuong).sum();
-//	}
+	@Override
+	public void xacNhanThanhToan(Integer maHoaDon) {
+		HoaDon hoaDon = hoaDonRepository.findById(maHoaDon)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với mã: " + maHoaDon));
+        hoaDon.setTrangThaiThanhToan("Đã xác nhận");
+        hoaDonRepository.save(hoaDon);
+		
+	}
+
+	@Override
+	public Page<HoaDon> searchByStatus(String status, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return hoaDonRepository.findByTrangThaiThanhToan(status, pageable);
+	}
+
+	@Override
+	public Page<HoaDon> searchByTrangThaiAndNgayXuat(String trangThai, LocalDateTime startDateTime,
+			LocalDateTime endDateTime, Pageable pageable) {
+		// TODO Auto-generated method stub
+	    return hoaDonRepository.findByTrangThaiThanhToanAndNgayXuatHoaDonBetween(trangThai, startDateTime, endDateTime, pageable);
+
+	}
+
+	@Override
+	public BigDecimal calculateTotalRevenue() {
+		// TODO Auto-generated method stub
+        return hoaDonRepository.calculateTotalRevenueByStatus("Đã xác nhận");
+
+	}
+
+	@Override
+	public long countUnconfirmedInvoices() {
+		// TODO Auto-generated method stub
+        return hoaDonRepository.countByTrangThaiThanhToan("Chưa xác nhận");
+
+	}
+
+	
+
+
 
 	
 

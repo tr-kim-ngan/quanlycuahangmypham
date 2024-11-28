@@ -5,158 +5,172 @@
 	<!-- Offcanvas thông báo yêu cầu đăng nhập -->
 
 
-    <!-- Footer for Cosmetics Store -->
-<footer class="footer-container">
-    <div class="footer-top">
-        <div class="footer-feature">
-            <div class="feature-item">
-                <i class="fas fa-truck"></i>
-                <h4>Giao hàng nhanh</h4>
-                <p>Chúng tôi cung cấp dịch vụ giao hàng nhan hạnh trên toàn quốc.</p>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-shield-alt"></i>
-                <h4>Thanh toán bảo mật</h4>
-                <p>Thanh toán bằng nhiều hình thức an toàn và tiện lợi.</p>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-star"></i>
-                <h4>Chất lượng đảm bảo</h4>
-                <p>Chúng tôi luôn có những sản phẩm đảm bảo chất lượng cao.</p>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-tags"></i>
-                <h4>Giá tốt nhất</h4>
-                <p>Luôn cung cấp những sản phẩm với mức giá cạnh tranh nhất.</p>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-gift"></i>
-                <h4>Khuyến mãi hấp dẫn</h4>
-                <p>Khuyến mãi và quà tặng thường xuyên cho khách hàng.</p>
-            </div>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <div class="footer-logo">
-            <img th:src="@{/fe/images/logo1.png}" alt="Kim Ngan Cosmetics">
-            <p>Chăm sóc vẻ đẹp và mang đến những sản phẩm tốt nhất cho bạn.</p>
-            <div class="social-icons">
-                <a th:href="@{#}"><i class="fab fa-facebook"></i></a>
-                <a th:href="@{#}"><i class="fab fa-twitter"></i></a>
-                <a th:href="@{#}"><i class="fab fa-youtube"></i></a>
-                <a th:href="@{#}"><i class="fab fa-instagram"></i></a>
-            </div>
-        </div>
-        <div class="footer-links">
-            <div class="links-section">
-                <h4>Thông tin</h4>
-                <ul>
-                    <li><a th:href="@{#}">Giới thiệu</a></li>
-                    <li><a th:href="@{#}">Điều khoản dịch vụ</a></li>
-                    <li><a th:href="@{#}">Chính sách bảo mật</a></li>
-                    <li><a th:href="@{#}">Liên hệ</a></li>
-                </ul>
-            </div>
-            <div class="links-section">
-                <h4>Dịch vụ khách hàng</h4>
-                <ul>
-                    <li><a th:href="@{#}">Câu hỏi thường gặp</a></li>
-                    <li><a th:href="@{#}">Chính sách đổi trả</a></li>
-                    <li><a th:href="@{#}">Hướng dẫn mua hàng</a></li>
-                    <li><a th:href="@{#}">Thông tin giao hàng</a></li>
-                </ul>
-            </div>
-            <div class="links-section">
-                <h4>Đăng ký nhận tin</h4>
-                <p>Đăng ký để nhận thông tin khuyến mãi và ưu đãi đặc biệt.</p>
-                <form action="@{#}" class="subscribe-form">
-                    <input type="email" placeholder="Địa chỉ email">
-                    <button type="submit">Đăng ký</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</footer>
+	<!-- Footer for Cosmetics Store -->
+	<footer class="footer-container">
+		<div class="footer-top">
+			<div class="footer-feature">
+				<div class="feature-item">
+					<i class="fas fa-truck"></i>
+					<h4>Giao hàng nhanh</h4>
+					<p>Chúng tôi cung cấp dịch vụ giao hàng nhanh trên toàn quốc.</p>
+				</div>
+				<div class="feature-item">
+					<i class="fas fa-shield-alt"></i>
+					<h4>Thanh toán bảo mật</h4>
+					<p>Thanh toán bằng nhiều hình thức an toàn và tiện lợi.</p>
+				</div>
+				<div class="feature-item">
+					<i class="fas fa-star"></i>
+					<h4>Chất lượng đảm bảo</h4>
+					<p>Chúng tôi luôn có những sản phẩm đảm bảo chất lượng cao.</p>
+				</div>
+				<div class="feature-item">
+					<i class="fas fa-tags"></i>
+					<h4>Giá tốt nhất</h4>
+					<p>Luôn cung cấp những sản phẩm với mức giá cạnh tranh nhất.</p>
+				</div>
+				<div class="feature-item">
+					<i class="fas fa-gift"></i>
+					<h4>Khuyến mãi hấp dẫn</h4>
+					<p>Khuyến mãi và quà tặng thường xuyên cho khách hàng.</p>
+				</div>
+			</div>
+		</div>
 
-<!-- CSS Styles for Footer -->
-<style>
-    .footer-container {
-        background-color: #f8f9fa;
-        padding: 40px 0;
-        color: #333;
-    }
-    .footer-top {
-        padding-bottom: 20px;
-        border-bottom: 1px solid #ddd;
-    }
-    .footer-feature {
-        display: flex;
-        justify-content: space-around;
-        text-align: center;
-    }
-    .feature-item {
-        max-width: 180px;
-    }
-    .feature-item i {
-        font-size: 32px;
-        margin-bottom: 10px;
-        color: #ff4081;
-    }
-    .footer-bottom {
-        display: flex;
-        justify-content: space-between;
-        padding-top: 20px;
-    }
-    .footer-logo {
-        max-width: 200px;
-    }
-    .footer-logo img {
-        width: 100%;
-    }
-    .social-icons a {
-        margin: 0 5px;
-        font-size: 20px;
-        color: #333;
-    }
-    .footer-links {
-        display: flex;
-        justify-content: space-between;
-        flex-grow: 1;
-        margin-left: 40px;
-    }
-    .links-section h4 {
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-    .links-section ul {
-        list-style: none;
-        padding: 0;
-    }
-    .links-section ul li {
-        margin-bottom: 10px;
-    }
-    .links-section ul li a {
-        color: #333;
-        text-decoration: none;
-    }
-    .subscribe-form {
-        display: flex;
-        margin-top: 10px;
-    }
-    .subscribe-form input {
-        padding: 5px;
-        border: 1px solid #ddd;
-        border-radius: 3px 0 0 3px;
-        flex-grow: 1;
-    }
-    .subscribe-form button {
-        padding: 5px 10px;
-        border: none;
-        background-color: #ff4081;
-        color: #fff;
-        cursor: pointer;
-        border-radius: 0 3px 3px 0;
-    }
-</style>
+		
+
+	</footer>
+
+	<!-- CSS Styles for Footer -->
+	<style>
+		.footer-container {
+			background-color: #f8f9fa;
+			padding: 40px 0;
+			color: #333;
+		}
+
+		.footer-top {
+			padding-bottom: 20px;
+			border-bottom: 1px solid #ddd;
+		}
+
+		.footer-feature {
+			display: flex;
+			justify-content: space-around;
+			text-align: center;
+		}
+
+		.feature-item {
+			max-width: 180px;
+		}
+
+		.feature-item i {
+			font-size: 32px;
+			margin-bottom: 10px;
+			color: #ff4081;
+		}
+
+		.footer-logo img {
+			width: 100%;
+		}
+
+		.social-icons a {
+			margin: 0 5px;
+			font-size: 20px;
+			color: #333;
+		}
+
+
+		.subscribe-form {
+			display: flex;
+			margin-top: 10px;
+		}
+
+
+		.subscribe-form input {
+			padding: 5px;
+			border: 1px solid #ddd;
+			border-radius: 3px 0 0 3px;
+			flex-grow: 1;
+		}
+
+		.subscribe-form button {
+			padding: 5px 10px;
+			border: none;
+			background-color: #ff4081;
+			color: #fff;
+			cursor: pointer;
+			border-radius: 0 3px 3px 0;
+		}
+
+		.social-icons a {
+			font-size: 20px;
+			color: #333;
+		}
+
+		.footer-bottom {
+    display: flex;
+    justify-content: center; /* Đảm bảo căn giữa */
+    align-items: flex-start; /* Căn trên cho tất cả các phần tử */
+    padding-top: 20px;
+    gap: 40px; /* Khoảng cách giữa các mục */
+    flex-wrap: wrap; /* Đảm bảo các mục sẽ xuống dòng nếu không đủ không gian */
+}
+
+.footer-logo {
+    flex: 1; /* Đảm bảo logo có kích thước bằng các mục khác */
+    max-width: 300px;
+    text-align: center;
+}
+
+.footer-links {
+    flex: 2; /* Đảm bảo chia phần lớn không gian cho các link */
+    display: flex;
+    justify-content: space-between; /* Chia đều các nhóm link */
+    gap: 20px;
+    text-align: left;
+}
+
+
+		.links-section {
+			text-align: left;
+			/* Căn trái cho danh sách link */
+		}
+
+		.links-section h4 {
+			font-weight: bold;
+			margin-bottom: 15px;
+		}
+
+		.links-section ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		.links-section ul li {
+			margin-bottom: 10px;
+		}
+
+		.links-section ul li a {
+			color: #333;
+			text-decoration: none;
+			transition: color 0.3s ease;
+		}
+
+		.links-section ul li a:hover {
+			color: #ff4081;
+			/* Thay đổi màu khi hover */
+		}
+
+		.social-icons {
+			display: flex;
+			justify-content: center;
+			/* Căn giữa các icon */
+			gap: 10px;
+			/* Khoảng cách giữa các icon */
+			margin-top: 10px;
+		}
+	</style>
 
 </div>

@@ -83,18 +83,26 @@
 					</div>
 
 					<!-- Nếu URL là /admin/hoadon hoặc /admin/hoadon/{maDonHang} thì hiển thị thanh tìm kiếm hóa đơn -->
-					<div th:if="${requestUri != null and (requestUri == '/admin/hoadon' or requestUri.startsWith('/admin/hoadon/'))}"
-						class="d-flex align-items-center me-2">
-						<input type="text" name="tenNguoiNhan" placeholder="Tìm kiếm tên người nhận..."
-							class="form-control me-2" th:value="${tenNguoiNhan != null ? tenNguoiNhan : ''}" />
-						<input type="date" name="startDate" class="form-control me-2"
-							th:value="${startDate != null ? startDate : ''}" />
-						<input type="date" name="endDate" class="form-control me-2"
-							th:value="${endDate != null ? endDate : ''}" />
-						<button type="submit" class="btn btn-search pe-1">
-							<i class="fa fa-search search-icon"></i>
-						</button>
-					</div>
+					<form th:action="@{/admin/hoadon}" method="get">
+						<div th:if="${requestUri != null and (requestUri == '/admin/hoadon' or requestUri.startsWith('/admin/hoadon/'))}"
+							class="d-flex align-items-center me-2">
+							<select name="status" class="form-control me-2" th:value="${selectedStatus}">
+								<option value="">Tất cả trạng thái</option>
+								<option value="Chưa xác nhận" th:selected="${selectedStatus == 'Chưa xác nhận'}">Chưa
+									xác
+									nhận</option>
+								<option value="Đã xác nhận" th:selected="${selectedStatus == 'Đã xác nhận'}">Đã xác nhận
+								</option>
+							</select>
+							<input type="date" name="startDate" class="form-control me-2"
+								th:value="${formattedStartDate}" />
+							<input type="date" name="endDate" class="form-control me-2"
+								th:value="${formattedEndDate}" />
+							<button type="submit" class="btn btn-search pe-1">
+								<i class="fa fa-search search-icon"></i>
+							</button>
+						</div>
+					</form>
 					<!-- Nếu URL là /admin/danhgia thì hiển thị bộ lọc số sao -->
 					<div th:if="${requestUri != null and requestUri.contains('/admin/danhgia')}"
 						class="d-flex align-items-center me-2">
@@ -142,8 +150,8 @@
 						</form>
 					</ul>
 				</li>
-				
-				
+
+
 
 				<li class="nav-item topbar-user dropdown hidden-caret">
 					<a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" th:href="@{#}"

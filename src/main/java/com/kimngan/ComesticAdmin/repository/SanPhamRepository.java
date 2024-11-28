@@ -81,6 +81,6 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
     @Query("SELECT sp FROM SanPham sp LEFT JOIN FETCH sp.danhGias dg WHERE sp.trangThai = true AND dg.soSao = :soSao")
     List<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(@Param("soSao") int soSao);
 
-    
+    long countByTrangThaiTrue();
     
 }

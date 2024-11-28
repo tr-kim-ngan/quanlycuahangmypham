@@ -82,27 +82,13 @@ public class ProductController {
 	@GetMapping("/product")
 	public String index(HttpServletRequest request, Model model,
 			@RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "5") int size,
+			@RequestParam(value = "size", defaultValue = "15") int size,
 			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "category", required = false) Integer maDanhMuc
 
 	) {
 
-//		Page<SanPham> pageSanPham;
-//
-//		if (keyword != null && !keyword.isEmpty()) {
-//			// Nếu có từ khóa tìm kiếm
-//			pageSanPham = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
-//			model.addAttribute("keyword", keyword);
-//		} else {
-//			// Nếu không có từ khóa, lấy tất cả sản phẩm
-//			pageSanPham = sanPhamService.findAllActive(PageRequest.of(page, size));
-//		}
-//		// Kiểm tra nếu trang yêu cầu vượt quá tổng số trang, điều hướng về trang cuối
-//		// cùng
-//		if (page > pageSanPham.getTotalPages()) {
-//			pageSanPham = sanPhamService.findAll(PageRequest.of(pageSanPham.getTotalPages() - 1, size));
-//		}
+
 
 		 Page<SanPham> pageSanPham = Page.empty();
 
@@ -262,7 +248,8 @@ public class ProductController {
 	public String saveProduct(@ModelAttribute("sanPham") SanPham sanPham,
 			@RequestParam("donViTinh") Integer donViTinhId,
 
-			@RequestParam("nhaCungCapId") Integer nhaCungCapId, @RequestParam("imageFile") MultipartFile imageFile,
+			@RequestParam(value = "nhaCungCapId", required = false) Integer nhaCungCapId, 
+			@RequestParam("imageFile") MultipartFile imageFile,
 			Model model) {
 		sanPham.setSoLuong(0);
 		// Thêm đoạn code lấy thông tin người dùng
@@ -271,11 +258,18 @@ public class ProductController {
 		model.addAttribute("user", userDetails);
 
 		// Tìm nhà cung cấp theo ID
-		NhaCungCap nhaCungCap = nhaCungCapService.findById(nhaCungCapId);
+		//NhaCungCap nhaCungCap = nhaCungCapService.findById(nhaCungCapId);
 
 		// Liên kết nhà cung cấp với sản phẩm
-		sanPham.setNhaCungCaps(Collections.singleton(nhaCungCap));
-
+		//sanPham.setNhaCungCaps(Collections.singleton(nhaCungCap));
+		// Kiểm tra nếu `nhaCungCapId` không null, thì mới tìm và gán nhà cung cấp cho sản phẩm
+	    if (nhaCungCapId != null) {
+	        NhaCungCap nhaCungCap = nhaCungCapService.findById(nhaCungCapId);
+	        if (nhaCungCap != null) {
+	            // Liên kết nhà cung cấp với sản phẩm
+	            sanPham.setNhaCungCaps(Collections.singleton(nhaCungCap));
+	        }
+	    }
 		// Kiểm tra nếu sản phẩm với tên đã tồn tại và đang hoạt động
 		if (sanPhamService.existsByTenSanPham(sanPham.getTenSanPham())) {
 			model.addAttribute("errorMessage", "Sản phẩm đã tồn tại!");
