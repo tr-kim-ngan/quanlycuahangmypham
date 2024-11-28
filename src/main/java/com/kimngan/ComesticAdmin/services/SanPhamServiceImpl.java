@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -172,6 +173,42 @@ public class SanPhamServiceImpl implements SanPhamService {
 
 	}
 
+	@Override
+	public Page<SanPham> findByDanhMucAndTrangThaiWithPagination(Integer maDanhMuc, Boolean trangThai,
+			Pageable pageable) {
+		// TODO Auto-generated method stub
+		 // Sử dụng phương thức hiện tại để tìm sản phẩm theo danh mục và trạng thái
+        List<SanPham> sanPhams = sanPhamRepository.findByDanhMuc_MaDanhMucAndTrangThai(maDanhMuc, trangThai);
+
+        // Chuyển đổi từ List sang Page bằng Pageable
+        int start = Math.min((int) pageable.getOffset(), sanPhams.size());
+        int end = Math.min((start + pageable.getPageSize()), sanPhams.size());
+        List<SanPham> subList = sanPhams.subList(start, end);
+
+        return new PageImpl<>(subList, pageable, sanPhams.size());
+	}
+
+	@Override
+	public Page<SanPham> searchByCategoryAndName(Integer maDanhMuc, String keyword, Pageable pageable) {
+		// TODO Auto-generated method stub
+	    return sanPhamRepository.findByDanhMuc_MaDanhMucAndTenSanPhamContainingAndTrangThai(maDanhMuc, keyword, true, pageable);
+
+	}
+
+	@Override
+	public List<SanPham> findAllWithDanhGiasAndTrangThaiTrue() {
+		// TODO Auto-generated method stub
+		return sanPhamRepository.findAllWithDanhGiasAndTrangThaiTrue();
+
+	}
+
+	@Override
+	public List<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(int soSao) {
+		// TODO Auto-generated method stub
+		return sanPhamRepository.findAllWithDanhGiasAndTrangThaiTrueBySoSao(soSao);
+	}
+
+	
 	
 
 	

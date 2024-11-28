@@ -56,10 +56,12 @@ public interface SanPhamService {
 
 	Page<SanPham> searchByCategoryWithOrderDetails(Integer categoryId, String keyword, Pageable pageable);
 	 Double getAverageRatingForProduct(Integer maSanPham);
+	 Page<SanPham> findByDanhMucAndTrangThaiWithPagination(Integer maDanhMuc, Boolean trangThai, Pageable pageable);
+	 Page<SanPham> searchByCategoryAndName(Integer maDanhMuc, String keyword, Pageable pageable);
 
-	 
+	 List<SanPham> findAllWithDanhGiasAndTrangThaiTrue();
 
-
+	 List<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(int soSao);
 
 
 

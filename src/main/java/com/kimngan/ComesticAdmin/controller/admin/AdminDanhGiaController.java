@@ -1,5 +1,7 @@
 package com.kimngan.ComesticAdmin.controller.admin;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,8 @@ import com.kimngan.ComesticAdmin.services.DanhGiaService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -28,94 +32,98 @@ import org.springframework.data.domain.Pageable;
 @RequestMapping("/admin")
 public class AdminDanhGiaController {
 
-    @Autowired
-    private DanhGiaService danhGiaService;
+	@Autowired
+	private DanhGiaService danhGiaService;
 
-    @Autowired
-    private NguoiDungService nguoiDungService;
-    @Autowired
-    private SanPhamService sanPhamService;
+	@Autowired
+	private NguoiDungService nguoiDungService;
+	@Autowired
+	private SanPhamService sanPhamService;
 
-    // Hiển thị danh sách đánh giá
-    @GetMapping("/danhgia")
-    public String getAllDanhGias(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-                                 @RequestParam(value = "size", defaultValue = "5") int size) {
-        if (page < 0) {
-            page = 0;
-        }
+	// Hiển thị danh sách đánh giá
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<DanhGia> danhGiaPage = danhGiaService.getAllDanhGias(pageable);
-        Page<SanPham> sanPhamPage = sanPhamService.findAll(pageable);
-        model.addAttribute("sanPhams", sanPhamPage.getContent());
+	@GetMapping("/danhgia")
+	public String getAllDanhGias(Model model, @RequestParam(value = "soSao", required = false) Integer soSao,
+			@RequestParam(value = "keyword", required = false) String keyword, HttpServletRequest request
 
-        model.addAttribute("danhGias", danhGiaPage.getContent());
-        model.addAttribute("currentPage", danhGiaPage.getNumber());
-        model.addAttribute("totalPages", danhGiaPage.getTotalPages());
-        model.addAttribute("size", size);
+	) {
+		// Lấy tất cả sản phẩm có đánh giá
+		List<SanPham> sanPhams;
 
-        // Thêm thông tin người dùng để hiển thị
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
-        model.addAttribute("user", userDetails);
+		if (soSao != null  && soSao > 0) {
+			// Tìm tất cả sản phẩm có đánh giá và trạng thái = true với số sao tương ứng
+			sanPhams = sanPhamService.findAllWithDanhGiasAndTrangThaiTrueBySoSao(soSao);
+		} else {
+			// Lấy tất cả sản phẩm có trạng thái = true và có đánh giá
+			sanPhams = sanPhamService.findAllWithDanhGiasAndTrangThaiTrue();
+		}
 
-        return "admin/danhgia/index"; // Giao diện danh sách đánh giá
-    }
-//    @GetMapping("/danhgia")
-//    public String getAllDanhGiaBySanPham(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-//                                         @RequestParam(value = "size", defaultValue = "5") int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        Page<SanPham> sanPhamPage = sanPhamService.findAllActive(pageable);
-//
-//        model.addAttribute("sanPhams", sanPhamPage.getContent());
-//        model.addAttribute("currentPage", sanPhamPage.getNumber());
-//        model.addAttribute("totalPages", sanPhamPage.getTotalPages());
-//        model.addAttribute("size", size);
-//     // Thêm thông tin người dùng để hiển thị
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
-//        model.addAttribute("user", userDetails);
-//        return "admin/danhgia/index";
-//    }
+		model.addAttribute("sanPhams", sanPhams);
+		model.addAttribute("soSao", soSao); // Giữ lại giá trị số sao trong form sau khi tìm kiếm
 
-    // Hiển thị chi tiết đánh giá và cho phép admin phản hồi
-    @GetMapping("/danhgia/{maDanhGia}")
-    public String getDanhGiaDetail(@PathVariable("maDanhGia") Integer maDanhGia, Model model) {
-        DanhGia danhGia = danhGiaService.findById(maDanhGia);
+		// Lấy thông tin URL hiện tại để sử dụng cho form tìm kiếm
+		String requestUri = request.getRequestURI();
+		model.addAttribute("requestUri", requestUri);
+		// Thêm thông tin người dùng để hiển thị
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+		model.addAttribute("user", userDetails);
 
-        if (danhGia == null) {
-            model.addAttribute("errorMessage", "Không tìm thấy đánh giá với mã: " + maDanhGia);
-            return "redirect:/admin/danhgia";
-        }
+		return "admin/danhgia/index"; // Giao diện danh sách đánh giá
+	}
 
-        model.addAttribute("danhGia", danhGia);
+	// Hiển thị chi tiết đánh giá và cho phép admin phản hồi
+	@GetMapping("/danhgia/{maDanhGia}")
+	public String getDanhGiaDetail(@PathVariable("maDanhGia") Integer maDanhGia, Model model) {
+		DanhGia danhGia = danhGiaService.findById(maDanhGia);
 
-        // Thêm thông tin người dùng để hiển thị
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
-        model.addAttribute("user", userDetails);
+		if (danhGia == null) {
+			model.addAttribute("errorMessage", "Không tìm thấy đánh giá với mã: " + maDanhGia);
+			return "redirect:/admin/danhgia";
+		}
 
-        return "admin/danhgia/detail"; // Giao diện chi tiết đánh giá
-    }
+		model.addAttribute("danhGia", danhGia);
 
-    // Xử lý phản hồi của admin
-    @PostMapping("/danhgia/{maDanhGia}/reply")
-    public String replyToDanhGia(@PathVariable("maDanhGia") Integer maDanhGia,
-                                 @RequestParam("adminReply") String adminReply,
-                                 RedirectAttributes redirectAttributes) {
-        DanhGia danhGia = danhGiaService.findById(maDanhGia);
+		// Thêm thông tin người dùng để hiển thị
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+		model.addAttribute("user", userDetails);
 
-        if (danhGia == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đánh giá với mã: " + maDanhGia);
-            return "redirect:/admin/danhgia";
-        }
+		return "admin/danhgia/detail"; // Giao diện chi tiết đánh giá
+	}
 
-        // Cập nhật phản hồi của admin
-        danhGia.setAdminReply(adminReply);
-        danhGiaService.save(danhGia);
+	// Xử lý phản hồi của admin
+	@PostMapping("/danhgia/{maDanhGia}/reply")
+	public String replyToDanhGia(@PathVariable("maDanhGia") Integer maDanhGia,
+			@RequestParam("adminReply") String adminReply, RedirectAttributes redirectAttributes) {
+		DanhGia danhGia = danhGiaService.findById(maDanhGia);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Phản hồi của bạn đã được lưu thành công.");
-        return "redirect:/admin/danhgia/" + maDanhGia;
-    }
+		if (danhGia == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đánh giá với mã: " + maDanhGia);
+			return "redirect:/admin/danhgia";
+		}
+
+		// Cập nhật phản hồi của admin
+		danhGia.setAdminReply(adminReply);
+		danhGiaService.save(danhGia);
+
+		redirectAttributes.addFlashAttribute("successMessage", "Phản hồi của bạn đã được lưu thành công.");
+		return "redirect:/admin/danhgia/" + maDanhGia;
+	}
+
+	// Xóa đánh giá
+	@PostMapping("/danhgia/{maDanhGia}/delete")
+	public String deleteDanhGia(@PathVariable("maDanhGia") Integer maDanhGia, RedirectAttributes redirectAttributes) {
+		DanhGia danhGia = danhGiaService.findById(maDanhGia);
+
+		if (danhGia == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đánh giá với mã: " + maDanhGia);
+			return "redirect:/admin/danhgia";
+		}
+
+		danhGiaService.delete(maDanhGia);
+		redirectAttributes.addFlashAttribute("successMessage", "Đánh giá đã được xóa thành công.");
+		return "redirect:/admin/danhgia";
+	}
 
 }

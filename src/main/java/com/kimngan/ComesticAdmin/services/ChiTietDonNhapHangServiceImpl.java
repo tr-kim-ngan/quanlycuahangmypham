@@ -98,4 +98,10 @@ public class ChiTietDonNhapHangServiceImpl implements ChiTietDonNhapHangService 
 		    }
 	}
 
+	@Override
+	public boolean existsBySanPham(SanPham sanPham) {
+		// TODO Auto-generated method stub
+		 return chiTietDonNhapHangRepository.existsBySanPham(sanPham);
+	}
+
 }

@@ -54,7 +54,7 @@
 								th:text="${sanPhamGiaSauGiamMap[sanPham.maSanPham]} + ' VND'"></span>
 						</span>
 						<span th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] == null}" class="final-price"
-							style="color:#e74c3c; font-weight: bold; font-family: 'Arial', sans-serif; letter-spacing: 0.5px; font-size: 1.2em;"
+							style="color:#000000; font-weight: bold; font-family: 'Arial', sans-serif; letter-spacing: 0.5px; font-size: 1.2em;"
 							th:text="${sanPham.donGiaBan} + ' VND'"></span>
 					</div>
 					<span style="color: #555;">Số lượng còn lại: <span th:text="${sanPham.soLuong}"></span></span>
@@ -153,7 +153,7 @@
 					<!-- Hàng 2: Đánh giá -->
 					<!-- Hàng 2: Đánh giá -->
 					<div class="mt-4">
-						<h3 class="text-center mb-4" style="font-weight: bold;">Đánh giá sản phẩm</h3>
+						<h3 class="text mb-4" style="font-weight: bold;">Đánh giá sản phẩm</h3>
 						<div th:if="${danhGias != null and !danhGias.isEmpty()}">
 							<button class="btn btn-outline-primary mb-3" type="button" onclick="toggleAllReviews()">
 								<span>Xem tất cả đánh giá</span> <span id="arrow">&#9660;</span>
@@ -185,7 +185,7 @@
 							</div>
 						</div>
 						<div th:if="${danhGias == null || danhGias.isEmpty()}">
-							<p class="text-center text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
+							<p class="text text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
 						</div>
 					</div>
 
@@ -281,7 +281,10 @@
 						transition: transform 0.2s ease, box-shadow 0.3s ease;  "
 							onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.3)';"
 							onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
-							<div class="product-item card h-100 position-relative">
+							<div class="product-item card h-100 position-relative"  style="padding: 0px 16px"
+							
+							
+							>
 								<!-- Badge Khuyến mãi -->
 								<span class="badge bg-success position-absolute m-3"
 									th:if="${relatedSanPhamKhuyenMaiMap[relatedSanPham.maSanPham] != null}"
@@ -321,13 +324,22 @@
 								</figure>
 
 								<!-- Product Details -->
-								<div class="card-body" style="padding: 5px;">
+								<div class="card-body" style="
+								padding: 5px; display: flex;  
+								flex-direction: column; 
+								justify-content: space-between;
+								 flex-grow: 1;">
 									<h3 th:text="${relatedSanPham.tenSanPham}"
-										style="font-size: 0.9rem; margin: 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 5px;">
+										style="font-size: 0.9rem; 
+										margin: 5px 0; 
+										white-space: nowrap; 
+										overflow: hidden; 
+										text-overflow: ellipsis;
+										 padding: 5px;">
 										Tên sản phẩm liên quan
 									</h3>
 									<div class="average-rating"
-										style="font-size: 1.2em; color: #f39c12; margin-bottom: 10px;">
+										style="font-size: 1.2em; color: #f39c12; margin-bottom: 0px;">
 										<span th:each="i : ${#numbers.sequence(1, 5)}"
 											th:classappend="${i <= relatedSanPhamAverageRatingMap[relatedSanPham.maSanPham] ? 'filled-star' : 'empty-star'}">&#9733;</span>
 									</div>
@@ -344,12 +356,17 @@
 										}
 									</style>
 									<!-- Sửa phần này để hiển thị số lượng chính xác của sản phẩm liên quan -->
-									<span style="color: #555; font-size: 12px;">Số lượng còn lại:
+									<!--<span style="color: #555; font-size: 12px;">Số lượng còn lại:
 										<span th:text="${relatedSanPham.soLuong}"></span>
 									</span>
 
-									<span class="qty" style="font-size: 13px;"
-										th:text="${relatedSanPham.donViTinh.tenDonVi}">Đơn vị</span>
+									<span class="qty" style="font-size: 11px;"
+										th:text="${relatedSanPham.donViTinh.tenDonVi}">Đơn vị</span>-->
+									
+									<div style="display: flex; align-items: center; font-size: 12px; color: #555; margin-bottom: 5px;">
+									    <span>Số lượng còn lại: <span th:text="${relatedSanPham.soLuong}"> </span></span>
+									    <span style="margin-left: 0px;" th:text="${relatedSanPham.donViTinh.tenDonVi}"></span>
+									</div>
 
 									<!-- Hiển thị giá -->
 									<div>

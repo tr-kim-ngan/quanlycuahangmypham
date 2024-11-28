@@ -16,4 +16,5 @@ public interface ChiTietDonNhapHangRepository extends JpaRepository<ChiTietDonNh
 	Page<ChiTietDonNhapHang> findBySanPham_TenSanPhamContainingIgnoreCase(String tenSanPham, Pageable pageable);
 	 List<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang);
 	  List<ChiTietDonNhapHang> findBySanPham(SanPham sanPham);
+	  boolean existsBySanPham(SanPham sanPham);
 }
