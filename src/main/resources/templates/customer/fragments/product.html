@@ -50,12 +50,13 @@
 							aria-labelledby="nav-all-tab">
 							<div
 								class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5"
-								style="row-gap: 50px; padding: 30px;"
+								style="row-gap: 50px; padding: 30px;justify-content: space-between;  flex-wrap: wrap; gap: 20px;"
 								>
 								<!-- Lặp qua tất cả các sản phẩm và hiển thị -->
 								<div class="col" th:each="sanPham : ${sanPhams}" th:if="${sanPham.soLuong > 0}" 
 								style="min-height: 350px; 
 								padding: 0px;
+								flex-direction: column; 
 								display: flex; 
 								flex-direction: column; 
 								justify-content: space-between; 
@@ -275,14 +276,16 @@
 							th:aria-labelledby="'nav-' + ${category.maDanhMuc} + '-tab'">
 							<div
 								class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5"
-								
+								style="justify-content: space-between;  flex-wrap: wrap; gap: 20px;row-gap: 50px; padding: 30px;"
 								>
 								<div class="col" th:each="sanPham : ${category.sanPhams}" th:if="${sanPham.trangThai == true 
 								  and sanPham.soLuong > 0
 								  and !sanPham.chiTietDonNhapHangs.isEmpty()
 								  and sanPham.chiTietDonNhapHangs.?[donNhapHang.tongGiaTriNhapHang > 0 
-								  and soLuongNhap > 0 and donGiaNhap > 0].size() > 0}" style="min-height: 350px; 
+								  and soLuongNhap > 0 and donGiaNhap > 0].size() > 0}" 
+								  style="min-height: 350px; 
 									display: flex; 
+									padding: 0px;
 									flex-direction: column; 
 									justify-content: space-between; 
 									transition: transform 0.2s ease, box-shadow 0.3s ease; 
