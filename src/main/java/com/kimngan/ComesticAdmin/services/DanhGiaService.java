@@ -32,6 +32,6 @@ public interface DanhGiaService {
     
     DanhGia save(DanhGia danhGia);
     Page<DanhGia> getAllDanhGias(Pageable pageable);
-
+    void delete(Integer maDanhGia);
 
 }

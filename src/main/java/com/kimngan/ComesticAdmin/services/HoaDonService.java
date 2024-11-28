@@ -1,5 +1,6 @@
 package com.kimngan.ComesticAdmin.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.kimngan.ComesticAdmin.entity.DonHang;
@@ -16,5 +17,8 @@ public interface HoaDonService {
     List<HoaDon> getHoaDonsByCustomer(String username);
     HoaDon findById(Integer id);
    // void completeOrder(HoaDon hoaDon);
+    Page<HoaDon> searchByTenNguoiNhan(String tenNguoiNhan, Pageable pageable);
+    Page<HoaDon> searchByNgayXuat(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    Page<HoaDon> searchByTenNguoiNhanAndNgayXuatHoaDon(String tenNguoiNhan, LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable) ;
    
 }

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -66,6 +67,25 @@ public class HoaDonServiceImpl implements HoaDonService {
 	public HoaDon findById(Integer id) {
 		// TODO Auto-generated method stub
 		return hoaDonRepository.findById(id).orElse(null);
+	}
+
+	@Override
+	public Page<HoaDon> searchByTenNguoiNhan(String tenNguoiNhan, Pageable pageable) {
+		// TODO Auto-generated method stub
+        return hoaDonRepository.findByTenNguoiNhanContainingIgnoreCase(tenNguoiNhan, pageable);
+	}
+
+	@Override
+	public Page<HoaDon> searchByNgayXuat(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+		// TODO Auto-generated method stub
+	    return hoaDonRepository.findByNgayXuatHoaDonBetween(startDate, endDate, pageable);
+	}
+
+	@Override
+	public Page<HoaDon> searchByTenNguoiNhanAndNgayXuatHoaDon(String tenNguoiNhan, LocalDateTime startDateTime,
+			LocalDateTime endDateTime, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return hoaDonRepository.findByTenNguoiNhanContainingAndNgayXuatHoaDonBetween(tenNguoiNhan, startDateTime, endDateTime, pageable);
 	}
 
 //	@Override

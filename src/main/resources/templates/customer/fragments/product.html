@@ -49,20 +49,27 @@
 						<div class="tab-pane fade show active" id="nav-all" role="tabpanel"
 							aria-labelledby="nav-all-tab">
 							<div
-								class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+								class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5"
+								style="row-gap: 20px;"
+								>
 								<!-- Lặp qua tất cả các sản phẩm và hiển thị -->
-								<div class="col" th:each="sanPham : ${sanPhams}" th:if="${sanPham.soLuong > 0}" style="min-height: 350px; 
+								<div class="col" th:each="sanPham : ${sanPhams}" th:if="${sanPham.soLuong > 0}" 
+								style="min-height: 350px; 
+								padding: 0px;
 								display: flex; 
 								flex-direction: column; 
 								justify-content: space-between; 
 								transition: transform 0.2s ease, box-shadow 0.3s ease; 
 								border-radius: 30px; 
-								box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-								background-color: #fff;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.3)';"
-									onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
-									<div class="product-item" style="flex-grow: 1;">
+								 
+								background-color: #fff;" 
+								onmouseover="this.style.transform='scale(1.05)'; 
+								this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.3)';"
+								onmouseout="this.style.transform='scale(1)';
+								 this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
+									<div class="product-item" style="flex-grow: 1; margin:0px; padding: 0px;  padding-bottom: 0px;">
 										<!-- Container sản phẩm -->
-										<div class="product-item" style="position: relative;">
+										<div class="product-item" style="position: relative; margin:0px; padding-bottom: 0px;">
 											<!-- Badge Khuyến mãi -->
 											<span class="badge bg-success position-absolute m-3"
 												th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
@@ -189,7 +196,16 @@
 
 
 											<div class="product-quantity-container d-flex justify-content-center align-items-center mt-3"
-												style="gap: 10px;">
+												style="gap: 10px;
+												margin-top: auto;
+												display: flex;
+										        align-items: center;
+										        justify-content: center;
+										        gap: 10px;
+												
+												
+												
+												">
 												<form th:action="@{/customer/cart/add}" method="post"
 													class="d-flex align-items-center">
 													<!-- Ô nhập số lượng -->
@@ -204,7 +220,12 @@
 														th:value="${sanPham.maSanPham}" />
 													<button
 														class="btn btn-warning add-to-cart d-flex align-items-center justify-content-center"
-														style="background-color: #fca503; color: #fff; border: none; transition: background-color 0.3s ease;"
+														style="
+														background-color: #fca503; 
+														color: #fff; 
+														border: none; 
+														
+														transition: background-color 0.3s ease;"
 														onmouseover="this.style.backgroundColor='#e68a00';"
 														onmouseout="this.style.backgroundColor='#fca503';"
 														th:if="${#authentication.name == 'anonymousUser'}"
@@ -253,7 +274,9 @@
 							th:id="'nav-' + ${category.maDanhMuc}" role="tabpanel"
 							th:aria-labelledby="'nav-' + ${category.maDanhMuc} + '-tab'">
 							<div
-								class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+								class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5"
+								
+								>
 								<div class="col" th:each="sanPham : ${category.sanPhams}" th:if="${sanPham.trangThai == true 
 								  and sanPham.soLuong > 0
 								  and !sanPham.chiTietDonNhapHangs.isEmpty()
@@ -264,12 +287,20 @@
 									justify-content: space-between; 
 									transition: transform 0.2s ease, box-shadow 0.3s ease; 
 									border-radius: 30px; 
-									box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-									background-color: #fff;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.3)';"
-									onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
-									<div class="product-item" style="flex-grow: 1;">
+									 
+									background-color: #fff;" 
+									onmouseover="this.style.transform='scale(1.05)';
+									 this.style.boxShadow='0 8px 16px rgba(0, 0, 0, 0.3)';"
+									onmouseout="this.style.transform='scale(1)'; 
+									this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)';">
+									<div class="product-item" 
+									style="flex-grow: 1;
+									margin: 0px;
+									
+									
+									">
 										<!-- Container sản phẩm -->
-										<div class="product-item" style="position: relative;">
+										<div class="product-item" style="position: relative;margin: 0px; padding: 0px;">
 											<!-- Badge Khuyến mãi -->
 											<span class="badge bg-success position-absolute m-3"
 												th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
@@ -485,6 +516,7 @@
 
 	/* CSS để đảm bảo các khung sản phẩm đồng đều */
 	.product-item {
+		margin: 0px;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
@@ -524,6 +556,7 @@
 	.product-grid .col {
 		display: flex;
 		justify-content: center;
+		 margin-bottom: 20px;
 	}
 
 	.product-item .d-flex {

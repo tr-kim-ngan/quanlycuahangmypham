@@ -31,6 +31,7 @@ public interface ChiTietDonNhapHangService {
 	
 	List<ChiTietDonNhapHang> findBySanPham(SanPham sanPham);
 	void updateChiTietDonNhapHangForProduct(SanPham sanPham);
+	public boolean existsBySanPham(SanPham sanPham);
 	
 	
 }

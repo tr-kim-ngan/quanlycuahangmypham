@@ -249,6 +249,12 @@ public class DonHangServiceImpl implements DonHangService {
 		return donHangRepository.findAllByOrderByNgayDatAsc();
 	}
 
+	@Override
+	public Page<DonHang> getDonHangsByStatus(String status, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return donHangRepository.findByTrangThaiDonHang(status, pageable);
+	}
+
 //	@Override
 //	public void updateOrderStatus(Integer maDonHang, String trangThaiMoi) {
 //		DonHang donHang = donHangRepository.findById(maDonHang)

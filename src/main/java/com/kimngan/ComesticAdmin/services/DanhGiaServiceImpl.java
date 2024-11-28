@@ -94,6 +94,12 @@ public class DanhGiaServiceImpl implements DanhGiaService {
 		return danhGiaRepository.save(danhGia);
 	}
 
+	@Override
+	public void delete(Integer maDanhGia) {
+		// TODO Auto-generated method stub
+		 danhGiaRepository.deleteById(maDanhGia);
+	}
+
 
 	
 

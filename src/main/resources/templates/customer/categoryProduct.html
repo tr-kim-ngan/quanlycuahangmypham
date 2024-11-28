@@ -119,16 +119,27 @@
 				and !sanPham.chiTietDonNhapHangs.isEmpty()
 				and sanPham.soLuong > 0				
 			   and sanPham.chiTietDonNhapHangs.?[donNhapHang.tongGiaTriNhapHang > 0 
-			  and soLuongNhap > 0 and donGiaNhap > 0].size() > 0}" class="product-card"
+			  and soLuongNhap > 0 and donGiaNhap > 0].size() > 0}"
+			   class="product-card"
 					th:data-price="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null ? sanPhamGiaSauGiamMap[sanPham.maSanPham] : sanPham.donGiaBan}"
 					style="position: relative; overflow: hidden; 
-					 border-radius: 30px;
-					width: 220px; height: 450px; margin: 10px; padding: 10px; text-align: center; border: 1px solid #ddd; box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); transition: transform 0.3s ease;"
+					border-radius: 30px;
+					width: 220px; 
+					height: 470px; 
+					margin: 10px; 
+					padding: 10px; 
+					text-align: center; 
+					border: 1px solid #ddd; 
+					box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); 
+					transition: transform 0.3s ease;"
 					onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';">
 
 					<!-- Badge Khuyến mãi (góc trên bên trái) -->
 					<span class="badge bg-success"
-						style="position: absolute; top: 10px; left: 10px; font-size: 0.8rem; padding: 5px 10px;"
+						style="position: absolute; 
+						top: 10px; left: 10px; 
+						font-size: 0.8rem; 
+						padding: 5px 10px;"
 						th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
 						th:text="'-' + ${sanPhamKhuyenMaiMap[sanPham.maSanPham].phanTramGiamGia} + '%'">
 					</span>
@@ -136,11 +147,19 @@
 					<!-- Wishlist Icon (Heart) -->
 					<a href="javascript:void(0);" class="btn-wishlist"
 						th:if="${#authentication.name == 'anonymousUser'}" data-bs-toggle="offcanvas"
-						data-bs-target="#offcanvasLoginAlert" style="position: absolute; top: 10px; right: 10px; 
-           width: 40px; height: 40px; border-radius: 50%; 
-           display: flex; align-items: center; justify-content: center; 
-           background-color: white; color: black; border: 2px solid #ccc; 
-           transition: background-color 0.3s ease, color 0.3s ease;">
+						data-bs-target="#offcanvasLoginAlert" 
+						style="position: absolute; 
+						top: 10px;
+						 right: 10px; 
+			           width: 40px; 
+			           height: 40px; 
+			           border-radius: 50%; 
+			           display: flex; 
+			           align-items: center; 
+			           justify-content: center; 
+			           background-color: white; 
+			           color: black; border: 2px solid #ccc; 
+			           transition: background-color 0.3s ease, color 0.3s ease;">
 						<svg width="24" height="24">
 							<use xlink:href="#heart"></use>
 						</svg>
@@ -173,9 +192,14 @@
 					</figure>
 
 					<!-- Product Details -->
-					<div class="card-body" style="margin-top: 15px;">
+					<div class="card-body" style="margin: 15px;">
 						<h4 th:text="${sanPham.tenSanPham}"
-							style="font-size: 0.9rem; margin: 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+							style="
+							font-size: 0.9rem; 
+							margin: 5px 0; 
+							white-space: nowrap; 
+							overflow: hidden; 
+							text-overflow: ellipsis;">
 							Tên sản phẩm</h4>
 						<!-- Hiển thị số sao trung bình của sản phẩm -->
 						<div class="average-rating" style="font-size: 1.5em; color: #f39c12;">
@@ -184,6 +208,10 @@
 						</div>
 
 						<style>
+							.average-rating {
+							 width: fit-content; /* Khung chỉ vừa đủ nội dung */
+							   margin: 0 auto; /* Căn giữa khung */
+							 }
 							.filled-star {
 								color: #ffd700;
 								/* Màu vàng cho sao đã đánh giá */
@@ -209,7 +237,7 @@
 						</div>-->
 						<!-- Hiển thị giá và khuyến mãi -->
 						<p th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
-							style="color: red; margin-top: 2px;">
+							style="color: red; margin: 0px; padding: 0px;">
 							<span th:text="${sanPham.donGiaBan} + ' VND'"
 								style="text-decoration: line-through; color: red; font-size: 0.9rem;"></span><br>
 							<span th:text="${sanPhamGiaSauGiamMap[sanPham.maSanPham]} + ' VND'"
@@ -217,13 +245,19 @@
 						</p>
 						<p th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] == null}"
 							th:text="${sanPham.donGiaBan} + ' VND'"
-							style="font-weight: 600; font-family: Arial, sans-serif; color: #000; margin-top: 3px;">Giá
-							gốc</p>
+							style="font-weight: 600; font-family: Arial, sans-serif; color: #000; margin:0px;">Giá
+							gốc
+						</p>
 					</div>
 
 					<!-- Số lượng sản phẩm và nút thêm vào giỏ hàng (phần dưới cùng) -->
 					<div
-						style="display: flex; align-items: center; justify-content: center; margin-top: 15px; position: absolute; bottom: 10px; width: 100%;">
+						style="display: flex; 
+						align-items: center; 
+						justify-content: center; 
+						margin-top: 15px; 
+						position: absolute; 
+						bottom: 10px; width: 100%;">
 
 						<label for="quantity" class="form-label me-2"></label>
 

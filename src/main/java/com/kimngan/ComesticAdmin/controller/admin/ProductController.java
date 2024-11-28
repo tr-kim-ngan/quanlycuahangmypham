@@ -20,6 +20,8 @@ import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.StorageService;
 //import com.kimngan.ComesticAdmin.services.ThoiDiemService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -72,32 +74,65 @@ public class ProductController {
 
 	@Autowired
 	private DonViTinhService donViTinhService;
-	
+
 	@Autowired
 	private ChiTietDonHangService chiTietDonHangService;
 
 	// Hiển thị danh sách sản phẩm
 	@GetMapping("/product")
-	public String index(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
+	public String index(HttpServletRequest request, Model model,
+			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "5") int size,
-			@RequestParam(value = "keyword", required = false) String keyword) {
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "category", required = false) Integer maDanhMuc
 
-		Page<SanPham> pageSanPham;
+	) {
 
-		if (keyword != null && !keyword.isEmpty()) {
-			// Nếu có từ khóa tìm kiếm
-			pageSanPham = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
-			model.addAttribute("keyword", keyword);
-		} else {
-			// Nếu không có từ khóa, lấy tất cả sản phẩm
-			pageSanPham = sanPhamService.findAllActive(PageRequest.of(page, size));
-		}
-		// Kiểm tra nếu trang yêu cầu vượt quá tổng số trang, điều hướng về trang cuối
-		// cùng
-		if (page > pageSanPham.getTotalPages()) {
-			pageSanPham = sanPhamService.findAll(PageRequest.of(pageSanPham.getTotalPages() - 1, size));
-		}
+//		Page<SanPham> pageSanPham;
+//
+//		if (keyword != null && !keyword.isEmpty()) {
+//			// Nếu có từ khóa tìm kiếm
+//			pageSanPham = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
+//			model.addAttribute("keyword", keyword);
+//		} else {
+//			// Nếu không có từ khóa, lấy tất cả sản phẩm
+//			pageSanPham = sanPhamService.findAllActive(PageRequest.of(page, size));
+//		}
+//		// Kiểm tra nếu trang yêu cầu vượt quá tổng số trang, điều hướng về trang cuối
+//		// cùng
+//		if (page > pageSanPham.getTotalPages()) {
+//			pageSanPham = sanPhamService.findAll(PageRequest.of(pageSanPham.getTotalPages() - 1, size));
+//		}
 
+		 Page<SanPham> pageSanPham = Page.empty();
+
+		  if (maDanhMuc != null && maDanhMuc > 0) {
+		        if (keyword != null && !keyword.isEmpty()) {
+		            // Tìm kiếm theo danh mục và từ khóa
+		            pageSanPham = sanPhamService.searchByCategoryAndName(maDanhMuc, keyword, PageRequest.of(page, size));
+		            model.addAttribute("category", maDanhMuc);
+		            model.addAttribute("keyword", keyword);
+		        } else {
+		            // Tìm kiếm theo danh mục và trạng thái
+		            pageSanPham = sanPhamService.findByDanhMucAndTrangThaiWithPagination(maDanhMuc, true, PageRequest.of(page, size));
+		            model.addAttribute("category", maDanhMuc);
+		        }
+		    } else if (keyword != null && !keyword.isEmpty()) {
+		        // Tìm kiếm theo từ khóa sản phẩm
+		        pageSanPham = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
+		        model.addAttribute("keyword", keyword);
+		    } else {
+		        // Tìm tất cả sản phẩm hoạt động
+		        pageSanPham = sanPhamService.findAllActive(PageRequest.of(page, size));
+		    }
+
+		    // Kiểm tra nếu không có sản phẩm nào được tìm thấy
+		    if (pageSanPham.isEmpty()) {
+		        model.addAttribute("errorMessage", "Không có sản phẩm nào được tìm thấy");
+		    }
+		
+		
+		
 		List<SanPham> sanPhams = pageSanPham.getContent();
 		LocalDate today = LocalDate.now();
 
@@ -112,9 +147,6 @@ public class ProductController {
 					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
 							&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
 					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
-			// Debug in ra nếu tìm thấy khuyến mãi
-			// highestCurrentKhuyenMai.ifPresent(km -> System.out.println("Khuyến mãi ID: "
-			// + km.getMaKhuyenMai()));
 
 			// Thêm vào map với maSanPham làm key
 			sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.orElse(null));
@@ -140,8 +172,18 @@ public class ProductController {
 		model.addAttribute("totalPages", pageSanPham.getTotalPages());
 		model.addAttribute("size", size);
 		model.addAttribute("searchAction", "/admin/product"); // Đường dẫn cho tìm kiếm
+		
+		
+		// Thêm thông tin danh mục cho dropdown
+		// Thêm danh mục cho dropdown
+		List<DanhMuc> listDanhMuc = danhMucService.getAll(); // Không cần kiểm tra trạng thái
+		model.addAttribute("listDanhMuc", listDanhMuc);
 
-// Thêm thông tin người dùng để hiển thị
+		// Thêm requestUri vào model để sử dụng trong header
+		model.addAttribute("requestUri", request.getRequestURI());
+		// Thêm thông tin người dùng để hiển thị
+		
+		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);
@@ -150,19 +192,65 @@ public class ProductController {
 	}
 
 	// Trang thêm sản phẩm
+	// Trang thêm sản phẩm
 	@GetMapping("/add-product")
-	public String addProduct(Model model) {
+	public String addProduct(Model model, @RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "5") int size) {
 
-		// Lấy danh sách các nhà cung cấp đang hoạt động
+		// Nếu có từ khóa tìm kiếm, thực hiện tìm kiếm và trả về trang danh sách sản
+		// phẩm
+		if (keyword != null && !keyword.isEmpty()) {
+			Page<SanPham> pageSanPham = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
+			List<SanPham> sanPhams = pageSanPham.getContent();
+			LocalDate today = LocalDate.now();
+
+			Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
+			Map<SanPham, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
+
+			for (SanPham sanPham : sanPhams) {
+				Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
+						.filter(km -> km.getTrangThai()) // Chỉ lấy khuyến mãi có trạng thái true
+						.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
+								&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
+						.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+
+				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.orElse(null));
+
+				if (highestCurrentKhuyenMai.isPresent()) {
+					BigDecimal giaGoc = sanPham.getDonGiaBan();
+					BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
+					BigDecimal giaSauGiam = giaGoc.subtract(giaGoc.multiply(phanTramGiam).divide(new BigDecimal(100)));
+					sanPhamGiaSauGiamMap.put(sanPham, giaSauGiam);
+				} else {
+					sanPhamGiaSauGiamMap.put(sanPham, sanPham.getDonGiaBan());
+				}
+			}
+
+			model.addAttribute("highestKhuyenMais", sanPhamKhuyenMaiMap);
+			model.addAttribute("giaSauGiams", sanPhamGiaSauGiamMap);
+			model.addAttribute("listSanPham", sanPhams);
+			model.addAttribute("currentPage", pageSanPham.getNumber());
+			model.addAttribute("totalPages", pageSanPham.getTotalPages());
+			model.addAttribute("size", size);
+			model.addAttribute("searchAction", "/admin/add-product");
+
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+			model.addAttribute("user", userDetails);
+
+			// Trả về trang danh sách sản phẩm với kết quả tìm kiếm
+			return "admin/product/index";
+		}
+
+		// Nếu không có từ khóa, trả về trang thêm sản phẩm
 		List<NhaCungCap> activeSuppliers = nhaCungCapService.findByTrangThaiTrue();
 		model.addAttribute("activeSuppliers", activeSuppliers);
 
 		model.addAttribute("sanPham", new SanPham());
 		model.addAttribute("listDonViTinh", donViTinhService.getAll());
-		// Tạo đối tượng trống cho form
-		model.addAttribute("listDanhMuc", danhMucService.getAll()); // Lấy danh sách các danh mục
+		model.addAttribute("listDanhMuc", danhMucService.getAll());
 
-		// Thêm đoạn code lấy thông tin người dùng
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);
@@ -224,12 +312,62 @@ public class ProductController {
 		}
 	}
 
-	// Trang chỉnh sửa sản phẩm
 	@GetMapping("/edit-product/{id}")
-	public String editProductPage(@PathVariable("id") Integer id, Model model) {
+	public String editProductPage(@PathVariable("id") Integer id, Model model,
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "5") int size) {
+
+		// Nếu có từ khóa tìm kiếm và không rỗng, thực hiện tìm kiếm và trả về trang
+		// danh sách sản phẩm
+		if (keyword != null && !keyword.isEmpty()) {
+			Page<SanPham> pageSanPham = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
+			List<SanPham> sanPhams = pageSanPham.getContent();
+			LocalDate today = LocalDate.now();
+
+			Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
+			Map<SanPham, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
+
+			for (SanPham sanPham : sanPhams) {
+				Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
+						.filter(km -> km.getTrangThai()) // Chỉ lấy khuyến mãi có trạng thái true
+						.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
+								&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
+						.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+
+				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.orElse(null));
+
+				if (highestCurrentKhuyenMai.isPresent()) {
+					BigDecimal giaGoc = sanPham.getDonGiaBan();
+					BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
+					BigDecimal giaSauGiam = giaGoc.subtract(giaGoc.multiply(phanTramGiam).divide(new BigDecimal(100)));
+					sanPhamGiaSauGiamMap.put(sanPham, giaSauGiam);
+				} else {
+					sanPhamGiaSauGiamMap.put(sanPham, sanPham.getDonGiaBan());
+				}
+			}
+
+			model.addAttribute("highestKhuyenMais", sanPhamKhuyenMaiMap);
+			model.addAttribute("giaSauGiams", sanPhamGiaSauGiamMap);
+			model.addAttribute("listSanPham", sanPhams);
+			model.addAttribute("currentPage", pageSanPham.getNumber());
+			model.addAttribute("totalPages", pageSanPham.getTotalPages());
+			model.addAttribute("size", size);
+			model.addAttribute("searchAction", "/admin/product");
+
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+			model.addAttribute("user", userDetails);
+
+			// Trả về trang danh sách sản phẩm với kết quả tìm kiếm
+			return "admin/product/index";
+		}
+
+		// Nếu không có từ khóa tìm kiếm hoặc từ khóa rỗng, hiển thị trang chỉnh sửa sản
+		// phẩm như bình thường
 		SanPham sanPham = sanPhamService.findById(id);
 		if (sanPham == null) {
-			return "redirect:/admin/products"; // Nếu không tìm thấy sản phẩm
+			return "redirect:/admin/product"; // Nếu không tìm thấy sản phẩm, quay lại danh sách sản phẩm
 		}
 
 		PageRequest pageRequest = PageRequest.of(0, 10); // Lấy 10 đơn vị tính đầu tiên
@@ -237,32 +375,30 @@ public class ProductController {
 		// Kiểm tra nếu sản phẩm có chi tiết đơn nhập hàng hay không
 		List<ChiTietDonNhapHang> chiTietDonNhapHangList = chiTietDonNhapHangService.findBySanPham(sanPham);
 		boolean hasDetails = !chiTietDonNhapHangList.isEmpty();
-		
-		
-		 // Tìm giá trị lớn nhất của soLuongNhap nếu có chi tiết đơn nhập hàng
-		// Tính tổng số lượng nhập từ tất cả các đơn nhập hàng nếu có chi tiết đơn nhập hàng
-		Integer maxSoLuongNhap = hasDetails ? chiTietDonNhapHangList.stream()
-		        .mapToInt(ChiTietDonNhapHang::getSoLuongNhap)
-		        .sum() : 0;
 
-		
-		 // Tính tổng số lượng đã bán
-	    Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(id);
+		// Tìm giá trị lớn nhất của soLuongNhap nếu có chi tiết đơn nhập hàng
+		// Tính tổng số lượng nhập từ tất cả các đơn nhập hàng nếu có chi tiết đơn nhập
+		// hàng
+		Integer maxSoLuongNhap = hasDetails
+				? chiTietDonNhapHangList.stream().mapToInt(ChiTietDonNhapHang::getSoLuongNhap).sum()
+				: 0;
 
-	    // Tính số lượng tối đa có thể chỉnh sửa
-	    Integer editableMaxQuantity = maxSoLuongNhap - soldQuantity;
-		
-		
-		
+		// Tính tổng số lượng đã bán
+		Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(id);
+
+		// Tính số lượng tối đa có thể chỉnh sửa
+		Integer editableMaxQuantity = maxSoLuongNhap - soldQuantity;
+
 		// Thêm sản phẩm vào model
 		model.addAttribute("sanPham", sanPham);
 		model.addAttribute("listDonViTinh", listDonViTinh);
 		model.addAttribute("hasDetails", hasDetails);
-	    model.addAttribute("maxSoLuongNhap", editableMaxQuantity);
+		model.addAttribute("maxSoLuongNhap", editableMaxQuantity);
 
 		// Lấy danh sách danh mục để hiển thị trong form
 		List<DanhMuc> listDanhMuc = danhMucService.getAll();
 		model.addAttribute("listDanhMuc", listDanhMuc);
+
 		// Thêm đoạn code lấy thông tin người dùng
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
@@ -286,31 +422,31 @@ public class ProductController {
 			return "redirect:/admin/products";
 		}
 		// Đảm bảo soLuong không bị null
-	    if (sanPham.getSoLuong() == null) {
-	        sanPham.setSoLuong(0); // Đặt giá trị mặc định nếu là null
-	    }
-	 // Kiểm tra nếu sản phẩm có trong đơn nhập hàng
-	    List<ChiTietDonNhapHang> chiTietDonNhapHangList = chiTietDonNhapHangService.findBySanPham(existingSanPham);
-	    boolean hasDetails = !chiTietDonNhapHangList.isEmpty();
+		if (sanPham.getSoLuong() == null) {
+			sanPham.setSoLuong(0); // Đặt giá trị mặc định nếu là null
+		}
+		// Kiểm tra nếu sản phẩm có trong đơn nhập hàng
+		List<ChiTietDonNhapHang> chiTietDonNhapHangList = chiTietDonNhapHangService.findBySanPham(existingSanPham);
+		boolean hasDetails = !chiTietDonNhapHangList.isEmpty();
 
-	    if (hasDetails) {
-	        // Tính tổng số lượng nhập từ tất cả các đơn nhập hàng
-	        Integer totalSoLuongNhap = chiTietDonNhapHangList.stream()
-	                .mapToInt(ChiTietDonNhapHang::getSoLuongNhap)
-	                .sum();
+		if (hasDetails) {
+			// Tính tổng số lượng nhập từ tất cả các đơn nhập hàng
+			Integer totalSoLuongNhap = chiTietDonNhapHangList.stream().mapToInt(ChiTietDonNhapHang::getSoLuongNhap)
+					.sum();
 
-	        // Lấy số lượng đã bán
-	        Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(sanPham.getMaSanPham());
+			// Lấy số lượng đã bán
+			Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(sanPham.getMaSanPham());
 
-	        // Tính số lượng tối đa có thể chỉnh sửa
-	        Integer editableMaxQuantity = totalSoLuongNhap - soldQuantity;
+			// Tính số lượng tối đa có thể chỉnh sửa
+			Integer editableMaxQuantity = totalSoLuongNhap - soldQuantity;
 
-	        // Kiểm tra số lượng tồn
-	        if (sanPham.getSoLuong() < 0 || sanPham.getSoLuong() > editableMaxQuantity) {
-	        	redirectAttributes.addFlashAttribute("error", "Vui lòng nhập số lượng từ 0 đến " + editableMaxQuantity + ". Số lượng tồn khả dụng được xác định dựa trên số lượng nhập và số lượng đã bán.");
-	            return "redirect:/admin/edit-product/" + sanPham.getMaSanPham();
-	        }
-	    }
+			// Kiểm tra số lượng tồn
+			if (sanPham.getSoLuong() < 0 || sanPham.getSoLuong() > editableMaxQuantity) {
+				redirectAttributes.addFlashAttribute("error", "Vui lòng nhập số lượng từ 0 đến " + editableMaxQuantity
+						+ ". Số lượng tồn khả dụng được xác định dựa trên số lượng nhập và số lượng đã bán.");
+				return "redirect:/admin/edit-product/" + sanPham.getMaSanPham();
+			}
+		}
 
 		// Xử lý ảnh nếu có
 		if (!imageFile.isEmpty()) {
@@ -388,69 +524,99 @@ public class ProductController {
 		return "redirect:/admin/product"; // Trả về trang danh sách sản phẩm sau khi xóa
 	}
 
+	// Hiển thị chi tiết sản phẩm
 	@GetMapping("/view-product/{id}")
-	public String viewProduct(@PathVariable("id") Integer id, Model model) {
-		// Tìm sản phẩm theo ID
-		SanPham sanPham = sanPhamService.findById(id);
+	public String viewProductDetail(@PathVariable("id") Integer productId, Model model,
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "5") int size) {
 
-		// Kiểm tra nếu sản phẩm không tồn tại
-		if (sanPham == null) {
-			return "redirect:/admin/product"; // Nếu không tìm thấy, quay lại trang danh sách
+		// Nếu có từ khóa tìm kiếm, thực hiện tìm kiếm sản phẩm
+		if (keyword != null && !keyword.isEmpty()) {
+			Page<SanPham> pageSanPham = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
+			List<SanPham> sanPhams = pageSanPham.getContent();
+			LocalDate today = LocalDate.now();
+
+			// Sử dụng Map với maSanPham làm key
+			Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
+			Map<SanPham, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
+
+			for (SanPham sanPham : sanPhams) {
+				// Tìm khuyến mãi cao nhất hiện tại có trạng thái true
+				Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
+						.filter(km -> km.getTrangThai()) // Chỉ lấy khuyến mãi có trạng thái true
+						.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
+								&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
+						.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+
+				// Thêm vào map với maSanPham làm key
+				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.orElse(null));
+
+				// Tính giá sau khi giảm
+				if (highestCurrentKhuyenMai.isPresent()) {
+					BigDecimal giaGoc = sanPham.getDonGiaBan();
+					BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
+					BigDecimal giaSauGiam = giaGoc.subtract(giaGoc.multiply(phanTramGiam).divide(new BigDecimal(100)));
+					sanPhamGiaSauGiamMap.put(sanPham, giaSauGiam);
+				} else {
+					sanPhamGiaSauGiamMap.put(sanPham, sanPham.getDonGiaBan());
+				}
+			}
+
+			model.addAttribute("highestKhuyenMais", sanPhamKhuyenMaiMap);
+			model.addAttribute("giaSauGiams", sanPhamGiaSauGiamMap);
+			model.addAttribute("listSanPham", sanPhams);
+			model.addAttribute("currentPage", pageSanPham.getNumber());
+			model.addAttribute("totalPages", pageSanPham.getTotalPages());
+			model.addAttribute("size", size);
+			model.addAttribute("searchAction", "/admin/product");
+
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+			model.addAttribute("user", userDetails);
+
+			// Trả về trang tìm kiếm kết quả (index)
+			return "admin/product/index";
 		}
-		// Lấy ngày hiện tại
+
+		// Nếu không có từ khóa, hiển thị chi tiết sản phẩm như bình thường
+		SanPham sanPham = sanPhamService.findById(productId);
+
+		if (sanPham == null) {
+			return "redirect:/admin/product";
+		}
+
 		LocalDate today = LocalDate.now();
-		// Tìm khuyến mãi cao nhất hiện tại có trạng thái true
 		Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
-				.filter(km -> km.getTrangThai() == true) // Chỉ lấy khuyến mãi có trạng thái true
+				.filter(km -> km.getTrangThai() == true)
 				.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
 						&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
 				.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		// Thêm sản phẩm và khuyến mãi cao nhất vào model
 		model.addAttribute("sanPham", sanPham);
 		model.addAttribute("highestKhuyenMai", highestCurrentKhuyenMai.orElse(null));
 
-		// Lấy danh sách các chi tiết đơn nhập hàng liên quan đến sản phẩm
 		List<ChiTietDonNhapHang> chiTietDonNhapHangList = chiTietDonNhapHangService.findBySanPham(sanPham).stream()
 				.filter(ctdnh -> ctdnh.getSoLuongNhap() > 0 && ctdnh.getDonGiaNhap().compareTo(BigDecimal.ZERO) > 0)
-				.collect(Collectors.toList())
-
-		;
-		// Kiểm tra nếu sản phẩm có trong đơn nhập hàng hay không
+				.collect(Collectors.toList());
 
 		boolean hasDetails = !chiTietDonNhapHangList.isEmpty();
-		// Lấy thông tin danh mục và nhà cung cấp liên quan đến sản phẩm
 		DanhMuc danhMuc = sanPham.getDanhMuc();
 		Set<NhaCungCap> nhaCungCaps = sanPham.getNhaCungCaps();
-		// Tính tổng số lượng đã bán
-	    Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(id);
-		// Lấy giá bán mới nhất
-		
+		Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(productId);
+
 		model.addAttribute("sanPham", sanPham);
 		model.addAttribute("hasDetails", hasDetails);
 		model.addAttribute("danhMuc", danhMuc);
-		
-		// model.addAttribute("nhaCungCap", nhaCungCaps);
-		model.addAttribute("chiTietDonNhapHangList", chiTietDonNhapHangList);
 		model.addAttribute("nhaCungCaps", nhaCungCaps);
+		model.addAttribute("chiTietDonNhapHangList", chiTietDonNhapHangList);
 		model.addAttribute("soldQuantity", soldQuantity);
-		System.out.println(nhaCungCaps);
-
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);
 
-		return "admin/product/view"; // Trả về trang chi tiết sản phẩm
+		return "admin/product/view";
 	}
 
 }

@@ -54,7 +54,9 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 
 	List<SanPham> findByDanhMuc_MaDanhMucAndTrangThai(Integer maDanhMuc, Boolean trangThai);
 
-	
+    Page<SanPham> findByDanhMuc_MaDanhMucAndTrangThai(Integer maDanhMuc, Boolean trangThai, Pageable pageable);
+    Page<SanPham> findByDanhMuc_MaDanhMucAndTenSanPhamContainingAndTrangThai(Integer maDanhMuc, String keyword, Boolean trangThai, Pageable pageable);
+
     List<SanPham> findByTenSanPhamContaining(String keyword, Pageable pageable);
 	    
     List<SanPham> findByDanhMuc_MaDanhMucAndTenSanPhamContaining(Integer  categoryId, String keyword, Pageable pageable);
@@ -67,13 +69,18 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
     @Query("SELECT sp FROM SanPham sp JOIN sp.chiTietDonNhapHangs ctdh WHERE sp.trangThai = true AND ctdh.soLuongNhap > 0 AND sp.tenSanPham LIKE %:keyword%")
     Page<SanPham> searchAllActiveProductsWithOrderDetails(@Param("keyword") String keyword, Pageable pageable);
 
-    // Tìm kiếm sản phẩm theo danh mục, từ khóa, có trạng thái và có chi tiết đơn nhập hàng
-    //@Query("SELECT sp FROM SanPham sp JOIN sp.chiTietDonNhapHangs ctdh WHERE sp.trangThai = true AND sp.danhMuc.maDanhMuc = :categoryId AND ctdh.soLuongNhap > 0 AND sp.tenSanPham LIKE %:keyword%")
-    //Page<SanPham> searchByCategoryWithOrderDetails(@Param("categoryId") Integer categoryId, @Param("keyword") String keyword, Pageable pageable);
-//    @Query("SELECT sp FROM SanPham sp JOIN sp.danhMuc dm JOIN sp.chiTietDonNhapHangs ctdh WHERE sp.trangThai = true AND dm.maDanhMuc = :categoryId AND ctdh.soLuongNhap > 0 AND (:keyword IS NULL OR sp.tenSanPham LIKE %:keyword%)")
-//      Page<SanPham> searchByCategoryWithOrderDetails(@Param("categoryId") Integer categoryId, @Param("keyword") String keyword, Pageable pageable);
-
+ 
     @Query("SELECT sp FROM SanPham sp JOIN sp.chiTietDonNhapHangs ctdh WHERE sp.trangThai = true AND sp.danhMuc.maDanhMuc = :categoryId AND ctdh.soLuongNhap > 0 AND (:keyword IS NULL OR :keyword = '' OR LOWER(sp.tenSanPham) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<SanPham> searchByCategoryWithOrderDetails(@Param("categoryId") Integer categoryId, @Param("keyword") String keyword, Pageable pageable);
 
+    @Query("SELECT DISTINCT sp FROM SanPham sp LEFT JOIN FETCH sp.danhGias")
+    List<SanPham> findAllWithDanhGias();
+    @Query("SELECT sp FROM SanPham sp LEFT JOIN FETCH sp.danhGias WHERE sp.trangThai = true")
+    List<SanPham> findAllWithDanhGiasAndTrangThaiTrue();
+
+    @Query("SELECT sp FROM SanPham sp LEFT JOIN FETCH sp.danhGias dg WHERE sp.trangThai = true AND dg.soSao = :soSao")
+    List<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(@Param("soSao") int soSao);
+
+    
+    
 }

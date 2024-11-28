@@ -11,13 +11,13 @@
 		<div th:replace="admin/fragments/sidebar::sidebar"> </div>
 		<!-- End Sidebar -->
 
-		<div class="main-panel">
+		<div class="main-panel" style="background-color: #faeee7;">
 			<!--  đầu header -->
 			<div th:replace="admin/fragments/header :: header"></div>
 			<!-- kết thúc header  -->
 
 			<!-- Nội dung chính -->
-			<div class="container-fluid" style="background-color: #faeee7;">
+			<div class="container-fluid" style="background-color: #faeee7; padding-top: 100px; padding-bottom: 230px;">
 				<div class="row">
 					<div class="col-12 text-center mb-4">
 						<h3 class="fw-bold">Danh Sách Đánh Giá</h3>
@@ -25,24 +25,26 @@
 					</div>
 
 					<!-- Danh sách đánh giá -->
-					<!-- Danh sách đánh giá theo sản phẩm -->
-					<!-- Danh sách đánh giá theo sản phẩm -->
-					<div th:each="sanPham : ${sanPhams}" class="mb-4">
+					<div th:each="sanPham : ${sanPhams}" class="mb-2">
 						<div th:if="${!sanPham.danhGias.isEmpty()}">
-							<h4 class="fw-bold mt-4" th:text="${sanPham.tenSanPham}"></h4>
+							<h4 class="fw-bold mt-2" th:text="${sanPham.tenSanPham}"></h4>
 							<div th:each="danhGia : ${sanPham.danhGias}" class="card p-3 my-3"
 								style="border-radius: 10px;">
 								<div class="card-body">
 									<p><strong>Người đánh giá:</strong> <span
 											th:text="${danhGia.nguoiDung.tenNguoiDung}"></span></p>
+									<!-- Hiển thị số sao bằng biểu tượng -->
+									<!-- Hiển thị số sao bằng biểu tượng -->
+									<!-- Hiển thị số sao bằng biểu tượng -->
 									<p><strong>Số sao:</strong>
-										<span th:each="i : ${#numbers.sequence(1, danhGia.soSao)}">
-											<i class="fas fa-star" style="color: #ffc107;"></i>
-										</span>
-										<span th:each="i : ${#numbers.sequence(danhGia.soSao + 1, 5)}">
-											<i class="far fa-star" style="color: #ffc107;"></i>
+										<span th:each="i : ${#numbers.sequence(1, 5)}">
+											<i th:class="${i <= danhGia.soSao ? 'fas fa-star' : 'far fa-star'}"
+												style="color: #ffc107;"></i>
 										</span>
 									</p>
+
+
+
 									<p><strong>Ngày đánh giá:</strong>
 										<span
 											th:text="${#temporals.format(danhGia.thoiGianDanhGia, 'dd/MM/yyyy HH:mm')}"></span>
@@ -53,35 +55,24 @@
 										class="btn btn-info btn-sm mt-2">
 										Xem Chi Tiết
 									</a>
+									<!-- Form xóa đánh giá -->
+									<form
+										th:action="@{/admin/danhgia/{maDanhGia}/delete(maDanhGia=${danhGia.maDanhGia})}"
+										method="post"
+										th:onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');"
+										style="display: inline;">
+										<button type="submit" class="btn btn-danger btn-sm mt-2">Xóa</button>
+									</form>
 								</div>
 							</div>
 						</div>
 					</div>
 
+
+
+
 					<!-- Kết thúc danh sách đánh giá -->
 
-
-					<!-- Phân trang -->
-					<div class="col-12 mt-4">
-						<nav aria-label="Page navigation" class="d-flex justify-content-center">
-							<ul class="pagination">
-								<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-									<a th:href="@{/admin/danhgia(page=${currentPage - 1}, size=${size})}"
-										class="page-link" style="color: #333;">Trước</a>
-								</li>
-								<li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}" class="page-item"
-									th:classappend="${pageNum == currentPage} ? 'active'">
-									<a th:href="@{/admin/danhgia(page=${pageNum}, size=${size})}" class="page-link"
-										th:style="${pageNum == currentPage} ? 'background-color: #007bff; color: white;' : 'background-color: #ffffff; color: #333;'"
-										th:text="${pageNum + 1}">1</a>
-								</li>
-								<li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-									<a th:href="@{/admin/danhgia(page=${currentPage + 1}, size=${size})}"
-										class="page-link" style="color: #333;">Tiếp</a>
-								</li>
-							</ul>
-						</nav>
-					</div>
 				</div>
 			</div>
 			<!-- kết thúc nội dung chính-->
@@ -92,6 +83,8 @@
 
 		</div>
 	</div>
+	
+
 
 	<!-- Core JS Files -->
 	<div th:replace="admin/fragments/script::script"></div>

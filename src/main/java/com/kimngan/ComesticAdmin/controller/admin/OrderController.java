@@ -10,6 +10,8 @@ import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.HoaDonService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,30 +40,51 @@ public class OrderController {
 
 	// Hiển thị danh sách đơn hàng
 	@GetMapping("/orders")
-	public String getOrders(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "10") int size) {
-
-		// Kiểm tra nếu page nhỏ hơn 0 thì đặt lại giá trị page về 0
-	    if (page < 0) {
-	        page = 0;
-	    }
+	public String getOrders(HttpServletRequest request, Model model,
+			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "10") int size,
+			@RequestParam(value = "status", required = false) String status
+			) {
+		// Nếu status là null hoặc rỗng, chuyển hướng về /admin/orders mà không kèm tham số nào
+//	    if (status == null || status.isEmpty()) {
+//	        return "redirect:/admin/orders";
+//	    }
 		
-		Page<DonHang> donHangPage = donHangService.getAllDonHangs(PageRequest.of(page, size));
+		 
+//		 if ((status == null || status.isEmpty()) && request.getQueryString() != null) {
+//		        return "redirect:/admin/orders";
+//		    }
+		// model.addAttribute("requestUri", request.getRequestURI());
+		// Kiểm tra nếu page nhỏ hơn 0 thì đặt lại giá trị page về 0
+		if (page < 0) {
+			page = 0;
+		}
+
+		 // Thực hiện logic xử lý tìm kiếm và phân trang như bình thường
+		 Page<DonHang> donHangPage = (status != null && !status.equals("all"))
+		            ? donHangService.getDonHangsByStatus(status, PageRequest.of(page, size))
+		            : donHangService.getAllDonHangs(PageRequest.of(page, size));
+
+
 		model.addAttribute("donHangs", donHangPage.getContent());
 		model.addAttribute("currentPage", donHangPage.getNumber());
 		model.addAttribute("totalPages", donHangPage.getTotalPages());
 		model.addAttribute("size", size);
+		model.addAttribute("selectedStatus", status);
+		model.addAttribute("searchAction", "/admin/orders");
+
+		
 
 		// Thêm thông tin người dùng vào model
-		// Thêm đoạn code lấy thông tin người dùng
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);
 
+		// Thêm requestUri vào model để sử dụng trong header
+		model.addAttribute("requestUri", request.getRequestURI());
+
 		return "admin/order/index";
 	}
-
-
 
 	// Xem chi tiết đơn hàng (cho phép admin sửa trạng thái đơn hàng)
 	@GetMapping("/orders/{maDonHang}")
@@ -70,11 +93,11 @@ public class OrderController {
 		if (donHang == null) {
 			return "redirect:/admin/orders"; // Nếu đơn hàng không tồn tại, chuyển về danh sách đơn hàng
 		}
-	    List<String> nextStatuses = getNextStatuses(donHang.getTrangThaiDonHang());
+		List<String> nextStatuses = getNextStatuses(donHang.getTrangThaiDonHang());
 
 		model.addAttribute("donHang", donHang);
 		model.addAttribute("chiTietDonHangList", donHang.getChiTietDonHangs());
-	    model.addAttribute("nextStatuses", nextStatuses); // Thêm thông tin trạng thái tiếp theo vào model
+		model.addAttribute("nextStatuses", nextStatuses); // Thêm thông tin trạng thái tiếp theo vào model
 
 		// Thêm thông tin người dùng vào model
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -83,8 +106,6 @@ public class OrderController {
 
 		return "admin/order/view"; // Trả về trang view để hiển thị chi tiết đơn hàng và cập nhật trạng thái
 	}
-	
-	
 
 	// Cập nhật trạng thái đơn hàng
 	@PostMapping("/orders/{maDonHang}/update-status")
@@ -93,7 +114,7 @@ public class OrderController {
 		try {
 			DonHang donHang = donHangService.getDonHangById(maDonHang);
 			if (donHang != null) {
-				
+
 				String currentStatus = donHang.getTrangThaiDonHang();
 				if (!isNextStatusValid(currentStatus, newStatus)) {
 					redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
@@ -135,8 +156,8 @@ public class OrderController {
 //	                }
 //	            }
 //				
-	            
-				 // Kiểm tra số lượng tồn kho cho đơn hàng trước khi xác nhận
+
+				// Kiểm tra số lượng tồn kho cho đơn hàng trước khi xác nhận
 
 				// Kiểm tra số lượng tồn kho và cập nhật số lượng khi xác nhận đơn hàng
 //	            if ("Đã xác nhận".equals(newStatus)) {
@@ -174,73 +195,68 @@ public class OrderController {
 //						sanPhamService.update(sanPham);
 //					}
 //				}
-				
+
 				// Kiểm tra số lượng tồn kho trước khi xác nhận đơn hàng
-	            if ("Đã xác nhận".equals(newStatus)) {
-	                for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-	                    SanPham sanPham = chiTiet.getSanPham();
-	                    int soLuongYeuCau = chiTiet.getSoLuong();
+				if ("Đã xác nhận".equals(newStatus)) {
+					for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+						SanPham sanPham = chiTiet.getSanPham();
+						int soLuongYeuCau = chiTiet.getSoLuong();
 
-	                    // Nếu số lượng yêu cầu lớn hơn số lượng tồn kho
-	                    if (soLuongYeuCau > sanPham.getSoLuong()) {
-	                        // Đơn hàng phải hủy vì không đủ tồn kho
-	                        redirectAttributes.addFlashAttribute("errorMessage",
-	                                "Sản phẩm '" + sanPham.getTenSanPham() + "' không đủ số lượng tồn kho để xác nhận đơn hàng. Đơn hàng cần phải hủy.");
-	                        // Lưu trạng thái đơn hàng là "Bị hủy do không đủ hàng" để không cộng lại số lượng vào kho
-	                        donHang.setTrangThaiDonHang("Bị hủy do không đủ hàng");
-	                        donHangService.updateDonHang(donHang);
-	                        return "redirect:/admin/orders/" + maDonHang; // Quay lại trang chi tiết đơn hàng
-	                    }
-	                }
+						// Nếu số lượng yêu cầu lớn hơn số lượng tồn kho
+						if (soLuongYeuCau > sanPham.getSoLuong()) {
+							// Đơn hàng phải hủy vì không đủ tồn kho
+							redirectAttributes.addFlashAttribute("errorMessage", "Sản phẩm '" + sanPham.getTenSanPham()
+									+ "' không đủ số lượng tồn kho để xác nhận đơn hàng. Đơn hàng cần phải hủy.");
+							// Lưu trạng thái đơn hàng là "Bị hủy do không đủ hàng" để không cộng lại số
+							// lượng vào kho
+							donHang.setTrangThaiDonHang("Bị hủy do không đủ hàng");
+							donHangService.updateDonHang(donHang);
+							return "redirect:/admin/orders/" + maDonHang; // Quay lại trang chi tiết đơn hàng
+						}
+					}
 
-	                // Sau khi kiểm tra đủ tồn kho, tiến hành cập nhật lại số lượng tồn kho
-	                for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-	                    SanPham sanPham = chiTiet.getSanPham();
-	                    int soLuongYeuCau = chiTiet.getSoLuong();
+					// Sau khi kiểm tra đủ tồn kho, tiến hành cập nhật lại số lượng tồn kho
+					for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+						SanPham sanPham = chiTiet.getSanPham();
+						int soLuongYeuCau = chiTiet.getSoLuong();
 
-	                    // Trừ số lượng đã bán ra khỏi tồn kho
-	                    int soLuongTonHienTai = sanPham.getSoLuong();
-	                    sanPham.setSoLuong(soLuongTonHienTai - soLuongYeuCau);
-	                    sanPhamService.update(sanPham); // Lưu lại sản phẩm với số lượng mới
-	                }
-	            }
+						// Trừ số lượng đã bán ra khỏi tồn kho
+						int soLuongTonHienTai = sanPham.getSoLuong();
+						sanPham.setSoLuong(soLuongTonHienTai - soLuongYeuCau);
+						sanPhamService.update(sanPham); // Lưu lại sản phẩm với số lượng mới
+					}
+				}
 
-	            // Xử lý khi đơn hàng bị hủy
-	            if ("Đã hủy".equals(newStatus)) {
-	                // Kiểm tra xem đơn hàng có bị hủy do không đủ tồn kho hay không
-	                if (!"Bị hủy do không đủ hàng".equals(donHang.getTrangThaiDonHang())) {
-	                    // Nếu đơn hàng không bị hủy do thiếu tồn kho, tiến hành cộng lại số lượng tồn kho
-	                    for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-	                        SanPham sanPham = chiTiet.getSanPham();
-	                        int soLuongHienTai = sanPham.getSoLuong();
-	                        int soLuongTraLai = chiTiet.getSoLuong();
-	                        sanPham.setSoLuong(soLuongHienTai + soLuongTraLai);
-	                        sanPhamService.update(sanPham); // Lưu lại sản phẩm sau khi cộng số lượng
-	                    }
-	                }
-	            }
-				
-				
-				
-				
-				
-				
-				
+				// Xử lý khi đơn hàng bị hủy
+				if ("Đã hủy".equals(newStatus)) {
+					// Kiểm tra xem đơn hàng có bị hủy do không đủ tồn kho hay không
+					if (!"Bị hủy do không đủ hàng".equals(donHang.getTrangThaiDonHang())) {
+						// Nếu đơn hàng không bị hủy do thiếu tồn kho, tiến hành cộng lại số lượng tồn
+						// kho
+						for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+							SanPham sanPham = chiTiet.getSanPham();
+							int soLuongHienTai = sanPham.getSoLuong();
+							int soLuongTraLai = chiTiet.getSoLuong();
+							sanPham.setSoLuong(soLuongHienTai + soLuongTraLai);
+							sanPhamService.update(sanPham); // Lưu lại sản phẩm sau khi cộng số lượng
+						}
+					}
+				}
+
 				// Tạo hóa đơn khi đơn hàng chuyển sang "Đã hoàn thành"
-	            if ("Đã hoàn thành".equals(newStatus)) {
-	                HoaDon hoaDon = new HoaDon();
-	                hoaDon.setDonHang(donHang);
-	                hoaDon.setNgayXuatHoaDon(LocalDateTime.now());
-	                hoaDon.setTongTien(donHang.getTongGiaTriDonHang());
-	                hoaDon.setTenNguoiNhan(donHang.getNguoiDung().getTenNguoiDung());
-	                hoaDon.setDiaChiGiaoHang(donHang.getDiaChiGiaoHang());
-	                hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
+				if ("Đã hoàn thành".equals(newStatus)) {
+					HoaDon hoaDon = new HoaDon();
+					hoaDon.setDonHang(donHang);
+					hoaDon.setNgayXuatHoaDon(LocalDateTime.now());
+					hoaDon.setTongTien(donHang.getTongGiaTriDonHang());
+					hoaDon.setTenNguoiNhan(donHang.getNguoiDung().getTenNguoiDung());
+					hoaDon.setDiaChiGiaoHang(donHang.getDiaChiGiaoHang());
+					hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
 
-	                // Lưu hóa đơn vào cơ sở dữ liệu
-	                hoaDonService.saveHoaDon(hoaDon);
-	            }
+					// Lưu hóa đơn vào cơ sở dữ liệu
+					hoaDonService.saveHoaDon(hoaDon);
+				}
 
-			
 				donHang.setTrangThaiDonHang(newStatus);
 				donHangService.updateDonHang(donHang); // Lưu lại đơn hàng với trạng thái mới
 				redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công.");

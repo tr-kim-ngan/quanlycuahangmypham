@@ -20,6 +20,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DanhGiaService;
 import com.kimngan.ComesticAdmin.services.DanhMucService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
@@ -61,6 +62,9 @@ public class CustomerController {
 	private DanhGiaService danhGiaService;
 	@Autowired
 	private DanhGiaRepository danhGiaRepository;
+	
+	@Autowired
+	private ChiTietDonNhapHangService chiTietDonNhapHangService;
 
 	@GetMapping({ "/", "/index" })
 	public String homeOrIndex(Model model, @RequestParam(defaultValue = "0") int page, Authentication authentication) {
@@ -225,6 +229,7 @@ public class CustomerController {
 
 			relatedSanPhams = relatedSanPhams.stream()
 					.filter(relatedSanPham -> !relatedSanPham.getMaSanPham().equals(sanPham.getMaSanPham()))
+					.filter(relatedSanPham -> chiTietDonNhapHangService.existsBySanPham(relatedSanPham))
 					.collect(Collectors.toList());
 
 			Map<Integer, KhuyenMai> relatedSanPhamKhuyenMaiMap = new HashMap<>();
