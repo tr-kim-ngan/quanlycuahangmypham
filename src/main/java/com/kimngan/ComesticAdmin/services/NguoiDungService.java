@@ -8,5 +8,5 @@ public interface NguoiDungService {
 	void save(NguoiDung nguoiDung);
 	NguoiDung findById(Integer id);
 	void updateLoaiKhachHangBasedOnTotalOrders(Integer maNguoiDung);
-	
+	long countCustomers();
 }

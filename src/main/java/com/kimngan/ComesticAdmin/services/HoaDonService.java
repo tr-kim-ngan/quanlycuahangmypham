@@ -1,5 +1,6 @@
 package com.kimngan.ComesticAdmin.services;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,5 +21,16 @@ public interface HoaDonService {
     Page<HoaDon> searchByTenNguoiNhan(String tenNguoiNhan, Pageable pageable);
     Page<HoaDon> searchByNgayXuat(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
     Page<HoaDon> searchByTenNguoiNhanAndNgayXuatHoaDon(String tenNguoiNhan, LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable) ;
-   
+    void xacNhanThanhToan(Integer maHoaDon);
+    Page<HoaDon> searchByStatus(String status, Pageable pageable);
+    Page<HoaDon> searchByTrangThaiAndNgayXuat(String trangThai, LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
+    BigDecimal calculateTotalRevenue();
+    long countUnconfirmedInvoices();
+
+
+
+
+
 }
+
+

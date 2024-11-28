@@ -27,22 +27,26 @@
 								<th>Ngày Xuất</th>
 								<th>Tổng Tiền</th>
 								<th>Người Nhận</th>
+								<th>Trạng Thái</th>
 								<th>Thao Tác</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr th:if="${hoaDons.isEmpty()}">
-								<td colspan="5" class="text-center text-muted">Không tìm thấy hóa đơn nào.</td>
+								<td colspan="6" class="text-center text-muted">Không tìm thấy hóa đơn nào.</td>
 							</tr>
 							<tr th:each="hoaDon : ${hoaDons}">
 								<td th:text="${hoaDon.maHoaDon}"></td>
 								<td th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></td>
 								<td th:text="${hoaDon.tongTien} + ' VND'"></td>
 								<td th:text="${hoaDon.tenNguoiNhan}"></td>
+								<td th:text="${hoaDon.trangThaiThanhToan}"></td>
 								<td>
 									<a th:href="@{'/admin/hoadon/' + ${hoaDon.donHang.maDonHang}}"
 										class="btn btn-primary">Xem Chi Tiết</a>
 								</td>
+								
+
 							</tr>
 						</tbody>
 					</table>

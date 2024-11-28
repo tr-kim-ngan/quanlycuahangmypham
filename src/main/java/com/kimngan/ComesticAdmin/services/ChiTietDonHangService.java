@@ -12,5 +12,5 @@ public interface ChiTietDonHangService {
     List<ChiTietDonHang> getChiTietDonHangsByDonHangId(Integer maDonHang); // Lấy tất cả chi tiết của một đơn hàng
     ChiTietDonHang save(ChiTietDonHang chiTietDonHang);
     Integer getSoldQuantityBySanPhamId(Integer sanPhamId);
-
+    List<Object[]> getTop3BestSellingProducts();
 }

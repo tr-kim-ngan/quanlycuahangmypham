@@ -65,6 +65,12 @@ public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
         return chiTietDonHangList.stream().mapToInt(ChiTietDonHang::getSoLuong).sum();
     }
 
+	@Override
+	public List<Object[]> getTop3BestSellingProducts() {
+		// TODO Auto-generated method stub
+		 return chiTietDonHangRepository.findTop3BestSellingProducts();
+	}
+
 	
 	
 }

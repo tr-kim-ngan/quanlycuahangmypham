@@ -65,13 +65,7 @@ public class DonHangServiceImpl implements DonHangService {
 
 	}
 
-//	@Override
-//	public DonHang getDonHangById(Integer maDonHang) {
-//		 System.out.println("Lấy đơn hàng với mã: " + maDonHang);
-//		// TODO Auto-generated method stub
-//		return donHangRepository.findById(maDonHang)
-//				.orElseThrow(() -> new RuntimeException(" đánh dấu trong DonHang getDonHangById(Integer maDonHang)  Đơn hàng không tồn tại với mã: " + maDonHang));
-//	}
+
 	@Override
 	public DonHang getDonHangById(Integer maDonHang) {
 	    System.out.println("Lấy đơn hàng với mã: " + maDonHang);
@@ -255,53 +249,20 @@ public class DonHangServiceImpl implements DonHangService {
 		return donHangRepository.findByTrangThaiDonHang(status, pageable);
 	}
 
-//	@Override
-//	public void updateOrderStatus(Integer maDonHang, String trangThaiMoi) {
-//		DonHang donHang = donHangRepository.findById(maDonHang)
-//		         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng"));
-//
-//	    String trangThaiCu = donHang.getTrangThaiDonHang();
-//
-//	    // Chỉ cập nhật nếu trạng thái mới khác trạng thái cũ
-//	    if (!trangThaiCu.equals(trangThaiMoi)) {
-//	        donHang.setTrangThaiDonHang(trangThaiMoi);
-//	        donHangRepository.save(donHang);
-//
-//	        // Nếu đơn hàng chuyển sang trạng thái "Đã xác nhận", cập nhật số lượng đã bán
-//	        if ("Đã xác nhận".equalsIgnoreCase(trangThaiMoi)) {
-//	            updateSoldQuantityForOrder(donHang);
-//	        }
-//	        // Nếu trạng thái chuyển từ "Đã xác nhận" sang "Hủy bỏ", trả lại số lượng tồn kho
-//	        else if ("Hủy bỏ".equalsIgnoreCase(trangThaiMoi) && "Đã xác nhận".equalsIgnoreCase(trangThaiCu)) {
-//	            revertSoldQuantityForOrder(donHang);
-//	        }
-//	    }
-//		
-//	}
+	@Override
+	public long countOrders() {
+		// TODO Auto-generated method stub
+		return donHangRepository.count();
+	}
 
-//	@Override
-//	public void updateSoldQuantityForOrder(DonHang donHang) {
-//		// TODO Auto-generated method stub
-//		List<ChiTietDonHang> chiTietDonHangList = donHang.getChiTietDonHangs();
-//	    for (ChiTietDonHang chiTiet : chiTietDonHangList) {
-//	        SanPham sanPham = chiTiet.getSanPham();
-//	        Integer soLuongBan = chiTiet.getSoLuong();
-//	        sanPham.setSoLuong(sanPham.getSoLuong() - soLuongBan);
-//	        sanPhamService.update(sanPham);
-//	    }
-//	}
-//
-//	@Override
-//	public void revertSoldQuantityForOrder(DonHang donHang) {
-//		// TODO Auto-generated method stub
-//		List<ChiTietDonHang> chiTietDonHangList = donHang.getChiTietDonHangs();
-//	    for (ChiTietDonHang chiTiet : chiTietDonHangList) {
-//	        SanPham sanPham = chiTiet.getSanPham();
-//	        Integer soLuongBan = chiTiet.getSoLuong();
-//	        sanPham.setSoLuong(sanPham.getSoLuong() + soLuongBan);
-//	        sanPhamService.update(sanPham);
-//	    }
-//	}
+	@Override
+	public long countByTrangThaiDonHang(String trangThaiDonHang) {
+		// TODO Auto-generated method stub
+		  return donHangRepository.countByTrangThaiDonHang(trangThaiDonHang);
+	}
+
+
+
 
 
 }

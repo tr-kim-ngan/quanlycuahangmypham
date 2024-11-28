@@ -24,4 +24,8 @@ public interface DonHangService {
     List<DonHang> getAllOrdersSortedByNgayDat();
     //void updateOrderStatus(Integer maDonHang, String trangThaiMoi) ;
     Page<DonHang> getDonHangsByStatus(String status, Pageable pageable);
+    long countOrders();
+    long countByTrangThaiDonHang(String trangThaiDonHang);
+    
+    
 }

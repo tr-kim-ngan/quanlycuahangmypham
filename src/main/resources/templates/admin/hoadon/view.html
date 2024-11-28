@@ -34,6 +34,16 @@
                             <p><strong>Người Nhận:</strong> <span th:text="${hoaDon.tenNguoiNhan}"></span></p>
                             <p><strong>Địa Chỉ:</strong> <span th:text="${hoaDon.diaChiGiaoHang}"></span></p>
                             <p><strong>Số Điện Thoại:</strong> <span th:text="${hoaDon.soDienThoaiNhanHang}"></span></p>
+                        	<p><strong>Trạng Thái Thanh Toán:</strong> <span th:text="${hoaDon.trangThaiThanhToan}"></span></p>
+
+                        </div>
+                    </div>
+                    <!-- Nút Xác Nhận Thanh Toán -->
+                    <div class="mt-4">
+                        <div th:if="${hoaDon.trangThaiThanhToan == 'Chưa xác nhận'}">
+                            <form th:action="@{/admin/hoadon/xacnhan/{maHoaDon}(maHoaDon=${hoaDon.maHoaDon})}" method="post">
+                                <button type="submit" class="btn btn-success">Xác nhận thanh toán</button>
+                            </form>
                         </div>
                     </div>
 

@@ -17,4 +17,17 @@ public interface ChiTietDonHangRepository extends JpaRepository<ChiTietDonHang, 
 	//@Query("SELECT c FROM ChiTietDonHang c WHERE c.sanPham.maSanPham = :sanPhamId AND c.donHang.trangThai = :trangThai")
 	List<ChiTietDonHang> findBySanPhamMaSanPhamAndDonHangTrangThaiDonHangIn(Integer sanPhamId, List<String> trangThaiDonHang);
 
+
+	@Query("SELECT c.sanPham.maSanPham, SUM(c.soLuong) AS totalQuantity "
+		     + "FROM ChiTietDonHang c "
+		     + "JOIN c.donHang d "
+		     + "JOIN HoaDon h ON h.donHang = d "
+		     + "WHERE d.trangThaiDonHang = 'Đã hoàn thành' AND h.trangThaiThanhToan = 'Đã xác nhận' "
+		     + "GROUP BY c.sanPham.maSanPham "
+		     + "ORDER BY totalQuantity DESC")
+		List<Object[]> findTop3BestSellingProducts();
+
+	
+	
+	
 }

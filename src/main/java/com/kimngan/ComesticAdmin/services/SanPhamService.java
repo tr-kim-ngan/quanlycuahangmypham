@@ -63,7 +63,7 @@ public interface SanPhamService {
 
 	 List<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(int soSao);
 
-
+	 long countActiveProducts();
 
 
 
