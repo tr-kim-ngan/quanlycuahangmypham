@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -148,13 +149,17 @@ public class CategoryController {
 	}
 // xóa
 	@GetMapping("/delete-category/{id}")
-	public String deleteCategory(@PathVariable("id") Integer id) {
+	public String deleteCategory(@PathVariable("id") Integer id,RedirectAttributes redirectAttributes) {
 		// Kiểm tra nếu danh mục tồn tại
 		DanhMuc danhMuc = danhMucService.findById(id);
 		if (danhMuc == null) {
 			return "redirect:/admin/category"; // Nếu không tìm thấy, quay về trang danh sách
 		}
-
+		   // Kiểm tra xem danh mục có sản phẩm liên kết hay không
+	    if (danhMucService.hasProducts(id)) {
+	        redirectAttributes.addFlashAttribute("error", "Không thể xóa danh mục này vì nó đang chứa sản phẩm!");
+	        return "redirect:/admin/category"; // Quay về danh sách nếu danh mục có sản phẩm liên kết
+	    }
 		// Xóa danh mục
 		danhMucService.delete(id);
 

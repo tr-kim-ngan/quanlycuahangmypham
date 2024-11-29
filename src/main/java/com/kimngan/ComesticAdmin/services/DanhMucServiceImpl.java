@@ -86,6 +86,16 @@ public class DanhMucServiceImpl implements DanhMucService {
 		return danhMucRepository.findByTenDanhMucContainingIgnoreCase(tenDanhMuc, pageable);
 	}
 
+	@Override
+	public boolean hasProducts(Integer categoryId) {
+		// TODO Auto-generated method stub
+		 DanhMuc danhMuc = danhMucRepository.findById(categoryId).orElse(null);
+		    if (danhMuc != null && danhMuc.getSanPhams() != null) {
+		        return !danhMuc.getSanPhams().isEmpty(); // Kiểm tra nếu danh mục có sản phẩm liên kết
+		    }
+		    return false;
+	}
+
 	
 
 //	@Override
