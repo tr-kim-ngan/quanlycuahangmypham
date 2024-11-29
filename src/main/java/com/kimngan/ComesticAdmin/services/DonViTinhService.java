@@ -22,6 +22,7 @@ public interface DonViTinhService {
     Optional<DonViTinh> findByTenDonVi(String tenDonVi);
     List<DonViTinh> getAll();
 
-
+    boolean hasProducts(Integer unitId);
+    void delete(Integer unitId);
     
 }

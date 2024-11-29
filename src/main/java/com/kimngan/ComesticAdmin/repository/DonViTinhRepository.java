@@ -14,4 +14,7 @@ public interface DonViTinhRepository extends JpaRepository<DonViTinh, Integer>{
     Page<DonViTinh> findByTenDonViContainingIgnoreCase(String tenDonVi, PageRequest pageRequest);
     boolean existsByTenDonVi(String tenDonVi);
     Optional<DonViTinh> findByTenDonVi(String tenDonVi);
+    
+    
+
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
@@ -28,8 +29,7 @@ public class UnitController {
 
 	// Hiển thị danh sách đơn vị tính
 	@GetMapping("/unit")
-	public String index(Model model, 
-			@RequestParam(value = "page", defaultValue = "0") int page,
+	public String index(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "5") int size,
 			@RequestParam(value = "keyword", required = false) String keyword) {
 
@@ -140,5 +140,18 @@ public class UnitController {
 			return "admin/unit/edit"; // Hiển thị lại trang nếu có lỗi
 		}
 	}
+
+	@GetMapping("/delete-unit/{id}")
+	public String deleteUnit(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+	    if (donViTinhService.hasProducts(id)) {
+	        redirectAttributes.addFlashAttribute("error", "Không thể xóa đơn vị vì đang được sử dụng bởi sản phẩm!");
+	        return "redirect:/admin/unit";
+	    }
+
+	    donViTinhService.delete(id);
+	    redirectAttributes.addFlashAttribute("success", "Xóa đơn vị thành công!");
+	    return "redirect:/admin/unit";
+	}
+
 
 }
