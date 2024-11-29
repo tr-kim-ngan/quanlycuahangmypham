@@ -30,6 +30,13 @@
 							</a>
 						</div>
 					</div>
+					<div th:if="${error != null}" class="alert alert-danger" role="alert">
+						<i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+					</div>
+					<div th:if="${success != null}" class="alert alert-success" role="alert">
+						<i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+					</div>
+
 
 					<!-- Table hiển thị danh sách các đơn vị tính -->
 					<div class="row">
@@ -62,9 +69,16 @@
 												class="btn btn-warning btn-sm">
 												<i class="fas fa-edit"></i> Sửa
 											</a>
+											<a th:href="@{/admin/delete-unit/{id}(id=${donViTinh.maDonVi})}"
+												class="btn btn-danger btn-sm"
+												onclick="return confirm('Bạn có chắc chắn muốn xóa đơn vị này không?')">
+												<i class="fas fa-trash"></i> Xóa
+											</a>
+
 
 
 										</td>
+
 									</tr>
 								</tbody>
 							</table>

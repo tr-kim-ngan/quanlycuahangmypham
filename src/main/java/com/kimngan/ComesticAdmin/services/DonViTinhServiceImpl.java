@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.kimngan.ComesticAdmin.entity.DanhMuc;
 import com.kimngan.ComesticAdmin.entity.DonViTinh;
 import com.kimngan.ComesticAdmin.repository.DonViTinhRepository;
+import com.kimngan.ComesticAdmin.repository.SanPhamRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,8 @@ public class DonViTinhServiceImpl implements DonViTinhService {
 	@Autowired
 	private DonViTinhRepository donViTinhRepository;
 
+	@Autowired
+	private SanPhamRepository sanPhamRepository;
 	@Override
 	public Page<DonViTinh> searchByName(String name, PageRequest pageRequest) {
 		// TODO Auto-generated method stub
@@ -70,6 +73,18 @@ public class DonViTinhServiceImpl implements DonViTinhService {
 	public List<DonViTinh> getAll() {
 		// TODO Auto-generated method stub
 		return donViTinhRepository.findAll();
+	}
+
+	@Override
+	public boolean hasProducts(Integer unitId) {
+		// TODO Auto-generated method stub
+		 return sanPhamRepository.existsByDonViTinhMaDonVi(unitId);
+	}
+
+	@Override
+	public void delete(Integer unitId) {
+		// TODO Auto-generated method stub
+		 donViTinhRepository.deleteById(unitId);
 	}
 
 

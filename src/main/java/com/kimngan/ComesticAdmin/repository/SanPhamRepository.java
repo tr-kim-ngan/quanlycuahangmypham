@@ -82,5 +82,6 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
     List<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(@Param("soSao") int soSao);
 
     long countByTrangThaiTrue();
+    boolean existsByDonViTinhMaDonVi(Integer maDonVi); 
     
 }
