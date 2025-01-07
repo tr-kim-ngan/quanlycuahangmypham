@@ -1,7 +1,7 @@
 <!--<html lang="en" xmlns:th="http://www.thymeleaf.org">-->
 
 <div class="container-fluid" th:fragment="header"
-	style="position: fixed !important; top: 0; left: 0; width: 100vw; z-index: 2000; background-color: white; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+	style="position: fixed !important; top: 0; left: 0;max-width: 100%; width: 100%;height: 125px; z-index: 2000; background-color: white; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); border: none;">
 	<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 		<defs>
 			<symbol xmlns="http://www.w3.org/2000/svg" id="link" viewBox="0 0 24 24">
@@ -68,26 +68,28 @@
 
 
 
-	<div class="content-wrapper" style="padding-top: 10px;">
-		<div class="row py-3 border-bottom">
+	<div class="content-wrapper">
+		<div class="row py-3 border-bottom" >
 			<div class="col-sm-4 col-lg-3 text-center text-sm-start">
 				<div class="main-logo">
 					<a th:href="@{/index}">
-						<img th:src="@{/fe/images/logo1.png}" style="margin-top: 0px;" alt="logo" class="img-fluid">
+						<img th:src="@{/fe/images/logo1.png}" style="margin-top: 0px; max-width: 100%;max-height: 100%;" alt="logo" class="img-fluid">
 					</a>
 				</div>
 			</div>
 
-			<div class="col-sm-6 offset-sm-2 offset-md-0 col-lg-5 d-none d-lg-block">
+			<div class="col-sm-6 offset-sm-2 offset-md-0 col-lg-5 d-none d-lg-block" style="padding-top: 25px;">
 				<div class="search-bar row bg-light p-2 my-2 rounded-4">
 					<!-- Biểu mẫu tìm kiếm -->
 					<form id="search-form" th:action="@{/category/search}" method="get" class="row">
 						<!-- Dropdown danh mục -->
 						<div class="col-md-4 d-none d-md-block">
 							<select class="form-select border-0 bg-transparent" id="categorySelect" name="category">
-								<option value="-1" th:selected="${category == -1}">Tất cả danh mục</option>
+								<option value="-1" th:selected="${category == -1}" style="font-weight: bold;">Tất cả
+									danh mục</option>
 								<option th:each="cat : ${categories}" th:value="${cat.maDanhMuc}"
-									th:text="${cat.tenDanhMuc}" th:selected="${cat.maDanhMuc == category}"></option>
+									th:text="${cat.tenDanhMuc}" th:selected="${cat.maDanhMuc == category}"
+									style="font-weight: bold;"></option>
 							</select>
 						</div>
 						<div class="col-11 col-md-7">
@@ -95,40 +97,24 @@
 								placeholder="Tìm kiếm" th:value="${keyword}" />
 						</div>
 						<div class="col-2 col-md-1">
-							<button type="submit" class="btn btn-primary">Tìm kiếm</button>
+							<button type="submit" class="btn btn-primary" style=" white-space: nowrap;">Tìm
+								kiếm</button>
 						</div>
 					</form>
 				</div>
 			</div>
 
 			<div
-				class="col-sm-8 col-lg-4 d-flex justify-content-end gap-5 align-items-center mt-4 mt-sm-0 justify-content-center justify-content-sm-end">
+				class="col-sm-8 col-lg-4 d-flex justify-content-end gap-1 align-items-center mt-3 mt-sm-0 justify-content-center justify-content-sm-end">
 				<ul class="d-flex justify-content-end list-unstyled m-0">
 					<!-- Nếu người dùng đã đăng nhập thì hiển thị thông tin khách hàng -->
 					<li th:if="${#authentication.name != 'anonymousUser'}" class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" href="javascript:void(0)" id="userDropdown"
 							data-bs-toggle="dropdown" aria-expanded="false">
-							<!--<img th:src="@{/fe/images/up/aa.jpg}" alt="Avatar" class="rounded-circle" width="40"
-								height="40">-->
-							<!--<img th:src="${nguoiDung != null && nguoiDung.avatar != null ? '/upload/' + nguoiDung.avatar : '/fe/images/up/aa.jpg'}"
-								alt="Avatar" class="rounded-circle" width="40" height="40">-->
-							<!--<img th:src="${nguoiDung != null and nguoiDung.avatar != null ? '/upload/' + nguoiDung.avatar : '/fe/images/up/aa.jpg'}"
-								alt="Avatar" class="rounded-circle" width="40" height="40">-->
-							<!--<img th:src="${currentUser.avatar != null ? '/upload/' + currentUser.avatar : '/fe/images/up/aa.jpg'}"
-								alt="Avatar" class="rounded-circle" width="40" height="40">-->
 
-							<!--<img th:src="${currentUser != null && currentUser.avatar != null ? '/upload/' + currentUser.avatar : '/fe/images/up/aa.jpg'}"
-								alt="Avatar" class="rounded-circle" width="40" height="40" />-->
 							<img th:src="${currentUser != null and currentUser.avatar != null 
                 ? '/upload/' + currentUser.avatar + '?t=' + timestamp 
                 : '/fe/images/up/aa.jpg'}" alt="Avatar" class="rounded-circle" width="40" height="40" />
-
-
-
-
-
-
-
 
 
 						</a>
@@ -186,29 +172,7 @@
 						</a>
 					</li>
 
-					<!-- Đơn hàng Offcanvas 
-					<li>
-						<a class="rounded-circle bg-light p-2 mx-1" th:if="${#authentication.name == 'anonymousUser'}"
-							data-bs-toggle="offcanvas" data-bs-target="#offcanvasLoginAlert"
-							aria-controls="offcanvasLoginAlert">
-							<i class="fas fa-box"></i>
-						</a>
-						<a class="rounded-circle bg-light p-2 mx-1" th:if="${#authentication.name != 'anonymousUser'}"
-							data-bs-toggle="offcanvas" data-bs-target="#offcanvasOrders"
-							aria-controls="offcanvasOrders"
-							th:href="@{/customer/order}"
-							>
 
-							<div style="position: relative; display: inline-block;"><i class="fas fa-box" style="
-						font-size: 1rem;
-					    
-					     text-align: center;
-					     font-size: 1.2rem;
-					      
-					      "></i>
-							</div>
-						</a>
-					</li>-->
 					<!-- Đơn hàng -->
 					<li>
 						<a class="rounded-circle bg-light p-2 mx-1" th:if="${#authentication.name == 'anonymousUser'}"
@@ -243,32 +207,7 @@
 
 
 
-					<!-- Hộp thư Offcanvas -->
-					<li>
-						<a class="rounded-circle bg-light p-2 mx-1" th:if="${#authentication.name == 'anonymousUser'}"
-							data-bs-toggle="offcanvas" data-bs-target="#offcanvasLoginAlert"
-							aria-controls="offcanvasLoginAlert">
-							<i class="fas fa-envelope" style="
-						font-size: 1rem;
-					     text-align: center;
-					     font-size: 1.2rem;
-					      
-					      "></i>
-						</a>
-						<a class="rounded-circle bg-light p-2 mx-1" th:if="${#authentication.name != 'anonymousUser'}"
-							data-bs-toggle="offcanvas" data-bs-target="#offcanvasMessages"
-							aria-controls="offcanvasMessages">
-							<div style="position: relative; display: inline-block;">
 
-								<i class="fas fa-envelope" style="
-						font-size: 1rem;
-					     text-align: center;
-					     font-size: 1.2rem;
-					      
-					      "></i>
-							</div>
-						</a>
-					</li>
 
 					<!-- Giỏ hàng Offcanvas -->
 					<li>
@@ -284,11 +223,8 @@
 					      "></i>
 
 						</a>
-						<a class="rounded-circle bg-light p-2 mx-1" 
-						th:href="@{/customer/cart}"
-						th:if="${#authentication.name != 'anonymousUser'}"
-							
-							>
+						<a class="rounded-circle bg-light p-2 mx-1" th:href="@{/customer/cart}"
+							th:if="${#authentication.name != 'anonymousUser'}">
 							<div style="position: relative; display: inline-block;">
 								<i class="fas fa-shopping-cart" style="font-size: 1rem;
 					    
@@ -327,6 +263,8 @@
 
 
 			</div>
+			
+			
 			<!--	<div th:if="${success}" class="alert alert-success mt-3" role="alert">
 				<span th:text="${success}"></span>
 			</div>

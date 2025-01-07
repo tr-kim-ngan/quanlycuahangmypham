@@ -4,34 +4,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import com.kimngan.ComesticAdmin.entity.DanhGia;
 import com.kimngan.ComesticAdmin.entity.DanhMuc;
 import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DanhGiaService;
 import com.kimngan.ComesticAdmin.services.DanhMucService;
-import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.YeuThichService;
 import com.kimngan.ComesticAdmin.entity.SanPham;
-import com.kimngan.ComesticAdmin.repository.DanhGiaRepository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
@@ -60,8 +51,6 @@ public class CustomerController {
 
 	@Autowired
 	private DanhGiaService danhGiaService;
-	@Autowired
-	private DanhGiaRepository danhGiaRepository;
 	
 	@Autowired
 	private ChiTietDonNhapHangService chiTietDonNhapHangService;

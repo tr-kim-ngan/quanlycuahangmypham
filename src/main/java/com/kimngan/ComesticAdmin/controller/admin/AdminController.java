@@ -1,7 +1,7 @@
 package com.kimngan.ComesticAdmin.controller.admin;
 
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
-import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
+
 import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.HoaDonService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
@@ -14,17 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 
 
@@ -44,9 +36,7 @@ public class AdminController {
 	@Autowired
 	private HoaDonService hoaDonService;
 	
-	@Autowired
-    private ChiTietDonHangService chiTietDonHangService;
-
+	
 	@GetMapping({ "", "/index" })
 	public String adminHome(Model model) {
 		// Lấy thông tin người dùng đã đăng nhập

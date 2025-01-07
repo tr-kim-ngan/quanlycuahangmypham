@@ -38,12 +38,12 @@
 								<th style="text-align: center;">Stt</th>
 								<th style="text-align: center;">Tên sản phẩm</th>
 								<th style="text-align: center;">Hình ảnh</th>
-								<th style="text-align: center;">Mô tả</th>
+								<!--<th style="text-align: center;">Mô tả</th>-->
 								<th style="text-align: center;">Số lượng</th>
 								<th style="text-align: center;">Đơn giá</th>
 								<th style="text-align: center;">Khuyến mãi</th>
 
-								
+
 								<th style="text-align: center;">Giá sau khi giảm</th>
 								<!--<th style="text-align: center;">Đơn vị tính</th>
 								<th style="text-align: center;">Danh mục</th>-->
@@ -67,9 +67,16 @@
 								</td>
 
 
-								<td style="text-align: center;" th:text="${sanPham.moTa}"></td>
+								<!--	<td style="text-align: center;" th:text="${sanPham.moTa}"></td>-->
+							<!--	<td style="text-align: center;">
+									<span th:if="${#strings.length(sanPham.moTa) > 100}"
+										th:text="${sanPham.moTa.substring(0, 100) + '...'}"></span>
+									<span th:if="${#strings.length(sanPham.moTa) <= 100}"
+										th:text="${sanPham.moTa}"></span>
+								</td>-->
+
 								<td style="text-align: center;" th:text="${sanPham.soLuong}"></td>
-								
+
 								<!-- Đơn giá -->
 								<td style="text-align: center;" th:text="${sanPham.donGiaBan} + ' VND'">
 								</td>
@@ -90,7 +97,7 @@
 
 
 
-								
+
 								<!-- Cột giá sau khi giảm -->
 
 								<td style="text-align: center;">
@@ -106,7 +113,7 @@
 									</span>
 								</td>
 
-							<!--	<td style="text-align: center;" th:text="${sanPham.donViTinh.tenDonVi}"></td>
+								<!--	<td style="text-align: center;" th:text="${sanPham.donViTinh.tenDonVi}"></td>
 
 								<td style="text-align: center;" th:text="${sanPham.danhMuc.tenDanhMuc}"></td>-->
 

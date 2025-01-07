@@ -1,11 +1,10 @@
 package com.kimngan.ComesticAdmin.controller.admin;
 
 import com.kimngan.ComesticAdmin.entity.SanPham;
-//import com.kimngan.ComesticAdmin.entity.ThoiDiem;
+
 import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHang;
 import com.kimngan.ComesticAdmin.entity.DanhMuc;
-//import com.kimngan.ComesticAdmin.entity.DonGiaBanHang;
-//import com.kimngan.ComesticAdmin.entity.DonGiaBanHangId;
+
 import com.kimngan.ComesticAdmin.entity.DonViTinh;
 import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
@@ -13,12 +12,12 @@ import com.kimngan.ComesticAdmin.entity.NhaCungCap;
 import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
 import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DanhMucService;
-//import com.kimngan.ComesticAdmin.services.DonGiaBanHangService;
+
 import com.kimngan.ComesticAdmin.services.DonViTinhService;
 import com.kimngan.ComesticAdmin.services.NhaCungCapService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.StorageService;
-//import com.kimngan.ComesticAdmin.services.ThoiDiemService;
+
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -39,14 +38,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-//import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-//import java.util.List;
-//import java.time.LocalDateTime;
-//import java.time.ZoneId;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;

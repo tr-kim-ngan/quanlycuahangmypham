@@ -46,6 +46,7 @@
 							<tr>
 								<th style="text-align: center;">STT</th>
 								<th style="text-align: center;">Tên danh mục</th>
+								<th style="text-align: center;">Hình ảnh</th>
 								<th style="text-align: center;">Hành động</th>
 							</tr>
 						</thead>
@@ -58,14 +59,15 @@
 								<td style="text-align: center;" th:text="${(currentPage * size) + iterStat.count}"></td>
 								<td style="text-align: center;" th:text="${danhMuc.tenDanhMuc}"></td>
 								<td style="text-align: center;">
-									<!--<a th:href="@{/admin/edit-category/{id}(id=${danhMuc.maDanhMuc})}" class="btn btn-warning btn-sm"
-										style="margin-right: 5px;">
-										<i class="fas fa-edit">Sửa
-									</a>
-									<a th:href="@{/admin/delete-category/{id}(id=${danhMuc.maDanhMuc})}"
-										onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');" class="btn btn-danger btn-sm"><i
-											class="fas fa-trash-alt">Xóa
-									</a>-->
+									<!-- Hiển thị hình ảnh -->
+									<div>
+										
+									</div>
+									<img th:src="@{/upload/} + ${danhMuc.hinhAnh}" alt="Hình danh mục"
+										style="width: 80px; height: 80px; object-fit: cover;  border-radius: 50%;">
+								</td>
+								<td style="text-align: center;">
+									
 
 
 

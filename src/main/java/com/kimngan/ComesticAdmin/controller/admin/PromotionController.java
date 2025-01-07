@@ -6,9 +6,9 @@ import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.services.KhuyenMaiService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 
-import java.util.HashSet;
+
 import java.util.List;
-import java.util.Optional;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -172,23 +172,7 @@ public class PromotionController {
         return "redirect:/admin/edit-promotion/" + id;// Điều hướng về danh sách khuyến mãi sau khi cập nhật thành công
     }
     
-//    
-//    @GetMapping("/edit-promotion/{id}/add-product")
-//    public String showAddProductPage(@PathVariable("id") Integer id, Model model) {
-//        // Lấy khuyến mãi hiện tại
-//        KhuyenMai existingKhuyenMai = khuyenMaiService.findById(id);
-//        if (existingKhuyenMai == null) {
-//            return "redirect:/admin/promotion"; // Quay lại nếu không tìm thấy khuyến mãi
-//        }
-//
-//        // Lấy danh sách sản phẩm có trạng thái true
-//        List<SanPham> listSanPham = sanPhamService.findByTrangThai(true);
-//        
-//        model.addAttribute("khuyenMai", existingKhuyenMai);
-//        model.addAttribute("listSanPham", listSanPham);
-//
-//        return "admin/promotion/edit"; // Trả về trang edit với danh sách sản phẩm
-//    }
+
 
     @PostMapping("/edit-promotion/{id}/add-product")
     public String addProductToPromotion(@PathVariable("id") Integer id, 

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head ::head">
+    <title>Quản lý Thương hiệu</title>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div th:replace="admin/fragments/sidebar::sidebar"> </div>
+        <!-- End Sidebar -->
+
+        <div class="main-panel">
+            <!-- Header -->
+            <div th:replace="admin/fragments/header :: header"></div>
+            <!-- End Header -->
+
+            <div class="container" style="background-color: #faeee7;">
+                <div class="page-inner">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="fw-bold mb-3">Thương hiệu</h3>
+                            <h6 class="op-7 mb-2">Danh sách các thương hiệu</h6>
+                        </div>
+                        <!-- Nút Thêm thương hiệu -->
+                        <div>
+                            <a th:href="@{/admin/add-brand}" class="btn btn-success btn-lg"
+                                style="background-color: #28a745;">
+                                Thêm thương hiệu
+                            </a>
+                        </div>
+                    </div>
+                    <div th:if="${error}" class="alert alert-danger" role="alert">
+                        <p th:text="${error}"></p>
+                    </div>
+                    <div th:if="${success}" class="alert alert-success" role="alert">
+                        <p th:text="${success}"></p>
+                    </div>
+
+                    <!-- Bảng danh sách thương hiệu -->
+                    <table class="table table-hover table-bordered"
+                        style="background-color: white; border-radius: 8px;">
+                        <thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
+                            <tr>
+                                <th style="text-align: center;">STT</th>
+                                <th style="text-align: center;">Tên thương hiệu</th>
+                                <th style="text-align: center;">Hình ảnh</th>
+                                <th style="text-align: center;">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${listThuongHieu.isEmpty()}">
+                                <td colspan="4" style="text-align: center;">Không có thương hiệu nào được tìm thấy</td>
+                            </tr>
+
+                            <tr th:each="thuongHieu, iterStat : ${listThuongHieu}" th:unless="${listThuongHieu.isEmpty()}">
+                                <td style="text-align: center;" th:text="${(currentPage * size) + iterStat.count}"></td>
+                                <td style="text-align: center;" th:text="${thuongHieu.tenThuongHieu}"></td>
+                                <td style="text-align: center;">
+                                    <!-- Hiển thị hình ảnh -->
+                                    <img th:src="@{/upload/} + ${thuongHieu.hinhAnh}" alt="Hình thương hiệu"
+                                        style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;">
+                                </td>
+                                <td style="text-align: center;">
+                                    <a th:href="@{/admin/edit-brand/{id}(id=${thuongHieu.maThuongHieu})}"
+                                        class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <a th:href="@{/admin/delete-brand/{id}(id=${thuongHieu.maThuongHieu})}"
+                                        onclick="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này?');"
+                                        class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash-alt"></i> Xóa
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!-- Phân trang -->
+                    <div th:if="${totalPages > 0}">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                <!-- Nút mũi tên trái (trước) -->
+                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                    <a class="page-link"
+                                        th:href="@{/admin/brand(page=${currentPage - 1}, keyword=${keyword})}"
+                                        aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+
+                                <!-- Hiển thị các số trang -->
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                    th:classappend="${i == currentPage} ? 'active'">
+                                    <a class="page-link"
+                                        th:href="@{/admin/brand(page=${i}, keyword=${keyword})}" th:text="${i + 1}"></a>
+                                </li>
+
+                                <!-- Nút mũi tên phải (sau) -->
+                                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                                    <a class="page-link"
+                                        th:href="@{/admin/brand(page=${currentPage + 1}, keyword=${keyword})}"
+                                        aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <!-- Kết thúc phân trang -->
+                </div>
+            </div>
+            <!-- Footer -->
+            <div th:replace="admin/fragments/footer::footer"></div>
+            <!-- End Footer -->
+        </div>
+    </div>
+    <!-- Core JS Files -->
+    <div th:replace="admin/fragments/script::script"> </div>
+    <!-- Kết thúc JS-->
+</body>
+
+</html>
