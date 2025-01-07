@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head::head">
+    <title>Chỉnh sửa thương hiệu</title>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div th:replace="admin/fragments/sidebar::sidebar"></div>
+        <div class="main-panel">
+            <div th:replace="admin/fragments/header::header"></div>
+            <div class="container" style="background-color: #faeee7;">
+                <div class="page-inner">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="fw-bold mb-3">Chỉnh sửa thương hiệu</h3>
+                            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Lỗi!</strong> <span th:text="${error}"></span>
+                            </div>
+
+                            <!-- Hiển thị thông báo lỗi nếu có -->
+                            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert"
+                                style="padding-right: 50px; position: relative;">
+                                <strong>Lỗi!</strong> <span th:text="${error}"></span>
+                            </div>
+
+                            <!-- Form chỉnh sửa thương hiệu -->
+                            <form th:action="@{/admin/edit-brand}" th:object="${thuongHieu}" method="post"
+                                enctype="multipart/form-data" onsubmit="return validateFileSize()">
+                                <input type="hidden" th:field="*{maThuongHieu}" />
+                                <div class="form-group">
+                                    <label for="tenThuongHieu">Tên thương hiệu:</label>
+                                    <input type="text" th:field="*{tenThuongHieu}" class="form-control"
+                                        placeholder="Nhập tên thương hiệu">
+                                </div>
+
+                                <!-- Hiển thị hình ảnh hiện tại -->
+                                <div class="form-group">
+                                    <label for="currentImage">Hình ảnh hiện tại:</label>
+                                    <div>
+                                        <img th:src="@{/upload/} + ${thuongHieu.hinhAnh}" alt="Hình thương hiệu"
+                                            style="width: 150px; height: 150px; object-fit: cover;">
+                                    </div>
+                                </div>
+
+                                <!-- Tải ảnh mới -->
+                                <div class="form-group">
+                                    <label for="imageFile">Chọn ảnh mới:</label>
+                                    <input type="file" id="imageFile" name="imageFile" class="form-control"
+                                        accept="image/*">
+                                </div>
+                                <button type="submit" class="btn btn-success">Cập nhật</button>
+                                <a href="/admin/brand" class="btn btn-secondary">Hủy</a>
+                            </form>
+
+                            <script>
+                                function validateFileSize() {
+                                    const fileInput = document.getElementById('imageFile');
+                                    const maxFileSize = 2 * 1024 * 1024; // 2MB
+
+                                    if (fileInput.files.length > 0) {
+                                        const file = fileInput.files[0];
+
+                                        if (file.size > maxFileSize) {
+                                            alert('Kích thước ảnh không được vượt quá 2MB!');
+                                            return false; // Ngăn form submit
+                                        }
+                                    }
+
+                                    return true; // Tiếp tục submit nếu kiểm tra đạt
+                                }
+                            </script>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:replace="admin/fragments/footer::footer"></div>
+        </div>
+    </div>
+    <div th:replace="admin/fragments/script::script"></div>
+</body>
+
+</html>

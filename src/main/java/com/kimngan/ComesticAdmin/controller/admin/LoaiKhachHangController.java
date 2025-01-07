@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes; // Đảm bảo import này
 
 import com.kimngan.ComesticAdmin.entity.LoaiKhachHang;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;

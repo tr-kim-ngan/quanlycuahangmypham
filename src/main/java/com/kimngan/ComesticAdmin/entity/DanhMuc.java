@@ -14,6 +14,9 @@ public class DanhMuc {
 
     @Column(name = "tenDanhMuc", length = 100, nullable = false)
     private String tenDanhMuc;
+ // Thuộc tính lưu đường dẫn hoặc tên ảnh
+    @Column(name = "hinhAnh", length = 255)
+    private String hinhAnh;
     
     // quan hệ với SanPham(One -to - Many)
     @OneToMany(mappedBy = "danhMuc")
@@ -23,17 +26,13 @@ public class DanhMuc {
    
     public DanhMuc() {}
      
-    
-    
-
-    public DanhMuc(Integer maDanhMuc, String tenDanhMuc, Set<SanPham> sanPhams) {
+	public DanhMuc(Integer maDanhMuc, String tenDanhMuc, String hinhAnh, Set<SanPham> sanPhams) {
 		super();
 		this.maDanhMuc = maDanhMuc;
 		this.tenDanhMuc = tenDanhMuc;
+		this.hinhAnh = hinhAnh;
 		this.sanPhams = sanPhams;
 	}
-
-
 
 
 	// Getters and Setters
@@ -59,4 +58,13 @@ public class DanhMuc {
     public void setSanPhams(Set<SanPham> sanPhams) {
 		this.sanPhams = sanPhams;
 	}
+
+	public String getHinhAnh() {
+		return hinhAnh;
+	}
+
+	public void setHinhAnh(String hinhAnh) {
+		this.hinhAnh = hinhAnh;
+	}
+    
 }

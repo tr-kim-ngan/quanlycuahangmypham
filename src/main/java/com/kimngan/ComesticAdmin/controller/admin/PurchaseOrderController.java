@@ -23,7 +23,6 @@ import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -112,8 +111,7 @@ public class PurchaseOrderController {
 		model.addAttribute("user", userDetails);
 
 		// Điều hướng đến trang thêm chi tiết đơn nhập hàng
-		// return "redirect:/admin/purchaseorder/add-details/" +
-		// donNhapHang.getMaDonNhapHang();
+	
 		return "redirect:/admin/add-purchase-order-detail/" + donNhapHang.getMaDonNhapHang();
 		// nó sẽ logic chuyển đến url admin/add-purchase-order-detail chứ không phải
 		// file html
@@ -128,9 +126,7 @@ public class PurchaseOrderController {
 			model.addAttribute("errorMessage", "Không tìm thấy đơn nhập hàng.");
 			return "redirect:/admin/purchaseorder";
 		}
-		// model.addAttribute("donNhapHang", donNhapHang);
-		// model.addAttribute("products", sanPhamService.getAll()); // Lấy danh sách sản
-		// phẩm
+
 
 		List<SanPham> sanPhams = sanPhamService.findByTrangThai(true); // Lấy danh sách sản phẩm còn hoạt động
 		model.addAttribute("sanPhams", sanPhams);
@@ -176,7 +172,6 @@ public class PurchaseOrderController {
 		}
 
 		// Cập nhật tổng giá trị nhập hàng trong đơn nhập hàng
-		// Cập nhật tổng giá trị nhập hàng trong đơn nhập hàng
 		donNhapHang.setTongGiaTriNhapHang(tongGiaTriNhap);
 		donNhapHangService.update(donNhapHang);
 		// Đưa lại danh sách chi tiết đơn hàng đã thêm
@@ -195,8 +190,6 @@ public class PurchaseOrderController {
 		// Trả về lại trang thêm chi tiết để có thể tiếp tục thêm sản phẩm khác
 		model.addAttribute("donNhapHang", donNhapHang);
 		model.addAttribute("products", sanPhamService.getAll()); // Lấy danh sách sản phẩm
-		// List<ChiTietDonNhapHang> chiTietList =
-		// chiTietDonNhapHangService.findByDonNhapHang(donNhapHang);
 		model.addAttribute("chiTietList", chiTietList);
 
 		return "admin/purchaseorder/add-details"; // Trả về trang thêm chi tiết }
@@ -249,12 +242,6 @@ public class PurchaseOrderController {
 				// Cập nhật số lượng và đơn giá
 				chiTiet.setSoLuongNhap(soLuongNhap.get(i));
 				chiTiet.setDonGiaNhap(donGiaNhap.get(i));
-
-				// Tính giá trị nhập
-				// BigDecimal giaTriNhap = donGiaNhap.get(i).multiply(new
-				// BigDecimal(soLuongNhap.get(i)));
-				// tongGiaTriNhap = tongGiaTriNhap.add(giaTriNhap);
-
 				// Cập nhật chi tiết đơn nhập hàng
 				chiTietDonNhapHangService.update(chiTiet);
 			}
@@ -273,25 +260,7 @@ public class PurchaseOrderController {
 		return "redirect:/admin/purchaseorder";
 	}
 
-	// Thêm chi tiết đơn nhập hàng
-//	@PostMapping("/add-purchase-order-detail/{maDonNhapHang}")
-//	public String addPurchaseOrderDetail(
-//			@PathVariable("maDonNhapHang") Integer maDonNhapHang,
-//			@RequestParam("sanPhamIds") Integer sanPhamIds, 
-//			@RequestParam("soLuongNhap") Integer soLuongNhap,
-//			@RequestParam("donGiaNhap") BigDecimal donGiaNhap) {
-//
-//		DonNhapHang donNhapHang = donNhapHangService.findById(maDonNhapHang);
-//
-//		ChiTietDonNhapHang chiTiet = new ChiTietDonNhapHang();
-//		chiTiet.setDonNhapHang(donNhapHang);
-//		chiTiet.setSanPham(sanPhamService.findById(sanPhamIds));
-//		chiTiet.setSoLuongNhap(soLuongNhap);
-//		chiTiet.setDonGiaNhap(donGiaNhap);
-//
-//		chiTietDonNhapHangService.create(chiTiet);
-//		return "redirect:/admin/purchaseorder/" + maDonNhapHang;
-//	}
+
 	@PostMapping("/add-purchase-order-detail/{maDonNhapHang}")
 	public String addPurchaseOrderDetail(@PathVariable("maDonNhapHang") Integer maDonNhapHang,
 			@RequestParam("sanPhamIds") Integer sanPhamIds, @RequestParam("soLuongNhap") Integer soLuongNhap,
@@ -388,8 +357,6 @@ public class PurchaseOrderController {
 			chiTiet.setDonGiaNhap(BigDecimal.ZERO);
 			chiTietDonNhapHangService.update(chiTiet);
 
-			// Cập nhật tổng giá trị nhập hàng sau khi ẩn chi tiết
-			// DonNhapHang donNhapHang = donNhapHangService.findById(maDonNhapHang);
 			// Cập nhật lại tổng giá trị của đơn nhập hàng
 			DonNhapHang donNhapHang = chiTiet.getDonNhapHang();
 			BigDecimal tongGiaTriNhap = BigDecimal.ZERO;
@@ -398,15 +365,7 @@ public class PurchaseOrderController {
 					.filter(ct -> ct.isTrangThai()) // Lọc những chi tiết còn hoạt động
 					.collect(Collectors.toList());
 
-			// if (donNhapHang != null) {
-			// BigDecimal tongGiaTriNhap = BigDecimal.ZERO;
-
-//	            // Tính lại tổng giá trị sau khi ẩn chi tiết
-//	            List<ChiTietDonNhapHang> chiTietList = chiTietDonNhapHangService.findByDonNhapHang(donNhapHang)
-//	                    .stream()
-//	                    .filter(ct -> ct.isTrangThai()) // Lọc những chi tiết còn hoạt động
-//	                    .collect(Collectors.toList());
-
+		
 			for (ChiTietDonNhapHang ct : chiTietList) {
 				BigDecimal giaTriNhap = ct.getDonGiaNhap().multiply(new BigDecimal(ct.getSoLuongNhap()));
 				tongGiaTriNhap = tongGiaTriNhap.add(giaTriNhap);
@@ -420,41 +379,7 @@ public class PurchaseOrderController {
 		//return "redirect:/admin/edit/" + maDonNhapHang;
 	}
 
-//	@PostMapping("/delete-purchase-order/{maDonNhapHang}")
-//	public String deletePurchaseOrder(@PathVariable("maDonNhapHang") Integer maDonNhapHang, Model model) {
-//
-//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
-//		model.addAttribute("user", userDetails);
-//
-//		DonNhapHang donNhapHang = donNhapHangService.findById(maDonNhapHang);
-//
-//		if (donNhapHang == null) {
-//			model.addAttribute("errorMessage", "Đơn nhập hàng không tồn tại.");
-//			return "redirect:/admin/purchaseorder";
-//		}
-//
-//		// Kiểm tra xem đơn nhập hàng có chi tiết không
-//		List<ChiTietDonNhapHang> chiTietList = chiTietDonNhapHangService.findByDonNhapHang(donNhapHang);
-//
-//		if (!chiTietList.isEmpty()) {
-//			// Nếu có chi tiết đơn nhập hàng thì không cho phép xóa và hiển thị thông báo
-//			// lỗi
-//			model.addAttribute("errorMessage", "Không thể xóa đơn nhập hàng đã có chi tiết.");
-//			return "redirect:/admin/purchaseorder";
-//		}
-//
-//		// Nếu tổng giá trị nhập hàng là 0 thì cho phép xóa
-//		if (donNhapHang.getTongGiaTriNhapHang().compareTo(BigDecimal.ZERO) == 0) {
-//			donNhapHang.setTrangThai(false); // Ẩn đơn nhập hàng bằng cách chuyển trạng thái
-//			donNhapHangService.update(donNhapHang);
-//			model.addAttribute("successMessage", "Xóa đơn nhập hàng thành công.");
-//		} else {
-//			model.addAttribute("errorMessage", "Không thể xóa đơn nhập hàng đã có chi tiết.");
-//		}
-//
-//		return "redirect:/admin/purchaseorder";
-//	}
+
 	@PostMapping("/delete-purchase-order/{id}")
 	public String deletePurchaseOrder(@PathVariable("id") Integer maDonNhapHang,
 			RedirectAttributes redirectAttributes) {

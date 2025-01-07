@@ -73,13 +73,7 @@ public class CustomerUserController {
 		return "customer/login";
 	}
 
-//    @ModelAttribute("nguoiDung")
-//    public NguoiDung getLoggedUser(Principal principal) {
-//        if (principal != null) {
-//            return nguoiDungService.findByTenNguoiDung(principal.getName());
-//        }
-//        return null;
-//    }
+
 	// Thêm thông tin người dùng hiện tại vào model
 	@ModelAttribute("currentUser")
 	public NguoiDung getCurrentUser(Principal principal) {
@@ -108,35 +102,7 @@ public class CustomerUserController {
 		return "customer/account"; // Hiển thị file account.html
 	}
 
-	// **Phương thức xử lý cập nhật thông tin tài khoản**
-//    @PostMapping("/account")
-//    public String updateAccount(@ModelAttribute("nguoiDung") NguoiDung updatedUser, Principal principal, RedirectAttributes redirectAttributes) {
-//        if (principal == null) {
-//            return "redirect:/customer/login";
-//        }
-//
-//        try {
-//            // Lấy thông tin người dùng hiện tại
-//            NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
-//
-//            // Cập nhật thông tin
-//            currentUser.setTenNguoiDung(updatedUser.getTenNguoiDung());
-//            currentUser.setEmail(updatedUser.getEmail());
-//            currentUser.setSoDienThoai(updatedUser.getSoDienThoai());
-//            currentUser.setDiaChi(updatedUser.getDiaChi());
-//
-//            // Lưu thay đổi
-//            nguoiDungService.save(currentUser);
-//
-//            // Thông báo thành công
-//            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật thông tin thành công!");
-//        } catch (Exception e) {
-//            // Thông báo lỗi nếu có
-//            redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi khi cập nhật thông tin.");
-//        }
-//
-//        return "redirect:/customer/account";
-//    }
+
 	@PostMapping("/account")
 	public String updateAccount(@ModelAttribute("nguoiDung") NguoiDung updatedUser,
 			@RequestParam("avatarFile") MultipartFile avatarFile, Principal principal,

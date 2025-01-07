@@ -14,8 +14,6 @@ import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,16 +21,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
-import java.util.HashMap;
 
 @Controller
 @RequestMapping("/customer/order")
@@ -83,12 +78,10 @@ public class DonHangController {
 	@GetMapping("/{maDonHang}")
 	public String viewOrderDetail(@PathVariable Integer maDonHang, Model model) {
 		DonHang donHang = donHangService.getDonHangById(maDonHang);
-		LocalDate today = LocalDate.now();
 
 		// Tính giá trị thành tiền cho từng sản phẩm trong đơn hàng
 		Map<ChiTietDonHang, BigDecimal> thanhTienMap = new HashMap<>();
 		for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-			SanPham sanPham = chiTiet.getSanPham();
 			BigDecimal giaSauKhuyenMai = chiTiet.getGiaTaiThoiDiemDat(); // Lấy giá tại thời điểm đặt từ chi tiết đơn
 																			// hàng
 

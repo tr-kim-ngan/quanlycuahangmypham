@@ -12,9 +12,5 @@ public class UserController {
         return "admin/login";  // Điều hướng đến trang login.html
     }
 
-    // Điều hướng sau khi đăng xuất
-//    @GetMapping("/logout")
-//    public String logout() {
-//        return "logout";  // Điều hướng đến trang logout.html
-//    }
+
 }

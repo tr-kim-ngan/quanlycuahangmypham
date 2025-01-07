@@ -1,6 +1,5 @@
 package com.kimngan.ComesticAdmin.controller.admin;
 
-import com.kimngan.ComesticAdmin.entity.DanhMuc;
 import com.kimngan.ComesticAdmin.entity.DonViTinh;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.services.DonViTinhService;
