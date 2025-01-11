@@ -8,60 +8,71 @@
 <body>
     <div class="wrapper">
         <!-- Sidebar -->
-        <div th:replace="admin/fragments/sidebar::sidebar"> </div>
+        <div th:replace="admin/fragments/sidebar::sidebar"></div>
         <!-- End Sidebar -->
 
         <div class="main-panel">
             <!-- Header -->
-            <div th:replace="admin/fragments/header::header"> </div>
+            <div th:replace="admin/fragments/header::header"></div>
             <!-- End Header -->
 
-            <div class="container" style="background-color: #faeee7;">
+            <div class="container py-4" style="background-color: #faeee7;">
                 <div class="page-inner">
-                    <h3 class="fw-bold mb-3">Thêm chương trình khuyến mãi</h3>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold">Thêm chương trình khuyến mãi</h3>
+                    </div>
 
                     <!-- Form thêm khuyến mãi -->
-                    <form th:action="@{/admin/add-promotion}" method="post" th:object="${khuyenMai}">
-                        
-                        <!-- Tên khuyến mãi -->
-                        <div class="form-group">
-                            <label for="tenKhuyenMai">Tên khuyến mãi</label>
-                            <input type="text" class="form-control" id="tenKhuyenMai" placeholder="Nhập tên khuyến mãi"
-                                   th:field="*{tenKhuyenMai}" required>
-                        </div>
+                    <div class="card shadow-sm p-4">
+                        <form th:action="@{/admin/add-promotion}" method="post" th:object="${khuyenMai}">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Tên khuyến mãi -->
+                                    <div class="form-group mb-3">
+                                        <label for="tenKhuyenMai" class="fw-bold">Tên khuyến mãi</label>
+                                        <input type="text" class="form-control" id="tenKhuyenMai" placeholder="Nhập tên khuyến mãi"
+                                            th:field="*{tenKhuyenMai}" required>
+                                    </div>
 
-                        <!-- Mô tả -->
-                        <div class="form-group">
-                            <label for="moTa">Mô tả</label>
-                            <textarea class="form-control" id="moTa" rows="3" placeholder="Nhập mô tả"
-                                      th:field="*{moTa}" required></textarea>
-                        </div>
+                                    <!-- Mô tả -->
+                                    <div class="form-group mb-3">
+                                        <label for="moTa" class="fw-bold">Mô tả</label>
+                                        <textarea class="form-control" id="moTa" rows="3" placeholder="Nhập mô tả"
+                                            th:field="*{moTa}" required></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <!-- Phần trăm giảm giá -->
+                                    <div class="form-group mb-3">
+                                        <label for="phanTramGiamGia" class="fw-bold">Phần trăm giảm giá (%)</label>
+                                        <input type="number" class="form-control" id="phanTramGiamGia" min="0" max="100"
+                                            placeholder="Nhập phần trăm giảm giá" th:field="*{phanTramGiamGia}" required>
+                                    </div>
 
-                        <!-- Phần trăm giảm giá -->
-                        <div class="form-group">
-                            <label for="phanTramGiamGia">Phần trăm giảm giá (%)</label>
-                            <input type="number" class="form-control" id="phanTramGiamGia" min="0" max="100"
-                                   placeholder="Nhập phần trăm giảm giá" th:field="*{phanTramGiamGia}" required>
-                        </div>
+                                    <!-- Ngày bắt đầu -->
+                                    <div class="form-group mb-3">
+                                        <label for="ngayBatDau" class="fw-bold">Ngày bắt đầu</label>
+                                        <input type="date" class="form-control" id="ngayBatDau"
+                                            th:field="*{ngayBatDau}" required>
+                                    </div>
 
-                        <!-- Ngày bắt đầu -->
-                        <div class="form-group">
-                            <label for="ngayBatDau">Ngày bắt đầu</label>
-                            <input type="date" class="form-control" id="ngayBatDau"
-                                   th:field="*{ngayBatDau}" required>
-                        </div>
+                                    <!-- Ngày kết thúc -->
+                                    <div class="form-group mb-3">
+                                        <label for="ngayKetThuc" class="fw-bold">Ngày kết thúc</label>
+                                        <input type="date" class="form-control" id="ngayKetThuc"
+                                            th:field="*{ngayKetThuc}" required>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <!-- Ngày kết thúc -->
-                        <div class="form-group">
-                            <label for="ngayKetThuc">Ngày kết thúc</label>
-                            <input type="date" class="form-control" id="ngayKetThuc"
-                                   th:field="*{ngayKetThuc}" required>
-                        </div>
-
-                        <!-- Nút thêm khuyến mãi -->
-                        <button type="submit" class="btn btn-success mt-3">Thêm khuyến mãi</button>
-                        <a th:href="@{/admin/promotion}" class="btn btn-secondary mt-3">Quay lại</a>
-                    </form>
+                            <div class="d-flex gap-2 mt-3">
+                                <!-- Nút thêm khuyến mãi -->
+                                <button type="submit" class="btn btn-success">Thêm khuyến mãi</button>
+                                <a th:href="@{/admin/promotion}" class="btn btn-secondary">Quay lại</a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -72,7 +83,7 @@
     </div>
 
     <!-- JS -->
-    <div th:replace="admin/fragments/script::script"> </div>
+    <div th:replace="admin/fragments/script::script"></div>
 </body>
 
 </html>

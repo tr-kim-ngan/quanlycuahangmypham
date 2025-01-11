@@ -1,8 +1,9 @@
 package com.kimngan.ComesticAdmin.controller.admin;
 
 import com.kimngan.ComesticAdmin.entity.SanPham;
-
+import com.kimngan.ComesticAdmin.entity.ThuongHieu;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHang;
+import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHangId;
 import com.kimngan.ComesticAdmin.entity.DanhMuc;
 
 import com.kimngan.ComesticAdmin.entity.DonViTinh;
@@ -17,7 +18,7 @@ import com.kimngan.ComesticAdmin.services.DonViTinhService;
 import com.kimngan.ComesticAdmin.services.NhaCungCapService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.StorageService;
-
+import com.kimngan.ComesticAdmin.services.ThuongHieuService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -38,7 +39,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.text.DecimalFormat;
 
 @Controller
 @RequestMapping("/admin")
@@ -74,6 +75,9 @@ public class ProductController {
 	@Autowired
 	private ChiTietDonHangService chiTietDonHangService;
 
+	@Autowired
+	private ThuongHieuService thuongHieuService;
+
 	// Hiển thị danh sách sản phẩm
 	@GetMapping("/product")
 	public String index(HttpServletRequest request, Model model,
@@ -84,45 +88,53 @@ public class ProductController {
 
 	) {
 
+		Page<SanPham> pageSanPham = Page.empty();
 
+		if (maDanhMuc != null && maDanhMuc > 0) {
+			if (keyword != null && !keyword.isEmpty()) {
+				// Tìm kiếm theo danh mục và từ khóa
+				pageSanPham = sanPhamService.searchByCategoryAndName(maDanhMuc, keyword, PageRequest.of(page, size));
+				model.addAttribute("category", maDanhMuc);
+				model.addAttribute("keyword", keyword);
+			} else {
+				// Tìm kiếm theo danh mục và trạng thái
+				pageSanPham = sanPhamService.findByDanhMucAndTrangThaiWithPagination(maDanhMuc, true,
+						PageRequest.of(page, size));
+				model.addAttribute("category", maDanhMuc);
+			}
+		} else if (keyword != null && !keyword.isEmpty()) {
+			// Tìm kiếm theo từ khóa sản phẩm
+			pageSanPham = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
+			model.addAttribute("keyword", keyword);
+		} else {
+			// Tìm tất cả sản phẩm hoạt động
+			pageSanPham = sanPhamService.findAllActive(PageRequest.of(page, size));
+		}
 
-		 Page<SanPham> pageSanPham = Page.empty();
+		// Kiểm tra nếu không có sản phẩm nào được tìm thấy
+		if (pageSanPham.isEmpty()) {
+			model.addAttribute("errorMessage", "Không có sản phẩm nào được tìm thấy");
+		}
 
-		  if (maDanhMuc != null && maDanhMuc > 0) {
-		        if (keyword != null && !keyword.isEmpty()) {
-		            // Tìm kiếm theo danh mục và từ khóa
-		            pageSanPham = sanPhamService.searchByCategoryAndName(maDanhMuc, keyword, PageRequest.of(page, size));
-		            model.addAttribute("category", maDanhMuc);
-		            model.addAttribute("keyword", keyword);
-		        } else {
-		            // Tìm kiếm theo danh mục và trạng thái
-		            pageSanPham = sanPhamService.findByDanhMucAndTrangThaiWithPagination(maDanhMuc, true, PageRequest.of(page, size));
-		            model.addAttribute("category", maDanhMuc);
-		        }
-		    } else if (keyword != null && !keyword.isEmpty()) {
-		        // Tìm kiếm theo từ khóa sản phẩm
-		        pageSanPham = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
-		        model.addAttribute("keyword", keyword);
-		    } else {
-		        // Tìm tất cả sản phẩm hoạt động
-		        pageSanPham = sanPhamService.findAllActive(PageRequest.of(page, size));
-		    }
-
-		    // Kiểm tra nếu không có sản phẩm nào được tìm thấy
-		    if (pageSanPham.isEmpty()) {
-		        model.addAttribute("errorMessage", "Không có sản phẩm nào được tìm thấy");
-		    }
-		
-		
-		
 		List<SanPham> sanPhams = pageSanPham.getContent();
 		LocalDate today = LocalDate.now();
 
 		// Sử dụng Map với maSanPham làm key
 		Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
 		Map<SanPham, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
-
+		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+		Map<Integer, String> formattedPrices = new HashMap<>();
+		Map<Integer, String> formattedDiscountPrices = new HashMap<>();
 		for (SanPham sanPham : sanPhams) {
+			// Định dạng giá bán
+			// Kiểm tra và định dạng giá gốc
+			if (sanPham.getDonGiaBan() != null) {
+				String formattedPrice = decimalFormat.format(sanPham.getDonGiaBan()) + " VND";
+				formattedPrices.put(sanPham.getMaSanPham(), formattedPrice);
+			} else {
+				formattedPrices.put(sanPham.getMaSanPham(), "0.00 VND");
+			}
+
 			// Tìm khuyến mãi cao nhất hiện tại có trạng thái true
 			Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
 					.filter(km -> km.getTrangThai()) // Chỉ lấy khuyến mãi có trạng thái true
@@ -138,9 +150,13 @@ public class ProductController {
 				BigDecimal giaGoc = sanPham.getDonGiaBan();
 				BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
 				BigDecimal giaSauGiam = giaGoc.subtract(giaGoc.multiply(phanTramGiam).divide(new BigDecimal(100)));
-				sanPhamGiaSauGiamMap.put(sanPham, giaSauGiam); // Lưu giá sau khi giảm
+
+				// Định dạng giá sau khi giảm
+				String formattedDiscountPrice = decimalFormat.format(giaSauGiam) + " VND";
+				formattedDiscountPrices.put(sanPham.getMaSanPham(), formattedDiscountPrice);
 			} else {
-				sanPhamGiaSauGiamMap.put(sanPham, sanPham.getDonGiaBan()); // Không có khuyến mãi, giữ nguyên giá gốc
+				// Nếu không có khuyến mãi, giá sau khi giảm = giá gốc
+				formattedDiscountPrices.put(sanPham.getMaSanPham(), formattedPrices.get(sanPham.getMaSanPham()));
 			}
 
 		}
@@ -154,8 +170,9 @@ public class ProductController {
 		model.addAttribute("totalPages", pageSanPham.getTotalPages());
 		model.addAttribute("size", size);
 		model.addAttribute("searchAction", "/admin/product"); // Đường dẫn cho tìm kiếm
-		
-		
+		model.addAttribute("formattedPrices", formattedPrices);
+		model.addAttribute("formattedDiscountPrices", formattedDiscountPrices);
+
 		// Thêm thông tin danh mục cho dropdown
 		// Thêm danh mục cho dropdown
 		List<DanhMuc> listDanhMuc = danhMucService.getAll(); // Không cần kiểm tra trạng thái
@@ -164,8 +181,7 @@ public class ProductController {
 		// Thêm requestUri vào model để sử dụng trong header
 		model.addAttribute("requestUri", request.getRequestURI());
 		// Thêm thông tin người dùng để hiển thị
-		
-		
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);
@@ -224,7 +240,9 @@ public class ProductController {
 			// Trả về trang danh sách sản phẩm với kết quả tìm kiếm
 			return "admin/product/index";
 		}
-
+		// Lấy danh sách thương hiệu
+		List<ThuongHieu> listThuongHieu = thuongHieuService.getAll();
+		model.addAttribute("listThuongHieu", listThuongHieu);
 		// Nếu không có từ khóa, trả về trang thêm sản phẩm
 		List<NhaCungCap> activeSuppliers = nhaCungCapService.findByTrangThaiTrue();
 		model.addAttribute("activeSuppliers", activeSuppliers);
@@ -243,10 +261,9 @@ public class ProductController {
 	@PostMapping("/add-product")
 	public String saveProduct(@ModelAttribute("sanPham") SanPham sanPham,
 			@RequestParam("donViTinh") Integer donViTinhId,
-
-			@RequestParam(value = "nhaCungCapId", required = false) Integer nhaCungCapId, 
-			@RequestParam("imageFile") MultipartFile imageFile,
-			Model model) {
+			@RequestParam(value = "thuongHieuId", required = false) Integer thuongHieuId,
+			@RequestParam(value = "nhaCungCapId", required = false) Integer nhaCungCapId,
+			@RequestParam("imageFile") MultipartFile imageFile, Model model) {
 		sanPham.setSoLuong(0);
 		// Thêm đoạn code lấy thông tin người dùng
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -254,24 +271,31 @@ public class ProductController {
 		model.addAttribute("user", userDetails);
 
 		// Tìm nhà cung cấp theo ID
-		//NhaCungCap nhaCungCap = nhaCungCapService.findById(nhaCungCapId);
+		// NhaCungCap nhaCungCap = nhaCungCapService.findById(nhaCungCapId);
 
 		// Liên kết nhà cung cấp với sản phẩm
-		//sanPham.setNhaCungCaps(Collections.singleton(nhaCungCap));
-		// Kiểm tra nếu `nhaCungCapId` không null, thì mới tìm và gán nhà cung cấp cho sản phẩm
-	    if (nhaCungCapId != null) {
-	        NhaCungCap nhaCungCap = nhaCungCapService.findById(nhaCungCapId);
-	        if (nhaCungCap != null) {
-	            // Liên kết nhà cung cấp với sản phẩm
-	            sanPham.setNhaCungCaps(Collections.singleton(nhaCungCap));
-	        }
-	    }
+		// sanPham.setNhaCungCaps(Collections.singleton(nhaCungCap));
+		// Kiểm tra nếu `nhaCungCapId` không null, thì mới tìm và gán nhà cung cấp cho
+		// sản phẩm
+		if (nhaCungCapId != null) {
+			NhaCungCap nhaCungCap = nhaCungCapService.findById(nhaCungCapId);
+			if (nhaCungCap != null) {
+				// Liên kết nhà cung cấp với sản phẩm
+				sanPham.setNhaCungCaps(Collections.singleton(nhaCungCap));
+			}
+		}
 		// Kiểm tra nếu sản phẩm với tên đã tồn tại và đang hoạt động
 		if (sanPhamService.existsByTenSanPham(sanPham.getTenSanPham())) {
 			model.addAttribute("errorMessage", "Sản phẩm đã tồn tại!");
 			return "admin/product/add"; // Quay lại trang thêm sản phẩm nếu đã tồn tại
 		}
-
+		// Gán thương hiệu cho sản phẩm
+		if (thuongHieuId != null) {
+			ThuongHieu thuongHieu = thuongHieuService.findById(thuongHieuId);
+			if (thuongHieu != null) {
+				sanPham.setThuongHieu(thuongHieu);
+			}
+		}
 		// Xử lý lưu ảnh sản phẩm
 		if (!imageFile.isEmpty()) {
 			try {
@@ -353,55 +377,70 @@ public class ProductController {
 			return "admin/product/index";
 		}
 
-		// Nếu không có từ khóa tìm kiếm hoặc từ khóa rỗng, hiển thị trang chỉnh sửa sản
-		// phẩm như bình thường
+		// Xử lý nếu không có từ khóa
 		SanPham sanPham = sanPhamService.findById(id);
 		if (sanPham == null) {
-			return "redirect:/admin/product"; // Nếu không tìm thấy sản phẩm, quay lại danh sách sản phẩm
+			return "redirect:/admin/product";
+		}
+
+		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+		String formattedPrice = "0.00 VND";
+		String formattedDiscountPrice = "0.00 VND";
+
+		if (sanPham.getDonGiaBan() != null) {
+			formattedPrice = decimalFormat.format(sanPham.getDonGiaBan()) + " VND";
+
+			// Tìm khuyến mãi cao nhất hiện tại
+			LocalDate today = LocalDate.now();
+			Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
+					.filter(km -> km.getTrangThai())
+					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
+							&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
+					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+
+			if (highestCurrentKhuyenMai.isPresent()) {
+				BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
+				BigDecimal giaSauGiam = sanPham.getDonGiaBan()
+						.subtract(sanPham.getDonGiaBan().multiply(phanTramGiam).divide(new BigDecimal(100)));
+				formattedDiscountPrice = decimalFormat.format(giaSauGiam) + " VND";
+			} else {
+				formattedDiscountPrice = formattedPrice;
+			}
 		}
 
 		PageRequest pageRequest = PageRequest.of(0, 10); // Lấy 10 đơn vị tính đầu tiên
 		List<DonViTinh> listDonViTinh = donViTinhService.findAll(pageRequest).getContent();
-		// Kiểm tra nếu sản phẩm có chi tiết đơn nhập hàng hay không
 		List<ChiTietDonNhapHang> chiTietDonNhapHangList = chiTietDonNhapHangService.findBySanPham(sanPham);
 		boolean hasDetails = !chiTietDonNhapHangList.isEmpty();
 
-		// Tìm giá trị lớn nhất của soLuongNhap nếu có chi tiết đơn nhập hàng
-		// Tính tổng số lượng nhập từ tất cả các đơn nhập hàng nếu có chi tiết đơn nhập
-		// hàng
 		Integer maxSoLuongNhap = hasDetails
 				? chiTietDonNhapHangList.stream().mapToInt(ChiTietDonNhapHang::getSoLuongNhap).sum()
 				: 0;
 
-		// Tính tổng số lượng đã bán
 		Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(id);
-
-		// Tính số lượng tối đa có thể chỉnh sửa
 		Integer editableMaxQuantity = maxSoLuongNhap - soldQuantity;
 
-		// Thêm sản phẩm vào model
 		model.addAttribute("sanPham", sanPham);
 		model.addAttribute("listDonViTinh", listDonViTinh);
 		model.addAttribute("hasDetails", hasDetails);
 		model.addAttribute("maxSoLuongNhap", editableMaxQuantity);
+		model.addAttribute("listThuongHieu", thuongHieuService.getAll());
+		model.addAttribute("formattedPrice", formattedPrice);
+		model.addAttribute("formattedDiscountPrice", formattedDiscountPrice);
+		model.addAttribute("listDanhMuc", danhMucService.getAll());
 
-		// Lấy danh sách danh mục để hiển thị trong form
-		List<DanhMuc> listDanhMuc = danhMucService.getAll();
-		model.addAttribute("listDanhMuc", listDanhMuc);
-
-		// Thêm đoạn code lấy thông tin người dùng
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);
 
-		return "admin/product/edit"; // Chuyển hướng tới trang chỉnh sửa
+		return "admin/product/edit";
 	}
-
 	// Phương thức hiển thị trang chi tiết sản phẩm
 
 	@PostMapping("/update-product")
 	public String updateProduct(@ModelAttribute("sanPham") SanPham sanPham,
 			@RequestParam("imageFile") MultipartFile imageFile, @RequestParam("donGiaBan") BigDecimal donGiaBan,
+			@RequestParam(value = "thuongHieuId", required = false) Integer thuongHieuId,
 			RedirectAttributes redirectAttributes) {
 
 		// Lấy sản phẩm hiện tại từ cơ sở dữ liệu
@@ -451,6 +490,14 @@ public class ProductController {
 			// Nếu không có ảnh mới được tải lên, giữ lại ảnh cũ
 			sanPham.setHinhAnh(existingSanPham.getHinhAnh());
 		}
+		// Cập nhật thông tin thương hiệu
+		if (thuongHieuId != null) {
+			ThuongHieu thuongHieu = thuongHieuService.findById(thuongHieuId);
+			if (thuongHieu != null) {
+				existingSanPham.setThuongHieu(thuongHieu);
+			}
+		}
+		System.out.println("ID thương hiệu nhận được: " + thuongHieuId);
 
 		// Cập nhật thông tin sản phẩm từ form
 		existingSanPham.setTenSanPham(sanPham.getTenSanPham());
@@ -468,7 +515,7 @@ public class ProductController {
 
 		redirectAttributes.addFlashAttribute("success",
 				"Sản phẩm và các thông tin liên quan đã được cập nhật thành công.");
-		return "redirect:/admin/view-product/" + sanPham.getMaSanPham();
+		return "redirect:/admin/edit-product/" + sanPham.getMaSanPham();
 	}
 
 	// Controller cho xóa sản phẩm (chỉ cập nhật trạng thái thành false)
@@ -582,26 +629,56 @@ public class ProductController {
 				.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
 						&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
 				.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+		// Định dạng giá gốc và giá sau khi giảm
+		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+		// Giá gốc
+		String formattedPrice = decimalFormat.format(sanPham.getDonGiaBan()) + " VND";
+		// Giá sau khi giảm
+		String formattedDiscountPrice = formattedPrice;
+
+		if (highestCurrentKhuyenMai.isPresent()) {
+			BigDecimal giaGoc = sanPham.getDonGiaBan();
+			BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
+			BigDecimal giaSauGiam = giaGoc.subtract(giaGoc.multiply(phanTramGiam).divide(new BigDecimal(100)));
+			formattedDiscountPrice = decimalFormat.format(giaSauGiam) + " VND";
+		}
 
 		model.addAttribute("sanPham", sanPham);
 		model.addAttribute("highestKhuyenMai", highestCurrentKhuyenMai.orElse(null));
+		model.addAttribute("formattedPrice", formattedPrice);
+		model.addAttribute("formattedDiscountPrice", formattedDiscountPrice);
 
 		List<ChiTietDonNhapHang> chiTietDonNhapHangList = chiTietDonNhapHangService.findBySanPham(sanPham).stream()
 				.filter(ctdnh -> ctdnh.getSoLuongNhap() > 0 && ctdnh.getDonGiaNhap().compareTo(BigDecimal.ZERO) > 0)
 				.collect(Collectors.toList());
 
+		  // Tạo Map để lưu giá trị định dạng của Đơn giá nhập
+	    Map<ChiTietDonNhapHangId, String> formattedDonGiaNhapMap = new HashMap<>();
+
+	    for (ChiTietDonNhapHang chiTiet : chiTietDonNhapHangList) {
+	        String formattedValue = decimalFormat.format(chiTiet.getDonGiaNhap()) + " VND";
+	        formattedDonGiaNhapMap.put(chiTiet.getId(), formattedValue);
+	    }
+
+		
+		
 		boolean hasDetails = !chiTietDonNhapHangList.isEmpty();
+		
 		DanhMuc danhMuc = sanPham.getDanhMuc();
 		Set<NhaCungCap> nhaCungCaps = sanPham.getNhaCungCaps();
 		Integer soldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(productId);
+		// Thêm Thương Hiệu
+		ThuongHieu thuongHieu = sanPham.getThuongHieu();
 
 		model.addAttribute("sanPham", sanPham);
 		model.addAttribute("hasDetails", hasDetails);
 		model.addAttribute("danhMuc", danhMuc);
 		model.addAttribute("nhaCungCaps", nhaCungCaps);
 		model.addAttribute("chiTietDonNhapHangList", chiTietDonNhapHangList);
-		model.addAttribute("soldQuantity", soldQuantity);
+	    model.addAttribute("formattedDonGiaNhapMap", formattedDonGiaNhapMap);
 
+		model.addAttribute("soldQuantity", soldQuantity);
+		model.addAttribute("thuongHieu", thuongHieu);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);

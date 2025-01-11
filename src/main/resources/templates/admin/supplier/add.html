@@ -4,122 +4,119 @@
 <head th:replace="admin/fragments/head :: head"></head>
 
 <body>
-	<div class="wrapper">
-		<!-- Sidebar -->
-		<div th:replace="admin/fragments/sidebar::sidebar"></div>
-		<!-- End Sidebar -->
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div th:replace="admin/fragments/sidebar::sidebar"></div>
+        <!-- End Sidebar -->
 
-		<div class="main-panel">
-			<!-- Header -->
-			<div th:replace="admin/fragments/header :: header"></div>
-			<!-- End Header -->
+        <div class="main-panel">
+            <!-- Header -->
+            <div th:replace="admin/fragments/header :: header"></div>
+            <!-- End Header -->
 
-			<div class="container" style="background-color: #faeee7;">
-				<div class="page-inner">
+            <div class="container py-4" style="background-color: #faeee7;">
+                <div class="page-inner">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold">Thêm Nhà cung cấp</h3>
+                    </div>
 
-					<div class="d-flex justify-content-between align-items-center">
-						<div>
-							<h3 class="fw-bold mb-3">Thêm Nhà cung cấp</h3>
-						</div>
+                    <!-- Form thêm nhà cung cấp -->
+                    <div class="card shadow-sm p-4">
+                        <form action="/admin/add-supplier" method="post" th:object="${nhaCungCap}">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Tên nhà cung cấp -->
+                                    <div class="form-group mb-3">
+                                        <label for="tenNhaCungCap" class="fw-bold">Tên nhà cung cấp</label>
+                                        <input type="text" class="form-control" id="tenNhaCungCap" name="tenNhaCungCap"
+                                            th:field="*{tenNhaCungCap}" placeholder="Nhập tên nhà cung cấp" required>
+                                    </div>
 
-					</div>
+                                    <!-- Số điện thoại -->
+                                    <div class="form-group mb-3">
+                                        <label for="sdtNhaCungCap" class="fw-bold">Số điện thoại</label>
+                                        <input type="text" class="form-control" id="sdtNhaCungCap" name="sdtNhaCungCap"
+                                            pattern="\d{10}" title="Số điện thoại phải có 10 chữ số"
+                                            th:field="*{sdtNhaCungCap}" placeholder="Nhập số điện thoại" required
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                    </div>
+                                </div>
 
-					<!-- Form thêm nhà cung cấp -->
-					<form action="/admin/add-supplier" method="post" th:object="${nhaCungCap}">
-						<!-- Tên nhà cung cấp -->
-						<div class="form-group">
-							<label for="tenNhaCungCap">Tên nhà cung cấp:</label>
-							<input type="text" class="form-control" id="tenNhaCungCap" name="tenNhaCungCap"
-								th:field="*{tenNhaCungCap}" placeholder="Nhập tên nhà cung cấp" required>
-						</div>
+                                <div class="col-md-6">
+                                    <!-- Địa chỉ -->
+                                    <div class="form-group mb-3">
+                                        <label for="diaChiNhaCungCap" class="fw-bold">Địa chỉ</label>
+                                        <input type="text" class="form-control" id="diaChiNhaCungCap" name="diaChiNhaCungCap"
+                                            th:field="*{diaChiNhaCungCap}" placeholder="Nhập địa chỉ" required>
+                                    </div>
 
-						<!-- Số điện thoại -->
-						<div class="form-group">
-							<label for="sdtNhaCungCap">Số điện thoại:</label>
-							<input type="text" class="form-control" id="sdtNhaCungCap" name="sdtNhaCungCap"
-								pattern="\d{10}" title="Số điện thoại phải có 10 chữ số" th:field="*{sdtNhaCungCap}"
-								placeholder="Nhập số điện thoại" required
-								oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-						</div>
+                                    <!-- Email -->
+                                    <div class="form-group mb-3">
+                                        <label for="emailNhaCungCap" class="fw-bold">Email</label>
+                                        <input type="email" class="form-control" id="emailNhaCungCap" name="emailNhaCungCap"
+                                            th:field="*{emailNhaCungCap}" placeholder="Nhập email" required
+                                            pattern="[a-zA-Z0-9._%+-]+@gmail\.com" title="Email phải có định dạng @gmail.com">
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div th:if="${error}" class="alert alert-danger">
+                                <p th:text="${error}"></p>
+                            </div>
 
+                            <div class="d-flex gap-2">
+                                <!-- Nút lưu -->
+                                <button type="submit" class="btn btn-primary">Lưu Nhà cung cấp</button>
+                                <!-- Nút hủy -->
+                                <a href="/admin/supplier" class="btn btn-secondary">Hủy</a>
+                            </div>
+                        </form>
+                    </div>
 
-						<!-- Địa chỉ -->
-						<div class="form-group">
-							<label for="diaChiNhaCungCap">Địa chỉ:</label>
-							<input type="text" class="form-control" id="diaChiNhaCungCap" name="diaChiNhaCungCap"
-								th:field="*{diaChiNhaCungCap}" placeholder="Nhập địa chỉ" required>
-						</div>
+                    <!-- Phân trang -->
+                    <div th:if="${totalPages > 0}" class="mt-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                <!-- Nút mũi tên trái (trước) -->
+                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                    <a class="page-link"
+                                        th:href="${keyword != null and keyword != ''} ? @{/admin/product(page=${currentPage - 1}, keyword=${keyword})} : @{/admin/product(page=${currentPage - 1})}"
+                                        aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
 
-						<!-- Email -->
-						<div class="form-group">
-							<label for="emailNhaCungCap">Email:</label>
-							<input type="email" class="form-control" id="emailNhaCungCap" name="emailNhaCungCap"
-								th:field="*{emailNhaCungCap}" placeholder="Nhập email" required
-								pattern="[a-zA-Z0-9._%+-]+@gmail\.com" title="Email phải có định dạng @gmail.com">
-						</div>
-						<div th:if="${error}" class="alert alert-danger">
-							<p th:text="${error}"></p>
-						</div>
+                                <!-- Hiển thị các số trang -->
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                    th:classappend="${i == currentPage} ? 'active'">
+                                    <a class="page-link"
+                                        th:href="${keyword != null and keyword != ''} ? @{/admin/product(page=${i}, keyword=${keyword})} : @{/admin/product(page=${i})}"
+                                        th:text="${i + 1}"></a>
+                                </li>
 
+                                <!-- Nút mũi tên phải (sau) -->
+                                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                                    <a class="page-link"
+                                        th:href="${keyword != null and keyword != ''} ? @{/admin/product(page=${currentPage + 1}, keyword=${keyword})} : @{/admin/product(page=${currentPage + 1})}"
+                                        aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
 
-						<!-- Nút lưu -->
-						<button type="submit" class="btn btn-primary">Lưu Nhà cung cấp</button>
+            <!-- Footer -->
+            <div th:replace="admin/fragments/footer::footer"></div>
+            <!-- End Footer -->
+        </div>
+    </div>
 
-						<!-- Nút hủy -->
-						<a href="/admin/supplier" class="btn btn-secondary">Hủy</a>
-					</form>
-
-					<!-- Phân trang -->
-					<!-- Kiểm tra nếu có sản phẩm và tổng số trang lớn hơn 0 thì hiển thị phân trang -->
-					<div th:if="${totalPages > 0}">
-						<nav aria-label="Page navigation">
-							<ul class="pagination justify-content-center">
-								<!-- Nút mũi tên trái (trước) -->
-								<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-									<a class="page-link"
-										th:href="${keyword != null and keyword != ''} ? @{/admin/product(page=${currentPage - 1}, keyword=${keyword})} : @{/admin/product(page=${currentPage - 1})}"
-										aria-label="Previous">
-										<span aria-hidden="true">&laquo;</span>
-									</a>
-								</li>
-
-								<!-- Hiển thị các số trang -->
-								<li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-									th:classappend="${i == currentPage} ? 'active'">
-									<a class="page-link"
-										th:href="${keyword != null and keyword != ''} ? @{/admin/product(page=${i}, keyword=${keyword})} : @{/admin/product(page=${i})}"
-										th:text="${i + 1}"></a>
-								</li>
-
-								<!-- Nút mũi tên phải (sau) -->
-								<li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-									<a class="page-link"
-										th:href="${keyword != null and keyword != ''} ? @{/admin/product(page=${currentPage + 1}, keyword=${keyword})} : @{/admin/product(page=${currentPage + 1})}"
-										aria-label="Next">
-										<span aria-hidden="true">&raquo;</span>
-									</a>
-								</li>
-							</ul>
-						</nav>
-
-
-					</div>
-
-					<!-- Kết thúc phân trang -->
-
-				</div>
-			</div>
-
-			<!-- Footer -->
-			<div th:replace="admin/fragments/footer::footer"></div>
-			<!-- End Footer -->
-		</div>
-	</div>
-
-	<!-- Core JS Files -->
-	<div th:replace="admin/fragments/script::script"></div>
-	<!-- End JS -->
+    <!-- Core JS Files -->
+    <div th:replace="admin/fragments/script::script"></div>
+    <!-- End JS -->
 </body>
 
 </html>

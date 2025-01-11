@@ -73,10 +73,6 @@ public class AdminController {
 		
 		
 		
-		
-		
-		
-		
 
 		return "admin/index"; // Trang chính cho admin sau khi đăng nhập thành công
 	}

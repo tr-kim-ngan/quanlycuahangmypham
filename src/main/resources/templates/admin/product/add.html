@@ -42,8 +42,8 @@
 
 						<div class="form-group">
 							<label for="soLuong">Số lượng:</label>
-							<input type="number" th:field="*{soLuong}" min="0" class="form-control"
-								placeholder="0" disabled pattern="[0-9]*">
+							<input type="number" th:field="*{soLuong}" min="0" class="form-control" placeholder="0"
+								disabled pattern="[0-9]*">
 						</div>
 
 						<!---<div class="form-group">
@@ -99,6 +99,16 @@
 									th:text="${danhMuc.tenDanhMuc}"></option>
 							</select>
 						</div>
+						<div class="form-group">
+							<label for="thuongHieu">Thương hiệu:</label>
+							<select th:field="*{thuongHieu}" class="form-control" required>
+								<option value="">Chọn thương hiệu</option>
+								<option th:each="thuongHieu : ${listThuongHieu}" th:value="${thuongHieu.maThuongHieu}"
+									th:text="${thuongHieu.tenThuongHieu}">
+								</option>
+							</select>
+						</div>
+
 
 						<div class="form-group">
 							<label for="imageFile">Hình ảnh sản phẩm:</label>
