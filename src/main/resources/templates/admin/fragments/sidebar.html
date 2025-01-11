@@ -1,6 +1,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<div class="sidebar" th:fragment="sidebar" style="background-color: #ffc6c7;">
+<div class="sidebar" th:fragment="sidebar" style="background-color: #fae1e1;">
 	<div class="sidebar-logo">
 		<!-- Logo Header -->
 		<div class="logo-header" style="height: 110px; display: flex; justify-content: center; align-items: center;">
@@ -42,7 +42,7 @@
 					</span>
 					<h4 class="text-section">Các thành phần</h4>
 				</li>
-
+			
 				<li class="nav-item">
 					<a data-bs-toggle="collapse" href="#collapseSanPham" aria-expanded="false" class="nav-link">
 						<i class="fas fa-table"></i>
@@ -110,15 +110,15 @@
 						<ul class="nav nav-collapse">
 							<li>
 								<a th:href="@{/admin/supplier}">
-									 <i class="fas fa-user-tie"></i>
-									 <p>Nhà cung cấp</p>
-									
+									<i class="fas fa-user-tie"></i>
+									<p>Nhà cung cấp</p>
+
 								</a>
 							</li>
 							<li>
 								<a th:href="@{/admin/purchaseorder}">
 									<i class="fas fa-file-invoice"></i>
-									
+
 									<p>Đơn nhập hàng</p>
 								</a>
 							</li>
@@ -139,7 +139,7 @@
 									<span class="sub-item">Google Maps</span>
 								</a>-->
 								<a th:href="@{/admin/orders}">
-									<i class="fas fa-box"></i> 
+									<i class="fas fa-box"></i>
 									<p>Đơn hàng</p>
 								</a>
 
@@ -162,8 +162,8 @@
 						<ul class="nav nav-collapse">
 							<li>
 								<a th:href="@{/admin/hoadon}">
-									 <i class="fas fa-file-invoice"></i>
-									 <p>Danh sách hóa đơn</p>
+									<i class="fas fa-file-invoice"></i>
+									<p>Danh sách hóa đơn</p>
 								</a>
 							</li>
 
@@ -182,7 +182,7 @@
 								<a th:href="@{/admin/danhgia}">
 									<i class="fas fa-star"></i>
 									<p>Danh sách các đánh giá</p>
-									
+
 								</a>
 							</li>
 						</ul>
@@ -198,8 +198,8 @@
 						<ul class="nav nav-collapse">
 							<li>
 								<a th:href="@{/admin/loai-khach-hang}">
-									<i class="fas fa-users"></i> 
-									<p >Danh sách loại khách hàng</p>
+									<i class="fas fa-users"></i>
+									<p>Danh sách loại khách hàng</p>
 								</a>
 							</li>
 						</ul>
@@ -209,9 +209,10 @@
 
 
 
-				
-				
+
+
 			</ul>
 		</div>
 	</div>
+
 </div>

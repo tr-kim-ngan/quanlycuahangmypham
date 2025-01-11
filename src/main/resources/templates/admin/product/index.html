@@ -41,6 +41,8 @@
 								<!--<th style="text-align: center;">Mô tả</th>-->
 								<th style="text-align: center;">Số lượng</th>
 								<th style="text-align: center;">Đơn giá</th>
+
+
 								<th style="text-align: center;">Khuyến mãi</th>
 
 
@@ -68,7 +70,7 @@
 
 
 								<!--	<td style="text-align: center;" th:text="${sanPham.moTa}"></td>-->
-							<!--	<td style="text-align: center;">
+								<!--	<td style="text-align: center;">
 									<span th:if="${#strings.length(sanPham.moTa) > 100}"
 										th:text="${sanPham.moTa.substring(0, 100) + '...'}"></span>
 									<span th:if="${#strings.length(sanPham.moTa) <= 100}"
@@ -77,9 +79,14 @@
 
 								<td style="text-align: center;" th:text="${sanPham.soLuong}"></td>
 
-								<!-- Đơn giá -->
+								<!-- Đơn giá 
 								<td style="text-align: center;" th:text="${sanPham.donGiaBan} + ' VND'">
-								</td>
+
+								</td>-->
+								<td style="text-align: center; white-space: nowrap;" th:text="${formattedPrices[sanPham.maSanPham]}"></td>
+
+
+
 								<!-- Cột khuyến mãi -->
 								<td style="text-align: center;">
 									<span th:if="${highestKhuyenMais[sanPham.maSanPham] == null}">
@@ -92,26 +99,18 @@
 									</span>
 								</td>
 
-
-
-
-
-
-
 								<!-- Cột giá sau khi giảm -->
 
+								<!-- Cột giá sau khi giảm -->
 								<td style="text-align: center;">
 									<span th:if="${highestKhuyenMais[sanPham.maSanPham] != null}">
-										<!-- Tính toán giá sau khi giảm nếu có khuyến mãi -->
-										<span
-											th:text="${sanPham.donGiaBan.subtract(sanPham.donGiaBan.multiply(highestKhuyenMais[sanPham.maSanPham].phanTramGiamGia.divide(new java.math.BigDecimal(100))))} + ' VND'">
-										</span>
+										<span th:text="${formattedDiscountPrices[sanPham.maSanPham]}"></span>
 									</span>
 									<span th:if="${highestKhuyenMais[sanPham.maSanPham] == null}">
-										<!-- Hiển thị đơn giá bán nếu không có khuyến mãi -->
-										<span th:text="${sanPham.donGiaBan} + ' VND'"></span>
+										<span th:text="${formattedPrices[sanPham.maSanPham]}"></span>
 									</span>
 								</td>
+
 
 								<!--	<td style="text-align: center;" th:text="${sanPham.donViTinh.tenDonVi}"></td>
 

@@ -46,7 +46,7 @@ public class SanPham {
 	private DanhMuc danhMuc;
 	
 	@ManyToOne
-    @JoinColumn(name = "maThuongHieu")
+    @JoinColumn(name = "maThuongHieu", referencedColumnName = "maThuongHieu")
     private ThuongHieu thuongHieu;
 	
 	// quan hệ với Yêu thích

@@ -32,6 +32,9 @@ public interface ChiTietDonNhapHangService {
 	List<ChiTietDonNhapHang> findBySanPham(SanPham sanPham);
 	void updateChiTietDonNhapHangForProduct(SanPham sanPham);
 	public boolean existsBySanPham(SanPham sanPham);
+	// Thêm hỗ trợ phân trang cho findByDonNhapHang
+	Page<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang, Pageable pageable);
+
 	
 	
 }

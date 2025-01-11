@@ -32,26 +32,37 @@
 							<a th:href="@{/admin/product}" class="btn btn-primary mb-3">
 								Quay về
 							</a>
-							<p>Tên sản phẩm: <span th:text="${sanPham.tenSanPham}"></span></p>
-							<p>Giá bán: <span th:text="${sanPham.donGiaBan}"></span></p>
-							<p>Số lượng đã bán: <span th:text="${soldQuantity}"></span></p>
-							<p>Số lượng tồn: <span th:text="${sanPham.soLuong}"></span></p>
-							<p>Mô tả: <span th:text="${sanPham.moTa}"></span></p>
-							<p>Tên đơn vị: <span th:text="${sanPham.donViTinh.tenDonVi}"></span></p>
-							<p>Tên danh mục: <span th:text="${danhMuc.tenDanhMuc}"></span></p>
+							<p class="fw-bold">Tên sản phẩm: <span th:text="${sanPham.tenSanPham}"></span></p>
+							<p class="fw-bold">Giá bán: <span th:text="${formattedPrice}"></span></p>
+							<p class="fw-bold">Số lượng đã bán: <span th:text="${soldQuantity}"></span></p>
+							<p class="fw-bold">Số lượng tồn: <span th:text="${sanPham.soLuong}"></span></p>
+							<!--<p>Mô tả: <span th:text="${sanPham.moTa}"></span></p>-->
+							<p class="fw-bold">Mô tả:</p>
+							<pre class="fw-bold" th:text="${sanPham.moTa}"
+								style="font-family: inherit; font-size: inherit; line-height: inherit;"></pre>
+
+
+							<p class="fw-bold">Tên đơn vị: <span th:text="${sanPham.donViTinh.tenDonVi}"></span></p>
+							<p class="fw-bold">Tên danh mục: <span th:text="${danhMuc.tenDanhMuc}"></span></p>
+							<p class="fw-bold">Tên thương hiệu:
+								<span
+									th:text="${sanPham.thuongHieu != null ? sanPham.thuongHieu.tenThuongHieu : 'Không có thương hiệu'}"></span>
+							</p>
+
 							<!-- Thông tin khuyến mãi -->
 							<div th:if="${highestKhuyenMai != null}">
-								<p>Khuyến mãi hiện tại: <span th:text="${highestKhuyenMai.tenKhuyenMai}"></span></p>
-								<p>Phần trăm khuyến mãi: <span th:text="${highestKhuyenMai.phanTramGiamGia}"></span>%
+								<p class="fw-bold">Khuyến mãi hiện tại: <span
+										th:text="${highestKhuyenMai.tenKhuyenMai}"></span></p>
+								<p class="fw-bold">Phần trăm khuyến mãi: <span
+										th:text="${highestKhuyenMai.phanTramGiamGia}"></span>%
 								</p>
-								<p>Giá sau khi giảm:
-									<span
-										th:text="${sanPham.donGiaBan - (sanPham.donGiaBan * highestKhuyenMai.phanTramGiamGia / 100)}"></span>
-									VND
+								<p class="fw-bold">Giá sau khi giảm: 
+									<span th:text="${formattedDiscountPrice}"></span>
 								</p>
 
+
 							</div>
-							<div th:if="${highestKhuyenMai == null}">
+							<div class="fw-bold" th:if="${highestKhuyenMai == null}">
 								<p>Không có khuyến mãi hiện tại.</p>
 							</div>
 
@@ -59,7 +70,7 @@
 
 							<!-- Hiển thị hình ảnh sản phẩm -->
 							<div>
-								<h5>Hình ảnh sản phẩm:</h5>
+								<p class="fw-bold">Hình ảnh sản phẩm:</p>
 								<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
 									style="width: 100px; height: auto;">
 
@@ -103,7 +114,7 @@
 											<td th:text="${chiTiet.donNhapHang.maDonNhapHang}"></td>
 											<td th:text="${chiTiet.donNhapHang.nhaCungCap.tenNhaCungCap}"></td>
 											<td th:text="${chiTiet.soLuongNhap}"></td>
-											<td th:text="${chiTiet.donGiaNhap}"></td>
+											<td th:text="${formattedDonGiaNhapMap[chiTiet.id]}"></td>
 											<td
 												th:text="${#temporals.format(chiTiet.donNhapHang.ngayNhapHang, 'dd-MM-yyyy')}">
 											</td>

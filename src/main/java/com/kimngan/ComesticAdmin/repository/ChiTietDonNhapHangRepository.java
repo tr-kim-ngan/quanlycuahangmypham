@@ -14,7 +14,13 @@ import com.kimngan.ComesticAdmin.entity.SanPham;
 public interface ChiTietDonNhapHangRepository extends JpaRepository<ChiTietDonNhapHang, ChiTietDonNhapHangId> {
 
 	Page<ChiTietDonNhapHang> findBySanPham_TenSanPhamContainingIgnoreCase(String tenSanPham, Pageable pageable);
-	 List<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang);
-	  List<ChiTietDonNhapHang> findBySanPham(SanPham sanPham);
-	  boolean existsBySanPham(SanPham sanPham);
+
+	List<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang);
+
+	List<ChiTietDonNhapHang> findBySanPham(SanPham sanPham);
+
+	boolean existsBySanPham(SanPham sanPham);
+
+	Page<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang, Pageable pageable);
+
 }

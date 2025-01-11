@@ -104,4 +104,10 @@ public class ChiTietDonNhapHangServiceImpl implements ChiTietDonNhapHangService 
 		 return chiTietDonNhapHangRepository.existsBySanPham(sanPham);
 	}
 
+	@Override
+	public Page<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang, Pageable pageable) {
+		// TODO Auto-generated method stub
+        return chiTietDonNhapHangRepository.findByDonNhapHang(donNhapHang, pageable);
+	}
+
 }
