@@ -124,6 +124,12 @@ public class NhaCungCapServiceImpl implements NhaCungCapService {
 		// TODO Auto-generated method stub
 	    return nhaCungCapRepository.findByTenNhaCungCapAndTrangThaiTrue(tenNhaCungCap);
 	}
+
+	@Override
+	public void deleteById(Integer maNhaCungCap) {
+		// TODO Auto-generated method stub
+		nhaCungCapRepository.deleteById(maNhaCungCap);
+	}
 	
 	
 

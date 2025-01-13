@@ -18,10 +18,10 @@
 
 							<!-- Hiển thị thông tin đơn nhập hàng -->
 							<p>Mã đơn nhập: <span th:text="${donNhapHang.maDonNhapHang}"></span></p>
-							<p>Ngày nhập: <span th:text="${donNhapHang.ngayNhapHang}"></span></p>
+							<p>Ngày nhập: <span th:text="${formattedNgayNhapHang}"></span></p>
 							<p>Nhà cung cấp: <span th:text="${donNhapHang.nhaCungCap.tenNhaCungCap}"></span></p>
+							<p>Tổng giá trị nhập: <span th:text="${formattedTotalValue}"></span></p>
 
-							
 							<h3>Chi Tiết Đơn Nhập Hàng Đã Thêm</h3>
 							<table class="table table-bordered mt-4">
 								<thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
@@ -36,7 +36,7 @@
 									<tr th:each="chiTiet : ${chiTietList}" th:if="${chiTiet.soLuongNhap > 0}">
 										<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
 										<td th:text="${chiTiet.soLuongNhap}"></td>
-										<td th:text="${chiTiet.donGiaNhap}"></td>
+										<td th:text="${formattedDonGiaNhapMap[chiTiet.id.hashCode()]}"></td>
 										<td>
 											<!-- Nút Xóa -->
 											<a th:href="@{/admin/hide-purchase-order-detail/{maDonNhapHang}/{maSanPham}(

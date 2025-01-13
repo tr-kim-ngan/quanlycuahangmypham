@@ -17,6 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
 import java.util.Optional;
 
 @Controller
@@ -35,15 +37,21 @@ public class UnitController {
 		Page<DonViTinh> pageDonViTinh;
 
 		if (keyword != null && !keyword.isEmpty()) {
-			pageDonViTinh = donViTinhService.searchByName(keyword, PageRequest.of(page, size));
-			model.addAttribute("keyword", keyword);
-		} else {
-			pageDonViTinh = donViTinhService.findAll(PageRequest.of(page, size));
-		}
+	        // Tìm kiếm và sắp xếp theo mã đơn vị tính giảm dần
+	        pageDonViTinh = donViTinhService.searchByName(keyword,
+	                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "maDonVi")));
+	        model.addAttribute("keyword", keyword);
+	    } else {
+	        // Hiển thị tất cả và sắp xếp theo mã đơn vị tính giảm dần
+	        pageDonViTinh = donViTinhService.findAll(
+	                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "maDonVi")));
+	    }
 
-		if (page > pageDonViTinh.getTotalPages()) {
-			pageDonViTinh = donViTinhService.findAll(PageRequest.of(pageDonViTinh.getTotalPages() - 1, size));
-		}
+	    if (page > pageDonViTinh.getTotalPages()) {
+	        pageDonViTinh = donViTinhService.findAll(
+	                PageRequest.of(pageDonViTinh.getTotalPages() - 1, size, Sort.by(Sort.Direction.DESC, "maDonVi")));
+	    }
+	    
 		model.addAttribute("listDonViTinh", pageDonViTinh.getContent());
 
 		// model.addAttribute("listUnits", pageDonViTinh.getContent());

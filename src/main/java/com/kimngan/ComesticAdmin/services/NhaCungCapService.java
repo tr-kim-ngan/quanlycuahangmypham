@@ -47,6 +47,8 @@ public interface NhaCungCapService {
     List<NhaCungCap> getAllActive();
     
     Optional<NhaCungCap> findByTenNhaCungCapAndTrangThaiTrue(String tenNhaCungCap);
+    void deleteById(Integer maNhaCungCap);
+
 
 
 }

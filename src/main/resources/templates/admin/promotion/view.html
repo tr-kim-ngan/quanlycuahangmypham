@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head::head">
+	<title>Chi Tiết Khuyến Mãi</title>
+</head>
+
+<body>
+	<div class="wrapper">
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<div class="main-panel">
+			<div th:replace="admin/fragments/header::header"></div>
+			<div class="container py-4" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center mb-4">
+						<h3 class="fw-bold">Chi Tiết Khuyến Mãi</h3>
+						<div class="d-flex gap-2">
+							<a th:href="@{/admin/promotion}" class="btn btn-secondary">Quay lại</a>
+							<a th:href="@{'/admin/edit-promotion/' + ${khuyenMai.maKhuyenMai}}"
+								th:if="${khuyenMai != null}" class="btn btn-primary">Chỉnh sửa</a>
+						</div>
+					</div>
+
+
+					<!-- Hiển thị thông tin khuyến mãi -->
+					<div class="card shadow-sm p-4 mb-4">
+						<h4 class="fw-bold mb-3">Thông Tin Khuyến Mãi</h4>
+						<p><strong>Tên khuyến mãi:</strong> <span th:text="${khuyenMai.tenKhuyenMai}"></span></p>
+						<p><strong>Mô tả:</strong> <span th:text="${khuyenMai.moTa}"></span></p>
+						<p><strong>Phần trăm giảm:</strong> <span th:text="${khuyenMai.phanTramGiamGia + '%'}"></span>
+						</p>
+						<p><strong>Ngày bắt đầu:</strong> <span
+								th:text="${#dates.format(khuyenMai.ngayBatDau, 'dd/MM/yyyy')}"></span></p>
+						<p><strong>Ngày kết thúc:</strong> <span
+								th:text="${#dates.format(khuyenMai.ngayKetThuc, 'dd/MM/yyyy')}"></span></p>
+						<p><strong>Trạng thái:</strong>
+							<span
+								th:text="${khuyenMai.trangThai && #dates.format(khuyenMai.ngayKetThuc, 'yyyy-MM-dd') >= #dates.format(#dates.createNow(), 'yyyy-MM-dd') ? 'Hoạt động' : 'Ngừng hoạt động'}"
+								th:classappend="${khuyenMai.trangThai && #dates.format(khuyenMai.ngayKetThuc, 'yyyy-MM-dd') >= #dates.format(#dates.createNow(), 'yyyy-MM-dd') ? 'text-success' : 'text-danger'}">
+							</span>
+						</p>
+
+					</div>
+
+					<!-- Danh sách sản phẩm áp dụng -->
+					<div class="card shadow-sm p-4">
+						<h4 class="fw-bold mb-3">Danh Sách Sản Phẩm Áp Dụng</h4>
+						<table class="table table-bordered">
+							<thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
+								<tr>
+									<th class="text-center">Hình ảnh</th>
+									<th class="text-center">Sản phẩm</th>
+									<th class="text-center">Đơn giá bán</th>
+									<th class="text-center">Giá sau khi giảm</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="sanPham : ${sanPhams}">
+									<td class="text-center">
+										<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+											style="width: 60px; height: 60px; object-fit: cover;">
+									</td>
+									<td class="text-center" th:text="${sanPham.tenSanPham}"></td>
+									<td class="text-center" th:text="${formattedDonGiaBanMap[sanPham.maSanPham]}"></td>
+									<td class="text-center" th:text="${formattedGiaSauGiamMap[sanPham.maSanPham]}"></td>
+								</tr>
+								<tr th:if="${sanPhams.size() == 0}">
+									<td colspan="4" class="text-center">Không có sản phẩm nào được áp dụng.</td>
+								</tr>
+
+							</tbody>
+						</table>
+
+
+					</div>
+				</div>
+			</div>
+			<div th:replace="admin/fragments/footer::footer"></div>
+		</div>
+	</div>
+
+	<div th:replace="admin/fragments/script::script"></div>
+</body>
+
+</html>

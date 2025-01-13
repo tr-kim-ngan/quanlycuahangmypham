@@ -74,12 +74,12 @@ public class PurchaseOrderController {
 		if (keyword != null && !keyword.isEmpty()) {
 			// Tìm kiếm theo nhà cung cấp và sắp xếp giảm dần theo ngày nhập
 			pageDonNhapHang = donNhapHangService.findByNhaCungCap_Ten(keyword,
-					PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "ngayNhapHang")));
+					PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "maDonNhapHang")));
 			model.addAttribute("keyword", keyword);
 		} else {
 			// Hiển thị tất cả đơn nhập hàng, sắp xếp giảm dần theo ngày nhập
 			pageDonNhapHang = donNhapHangService
-					.findAllActive(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "ngayNhapHang")));
+					.findAllActive(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "maDonNhapHang")));
 		}
 		// Định dạng tổng giá trị đơn nhập hàng
 		Map<Integer, String> formattedTotalValues = new HashMap<>();
@@ -132,8 +132,13 @@ public class PurchaseOrderController {
 	@PostMapping("/save-purchase-order")
 	public String createPurchaseOrder(
 			@RequestParam("ngayNhapHang") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate ngayNhapHang,
-			@RequestParam("maNhaCungCap") Integer maNhaCungCap, Model model) {
-
+			@RequestParam("maNhaCungCap") Integer maNhaCungCap, Model model, RedirectAttributes redirectAttributes) {
+		 // Kiểm tra nếu ngày nhập hàng lớn hơn ngày hiện tại
+	    LocalDate today = LocalDate.now();
+	    if (ngayNhapHang.isAfter(today)) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Ngày nhập hàng không được lớn hơn ngày hôm nay.");
+	        return "redirect:/admin/add-purchase-order";
+	    }
 		// Kiểm tra nhà cung cấp
 		NhaCungCap nhaCungCap = nhaCungCapService.findById(maNhaCungCap);
 		if (nhaCungCap == null) {
@@ -170,11 +175,42 @@ public class PurchaseOrderController {
 			return "redirect:/admin/purchaseorder";
 		}
 
-		List<SanPham> sanPhams = sanPhamService.findByTrangThai(true); // Lấy danh sách sản phẩm còn hoạt động
-		model.addAttribute("sanPhams", sanPhams);
-		model.addAttribute("donNhapHang", donNhapHang);
-		model.addAttribute("chiTietList", chiTietDonNhapHangService.findByDonNhapHang(donNhapHang));
 
+	    // Lấy danh sách sản phẩm còn hoạt động
+	    List<SanPham> sanPhams = sanPhamService.findByTrangThai(true);
+
+	    // Định dạng ngày
+	    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+	    String formattedNgayNhapHang = donNhapHang.getNgayNhapHang().format(dateFormatter);
+
+	    // Định dạng số tiền
+	    DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+
+	    // Định dạng giá trị trong chi tiết đơn nhập hàng và tính tổng giá trị
+	    List<ChiTietDonNhapHang> chiTietList = chiTietDonNhapHangService.findByDonNhapHang(donNhapHang);
+	    Map<Integer, String> formattedDonGiaNhapMap = new HashMap<>();
+	    BigDecimal totalValue = BigDecimal.ZERO;
+
+	    for (ChiTietDonNhapHang chiTiet : chiTietList) {
+	        BigDecimal value = chiTiet.getDonGiaNhap().multiply(BigDecimal.valueOf(chiTiet.getSoLuongNhap()));
+	        totalValue = totalValue.add(value);
+
+	        String formattedValue = decimalFormat.format(chiTiet.getDonGiaNhap()) + " VND";
+	        formattedDonGiaNhapMap.put(chiTiet.getId().hashCode(), formattedValue);
+	    }
+
+	    // Tổng giá trị nhập đã định dạng
+	    String formattedTotalValue = decimalFormat.format(totalValue) + " VND";
+	    
+	    
+	    
+	    model.addAttribute("sanPhams", sanPhams);
+	    model.addAttribute("donNhapHang", donNhapHang);
+	    model.addAttribute("chiTietList", chiTietList);
+	    model.addAttribute("formattedNgayNhapHang", formattedNgayNhapHang);
+	    model.addAttribute("formattedDonGiaNhapMap", formattedDonGiaNhapMap);
+	    model.addAttribute("formattedTotalValue", formattedTotalValue);
+	    
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);

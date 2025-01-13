@@ -14,8 +14,16 @@
 				<div class="page-inner">
 					<div class="d-flex justify-content-between align-items-center mb-4">
 						<h3 class="fw-bold">Chỉnh Sửa Khuyến Mãi</h3>
+						<a th:href="@{'/admin/view-promotion/' + ${khuyenMai.maKhuyenMai}}"
+											class="btn btn-secondary">Quay lại</a>
 					</div>
-
+					<!-- Hiển thị thông báo -->
+					<div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+						<span th:text="${errorMessage}"></span>
+					</div>
+					<div th:if="${successMessage}" class="alert alert-success" role="alert">
+						<span th:text="${successMessage}"></span>
+					</div>
 					<div class="row">
 						<!-- Cột bên trái -->
 						<div class="col-md-6">
@@ -56,7 +64,7 @@
 
 									<div class="d-flex gap-2">
 										<button type="submit" class="btn btn-success">Cập nhật</button>
-										<a th:href="@{/admin/promotion}" class="btn btn-secondary">Quay lại</a>
+										
 									</div>
 								</form>
 							</div>
@@ -71,8 +79,12 @@
 								<p><strong>Mô tả:</strong> <span th:text="${khuyenMai.moTa}"></span></p>
 								<p><strong>Phần trăm giảm:</strong> <span
 										th:text="${khuyenMai.phanTramGiamGia + '%'}"></span></p>
-								<p><strong>Ngày bắt đầu:</strong> <span th:text="${khuyenMai.ngayBatDau}"></span></p>
-								<p><strong>Ngày kết thúc:</strong> <span th:text="${khuyenMai.ngayKetThuc}"></span></p>
+								<p><strong>Ngày bắt đầu:</strong>
+									<span th:text="${#dates.format(khuyenMai.ngayBatDau, 'dd/MM/yyyy')}"></span>
+								</p>
+								<p><strong>Ngày kết thúc:</strong>
+									<span th:text="${#dates.format(khuyenMai.ngayKetThuc, 'dd/MM/yyyy')}"></span>
+								</p>
 							</div>
 						</div>
 					</div>
