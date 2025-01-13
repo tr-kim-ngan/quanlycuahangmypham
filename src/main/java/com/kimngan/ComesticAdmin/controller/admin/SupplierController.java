@@ -12,12 +12,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -28,7 +34,8 @@ public class SupplierController {
 
 	// Hiển thị danh sách nhà cung cấp
 	@GetMapping("/supplier")
-	public String index(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
+	public String index(Model model, 
+			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "5") int size,
 			@RequestParam(value = "keyword", required = false) String keyword) {
 
@@ -36,19 +43,21 @@ public class SupplierController {
 
 		if (keyword != null && !keyword.isEmpty()) {
 			// Nếu có từ khóa tìm kiếm
-			pageNhaCungCap = nhaCungCapService.searchByName(keyword, PageRequest.of(page, size));
+            pageNhaCungCap = nhaCungCapService.searchByName(keyword, PageRequest.of(page, size, Sort.by("maNhaCungCap").descending()));
 			model.addAttribute("keyword", keyword);
 		} else {
 			// Nếu không có từ khóa, lấy tất cả nhà cung cấp đang hoạt động
-			pageNhaCungCap = nhaCungCapService.findAllActive(PageRequest.of(page, size));
-		}
-
-		// Kiểm tra nếu trang yêu cầu vượt quá tổng số trang, điều hướng về trang cuối
+			 // Nếu không có từ khóa, lấy tất cả nhà cung cấp đang hoạt động, sắp xếp theo `maNhaCungCap` giảm dần
+            pageNhaCungCap = nhaCungCapService.findAllActive(PageRequest.of(page, size, Sort.by("maNhaCungCap").descending()));
+ 		}
+		  // Sắp xếp danh sách theo thứ tự mới nhất
+       		// Kiểm tra nếu trang yêu cầu vượt quá tổng số trang, điều hướng về trang cuối
 		// cùng
 
-		model.addAttribute("listNhaCungCap", pageNhaCungCap.getContent());
-		model.addAttribute("currentPage", pageNhaCungCap.getNumber());
-		model.addAttribute("totalPages", pageNhaCungCap.getTotalPages());
+	       // Truyền dữ liệu vào Model
+        model.addAttribute("listNhaCungCap", pageNhaCungCap.getContent());
+        model.addAttribute("currentPage", pageNhaCungCap.getNumber());
+        model.addAttribute("totalPages", pageNhaCungCap.getTotalPages());
 		model.addAttribute("size", size);
 		model.addAttribute("searchAction", "/admin/supplier"); // Đường dẫn cho tìm kiếm
 
@@ -158,13 +167,24 @@ public class SupplierController {
 
 
 	@PostMapping("/delete-supplier/{id}")
-	public String deleteSupplier(@PathVariable("id") Integer id) {
+	public String deleteSupplier(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
 		Optional<NhaCungCap> supplierOpt = nhaCungCapService.findByIdOptional(id);
 		if (supplierOpt.isPresent()) {
 			NhaCungCap supplier = supplierOpt.get();
-			supplier.setTrangThai(false); // Đánh dấu trạng thái là ngừng hoạt động
-			nhaCungCapService.update(supplier);
-		}
+			 // Kiểm tra xem nhà cung cấp có liên quan đến đơn nhập hàng hay không
+	        if (supplier.getDonNhapHangs() == null || supplier.getDonNhapHangs().isEmpty()) {
+	            // Nếu không liên quan đến đơn nhập hàng, xóa hoàn toàn
+	            nhaCungCapService.deleteById(id);
+	            redirectAttributes.addFlashAttribute("successMessage", "Nhà cung cấp đã được xóa hoàn toàn.");
+	        } else {
+	            // Nếu liên quan đến đơn nhập hàng, chỉ chuyển trạng thái
+	            supplier.setTrangThai(false);
+	            nhaCungCapService.update(supplier);
+	            redirectAttributes.addFlashAttribute("successMessage", "Nhà cung cấp đã được chuyển trạng thái không hoạt động.");
+	        }
+	    } else {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Nhà cung cấp không tồn tại.");
+	    }
 		return "redirect:/admin/supplier";
 	}
 

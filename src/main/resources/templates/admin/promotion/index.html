@@ -61,8 +61,11 @@
 									<td th:text="${#dates.format(promotion.ngayBatDau, 'dd-MM-yyyy')}"></td>
 									<td th:text="${#dates.format(promotion.ngayKetThuc, 'dd-MM-yyyy')}"></td>
 									<td>
-										<a th:href="@{/admin/edit-promotion/{id}(id=${promotion.maKhuyenMai})}"
-											class="btn btn-primary btn-sm">Sửa</a>
+										<a th:href="@{/admin/view-promotion/{id}(id=${promotion.maKhuyenMai})}" 
+										 class="btn btn-primary btn-sm">Xem chi tiết</a>
+										 <!--<a th:href="@{/admin/edit-promotion/{id}(id=${promotion.maKhuyenMai})}"
+											class="btn btn-primary btn-sm">Sửa</a>-->
+
 										<form th:action="@{/admin/delete-promotion/{id}(id=${promotion.maKhuyenMai})}"
 											method="post" style="display:inline-block;">
 											<button type="submit" class="btn btn-danger btn-sm"

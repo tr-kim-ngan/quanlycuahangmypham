@@ -14,15 +14,14 @@
 		<div class="main-panel">
 			<!-- Header -->
 			<div th:replace="~{admin/fragments/header :: header}"></div>
-
 			<!-- End Header -->
 
-			<div class="container" style="background-color: #faeee7;">
+			<div class="container" style="background-color: #faeee7; padding: 20px; border-radius: 8px;">
 				<div class="page-inner">
-					<div class="d-flex justify-content-between align-items-center">
+					<div class="d-flex justify-content-between align-items-center mb-4">
 						<div>
 							<h3 class="fw-bold mb-3">Chi Tiết Đơn Hàng</h3>
-							<h6 class="op-7 mb-2">Thông tin chi tiết cho đơn hàng</h6>
+							<h6 class="text-muted">Thông tin chi tiết cho đơn hàng</h6>
 						</div>
 					</div>
 
@@ -30,105 +29,86 @@
 					<div th:if="${error}" class="alert alert-danger" role="alert">
 						<span th:text="${error}"></span>
 					</div>
-					<div class="row mt-4">
-						<div class="col-md-6">
-							<div th:if="${errorMessage != null}" class="alert alert-danger" role="alert">
-								<span th:text="${errorMessage}"></span>
-							</div>
 
-							<h5>Thông Tin Đơn Hàng</h5>
-							<p><strong>Mã Đơn Hàng:</strong> <span th:text="${donHang.maDonHang}"></span></p>
-							<p><strong>Khách Hàng:</strong> <span th:text="${donHang.nguoiDung.tenNguoiDung}"></span>
-							</p>
-							<p><strong>Ngày Đặt:</strong> <span
-									th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></span></p>
+					<div class="row">
+						<!-- Thông Tin Đơn Hàng -->
+						<div class="col-md-6 mb-4">
+							<div class="card shadow-sm">
+								<div class="card-header bg-light">
+									<h5 class="mb-0">Thông Tin Đơn Hàng</h5>
+								</div>
+								<div class="card-body">
+									<p><strong>Mã Đơn Hàng:</strong> <span th:text="${donHang.maDonHang}"></span></p>
+									<p><strong>Khách Hàng:</strong> <span
+											th:text="${donHang.nguoiDung.tenNguoiDung}"></span></p>
+									<p><strong>Ngày Đặt:</strong> <span
+											th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></span>
+									</p>
+									<p><strong>Địa Chỉ Giao Hàng:</strong> <span
+											th:text="${donHang.diaChiGiaoHang}"></span></p>
+									<p><strong>Số Điện Thoại Nhận Hàng:</strong> <span
+											th:text="${donHang.sdtNhanHang}"></span></p>
+									<p><strong>Trạng Thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span>
+									</p>
 
-
-
-
-
-							<p><strong>Địa Chỉ Giao Hàng:</strong> <span th:text="${donHang.diaChiGiaoHang}"></span></p>
-
-
-
-							<p><strong>Số Điện Thoại Nhận Hàng:</strong> <span th:text="${donHang.sdtNhanHang}"></span>
-							</p>
-							<p><strong>Trạng Thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span></p>
-							<!-- Form cập nhật trạng thái đơn hàng -->
-							<div
-								th:if="${donHang.trangThaiDonHang != 'Đã hoàn thành' and donHang.trangThaiDonHang != 'Đã hủy' and donHang.trangThaiDonHang != 'Bị hủy do không đủ hàng'}">
-
-								<form
-									th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
-									method="post" class="mt-3">
-									<div class="form-group">
-										<label for="status">Cập Nhật Trạng Thái Đơn Hàng:</label>
-										<select id="status" name="status" class="form-control">
-											<!--<option th:value="'Đang xử lý'"
-											th:selected="${donHang.trangThaiDonHang == 'Đang xử lý'}">Đang xử lý
-										</option>
-										<option th:value="'Đã xác nhận'"
-											th:selected="${donHang.trangThaiDonHang == 'Đã xác nhận'}">Đã xác nhận
-										</option>
-										<option th:value="'Đang giao hàng'"
-											th:selected="${donHang.trangThaiDonHang == 'Đang giao hàng'}">Đang giao hàng
-										</option>
-										<option th:value="'Đã hoàn thành'"
-											th:selected="${donHang.trangThaiDonHang == 'Đã hoàn thành'}">Đã hoàn thành
-										</option>
-										<option th:value="'Đã hủy'"
-											th:selected="${donHang.trangThaiDonHang == 'Đã hủy'}">Đã hủy</option>-->
-											<option th:each="status : ${nextStatuses}" th:value="${status}"
-												th:text="${status}"></option>
-
-
-										</select>
+									<!-- Form cập nhật trạng thái đơn hàng -->
+									<div
+										th:if="${donHang.trangThaiDonHang != 'Đã hoàn thành' and donHang.trangThaiDonHang != 'Đã hủy' and donHang.trangThaiDonHang != 'Bị hủy do không đủ hàng'}">
+										<form
+											th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
+											method="post" class="mt-3">
+											<div class="form-group">
+												<label for="status">Cập Nhật Trạng Thái Đơn Hàng:</label>
+												<select id="status" name="status" class="form-control">
+													<option th:each="status : ${nextStatuses}" th:value="${status}"
+														th:text="${status}"></option>
+												</select>
+											</div>
+											<button type="submit" class="btn btn-primary mt-3">Cập nhật trạng
+												thái</button>
+										</form>
 									</div>
-									<!--	<button type="submit" class="btn btn-primary mt-3">Cập Nhật Trạng Thái</button>-->
-									<button type="submit" class="btn btn-primary mt-3"
-										th:disabled="${donHang.trangThaiDonHang == 'Đã hủy' or donHang.trangThaiDonHang == 'Bị hủy do không đủ hàng'}">
-										Cập nhật trạng thái
-									</button>
-								</form>
+								</div>
 							</div>
-							<!-- Thông báo nếu đơn hàng không thể cập nhật trạng thái -->
-							<div
-								th:if="${donHang.trangThaiDonHang == 'Đã hoàn thành' or donHang.trangThaiDonHang == 'Đã hủy'}">
-								<p> </p>
-							</div>
-
-
 						</div>
 
-
-
-
-
+						<!-- Tổng Giá Trị -->
 						<div class="col-md-6">
-							<h5>Tổng Giá Trị</h5>
-							<p><strong>Tổng Giá Trị Đơn Hàng:</strong> <span
-									th:text="${donHang.tongGiaTriDonHang}"></span> VND</p>
-							<p><strong>Phí Vận Chuyển:</strong> <span th:text="${donHang.phiVanChuyen}"></span> VND</p>
+							<div class="card shadow-sm">
+								<div class="card-header bg-light">
+									<h5 class="mb-0">Tổng Giá Trị</h5>
+								</div>
+								<div class="card-body">
+									<p><strong>Phí Vận Chuyển:</strong> <span th:text="${donHang.phiVanChuyen}"></span>
+										VND</p>
+									<p><strong>Tổng Giá Trị Đơn Hàng:</strong> <span
+											th:text="${donHang.tongGiaTriDonHang}"></span> VND</p>
+
+
+
+								</div>
+							</div>
 						</div>
 					</div>
 
+
 					<!-- Danh sách sản phẩm -->
 					<h5 class="mt-5">Danh Sách Sản Phẩm Trong Đơn Hàng</h5>
-					<table class="table table-bordered mt-4">
-						<thead>
+					<table class="table table-bordered table-hover mt-4">
+						<thead class="thead-dark">
 							<tr>
-								<th>Mã Sản Phẩm</th>
-								<th>Hình Ảnh</th>
-								<th>Tên Sản Phẩm</th>
-								<th>Số Lượng</th>
-								<th>Giá Tại Thời Điểm Đặt</th>
-								<th>Thành Tiền</th>
+								<th style="text-align: center;">Mã Sản Phẩm</th>
+								<th style="text-align: center;">Hình Ảnh</th>
+								<th style="text-align: center;">Tên Sản Phẩm</th>
+								<th style="text-align: center;">Số Lượng</th>
+								<th style="text-align: center;">Giá Tại Thời Điểm Đặt</th>
+								<th style="text-align: center;">Thành Tiền</th>
 							</tr>
 						</thead>
 						<tbody>
-							<tr th:each="chiTiet : ${donHang.chiTietDonHangs}">
+							<tr th:each="chiTiet : ${donHang.chiTietDonHangs}" style="text-align: center;">
 								<td th:text="${chiTiet.sanPham.maSanPham}"></td>
-								<td style="text-align: center;">
+								<td>
 									<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}"
 										style="width: 100px; height: auto;" alt="Ảnh sản phẩm" />
 								</td>
@@ -142,15 +122,10 @@
 						</tbody>
 					</table>
 
-					<!-- Nút Quay lại và Xác nhận đơn hàng -->
-					<div class="mt-4">
+					<!-- Nút Quay lại -->
+					<div class="mt-4 d-flex justify-content-between">
 						<a th:href="@{/admin/orders}" class="btn btn-secondary">Quay Lại</a>
-						<!--<a th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}"
-							th:href="@{/admin/order/confirm/{id}(id=${donHang.maDonHang})}" class="btn btn-success">Xác
-							Nhận Đơn Hàng</a>-->
 					</div>
-
-
 				</div>
 			</div>
 
@@ -158,7 +133,6 @@
 			<div th:replace="admin/fragments/footer :: footer"></div>
 			<!-- End Footer -->
 		</div>
-
 	</div>
 
 	<!-- Core JS Files -->
