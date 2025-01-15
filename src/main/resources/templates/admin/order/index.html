@@ -30,24 +30,37 @@
 						<span th:text="${error}"></span>
 					</div>
 					<table class="table table-bordered mt-4">
-						<thead>
+						<thead class="thead-dark">
 							<tr>
-								<th>Mã Đơn Hàng</th>
-								<th>Tên Khách Hàng</th>
-								<th>Ngày Đặt</th>
-								<th>Trạng Thái</th>
-								<th>Hành Động</th>
+								<th style="text-align: center;">Mã Đơn Hàng</th>
+								<th style="text-align: center;">Tên Khách Hàng</thstyle="text-align: center;">
+								<th style="text-align: center;">Ngày Đặt</th>
+								<th style="text-align: center;">Trạng Thái</th>
+								<th style="text-align: center;">Hành Động</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr th:each="donHang : ${donHangs}">
-								<td th:text="${donHang.maDonHang}"></td>
-								<td
+								<td style="text-align: center;" th:text="${donHang.maDonHang}"></td>
+								<td style="text-align: center;"
 									th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}">
 								</td>
-								<td th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
-								<td th:text="${donHang.trangThaiDonHang}"></td>
-								<td>
+								<td style="text-align: center;" th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
+								<!--<td th:text="${donHang.trangThaiDonHang}"></td>-->
+								<td style="text-align: center;">
+									<span th:text="${donHang.trangThaiDonHang}" th:classappend="
+            ${donHang.trangThaiDonHang == 'Đang xử lý'} ? 'badge bg-primary' :
+            (${donHang.trangThaiDonHang == 'Đã xác nhận'} ? 'badge bg-info' :
+            (${donHang.trangThaiDonHang == 'Đang giao hàng'} ? 'badge bg-warning' :
+            (${donHang.trangThaiDonHang == 'Đã hoàn thành'} ? 'badge bg-success' :
+            (${donHang.trangThaiDonHang == 'Đã hủy'} ? 'badge bg-danger' : 'badge bg-secondary'))))"
+            style="font-size: 15px; font-weight: bold; "
+            
+            >
+									</span>
+								</td>
+
+								<td >
 									<a th:href="@{/admin/orders/{maDonHang}(maDonHang=${donHang.maDonHang})}"
 										class="btn btn-primary">Xem Chi Tiết</a>
 									<a th:if="${donHang.trangThaiDonHang == 'Đã hoàn thành'}"

@@ -21,7 +21,7 @@
 					<div class="d-flex justify-content-between align-items-center mb-4">
 						<div>
 							<h3 class="fw-bold mb-3">Chi Tiết Đơn Hàng</h3>
-							<h6 class="text-muted">Thông tin chi tiết cho đơn hàng</h6>
+							<h6 class="text-dark">Thông tin chi tiết cho đơn hàng</h6>
 						</div>
 					</div>
 
@@ -34,8 +34,8 @@
 						<!-- Thông Tin Đơn Hàng -->
 						<div class="col-md-6 mb-4">
 							<div class="card shadow-sm">
-								<div class="card-header bg-light">
-									<h5 class="mb-0">Thông Tin Đơn Hàng</h5>
+								<div class="card-header bg-dark">
+									<h5 class="mb-0" style="color: #faeee7;">Thông Tin Đơn Hàng</h5>
 								</div>
 								<div class="card-body">
 									<p><strong>Mã Đơn Hàng:</strong> <span th:text="${donHang.maDonHang}"></span></p>
@@ -48,8 +48,17 @@
 											th:text="${donHang.diaChiGiaoHang}"></span></p>
 									<p><strong>Số Điện Thoại Nhận Hàng:</strong> <span
 											th:text="${donHang.sdtNhanHang}"></span></p>
-									<p><strong>Trạng Thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span>
+									<!--<p><strong>Trạng Thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span>
+									</p>-->
+									<p>
+										<strong>Trạng Thái:</strong>
+										<span th:text="${donHang.trangThaiDonHang}" th:styleappend="
+              ${donHang.trangThaiDonHang == 'Đã hủy'} ? 'color: #dc3545; font-weight: bold;' :
+              (${donHang.trangThaiDonHang == 'Đã hoàn thành'} ? 'color: #28a745; font-weight: bold;' : '')">
+										</span>
 									</p>
+
+
 
 									<!-- Form cập nhật trạng thái đơn hàng -->
 									<div
@@ -75,25 +84,68 @@
 						<!-- Tổng Giá Trị -->
 						<div class="col-md-6">
 							<div class="card shadow-sm">
-								<div class="card-header bg-light">
-									<h5 class="mb-0">Tổng Giá Trị</h5>
+								<div class="card-header bg-dark">
+									<h5 class="mb-0" style="color: #faeee7;">Tổng Giá Trị</h5>
 								</div>
 								<div class="card-body">
-									<p><strong>Phí Vận Chuyển:</strong> <span th:text="${donHang.phiVanChuyen}"></span>
+									<!--<p><strong>Phí Vận Chuyển:</strong> <span th:text="${donHang.phiVanChuyen}"></span>
+										VND</p>-->
+
+
+									<!--<p><strong>Tổng Giá Trị Đơn Hàng:</strong> <span
+											th:text="${donHang.tongGiaTriDonHang}"></span> VND</p>-->
+									<p><strong>Phí Vận Chuyển:</strong> <span th:text="${formattedPhiVanChuyen}"></span>
 										VND</p>
 									<p><strong>Tổng Giá Trị Đơn Hàng:</strong> <span
-											th:text="${donHang.tongGiaTriDonHang}"></span> VND</p>
+											th:text="${formattedTongGiaTri}"></span> VND</p>
 
 
 
 								</div>
 							</div>
+
+
+							<div class="card shadow-sm mt-4">
+								<div class="card-header bg-dark">
+									<h5 class="mb-0" style="color: #faeee7;">Lịch Sử Trạng Thái Đơn Hàng</h5>
+								</div>
+								<div class="card-body">
+									<div class="status-bar"
+										style="display: flex; align-items: center; justify-content: space-between; position: relative; padding: 10px 0;">
+										<div class="status-item" th:each="status, iterStat : ${allStatuses}"
+											style="display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; flex: 1;">
+
+											<!-- Circle -->
+											<div class="circle" th:text="${iterStat.index + 1}"
+												style="width: 30px; height: 30px; border-radius: 50%; font-weight: bold; display: flex; justify-content: center; align-items: center; margin-bottom: 5px;"
+												th:styleappend="
+                        ${currentStatusIndex == allStatuses.size() - 1 && iterStat.index == currentStatusIndex} ? 'background-color: #dc3545; color: white;' :
+                        (${iterStat.index <= currentStatusIndex} ? 'background-color: #28a745; color: white;' :
+                        'background-color: #e0e0e0; color: black;')">
+											</div>
+
+											<!-- Status Text -->
+											<span th:text="${status}" style="font-size: 14px;" th:styleappend="
+                        ${currentStatusIndex == allStatuses.size() - 1 && iterStat.index == currentStatusIndex} ? 'color: #dc3545; font-weight: bold;' :
+                        (${iterStat.index <= currentStatusIndex} ? 'color: #28a745; font-weight: bold;' :
+                        'color: #6c757d;')">
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+
+
 						</div>
+
+
 					</div>
 
 
 					<!-- Danh sách sản phẩm -->
-					<h5 class="mt-5">Danh Sách Sản Phẩm Trong Đơn Hàng</h5>
+					<h5 class="mt-0">Danh Sách Sản Phẩm Trong Đơn Hàng</h5>
 					<table class="table table-bordered table-hover mt-4">
 						<thead class="thead-dark">
 							<tr>
@@ -106,20 +158,20 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr th:each="chiTiet : ${donHang.chiTietDonHangs}" style="text-align: center;">
-								<td th:text="${chiTiet.sanPham.maSanPham}"></td>
+							<tr th:each="chiTiet : ${formattedChiTietDonHang}" style="text-align: center;">
+								<td th:text="${chiTiet['maSanPham']}"></td>
 								<td>
-									<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}"
+									<img th:src="@{'/upload/' + ${chiTiet['hinhAnh']}}"
 										style="width: 100px; height: auto;" alt="Ảnh sản phẩm" />
 								</td>
-								<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
-								<td th:text="${chiTiet.soLuong}"></td>
-								<td th:text="${chiTiet.giaTaiThoiDiemDat}"></td>
-								<td
-									th:text="${chiTiet.giaTaiThoiDiemDat.multiply(new java.math.BigDecimal(chiTiet.soLuong))}">
-								</td>
+								<td th:text="${chiTiet['tenSanPham']}"></td>
+								<td th:text="${chiTiet['soLuong']}"></td>
+								<td th:text="${chiTiet['giaTaiThoiDiemDat']}+ ' VND'"></td>
+								<td th:text="${chiTiet['thanhTien']} + ' VND'"></td>
 							</tr>
 						</tbody>
+
+
 					</table>
 
 					<!-- Nút Quay lại -->

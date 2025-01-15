@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="admin/fragments/head :: head"></head>
+<head th:replace="admin/fragments/head :: head">
+
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+
+</head>
 
 <body>
 	<div class="wrapper">
@@ -20,15 +24,15 @@
 						<span th:text="${errorMessage}"></span>
 					</div>
 
-					<table class="table table-striped mt-4">
-						<thead>
+					<table class="table table-bordered mt-4">
+						<thead class="thead-dark">
 							<tr>
-								<th>Mã Hóa Đơn</th>
-								<th>Ngày Xuất</th>
-								<th>Tổng Tiền</th>
-								<th>Người Nhận</th>
-								<th>Trạng Thái</th>
-								<th>Thao Tác</th>
+								<th style="text-align: center;">Mã Hóa Đơn</th>
+								<th style="text-align: center;">Ngày Xuất</th>
+								<th style="text-align: center;">Tổng Tiền</th>
+								<th style="text-align: center;">Người Nhận</th>
+								<th style="text-align: center;">Trạng Thái</th>
+								<th style="text-align: center;">Thao Tác</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -36,16 +40,31 @@
 								<td colspan="6" class="text-center text-muted">Không tìm thấy hóa đơn nào.</td>
 							</tr>
 							<tr th:each="hoaDon : ${hoaDons}">
-								<td th:text="${hoaDon.maHoaDon}"></td>
-								<td th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></td>
-								<td th:text="${hoaDon.tongTien} + ' VND'"></td>
-								<td th:text="${hoaDon.tenNguoiNhan}"></td>
-								<td th:text="${hoaDon.trangThaiThanhToan}"></td>
-								<td>
+								<td style="text-align: center;" th:text="${hoaDon.maHoaDon}"></td>
+								<td style="text-align: center;"
+									th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></td>
+								<td style="text-align: center;" th:text="${hoaDon.tongTien} + ' VND'"></td>
+							
+							
+
+
+								<td style="text-align: center;" th:text="${hoaDon.tenNguoiNhan}"></td>
+
+
+								<td style="text-align: center;">
+									<span
+										th:text="${hoaDon.trangThaiThanhToan == 'Chưa xác nhận' ? 'Chưa thanh toán' : 'Đã thanh toán'}"
+										th:classappend="${hoaDon.trangThaiThanhToan == 'Chưa xác nhận' ? 'text-danger' : 'text-success'}">
+									</span>
+									<i
+										th:classappend="${hoaDon.trangThaiThanhToan == 'Chưa xác nhận' ? 'fa fa-times-circle text-danger' : 'fa fa-check-circle text-success'}"></i>
+								</td>
+
+								<td style="text-align: center;">
 									<a th:href="@{'/admin/hoadon/' + ${hoaDon.donHang.maDonHang}}"
 										class="btn btn-primary">Xem Chi Tiết</a>
 								</td>
-								
+
 
 							</tr>
 						</tbody>
