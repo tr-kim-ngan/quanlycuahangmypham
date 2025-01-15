@@ -37,12 +37,12 @@
 						<table class="table table-hover table-bordered table-striped">
 							<thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
 								<tr>
-									<th>STT</th> <!-- Cột Số thứ tự -->
+									<th style="text-align: center;">STT</th> <!-- Cột Số thứ tự -->
 									<!--<th>Mã Nhà Cung Cấp</th>-->
-									<th>Tên Nhà Cung Cấp</th>
-									<th>Email</th>
-									<th>Số điện thoại</th>
-									<th>Hành động</th>
+									<th style="text-align: center;">Tên Nhà Cung Cấp</th>
+									<th style="text-align: center;">Email</th>
+									<th style="text-align: center;">Số điện thoại</th>
+									<th style="text-align: center;">Hành động</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -52,12 +52,12 @@
 								</tr>
 								<!-- Loop through supplier list and add Số thứ tự -->
 								<tr th:each="supplier, stat : ${listNhaCungCap}">
-									<td th:text="${stat.count}"></td> <!-- Số thứ tự -->
+									<td style="text-align: center;" th:text="${stat.count}"></td> <!-- Số thứ tự -->
 									<!--<td th:text="${supplier.maNhaCungCap}"></td>-->
-									<td th:text="${supplier.tenNhaCungCap}"></td>
-									<td th:text="${supplier.emailNhaCungCap}"></td>
-									<td th:text="${supplier.sdtNhaCungCap}"></td>
-									<td>
+									<td style="text-align: center;" th:text="${supplier.tenNhaCungCap}"></td>
+									<td style="text-align: center;" th:text="${supplier.emailNhaCungCap}"></td>
+									<td style="text-align: center;" th:text="${supplier.sdtNhaCungCap}"></td>
+									<td style="text-align: center;">
 										<a th:href="@{/admin/edit-supplier/{id}(id=${supplier.maNhaCungCap})}"
 											class="btn btn-warning btn-sm">
 											<i class="fas fa-edit"></i> Sửa

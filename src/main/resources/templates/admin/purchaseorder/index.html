@@ -42,13 +42,13 @@
 					<div class="table-responsive">
 						<table class="table table-hover table-bordered table-striped">
 							<thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
-								<tr>
-									<th>STT</th> <!-- Cột Số thứ tự -->
+								<tr >
+									<th style="text-align: center;">STT</th> <!-- Cột Số thứ tự -->
 									<!--<th>Mã Đơn Nhập</th>-->
-									<th>Ngày Nhập</th>
-									<th>Nhà Cung Cấp</th>
-									<th>Tổng Số Tiền</th>
-									<th>Hành động</th>
+									<th style="text-align: center;">Ngày Nhập</th>
+									<th style="text-align: center;">Nhà Cung Cấp</th>
+									<th style="text-align: center;">Tổng Số Tiền</th>
+									<th style="text-align: center;">Hành động</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -60,19 +60,19 @@
 								<tr th:each="donNhapHang, stat : ${listDonNhapHang}"
 									th:if="${donNhapHang.trangThai== true}">
 									<!-- STT (Số thứ tự) -->
-									<td th:text="${stat.count}"></td>
+									<td style="text-align: center;" th:text="${stat.count}"></td>
 									<!-- Mã Đơn Nhập là tên nhà cung cấp -->
 									<!--<td th:text="${donNhapHang.maDonNhapHang}"></td>-->
 									<!-- Ngày nhập hàng -->
-									<td th:text="${formattedNgayNhapHangValues[donNhapHang.maDonNhapHang]}"></td>
+									<td style="text-align: center;" th:text="${formattedNgayNhapHangValues[donNhapHang.maDonNhapHang]}"></td>
 									<!-- Nhà cung cấp -->
-									<td th:text="${donNhapHang.nhaCungCap.tenNhaCungCap}"></td>
+									<td style="text-align: center;" th:text="${donNhapHang.nhaCungCap.tenNhaCungCap}"></td>
 									<!-- Tổng giá trị nhập hàng -->
-									<td th:text="${formattedTotalValues[donNhapHang.maDonNhapHang]}">
+									<td style="text-align: center;" th:text="${formattedTotalValues[donNhapHang.maDonNhapHang]}">
 									</td>
 
 									<!-- Hành động -->
-									<td>
+									<td style="text-align: center;">
 										<a th:href="@{/admin/edit/{id}(id=${donNhapHang.maDonNhapHang})}"
 											class="btn btn-warning btn-sm">Xem chi tiết</a>
 
