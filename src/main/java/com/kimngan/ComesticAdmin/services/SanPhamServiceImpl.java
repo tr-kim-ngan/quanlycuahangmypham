@@ -215,6 +215,14 @@ public class SanPhamServiceImpl implements SanPhamService {
 	}
 
 	
+
+	@Override
+	public Page<SanPham> findActiveProductsByBrand(Integer maThuongHieu, Pageable pageable) {
+		// TODO Auto-generated method stub
+	    return sanPhamRepository.findByThuongHieu_MaThuongHieuAndTrangThai(maThuongHieu, true, pageable);
+	}
+
+	
 	
 
 	

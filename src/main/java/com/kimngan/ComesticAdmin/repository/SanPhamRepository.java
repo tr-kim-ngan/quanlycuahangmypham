@@ -31,6 +31,9 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 	Page<SanPham> findByDanhMucAndTrangThai(Integer maDanhMuc, Boolean trangThai, Pageable pageable);
 	
 	List<SanPham> findByTrangThaiTrue();
+	Page<SanPham> findByThuongHieu_MaThuongHieuAndTrangThai(Integer maThuongHieu, boolean trangThai, Pageable pageable);
+
+	
 	
 	
 	// Tìm sản phẩm hoạt động, có hàng trong kho và có trong đơn nhập hàng

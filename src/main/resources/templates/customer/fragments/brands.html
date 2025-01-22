@@ -1,0 +1,113 @@
+<div th:fragment="brands">
+	<section class="overflow-hidden py-5" style="background-color: #f9f9f9;">
+		<div class="container">
+			<div class="row mb-4">
+				<h2 class="section-title text-center text-uppercase fw-bold" style="color: #444;">
+					Danh sách Thương hiệu
+				</h2>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-md-10">
+					<div id="brandCarousel" class="carousel slide" data-bs-ride="carousel">
+						<div class="carousel-inner">
+							<!-- Hiển thị các nhóm thương hiệu -->
+							<div th:each="brandGroup, iterStat : ${brandGroups}"
+								th:classappend="${iterStat.index == 0} ? 'carousel-item active' : 'carousel-item'">
+								<div class="row justify-content-center gx-4">
+									<!-- Hiển thị từng thương hiệu trong nhóm -->
+									<div th:each="brand : ${brandGroup}" class="col-6 col-sm-4 col-md-3 col-lg-2">
+										<a th:href="@{'/brands/' + ${brand.maThuongHieu}}" class="brand-link"
+											style="text-decoration: none;">
+
+											<div class="brand-banner-item">
+												<div class="brand-banner-image">
+													<img th:src="@{'/upload/' + ${brand.hinhAnh}}"
+														alt="Hình thương hiệu">
+												</div>
+												<div class="brand-banner-name">
+													<h4 th:text="${brand.tenThuongHieu}"></h4>
+												</div>
+											</div>
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Nút điều hướng -->
+						<button class="carousel-control-prev" type="button" data-bs-target="#brandCarousel"
+							data-bs-slide="prev">
+							<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">Previous</span>
+						</button>
+						<button class="carousel-control-next" type="button" data-bs-target="#brandCarousel"
+							data-bs-slide="next">
+							<span class="carousel-control-next-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">Next</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<style>
+		.section-title {
+			font-size: 24px;
+			letter-spacing: 1px;
+		}
+
+		.brand-banner-item {
+			background-color: #ffffff;
+			border-radius: 15px;
+			box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+			overflow: hidden;
+			text-align: center;
+			padding: 15px;
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+		}
+
+		.brand-banner-item:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+		}
+
+		.brand-banner-image img {
+			width: 100%;
+			height: 120px;
+			object-fit: cover;
+			border-radius: 10px;
+		}
+
+		.brand-banner-name h4 {
+			font-size: 14px;
+			color: #333;
+			margin-top: 10px;
+		}
+
+		.carousel-control-prev,
+		.carousel-control-next {
+			background-color: rgba(0, 0, 0, 0.6);
+			border-radius: 50%;
+			width: 45px;
+			height: 45px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border: 2px solid white;
+			top: 40%;
+
+			transition: background-color 0.3s ease, transform 0.3s ease;
+		}
+
+		.carousel-control-prev:hover,
+		.carousel-control-next:hover {
+			background-color: rgba(0, 0, 0, 0.8);
+			transform: scale(1.1);
+		}
+
+		.carousel-control-prev-icon,
+		.carousel-control-next-icon {
+			filter: invert(1);
+		}
+	</style>
+</div>

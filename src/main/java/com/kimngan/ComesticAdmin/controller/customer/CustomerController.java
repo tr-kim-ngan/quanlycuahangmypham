@@ -18,8 +18,10 @@ import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DanhGiaService;
 import com.kimngan.ComesticAdmin.services.DanhMucService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
+import com.kimngan.ComesticAdmin.services.ThuongHieuService;
 import com.kimngan.ComesticAdmin.services.YeuThichService;
 import com.kimngan.ComesticAdmin.entity.SanPham;
+import com.kimngan.ComesticAdmin.entity.ThuongHieu;
 
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,7 +53,10 @@ public class CustomerController {
 
 	@Autowired
 	private DanhGiaService danhGiaService;
-	
+
+	@Autowired
+	private ThuongHieuService thuongHieuService;
+
 	@Autowired
 	private ChiTietDonNhapHangService chiTietDonNhapHangService;
 
@@ -120,14 +125,50 @@ public class CustomerController {
 
 		// Lấy danh sách danh mục
 		List<DanhMuc> danhMucs = danhMucService.getAll();
+		List<DanhMuc> allCategories = danhMucService.getAll();
 		List<DanhMuc> categories = danhMucService.getAll();
+		List<List<DanhMuc>> categoryGroups = new ArrayList<>();
 
+		int totalCategories = allCategories.size();
+		int itemsPerRow = 6; 
 		// Tự động chia danh mục thành 2 nhóm: hiển thị và ẩn
-		int maxVisible = 4; // Số lượng danh mục hiển thị ban đầu
-		List<DanhMuc> visibleDanhMucs = danhMucs.subList(0, Math.min(danhMucs.size(), maxVisible));
-		List<DanhMuc> hiddenDanhMucs = danhMucs.size() > maxVisible ? danhMucs.subList(maxVisible, danhMucs.size())
-				: new ArrayList<>();
+//		int maxVisible = 4; // Số lượng danh mục hiển thị ban đầu
+//		List<DanhMuc> visibleDanhMucs = danhMucs.subList(0, Math.min(danhMucs.size(), maxVisible));
+//		List<DanhMuc> hiddenDanhMucs = danhMucs.size() > maxVisible ? danhMucs.subList(maxVisible, danhMucs.size())
+//				: new ArrayList<>();
+		// Sắp xếp danh mục
+		for (int i = 0; i < totalCategories; i += itemsPerRow) {
+		    List<DanhMuc> group = new ArrayList<>();
+		    for (int j = 0; j < itemsPerRow; j++) {
+		        int index = (i + j) % totalCategories; // Lấy chỉ số tuần hoàn
+		        group.add(allCategories.get(index));
+		    }
+		    categoryGroups.add(group);
+		}
 
+
+		// Logic để lấy danh sách thương hiệu
+		List<ThuongHieu> allBrands = thuongHieuService.getAllBrands();
+		List<List<ThuongHieu>> brandGroups = new ArrayList<>();
+
+		int totalBrands = allBrands.size();
+		// Số cột mỗi hàng
+
+		// Sắp xếp thương hiệu
+		for (int i = 0; i < totalBrands; i += itemsPerRow) {
+			List<ThuongHieu> group = new ArrayList<>();
+			for (int j = 0; j < itemsPerRow; j++) {
+				int index = (i + j) % totalBrands; // Lấy chỉ số tuần hoàn
+				group.add(allBrands.get(index));
+			}
+			brandGroups.add(group);
+		}
+		model.addAttribute("categoryGroups", categoryGroups);
+
+		// Thêm vào model để hiển thị
+		model.addAttribute("brandGroups", brandGroups);
+
+		// Thêm vào model
 		model.addAttribute("sanPhams", sanPhams);
 		model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap); // Map khuyến mãi cao nhất cho từng sản phẩm
 		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap); // Giá sau khi giảm
@@ -137,8 +178,8 @@ public class CustomerController {
 		model.addAttribute("totalPages", sanPhams.getTotalPages());
 
 		// Thêm vào model để sử dụng trong view
-		model.addAttribute("visibleDanhMucs", visibleDanhMucs);
-		model.addAttribute("hiddenDanhMucs", hiddenDanhMucs);
+//		model.addAttribute("visibleDanhMucs", visibleDanhMucs);
+//		model.addAttribute("hiddenDanhMucs", hiddenDanhMucs);
 		model.addAttribute("categories", categories);
 
 		System.out.println("Danh sách danh mục: " + danhMucs.size());

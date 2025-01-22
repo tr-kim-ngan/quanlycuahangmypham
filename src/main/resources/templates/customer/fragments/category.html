@@ -1,51 +1,55 @@
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <div th:fragment="category">
-
-	<section class=" overflow-hidden">
-		<div class="container-fluid">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="section-header d-flex flex-wrap justify-content-between mb-5">
-						<h2 class="section-title">Danh mục sản phẩm</h2>
-						<div class="d-flex align-items-center">
-							<a href="javascript:void(0);" id="viewAllCategories"
-								class="btn-link text-decoration-none">Xem tất cả danh mục →</a>
-						</div>
-					</div>
-				</div>
+	<section class="overflow-hidden py-5" style="background-color: #f9f9f9;">
+		<div class="container">
+			<div class="row mb-4">
+				<h2 class="section-title text-center text-uppercase fw-bold" style="color: #222;">
+					Danh mục sản phẩm
+				</h2>
 			</div>
-			<div class="row">
-				<div class="col-md-12">
-					<!-- Flexbox container for all categories -->
-					<div class="category-grid">
-						<!-- Danh mục hiện sẵn -->
-
-
-						<!-- Danh mục hiện sẵn -->
-						<div th:each="danhMuc : ${visibleDanhMucs}">
-							<a th:href="@{'/category/' + ${danhMuc.maDanhMuc}}" class="nav-link category-item">
-								<div class="category-image mb-2">
-									<img th:src="@{'/upload/' + ${danhMuc.hinhAnh}}" alt="Hình danh mục"
-										style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; background-color: #000;">
+			<div class="row justify-content-center">
+				<div class="col-md-10">
+					<div id="categoryCarousel" class="carousel slide" data-bs-ride="carousel">
+						<div class="carousel-inner">
+							<!-- Hiển thị các nhóm danh mục -->
+							<div th:each="categoryGroup, iterStat : ${categoryGroups}"
+								th:classappend="${iterStat.index == 0} ? 'carousel-item active' : 'carousel-item'">
+								<div class="row justify-content-center">
+									<!-- Hiển thị từng danh mục trong nhóm -->
+									<div th:each="danhMuc : ${categoryGroup}" class="col-2">
+										<a th:href="@{'/category/' + ${danhMuc.maDanhMuc}}" class="category-item">
+											<div class="category-image">
+												<img th:src="@{'/upload/' + ${danhMuc.hinhAnh}}" alt="Hình danh mục">
+											</div>
+											<h4 class="category-name" th:text="${danhMuc.tenDanhMuc}"></h4>
+										</a>
+									</div>
 								</div>
-								<h4 th:text="${danhMuc.tenDanhMuc}">Tên Danh Mục</h4>
-							</a>
+							</div>
 						</div>
+						<!-- Nút điều hướng bên trái -->
+						<button class="carousel-control-prev" type="button" data-bs-target="#categoryCarousel"
+							data-bs-slide="prev">
+							<span class="carousel-control-prev-icon" aria-hidden="true" style="background-color: transparent; 
+		       background-size: 100%; 
+		       width: 20px; 
+		       height: 20px; 
+		       filter: invert(1); 
+		       border-radius: 50%;"></span>
+							<span class="visually-hidden">Previous</span>
+						</button>
 
+						<!-- Nút điều hướng bên phải -->
+						<button class="carousel-control-next" type="button" data-bs-target="#categoryCarousel"
+							data-bs-slide="next">
+							<span class="carousel-control-next-icon" aria-hidden="true" style="background-color: transparent; 
+		       background-size: 100%; 
+		       width: 20px; 
+		       height: 20px; 
+		       filter: invert(1); 
+		       border-radius: 50%;"></span>
+							<span class="visually-hidden">Next</span>
+						</button>
 
-
-
-
-						<!-- Danh mục ẩn ban đầu, thêm khi có nhiều hơn 6 danh mục -->
-						<div th:each="danhMucAn : ${hiddenDanhMucs}" class="hidden-category" style="display: none;">
-							<a th:href="@{'/category/' + ${danhMucAn.maDanhMuc}}" class="nav-link category-item">
-								<div class="category-image mb-2">
-									<img th:src="@{'/upload/' + ${danhMucAn.hinhAnh}}" alt="Hình danh mục"
-										style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; background-color: #000;">
-								</div>
-								<h4 th:text="${danhMucAn.tenDanhMuc}">Tên Danh Mục Ẩn</h4>
-							</a>
-						</div>
 
 
 					</div>
@@ -53,94 +57,70 @@
 			</div>
 		</div>
 	</section>
-
-	<script>
-		document.addEventListener("DOMContentLoaded", function () {
-			const viewAllCategoriesButton = document.getElementById('viewAllCategories');
-			const hiddenCategories = document.querySelectorAll('.hidden-category');
-
-			viewAllCategoriesButton.addEventListener('click', function () {
-				let isExpanded = viewAllCategoriesButton.getAttribute('data-expanded') === 'true';
-
-				hiddenCategories.forEach(function (category) {
-					category.style.display = isExpanded ? "none" : "block";
-				});
-
-				viewAllCategoriesButton.textContent = isExpanded ? "Xem tất cả danh mục →" : "Thu gọn danh mục ←";
-				viewAllCategoriesButton.setAttribute('data-expanded', !isExpanded);
-			});
-		});
-
-	</script>
-
-
 	<style>
-		.category-grid {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 30px;
-			justify-content: flex-start;
-			padding-left: 50px;
-			padding-right: 30px;
-			padding-bottom: 20px;
-			
-			
-		
+		.section-title {
+			font-size: 24px;
+			color: #333;
+			font-weight: bold;
 		}
 
 		.category-item {
-			width: 200px;
-			height: 150px;
-			text-align: center;
-
-			-webkit-line-clamp: 1;
-			-webkit-box-orient: vertical;
-			overflow: hidden;
-			text-overflow: ellipsis;
+			display: flex;
 			flex-direction: column;
 			align-items: center;
-			justify-content: center;
-			border: 1px solid #ddd;
-			padding: 5px;
-			box-sizing: border-box;
+			justify-content: flex-start;
+			background-color: #ffffff;
 			border-radius: 15px;
-			transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-			background-color: #f9f9f9;
-			cursor: pointer;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+			padding: 15px;
+			/* Giảm padding trái và phải */
+			height: 170px;
+			/* Chiều cao cố định */
+			text-decoration: none;
+			color: inherit;
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
 		}
 
 		.category-item:hover {
-			transform: scale(1.05);
-			box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
-			background-color: #f1f1f1;
+			transform: translateY(-5px);
+			box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
 		}
 
-		.hidden-category {
-			display: none;
+		.category-image {
+			width: 100%;
+			height: 120px;
+			border-radius: 10px;
+			overflow: hidden;
+			margin-bottom: 8px;
+			overflow: hidden;
+			margin-bottom: 10px;
+			/* Giảm khoảng cách giữa hình ảnh và tên */
+			background-color: #f9f9f9;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 		}
 
-		@media (max-width: 1200px) {
-			.category-item {
-				width: 180px;
-				height: 140px;
-			}
+		.category-image img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
 		}
 
-		@media (max-width: 768px) {
-			.category-item {
-				width: 150px;
-				height: 120px;
-			}
-		}
-
-		@media (max-width: 576px) {
-			.category-item {
-				width: 100%;
-				margin-bottom: 20px;
-			}
+		.category-name {
+			font-size: 14px;
+			/* Tăng kích thước chữ */
+			font-weight: bold;
+			color: #333;
+			text-align: center;
+			line-height: 1.4;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			/* Hiển thị tối đa 2 dòng */
+			-webkit-box-orient: vertical;
 		}
 	</style>
-
-
 
 </div>
