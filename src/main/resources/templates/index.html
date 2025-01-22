@@ -9,11 +9,15 @@
 	<main style="padding-top: 180px;">
 
 
-		<!-- Gọi banner từ tệp banners.html -->
-		<div th:replace="customer/fragments/banners :: banners"></div>
+		<!-- Gọi banner từ tệp banners.html 
+		<div th:replace="customer/fragments/banners :: banners"></div>-->
 		<!-- Thêm danh mục từ fragment -->
 		<div th:replace="customer/fragments/category :: category"></div>
 		<!-- Thêm sản phẩm từ fragment -->
+
+
+		<!-- Thêm phần thương hiệu -->
+		<div th:replace="customer/fragments/brands :: brands"></div>
 
 		<div th:replace="customer/fragments/product :: product"></div>
 

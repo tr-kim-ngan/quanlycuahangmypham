@@ -23,4 +23,6 @@ public interface ThuongHieuService {
 
     // Kiểm tra xem thương hiệu có sản phẩm không
     boolean hasProducts(Integer brandId);
+    
+    public List<ThuongHieu> getAllBrands();
 }

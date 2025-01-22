@@ -1,7 +1,6 @@
 package com.kimngan.ComesticAdmin.services;
 import com.kimngan.ComesticAdmin.entity.ThuongHieu;
 import com.kimngan.ComesticAdmin.repository.ThuongHieuRepository;
-import com.kimngan.ComesticAdmin.services.ThuongHieuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -86,6 +85,12 @@ public class ThuongHieuServiceImpl implements ThuongHieuService {
 		  ThuongHieu thuongHieu = thuongHieuRepository.findById(brandId).orElse(null);
 	        return thuongHieu != null && thuongHieu.getSanPhams() != null && !thuongHieu.getSanPhams().isEmpty();
 
+	}
+
+	@Override
+	public List<ThuongHieu> getAllBrands() {
+		// TODO Auto-generated method stub
+		return thuongHieuRepository.findAll();
 	}
 
 }
