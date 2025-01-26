@@ -1,7 +1,7 @@
 <!--<html lang="en" xmlns:th="http://www.thymeleaf.org">-->
 
 <div class="container-fluid" th:fragment="header"
-	style="position: fixed !important; top: 0; left: 0;max-width: 100%; width: 100%;height: 125px; z-index: 2000; background-color: white; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); border: none;">
+	style="position: fixed; top: 0; left: 0; max-width: 100%; height: 125px; z-index: 2000; background-color: white; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
 	<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
 		<defs>
 			<symbol xmlns="http://www.w3.org/2000/svg" id="link" viewBox="0 0 24 24">
@@ -68,12 +68,14 @@
 
 
 
+
 	<div class="content-wrapper">
-		<div class="row " >
+		<div class="row ">
 			<div class="col-sm-4 col-lg-3 text-center text-sm-start">
 				<div class="main-logo">
 					<a th:href="@{/index}">
-						<img th:src="@{/fe/images/logo1.png}" style="margin-top: 0px; max-width: 100%;max-height: 100%;" alt="logo" class="img-fluid">
+						<img th:src="@{/fe/images/logo1.png}" style="margin-top: 0px; max-width: 100%;max-height: 100%;"
+							alt="logo" class="img-fluid">
 					</a>
 				</div>
 			</div>
@@ -263,8 +265,8 @@
 
 
 			</div>
-			
-			
+
+
 			<!--	<div th:if="${success}" class="alert alert-success mt-3" role="alert">
 				<span th:text="${success}"></span>
 			</div>
@@ -352,11 +354,35 @@
 				</div>
 			</div>
 
+
 		</div>
 
 
 
 
 
+
 	</div>
+
+
+
+
+	<!-- Sub-header nằm ngay bên dưới -->
+	<div
+		style="position: fixed; text-align: center; left: 0; width: 100%; height: 45px; z-index: 200; padding-top: 10px; background-color: #ffffff;">
+
+		<a th:href="@{/brands/all}" style="
+    color: black; 
+    font-weight: bold; 
+    display: inline-block; 
+    text-decoration: underline; 
+    text-decoration-color: transparent; 
+    text-underline-offset: 3px; 
+    transition: text-decoration-color 0.3s;
+  " onmouseover="this.style.textDecorationColor='black';" onmouseout="this.style.textDecorationColor='transparent';">
+			THƯƠNG HIỆU
+		</a>
+
+	</div>
+
 </div>

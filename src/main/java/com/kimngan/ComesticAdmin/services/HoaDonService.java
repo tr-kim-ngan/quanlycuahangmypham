@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.kimngan.ComesticAdmin.entity.DonHang;
 import com.kimngan.ComesticAdmin.entity.HoaDon;
+import com.kimngan.ComesticAdmin.entity.SanPham;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -26,6 +28,7 @@ public interface HoaDonService {
     Page<HoaDon> searchByTrangThaiAndNgayXuat(String trangThai, LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
     BigDecimal calculateTotalRevenue();
     long countUnconfirmedInvoices();
+    List<SanPham> findTopSoldProductsByBrand(Integer maThuongHieu, int limit);
 
 
 

@@ -3,17 +3,22 @@ package com.kimngan.ComesticAdmin.services;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.DonHang;
 import com.kimngan.ComesticAdmin.entity.HoaDon;
+import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.repository.ChiTietDonHangRepository;
 import com.kimngan.ComesticAdmin.repository.HoaDonRepository;
 import com.kimngan.ComesticAdmin.services.HoaDonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class HoaDonServiceImpl implements HoaDonService {
@@ -125,6 +130,39 @@ public class HoaDonServiceImpl implements HoaDonService {
         return hoaDonRepository.countByTrangThaiThanhToan("Chưa xác nhận");
 
 	}
+
+	@Override
+	public List<SanPham> findTopSoldProductsByBrand(Integer maThuongHieu, int limit) {
+	    // Lấy tất cả hóa đơn có trạng thái thanh toán thành công
+	    List<HoaDon> successfulInvoices = hoaDonRepository.findByTrangThaiThanhToan("Đã xác nhận");
+
+	    // Tạo Map để lưu số lượng bán của từng sản phẩm
+	    Map<SanPham, Integer> productSalesMap = new HashMap<>();
+
+	    // Lặp qua từng hóa đơn thành công
+	    for (HoaDon hoaDon : successfulInvoices) {
+	        DonHang donHang = hoaDon.getDonHang();
+	        if (donHang != null) {
+	            // Lặp qua từng ChiTietDonHang trong đơn hàng
+	            for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+	                SanPham sanPham = chiTiet.getSanPham();
+	                if (sanPham != null && sanPham.getThuongHieu().getMaThuongHieu().equals(maThuongHieu)) {
+	                    // Tăng số lượng bán của sản phẩm trong productSalesMap
+	                    productSalesMap.put(sanPham, productSalesMap.getOrDefault(sanPham, 0) + chiTiet.getSoLuong());
+	                }
+	            }
+	        }
+	    }
+
+	    // Sắp xếp sản phẩm theo số lượng bán giảm dần và trả về top 4 sản phẩm
+	    return productSalesMap.entrySet().stream()
+	            .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+	            .map(Map.Entry::getKey)
+	            .limit(limit)
+	            .collect(Collectors.toList());
+	}
+
+	
 
 	
 

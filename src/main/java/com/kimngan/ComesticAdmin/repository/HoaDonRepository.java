@@ -38,5 +38,10 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 	@Query("SELECT COALESCE(SUM(h.tongTien), 0) FROM HoaDon h WHERE h.trangThaiThanhToan = :status")
 	BigDecimal calculateTotalRevenueByStatus(@Param("status") String status);
     long countByTrangThaiThanhToan(String trangThai);
+    
+    
+    
+    List<HoaDon> findByTrangThaiThanhToan(String trangThai);
+
 
 }

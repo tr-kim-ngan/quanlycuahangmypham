@@ -2,6 +2,8 @@ package com.kimngan.ComesticAdmin.services;
 
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHangId;
+import com.kimngan.ComesticAdmin.entity.SanPham;
+
 import java.util.List;
 
 public interface ChiTietDonHangService {
@@ -13,4 +15,5 @@ public interface ChiTietDonHangService {
     ChiTietDonHang save(ChiTietDonHang chiTietDonHang);
     Integer getSoldQuantityBySanPhamId(Integer sanPhamId);
     List<Object[]> getTop3BestSellingProducts();
+    List<SanPham> findTopSoldProductsByBrand(Integer maThuongHieu, int limit) ;
 }

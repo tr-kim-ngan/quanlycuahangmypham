@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,91 +47,54 @@ public class CustomerBrandController {
 	@Autowired
 	private SanPhamService sanPhamService;
 
+//	  @GetMapping("/all")
+//	    public String getAllBrands(Model model) {
+//	        // Lấy danh sách tất cả thương hiệu
+//	        List<ThuongHieu> allBrands = thuongHieuService.getAllBrands();
 //
-//	@ModelAttribute
-//	public void addAttributes(Model model, Principal principal) {
-//		if (principal != null) {
-//			String username = principal.getName();
-//			NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
-//			model.addAttribute("currentUser", currentUser);
-//			model.addAttribute("timestamp", System.currentTimeMillis());
-//		}
-//	}
-
-//	@GetMapping("/{brandId}")
-//	public String productsByBrand(@PathVariable("brandId") Integer brandId, @RequestParam(defaultValue = "0") int page,
-//			Model model, Authentication authentication) {
+//	        // Nhóm thương hiệu theo chữ cái đầu
+//	        Map<String, List<ThuongHieu>> groupedBrands = allBrands.stream()
+//	                .collect(Collectors.groupingBy(brand -> {
+//	                    String firstLetter = brand.getTenThuongHieu().substring(0, 1).toUpperCase();
+//	                    return firstLetter.matches("[A-Z]") ? firstLetter : "0-9";
+//	                }, TreeMap::new, Collectors.toList()));
 //
-//		// Lấy thông tin người dùng hiện tại nếu đăng nhập
-//		NguoiDung currentUser = null;
-//		if (authentication != null && authentication.isAuthenticated()) {
-//			Object principal = authentication.getPrincipal();
-//			if (principal instanceof NguoiDungDetails) {
-//				NguoiDungDetails userDetails = (NguoiDungDetails) principal;
-//				currentUser = userDetails.getNguoiDung();
-//				System.out.println("Current user: " + currentUser.getTenNguoiDung());
-//			}
-//		}
+//	        model.addAttribute("groupedBrands", groupedBrands);
 //
-//		// Thêm thông tin người dùng vào model nếu có
-//		if (currentUser != null) {
-//			model.addAttribute("currentUser", currentUser);
-//		}
-//		model.addAttribute("timestamp", System.currentTimeMillis()); // Thêm timestamp vào model
-//
-//		// Lấy thương hiệu theo ID
-//		ThuongHieu brand = thuongHieuService.findById(brandId);
-//		if (brand == null) {
-//			model.addAttribute("errorMessage", "Thương hiệu không tồn tại.");
-//			return "error"; // Trang lỗi
-//		}
-//		model.addAttribute("brand", brand);
-//
-//		// Lấy danh sách sản phẩm theo thương hiệu
-//		Page<SanPham> products = sanPhamService.findActiveProductsByBrand(brandId, PageRequest.of(page, 15));
-//		model.addAttribute("products", products.getContent());
-//		model.addAttribute("page", products);
-//		
-//		  // Map chứa giá sau giảm giá
-//	    Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
-//	    // Map chứa thông tin khuyến mãi
-//	    Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
-//	    // Map chứa đánh giá trung bình của sản phẩm
-//	    Map<Integer, Double> sanPhamAverageRatingMap = new HashMap<>();
-//	    LocalDate today = LocalDate.now();
-//	    
-//	    for (SanPham sanPham : products.getContent()) {
-//	        // Tìm khuyến mãi cao nhất hiện tại
-//	        Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
-//	                .filter(km -> km.getTrangThai()) // Lọc khuyến mãi đang hoạt động
-//	                .filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
-//	                        && !km.getNgayKetThuc().toLocalDate().isBefore(today)) // Trong khoảng ngày áp dụng
-//	                .max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia)); // Lấy khuyến mãi cao nhất
-//
-//	        // Tính giá sau giảm
-//	        BigDecimal giaSauGiam = sanPham.getDonGiaBan();
-//	        if (highestCurrentKhuyenMai.isPresent()) {
-//	            BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
-//	            giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-//	            sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
-//	        }
-//	        sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
-//
-//	        // Tính đánh giá trung bình
-//	        List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
-//	        Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0);
-//	        sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
+//	        return "customer/allBrands"; // Tên file HTML
 //	    }
-//	    
-//	    // Thêm các map vào model
-//	    model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
-//	    model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap);
-//	    model.addAttribute("sanPhamAverageRatingMap", sanPhamAverageRatingMap);
-//
-//		
-//
-//		return "customer/brandProducts";
-//	}
+
+	@GetMapping("/all")
+	public String getAllBrands(Model model) {
+	    // Danh sách các chữ cái (A-Z và 0-9)
+	    List<String> alphabet = new ArrayList<>();
+	    alphabet.add("0-9");
+	    for (char c = 'A'; c <= 'Z'; c++) {
+	        alphabet.add(String.valueOf(c));
+	    }
+	  
+
+	    // Lấy danh sách tất cả các thương hiệu từ cơ sở dữ liệu
+	    List<ThuongHieu> allBrands = thuongHieuService.getAllBrands();
+
+	    // Nhóm thương hiệu theo chữ cái đầu tiên
+	    Map<String, List<ThuongHieu>> groupedBrands = allBrands.stream()
+	        .collect(Collectors.groupingBy(brand -> {
+	            String firstChar = brand.getTenThuongHieu().substring(0, 1).toUpperCase();
+	            return firstChar.matches("[A-Z]") ? firstChar : "0-9";
+	        }));
+
+	    // Sắp xếp nhóm theo thứ tự bảng chữ cái
+	    Map<String, List<ThuongHieu>> sortedGroupedBrands = new TreeMap<>(groupedBrands);
+
+	    // Gửi dữ liệu sang view
+	    model.addAttribute("alphabet", alphabet);
+	    model.addAttribute("groupedBrands", sortedGroupedBrands);
+
+	    return "customer/allbrands";
+	}
+
+	
 
 	@GetMapping("/{brandId}")
 	public String productsByBrand(@PathVariable("brandId") Integer brandId, @RequestParam(defaultValue = "0") int page,

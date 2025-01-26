@@ -2,12 +2,17 @@ package com.kimngan.ComesticAdmin.services;
 
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHangId;
+import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.repository.ChiTietDonHangRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
@@ -71,6 +76,13 @@ public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
 		 return chiTietDonHangRepository.findTop3BestSellingProducts();
 	}
 
+
+
+
+	@Override
+	public List<SanPham> findTopSoldProductsByBrand(Integer maThuongHieu, int limit) {
+	    return chiTietDonHangRepository.findTopSoldProductsByBrand(maThuongHieu, PageRequest.of(0, limit+1));
+	}
 	
 	
 }
