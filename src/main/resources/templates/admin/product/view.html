@@ -35,7 +35,7 @@
 							<p class="fw-bold">Tên sản phẩm: <span th:text="${sanPham.tenSanPham}"></span></p>
 							<p class="fw-bold">Giá bán: <span th:text="${formattedPrice}"></span></p>
 							<p class="fw-bold">Số lượng đã bán: <span th:text="${soldQuantity}"></span></p>
-							<p class="fw-bold">Số lượng tồn: <span th:text="${sanPham.soLuong}"></span></p>
+							<p class="fw-bold">Số lượng trên kệ: <span th:text="${sanPham.soLuong}"></span></p>
 							<!--<p>Mô tả: <span th:text="${sanPham.moTa}"></span></p>-->
 							<p class="fw-bold">Mô tả:</p>
 							<pre class="fw-bold" th:text="${sanPham.moTa}"
@@ -105,7 +105,7 @@
 											<th>Mã đơn nhập hàng</th>
 											<th>Nhà Cung Cấp</th>
 											<th>Số lượng nhập</th>
-											<th>Đơn giá nhập</th>
+											<th>Tổng giá trị</th>
 											<th>Ngày nhập</th>
 										</tr>
 									</thead>

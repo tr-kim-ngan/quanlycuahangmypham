@@ -29,8 +29,8 @@ public interface HoaDonService {
     BigDecimal calculateTotalRevenue();
     long countUnconfirmedInvoices();
     List<SanPham> findTopSoldProductsByBrand(Integer maThuongHieu, int limit);
-
-
+    List<SanPham> findTopSoldProductsByCategory(Integer maDanhMuc, int limit) ;
+    int getTotalSoldQuantityByProduct(Integer maSanPham);
 
 
 

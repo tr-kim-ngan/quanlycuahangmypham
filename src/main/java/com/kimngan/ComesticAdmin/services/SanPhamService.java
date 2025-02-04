@@ -67,13 +67,4 @@ public interface SanPhamService {
 	 public Page<SanPham> findActiveProductsByBrand(Integer maThuongHieu, Pageable pageable);
 
 
-
-
-
-
-
-
-
-
-
 }

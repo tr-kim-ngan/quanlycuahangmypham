@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHangId;
@@ -22,5 +24,8 @@ public interface ChiTietDonNhapHangRepository extends JpaRepository<ChiTietDonNh
 	boolean existsBySanPham(SanPham sanPham);
 
 	Page<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang, Pageable pageable);
+	@Query("SELECT SUM(c.soLuongNhap) FROM ChiTietDonNhapHang c WHERE c.sanPham.maSanPham = :sanPhamId")
+	Integer getTotalImportedQuantityBySanPhamId(@Param("sanPhamId") Integer sanPhamId);
 
+	
 }

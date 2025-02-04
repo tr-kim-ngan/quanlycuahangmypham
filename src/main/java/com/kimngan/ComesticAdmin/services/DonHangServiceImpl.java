@@ -41,13 +41,13 @@ public class DonHangServiceImpl implements DonHangService {
     private SanPhamService sanPhamService;
 	@Override
 	public DonHang createDonHang(DonHang donHang) {
-		// TODO Auto-generated method stub
+		
 		return donHangRepository.save(donHang);
 	}
 
 	@Override
 	public DonHang updateDonHang(DonHang donHang) {
-		// TODO Auto-generated method stub
+		
 		Optional<DonHang> existingDonHang = donHangRepository.findById(donHang.getMaDonHang());
 		if (existingDonHang.isPresent()) {
 			return donHangRepository.save(donHang);
@@ -80,23 +80,23 @@ public class DonHangServiceImpl implements DonHangService {
 
 	@Override
 	public List<DonHang> getAllDonHangs() {
-		// TODO Auto-generated method stub
+		// 
 		return donHangRepository.findAll();
 	}
 
-	@Override
-	public List<DonHang> getOrdersByUser(String username) {
-		// TODO Auto-generated method stub
-		// Lấy người dùng dựa trên username
-		NguoiDung nguoiDung = nguoiDungRepository.findByTenNguoiDung(username);
-		//Optional<NguoiDung> optionalUser = nguoiDungRepository.findByTenNguoiDung(username);
-
-		if (nguoiDung == null) {
-			throw new IllegalArgumentException("Người dùng không tồn tại");
-		}
-		// Lấy danh sách đơn hàng dựa trên người dùng
-		return donHangRepository.findByNguoiDung(nguoiDung);
-	}
+//	@Override
+//	public List<DonHang> getOrdersByUser(String username) {
+//		// 
+//		// Lấy người dùng dựa trên username
+//		NguoiDung nguoiDung = nguoiDungRepository.findByTenNguoiDung(username);
+//		//Optional<NguoiDung> optionalUser = nguoiDungRepository.findByTenNguoiDung(username);
+//
+//		if (nguoiDung == null) {
+//			throw new IllegalArgumentException("Người dùng không tồn tại");
+//		}
+//		// Lấy danh sách đơn hàng dựa trên người dùng
+//		return donHangRepository.findByNguoiDung(nguoiDung);
+//	}
 
 	@Override
 	public DonHang createOrderFromCart(String username, String address, String phone) {
@@ -177,7 +177,6 @@ public class DonHangServiceImpl implements DonHangService {
 
 	@Override
 	public DonHang createTemporaryOrder(String username, List<Integer> productIds) {
-		// TODO Auto-generated method stub
 		NguoiDung nguoiDung = nguoiDungRepository.findByTenNguoiDung(username);
         GioHang gioHang = gioHangService.getCartByUser(nguoiDung);
 
@@ -221,7 +220,7 @@ public class DonHangServiceImpl implements DonHangService {
 
 	@Override
 	public Page<DonHang> getAllDonHangs(Pageable pageable) {
-		// TODO Auto-generated method stub
+		// 
 		   return donHangRepository.findAll(pageable);
 	}
 
@@ -239,27 +238,47 @@ public class DonHangServiceImpl implements DonHangService {
 
 	@Override
 	public List<DonHang> getAllOrdersSortedByNgayDat() {
-		// TODO Auto-generated method stub
+		// 
 		return donHangRepository.findAllByOrderByNgayDatAsc();
 	}
 
 	@Override
 	public Page<DonHang> getDonHangsByStatus(String status, Pageable pageable) {
-		// TODO Auto-generated method stub
+		// 
 		return donHangRepository.findByTrangThaiDonHang(status, pageable);
 	}
 
 	@Override
 	public long countOrders() {
-		// TODO Auto-generated method stub
+		// 
 		return donHangRepository.count();
 	}
 
 	@Override
 	public long countByTrangThaiDonHang(String trangThaiDonHang) {
-		// TODO Auto-generated method stub
+		// 
 		  return donHangRepository.countByTrangThaiDonHang(trangThaiDonHang);
 	}
+
+	@Override
+	public Page<DonHang> getOrdersByUser(String username, Pageable pageable) {
+	    return donHangRepository.findByNguoiDungTenNguoiDung(username, pageable);
+	}
+
+	@Override
+	public Page<DonHang> getOrdersByUserAndStatus(String username, String status, Pageable pageable) {
+		// TODO Auto-generated method stub
+	    return donHangRepository.findByNguoiDungTenNguoiDungAndTrangThaiDonHang(username, status, pageable);
+
+	}
+
+	@Override
+	public Page<DonHang> getLatestOrdersByUser(String username, Pageable pageable) {
+		// TODO Auto-generated method stub
+	    return donHangRepository.findTopByNguoiDungTenNguoiDungOrderByNgayDatDesc(username, pageable);
+
+	}
+
 
 
 

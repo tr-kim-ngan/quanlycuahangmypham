@@ -13,8 +13,8 @@ public interface DonHangService {
     void deleteDonHang(Integer maDonHang); // Xóa đơn hàng
     DonHang getDonHangById(Integer maDonHang); // Lấy thông tin đơn hàng theo mã
     List<DonHang> getAllDonHangs(); // Lấy tất cả đơn hàng
-    List<DonHang> getOrdersByUser(String username);
-
+   // List<DonHang> getOrdersByUser(String username);
+    Page<DonHang> getOrdersByUser(String username, Pageable pageable);
     DonHang createOrderFromCart(String username, String address, String phone);
     DonHang save(DonHang donHang);
     DonHang createTemporaryOrder(String username, List<Integer> productIds);
@@ -26,6 +26,9 @@ public interface DonHangService {
     Page<DonHang> getDonHangsByStatus(String status, Pageable pageable);
     long countOrders();
     long countByTrangThaiDonHang(String trangThaiDonHang);
+    Page<DonHang> getOrdersByUserAndStatus(String username, String status, Pageable pageable);
+    Page<DonHang> getLatestOrdersByUser(String username, Pageable pageable);
+
     
     
 }

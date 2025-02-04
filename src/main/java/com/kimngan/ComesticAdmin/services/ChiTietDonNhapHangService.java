@@ -13,7 +13,8 @@ import org.springframework.data.domain.Pageable;
 public interface ChiTietDonNhapHangService {
 	// Định nghĩa các CRUD
 	List<ChiTietDonNhapHang> getAll();
-	 List<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang);
+
+	List<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang);
 
 	ChiTietDonNhapHang findById(ChiTietDonNhapHangId id);
 
@@ -28,13 +29,16 @@ public interface ChiTietDonNhapHangService {
 
 	// Tìm kiếm theo tên sản phẩm trong chi tiết đơn nhập hàng
 	Page<ChiTietDonNhapHang> searchBySanPhamName(String tenSanPham, Pageable pageable);
-	
+
 	List<ChiTietDonNhapHang> findBySanPham(SanPham sanPham);
+
 	void updateChiTietDonNhapHangForProduct(SanPham sanPham);
+
 	public boolean existsBySanPham(SanPham sanPham);
+
 	// Thêm hỗ trợ phân trang cho findByDonNhapHang
 	Page<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang, Pageable pageable);
 
-	
-	
+	Integer getTotalImportedQuantityBySanPhamId(Integer sanPhamId);
+
 }

@@ -138,48 +138,47 @@ public class GioHangController {
 	}
 
 	@PostMapping("/add")
-	public String addToCart(@RequestParam("productId") Integer productId, @RequestParam("quantity") Integer quantity,
-			Principal principal, RedirectAttributes redirectAttributes, HttpServletRequest request) {
-		Map<String, Object> response = new HashMap<>();
+	public String addToCart(
+	        @RequestParam("productId") Integer productId, 
+	        @RequestParam(value = "quantity", required = false, defaultValue = "1") Integer quantity,
+	        Principal principal, RedirectAttributes redirectAttributes, HttpServletRequest request) {
 
-		// Kiểm tra người dùng đã đăng nhập hay chưa
-		if (principal == null) {
-			redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập để thêm vào giỏ hàng.");
-			return "redirect:/login"; // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
-		}
+	    // Kiểm tra nếu quantity null hoặc nhỏ hơn 1 thì đặt lại thành 1
+	    if (quantity == null || quantity < 1) {
+	        quantity = 1;
+	    }
 
-		try {
-			// Log để kiểm tra giá trị nhận từ form
-			System.out.println("ProductId nhận được: " + productId);
-			System.out.println("Số lượng nhận được: " + quantity);
+	    // Kiểm tra người dùng đã đăng nhập hay chưa
+	    if (principal == null) {
+	        redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập để thêm vào giỏ hàng.");
+	        return "redirect:/login"; // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+	    }
 
-			if (quantity < 1) {
-				redirectAttributes.addFlashAttribute("error", "Số lượng không hợp lệ.");
-				return "redirect:" + request.getHeader("Referer"); // Trở lại trang hiện tại
-			}
+	    try {
+	        System.out.println("ProductId nhận được: " + productId);
+	        System.out.println("Số lượng nhận được: " + quantity);
 
-			// Lấy người dùng hiện tại
-			NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
-			Optional<SanPham> optionalSanPham = sanPhamService.findByIdOptional(productId);
+	        NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
+	        Optional<SanPham> optionalSanPham = sanPhamService.findByIdOptional(productId);
 
-			if (!optionalSanPham.isPresent()) {
-				redirectAttributes.addFlashAttribute("error", "Sản phẩm không tồn tại.");
-				return "redirect:" + request.getHeader("Referer");
-			}
+	        if (!optionalSanPham.isPresent()) {
+	            redirectAttributes.addFlashAttribute("error", "Sản phẩm không tồn tại.");
+	            return "redirect:" + request.getHeader("Referer");
+	        }
 
-			SanPham sanPham = optionalSanPham.get();
-			gioHangService.addToCart(currentUser, sanPham, quantity);
+	        SanPham sanPham = optionalSanPham.get();
+	        gioHangService.addToCart(currentUser, sanPham, quantity);
 
-			// Thông báo thành công và quay lại trang hiện tại
-			redirectAttributes.addFlashAttribute("success", "Sản phẩm đã được thêm vào giỏ hàng!");
-			return "redirect:" + request.getHeader("Referer");
+	        redirectAttributes.addFlashAttribute("success", "Sản phẩm đã được thêm vào giỏ hàng!");
+	        return "redirect:" + request.getHeader("Referer");
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			redirectAttributes.addFlashAttribute("error", "Lỗi trong quá trình thêm sản phẩm vào giỏ hàng.");
-			return "redirect:" + request.getHeader("Referer");
-		}
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        redirectAttributes.addFlashAttribute("error", "Lỗi trong quá trình thêm sản phẩm vào giỏ hàng.");
+	        return "redirect:" + request.getHeader("Referer");
+	    }
 	}
+
 
 	@PostMapping("/remove")
 	public String removeFromCart(@RequestParam("sanPhamId") Integer sanPhamId, Principal principal,

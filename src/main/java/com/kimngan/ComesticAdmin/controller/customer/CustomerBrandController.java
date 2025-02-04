@@ -47,22 +47,6 @@ public class CustomerBrandController {
 	@Autowired
 	private SanPhamService sanPhamService;
 
-//	  @GetMapping("/all")
-//	    public String getAllBrands(Model model) {
-//	        // Lấy danh sách tất cả thương hiệu
-//	        List<ThuongHieu> allBrands = thuongHieuService.getAllBrands();
-//
-//	        // Nhóm thương hiệu theo chữ cái đầu
-//	        Map<String, List<ThuongHieu>> groupedBrands = allBrands.stream()
-//	                .collect(Collectors.groupingBy(brand -> {
-//	                    String firstLetter = brand.getTenThuongHieu().substring(0, 1).toUpperCase();
-//	                    return firstLetter.matches("[A-Z]") ? firstLetter : "0-9";
-//	                }, TreeMap::new, Collectors.toList()));
-//
-//	        model.addAttribute("groupedBrands", groupedBrands);
-//
-//	        return "customer/allBrands"; // Tên file HTML
-//	    }
 
 	@GetMapping("/all")
 	public String getAllBrands(Model model) {
@@ -133,6 +117,7 @@ public class CustomerBrandController {
 		// Tính toán giá sau giảm giá và lưu thông tin khuyến mãi
 		Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
 		Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
+		
 		Map<Integer, Double> sanPhamAverageRatingMap = new HashMap<>();
 		for (SanPham product : products) {
 			List<DanhGia> danhGias = danhGiaService.findBySanPham(product);
