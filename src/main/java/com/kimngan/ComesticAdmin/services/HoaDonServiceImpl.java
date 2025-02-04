@@ -59,38 +59,38 @@ public class HoaDonServiceImpl implements HoaDonService {
 
 	@Override
 	public Page<HoaDon> getAllHoaDons(Pageable pageable) {
-		// TODO Auto-generated method stub
+		// 
 		return hoaDonRepository.findAll(pageable);
 	}
 
 	@Override
 	public List<HoaDon> getHoaDonsByCustomer(String username) {
-		// TODO Auto-generated method stub
+		// 
 		return hoaDonRepository.findByCustomerUsername(username);
 	}
 
 	@Override
 	public HoaDon findById(Integer id) {
-		// TODO Auto-generated method stub
+		// 
 		return hoaDonRepository.findById(id).orElse(null);
 	}
 
 	@Override
 	public Page<HoaDon> searchByTenNguoiNhan(String tenNguoiNhan, Pageable pageable) {
-		// TODO Auto-generated method stub
+		// 
         return hoaDonRepository.findByTenNguoiNhanContainingIgnoreCase(tenNguoiNhan, pageable);
 	}
 
 	@Override
 	public Page<HoaDon> searchByNgayXuat(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
-		// TODO Auto-generated method stub
+		// 
 	    return hoaDonRepository.findByNgayXuatHoaDonBetween(startDate, endDate, pageable);
 	}
 
 	@Override
 	public Page<HoaDon> searchByTenNguoiNhanAndNgayXuatHoaDon(String tenNguoiNhan, LocalDateTime startDateTime,
 			LocalDateTime endDateTime, Pageable pageable) {
-		// TODO Auto-generated method stub
+		// 
 		return hoaDonRepository.findByTenNguoiNhanContainingAndNgayXuatHoaDonBetween(tenNguoiNhan, startDateTime, endDateTime, pageable);
 	}
 
@@ -105,28 +105,28 @@ public class HoaDonServiceImpl implements HoaDonService {
 
 	@Override
 	public Page<HoaDon> searchByStatus(String status, Pageable pageable) {
-		// TODO Auto-generated method stub
+		// 
 		return hoaDonRepository.findByTrangThaiThanhToan(status, pageable);
 	}
 
 	@Override
 	public Page<HoaDon> searchByTrangThaiAndNgayXuat(String trangThai, LocalDateTime startDateTime,
 			LocalDateTime endDateTime, Pageable pageable) {
-		// TODO Auto-generated method stub
+		// 
 	    return hoaDonRepository.findByTrangThaiThanhToanAndNgayXuatHoaDonBetween(trangThai, startDateTime, endDateTime, pageable);
 
 	}
 
 	@Override
 	public BigDecimal calculateTotalRevenue() {
-		// TODO Auto-generated method stub
+		// 
         return hoaDonRepository.calculateTotalRevenueByStatus("Đã xác nhận");
 
 	}
 
 	@Override
 	public long countUnconfirmedInvoices() {
-		// TODO Auto-generated method stub
+		// 
         return hoaDonRepository.countByTrangThaiThanhToan("Chưa xác nhận");
 
 	}
@@ -161,6 +161,49 @@ public class HoaDonServiceImpl implements HoaDonService {
 	            .limit(limit)
 	            .collect(Collectors.toList());
 	}
+
+	@Override
+	public List<SanPham> findTopSoldProductsByCategory(Integer maDanhMuc, int limit) {
+	    // Lấy tất cả hóa đơn có trạng thái thanh toán thành công
+	    List<HoaDon> successfulInvoices = hoaDonRepository.findByTrangThaiThanhToan("Đã xác nhận");
+
+	    // Tạo Map để lưu số lượng bán của từng sản phẩm
+	    Map<SanPham, Integer> productSalesMap = new HashMap<>();
+
+	    // Lặp qua từng hóa đơn thành công
+	    for (HoaDon hoaDon : successfulInvoices) {
+	        DonHang donHang = hoaDon.getDonHang();
+	        if (donHang != null) {
+	            // Lặp qua từng ChiTietDonHang trong đơn hàng
+	            for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+	                SanPham sanPham = chiTiet.getSanPham();
+	                if (sanPham != null && sanPham.getDanhMuc().getMaDanhMuc().equals(maDanhMuc)) {
+	                    // Tăng số lượng bán của sản phẩm trong productSalesMap
+	                    productSalesMap.put(sanPham, productSalesMap.getOrDefault(sanPham, 0) + chiTiet.getSoLuong());
+	                }
+	            }
+	        }
+	    }
+
+	    // Sắp xếp sản phẩm theo số lượng bán giảm dần và trả về top N sản phẩm
+	    return productSalesMap.entrySet().stream()
+	            .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+	            .map(Map.Entry::getKey)
+	            .limit(limit)
+	            .collect(Collectors.toList());
+	}
+
+	@Override
+	public int getTotalSoldQuantityByProduct(Integer maSanPham) {
+	    List<HoaDon> successfulInvoices = hoaDonRepository.findByTrangThaiThanhToan("Đã xác nhận");
+
+	    return successfulInvoices.stream()
+	            .flatMap(hoaDon -> hoaDon.getDonHang().getChiTietDonHangs().stream())
+	            .filter(chiTiet -> chiTiet.getSanPham().getMaSanPham().equals(maSanPham))
+	            .mapToInt(ChiTietDonHang::getSoLuong)
+	            .sum();
+	}
+
 
 	
 

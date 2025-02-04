@@ -33,15 +33,15 @@
 											style="position: relative; margin:0px; padding-bottom: 0px;">
 
 
-											<!-- Nút yêu thích dành cho người chưa đăng nhập -->
+											<!-- Nút yêu thích dành cho người chưa đăng nhập 
 											<a href="javascript:void(0);" class="btn-wishlist"
 												th:if="${#authentication.name == 'anonymousUser'}"
 												data-bs-toggle="offcanvas" data-bs-target="#offcanvasLoginAlert">
 												<svg width="24" height="24">
 													<use xlink:href="#heart"></use>
 												</svg>
-											</a>
-											<!-- Nút yêu thích dành cho người đã đăng nhập -->
+											</a>-->
+											<!-- Nút yêu thích dành cho người đã đăng nhập 
 											<a href="javascript:void(0);"
 												th:onclick="'toggleFavorite(' + ${sanPham.maSanPham} + ')'"
 												th:if="${#authentication.name != 'anonymousUser'}"
@@ -54,7 +54,6 @@
 												</svg>
 											</a>
 											<style>
-												/* Định dạng chung cho nút yêu thích - Đảm bảo vị trí không thay đổi */
 												.btn-wishlist,
 												.btn-wishlist-liked {
 													width: 40px !important;
@@ -65,25 +64,23 @@
 													justify-content: center !important;
 													transition: background-color 0.3s ease, color 0.3s ease !important;
 													position: absolute !important;
-													/* Giữ vị trí cố định */
+													
 													top: 10px !important;
-													/* Cố định khoảng cách từ trên */
+													
 													right: 10px !important;
-													/* Cố định khoảng cách từ bên phải */
+													
 													z-index: 10 !important;
 													background-color: transparent !important;
 													color: black !important;
 													border: 2px solid #ccc !important;
-													/* Đường viền để tránh mất hình dạng */
+													
 												}
 
-												/* Khi sản phẩm được yêu thích - Giữ nguyên vị trí */
 												.btn-wishlist-liked {
 													background-color: red !important;
-													/* Màu nền khi yêu thích */
 													color: white !important;
 												}
-											</style>
+											</style>-->
 
 											<!-- Hình ảnh sản phẩm -->
 											<figure th:if="${sanPham != null}">
@@ -149,7 +146,7 @@
 													tính</span>
 											</span>
 
-											<!-- Số lượng sản phẩm và nút thêm vào giỏ hàng -->
+											<!-- Số lượng sản phẩm và nút thêm vào giỏ hàng 
 
 											<div class="product-quantity-container d-flex justify-content-center align-items-center mt-3"
 												style="gap: 10px;
@@ -161,15 +158,15 @@
 											
 												">
 												<form th:action="@{/customer/cart/add}" method="post"
-													class="d-flex align-items-center">
-													<!-- Ô nhập số lượng -->
+													class="d-flex align-items-center">-->
+													<!-- Ô nhập số lượng 
 													<input type="number" name="quantity" value="1" min="1"
 														class="form-control quantity-input"
 														style="width: 80px; border: 2px solid #000; text-align: center;"
 														th:id="'quantity_' + ${sanPham.maSanPham}"
-														th:data-product-id="${sanPham.maSanPham}" />
+														th:data-product-id="${sanPham.maSanPham}" />-->
 
-													<!-- Ẩn mã sản phẩm trong input hidden để gửi lên server -->
+													<!-- Ẩn mã sản phẩm trong input hidden để gửi lên server 
 													<input type="hidden" name="productId"
 														th:value="${sanPham.maSanPham}" />
 													<button
@@ -187,9 +184,9 @@
 														<span class="iconify" data-icon="uil:shopping-cart"
 															data-inline="false"
 															style="font-size: 1.5rem; margin-right: 5px;"></span>
-													</button>
+													</button>-->
 
-													<!-- Nút thêm vào giỏ hàng khi người dùng đã đăng nhập -->
+													<!-- Nút thêm vào giỏ hàng khi người dùng đã đăng nhập 
 													<button type="submit"
 														class="btn btn-warning add-to-cart d-flex align-items-center justify-content-center"
 														style="background-color: #fca503; color: #fff; border: none; transition: background-color 0.3s ease;"
@@ -200,7 +197,7 @@
 														<span class="iconify" data-icon="uil:shopping-cart"
 															data-inline="false"
 															style="font-size: 1.5rem; margin-right: 5px;"></span>
-													</button>
+													</button>-->
 
 
 													<!-- Nút thêm vào giỏ hàng -->

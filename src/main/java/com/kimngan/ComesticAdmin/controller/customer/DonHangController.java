@@ -18,7 +18,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
@@ -46,34 +48,62 @@ public class DonHangController {
 
 	@Autowired
 	private SanPhamService sanPhamService;
+
 	@ModelAttribute
 	public void addAttributes(Model model, Principal principal) {
-	    if (principal != null) {
-	        // Lấy tên đăng nhập từ Principal
-	        String username = principal.getName();
+		if (principal != null) {
+			// Lấy tên đăng nhập từ Principal
+			String username = principal.getName();
 
-	        // Tìm thông tin người dùng
-	        NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
+			// Tìm thông tin người dùng
+			NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
 
-	        // Thêm thông tin người dùng và timestamp vào Model
-	        model.addAttribute("currentUser", currentUser);
-	        model.addAttribute("timestamp", System.currentTimeMillis()); // Timestamp luôn được cập nhật
-	    }
-	}
-	// Hiển thị danh sách đơn hàng của người dùng hiện tại
-	@GetMapping
-	public String viewOrders(Principal principal, Model model) {
-		if (principal == null) {
-			return "redirect:/customer/login";
+			// Thêm thông tin người dùng và timestamp vào Model
+			model.addAttribute("currentUser", currentUser);
+			model.addAttribute("timestamp", System.currentTimeMillis()); // Timestamp luôn được cập nhật
 		}
-
-		// Lấy thông tin người dùng hiện tại
-		String username = principal.getName();
-		List<DonHang> donHangs = donHangService.getOrdersByUser(username);
-
-		model.addAttribute("donHangs", donHangs);
-		return "customer/order";
 	}
+
+
+	
+	@GetMapping
+	public String viewOrders(@RequestParam(value = "status", required = false, defaultValue = "all") String status,
+	                         @RequestParam(value = "page", defaultValue = "0") int page,
+	                         @RequestParam(value = "size", defaultValue = "2") int size,
+	                         Principal principal, Model model) {
+		 if (page < 0) {
+		        page = 0; // Đảm bảo không để số âm gây lỗi
+		    }
+
+	    if (principal == null) {
+	        return "redirect:/customer/login";
+	    }
+
+	    String username = principal.getName();
+	    PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "ngayDat"));
+
+	    Page<DonHang> donHangPage;
+	    if ("all".equals(status)) {
+	        // Lấy tất cả đơn hàng
+	        donHangPage = donHangService.getOrdersByUser(username, pageRequest);
+	    } else if ("Mới đặt".equals(status)) {
+	        // Chỉ lấy các đơn hàng có ngày đặt mới nhất
+	        donHangPage = donHangService.getLatestOrdersByUser(username, pageRequest);
+	    } else {
+	        // Lọc theo trạng thái khác
+	        donHangPage = donHangService.getOrdersByUserAndStatus(username, status, pageRequest);
+	    }
+
+	    model.addAttribute("donHangs", donHangPage.getContent());
+	    model.addAttribute("currentPage", donHangPage.getNumber());
+	    model.addAttribute("totalPages", donHangPage.getTotalPages());
+	    model.addAttribute("selectedStatus", status);
+	    model.addAttribute("size", size);
+
+	    return "customer/order";
+	}
+
+
 	// Phương thức hiển thị chi tiết đơn hàng
 	@GetMapping("/{maDonHang}")
 	public String viewOrderDetail(@PathVariable Integer maDonHang, Model model) {
@@ -204,7 +234,6 @@ public class DonHangController {
 			return "redirect:/customer/cart";
 		}
 	}
-
 
 	// Hủy đơn hàng
 	@PostMapping("/cancel")

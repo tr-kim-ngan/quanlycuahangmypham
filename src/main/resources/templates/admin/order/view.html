@@ -57,6 +57,13 @@
               (${donHang.trangThaiDonHang == 'Đã hoàn thành'} ? 'color: #28a745; font-weight: bold;' : '')">
 										</span>
 									</p>
+									<!-- Thêm liên kết đến hóa đơn nếu trạng thái là 'Đã xác nhận' -->
+									<div th:if="${donHang.trangThaiDonHang == 'Đã hoàn thành'}">
+										<a th:href="@{/admin/hoadon/{maDonHang}(maDonHang=${donHang.maDonHang})}"
+											class="btn btn-primary mt-2">
+											Đến Hóa Đơn
+										</a>
+									</div>
 
 
 
@@ -67,7 +74,7 @@
 											th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
 											method="post" class="mt-3">
 											<div class="form-group">
-												<label for="status">Cập Nhật Trạng Thái Đơn Hàng:</label>
+												<label for="status" style="color: #f1c40f;">Cập Nhật Trạng Thái Đơn Hàng:</label>
 												<select id="status" name="status" class="form-control">
 													<option th:each="status : ${nextStatuses}" th:value="${status}"
 														th:text="${status}"></option>

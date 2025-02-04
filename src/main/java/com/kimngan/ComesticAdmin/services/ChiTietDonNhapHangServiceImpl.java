@@ -110,4 +110,11 @@ public class ChiTietDonNhapHangServiceImpl implements ChiTietDonNhapHangService 
         return chiTietDonNhapHangRepository.findByDonNhapHang(donNhapHang, pageable);
 	}
 
+	@Override
+	public Integer getTotalImportedQuantityBySanPhamId(Integer sanPhamId) {
+	    Integer totalImported = chiTietDonNhapHangRepository.getTotalImportedQuantityBySanPhamId(sanPhamId);
+	    return (totalImported != null) ? totalImported : 0; // Tránh trả về null
+	}
+
+
 }
