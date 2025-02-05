@@ -45,19 +45,24 @@
 					</div>
 
 					<!-- Hiển thị giá sản phẩm -->
+
 					<div class="product-price mt-2">
 						<span th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}">
 							<span class="original-price me-2"
 								style="color: #e74c3c; text-decoration: line-through; font-family: 'Arial', sans-serif; font-weight: 400; letter-spacing: 0.5px;"
-								th:text="${sanPham.donGiaBan} + ' VND'"></span>
+								th:text="${#numbers.formatDecimal(sanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+							</span>
 							<span class="final-price"
 								style="color: #000000; font-weight: bold; font-family: 'Arial', sans-serif; letter-spacing: 0.5px; font-size: 1.2em;"
-								th:text="${sanPhamGiaSauGiamMap[sanPham.maSanPham]} + ' VND'"></span>
+								th:text="${#numbers.formatDecimal(sanPhamGiaSauGiamMap[sanPham.maSanPham], 0, 'COMMA', 0, 'POINT')} + ' VND'">
+							</span>
 						</span>
 						<span th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] == null}" class="final-price"
 							style="color:#000000; font-weight: bold; font-family: 'Arial', sans-serif; letter-spacing: 0.5px; font-size: 1.2em;"
-							th:text="${sanPham.donGiaBan} + ' VND'"></span>
+							th:text="${#numbers.formatDecimal(sanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+						</span>
 					</div>
+
 					<span style="color: #555;">Số lượng còn lại: <span th:text="${sanPham.soLuong}"></span></span>
 					<span class="qty" th:text="${sanPham.donViTinh.tenDonVi}">Đơn vị tính</span>
 
@@ -297,17 +302,25 @@
 										<div class="product-pricing"
 											style="display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-left: 5px;">
 											<!-- Giá sau giảm -->
+											
+
 											<div class="product-price"
-												style="font-size: 14px; font-weight: bold; color: #e74c3c;"
-												th:text="${topCategoryProductsGiaSauGiamMap[topCategoryProduct.maSanPham]} + ' đ'">
+												style="font-size: 14px; font-weight: bold; color: #e74c3c;">
+												<span
+													th:text="${#numbers.formatDecimal(topCategoryProductsGiaSauGiamMap[topCategoryProduct.maSanPham], 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
 											</div>
+
 
 											<!-- Giá gốc và phần trăm giảm giá -->
 											<div style="display: flex; align-items: center; gap: 5px;">
 												<!-- Giá gốc -->
+												
 												<div th:if="${topCategoryProductsPhanTramGiamMap[topCategoryProduct.maSanPham] != null && topCategoryProductsPhanTramGiamMap[topCategoryProduct.maSanPham] > 0}"
-													style="font-size: 10px; color: #999; text-decoration: line-through;"
-													th:text="${topCategoryProduct.donGiaBan} + ' đ'"></div>
+													style="font-size: 10px; color: #999; text-decoration: line-through;">
+													<span
+														th:text="${#numbers.formatDecimal(topCategoryProduct.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+												</div>
+
 
 												<!-- Phần trăm giảm giá -->
 												<span
@@ -380,17 +393,25 @@
 									<div class="product-pricing"
 										style="display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-left: 5px;">
 										<!-- Giá sau giảm -->
+
 										<div class="product-price"
-											style="font-size: 14px; font-weight: bold; color: #e74c3c;"
-											th:text="${topSoldSanPhamGiaSauGiamMap[topSoldSanPham.maSanPham]} + ' đ'">
+											style="font-size: 14px; font-weight: bold; color: #e74c3c;">
+											<span
+												th:text="${#numbers.formatDecimal(topSoldSanPhamGiaSauGiamMap[topSoldSanPham.maSanPham], 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
 										</div>
+
 
 										<!-- Giá gốc và phần trăm giảm giá -->
 										<div style="display: flex; align-items: center; gap: 5px;">
 											<!-- Giá gốc -->
+											
+
 											<div th:if="${topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] != null && topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] > 0}"
-												style="font-size: 10px; color: #999; text-decoration: line-through;"
-												th:text="${topSoldSanPham.donGiaBan} + ' đ'"></div>
+												style="font-size: 10px; color: #999; text-decoration: line-through;">
+												<span
+													th:text="${#numbers.formatDecimal(topSoldSanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+											</div>
+
 
 											<!-- Phần trăm giảm giá -->
 											<span
