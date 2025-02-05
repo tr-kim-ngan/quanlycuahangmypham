@@ -17,6 +17,7 @@
 								style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start;">
 								<!-- Lặp qua tất cả các sản phẩm và hiển thị -->
 								<div class="product-item" th:each="sanPham : ${sanPhams}" style="
+								
 									width: calc(20% - 15px); 
 						            min-height: 350px; 
 						            padding: 0px; 
@@ -26,7 +27,7 @@
 						            transition: transform 0.2s ease, box-shadow 0.3s ease; 
 						            border-radius: 10px; 
 						            background-color: #fff; 
-						            ">
+						            " onmouseover="this.style.borderColor='#ffc107';" onmouseout="this.style.borderColor='#ddd';">
 									<div>
 										<!-- Container sản phẩm -->
 										<div class="product-item"
@@ -98,16 +99,28 @@
 												<div class="product-pricing"
 													style="display: flex; align-items: center; gap: 13px; justify-content: space-between;">
 
-													<div class="product-price"
+													<!--<div class="product-price"
 														style="font-size: 14px; font-weight: bold; color: #e74c3c;"
 														th:text="${sanPhamGiaSauGiamMap[sanPham.maSanPham]} + ' đ'">
+													</div>-->
+													<div class="product-price"
+														style="font-size: 14px; font-weight: bold; color: #e74c3c;">
+														<span
+															th:text="${sanPhamGiaSauGiamMap[sanPham.maSanPham] != null ? #numbers.formatDecimal(sanPhamGiaSauGiamMap[sanPham.maSanPham], 0, 'COMMA', 0, 'POINT') + ' đ' : 'Đang cập nhật'}"></span>
 													</div>
+
 													<div style="display: flex; align-items: center; gap: 5px;">
 														<!-- Giá cũ -->
-														<div th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+														<!--<div th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
 															style="font-size: 10px; color: #999; text-decoration: line-through; text-align: right;"
 															th:text="${sanPham.donGiaBan} + ' đ'">
+														</div>-->
+														<div th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+															style="font-size: 10px; color: #999; text-decoration: line-through; text-align: right;">
+															<span
+																th:text="${#numbers.formatDecimal(sanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
 														</div>
+
 
 														<!-- Phần trăm giảm giá -->
 														<span th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
@@ -159,14 +172,14 @@
 												">
 												<form th:action="@{/customer/cart/add}" method="post"
 													class="d-flex align-items-center">-->
-													<!-- Ô nhập số lượng 
+											<!-- Ô nhập số lượng 
 													<input type="number" name="quantity" value="1" min="1"
 														class="form-control quantity-input"
 														style="width: 80px; border: 2px solid #000; text-align: center;"
 														th:id="'quantity_' + ${sanPham.maSanPham}"
 														th:data-product-id="${sanPham.maSanPham}" />-->
 
-													<!-- Ẩn mã sản phẩm trong input hidden để gửi lên server 
+											<!-- Ẩn mã sản phẩm trong input hidden để gửi lên server 
 													<input type="hidden" name="productId"
 														th:value="${sanPham.maSanPham}" />
 													<button
@@ -186,7 +199,7 @@
 															style="font-size: 1.5rem; margin-right: 5px;"></span>
 													</button>-->
 
-													<!-- Nút thêm vào giỏ hàng khi người dùng đã đăng nhập 
+											<!-- Nút thêm vào giỏ hàng khi người dùng đã đăng nhập 
 													<button type="submit"
 														class="btn btn-warning add-to-cart d-flex align-items-center justify-content-center"
 														style="background-color: #fca503; color: #fff; border: none; transition: background-color 0.3s ease;"
@@ -200,49 +213,49 @@
 													</button>-->
 
 
-													<!-- Nút thêm vào giỏ hàng -->
+											<!-- Nút thêm vào giỏ hàng -->
 
-												</form>
-											</div>
-
+											</form>
 										</div>
+
 									</div>
 								</div>
 							</div>
-
-
-
 						</div>
 
 
 
-
 					</div>
-
-					<!-- Phân trang -->
-					<div
-						style="display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 10px; font-family: Arial, sans-serif;">
-						<a th:href="@{/index(page=${currentPage - 1}, size=${size})}" th:if="${currentPage > 0}"
-							style="padding: 8px 16px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; text-decoration: none; color: #333; font-size: 14px; transition: all 0.3s ease;">
-							Trước
-						</a>
-						<span style="font-size: 14px; color: #555;"
-							th:text="'Trang ' + (${currentPage} + 1) + ' / ' + ${totalPages}"></span>
-						<a th:href="@{/index(page=${currentPage + 1}, size=${size})}"
-							th:if="${currentPage < totalPages - 1}"
-							style="padding: 8px 16px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; text-decoration: none; color: #333; font-size: 14px; transition: all 0.3s ease;">
-							Sau
-						</a>
-					</div>
-
-
 
 
 
 
 				</div>
+
+				<!-- Phân trang -->
+				<div
+					style="display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 10px; font-family: Arial, sans-serif;">
+					<a th:href="@{/index(page=${currentPage - 1}, size=${size})}" th:if="${currentPage > 0}"
+						style="padding: 8px 16px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; text-decoration: none; color: #333; font-size: 14px; transition: all 0.3s ease;">
+						Trước
+					</a>
+					<span style="font-size: 14px; color: #555;"
+						th:text="'Trang ' + (${currentPage} + 1) + ' / ' + ${totalPages}"></span>
+					<a th:href="@{/index(page=${currentPage + 1}, size=${size})}"
+						th:if="${currentPage < totalPages - 1}"
+						style="padding: 8px 16px; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9; text-decoration: none; color: #333; font-size: 14px; transition: all 0.3s ease;">
+						Sau
+					</a>
+				</div>
+
+
+
+
+
+
 			</div>
 		</div>
+	</div>
 	</div>
 </section>
 
