@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<h3 class="fw-bold mb-3">Thêm Shipper</h3>
+
+					<!-- Hiển thị lỗi -->
+					<div th:if="${error != null}" class="alert alert-danger">
+						<i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+					</div>
+					<div th:if="${success != null}" class="alert alert-success">
+						<i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+					</div>
+
+					<form th:action="@{/admin/shipper/add}" th:object="${nguoiDung}" method="post">
+						<div class="form-group">
+							<label for="tenNguoiDung">Tên người dùng</label>
+							<input type="text" class="form-control" id="tenNguoiDung" th:field="*{tenNguoiDung}"
+								required>
+						</div>
+
+						<div class="form-group">
+							<label for="email">Email</label>
+							<input type="email" class="form-control" id="email" th:field="*{email}" required>
+						</div>
+
+						<div class="form-group">
+							<label for="soDienThoai">Số điện thoại</label>
+							<input type="text" class="form-control" id="soDienThoai" th:field="*{soDienThoai}" required>
+						</div>
+
+						<div class="form-group">
+							<label for="matKhau">Mật khẩu</label>
+							<div class="input-group">
+								<input type="password" class="form-control" id="matKhau" th:field="*{matKhau}" required>
+								<div class="input-group-append">
+									<button class="btn btn-outline-secondary" type="button" id="togglePassword">
+										<i class="fas fa-eye"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+						<script>
+							document.getElementById('togglePassword').addEventListener('click', function () {
+								let passwordField = document.getElementById('matKhau');
+								let icon = this.querySelector('i');
+
+								if (passwordField.type === "password") {
+									passwordField.type = "text";
+									icon.classList.remove('fa-eye');
+									icon.classList.add('fa-eye-slash');
+								} else {
+									passwordField.type = "password";
+									icon.classList.remove('fa-eye-slash');
+									icon.classList.add('fa-eye');
+								}
+							});
+						</script>
+
+
+						<button type="submit" class="btn btn-primary">Thêm Shipper</button>
+						<a th:href="@{/admin/shipper}" class="btn btn-secondary">Hủy</a>
+					</form>
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+</body>
+
+</html>

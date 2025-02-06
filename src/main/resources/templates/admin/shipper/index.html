@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h3 class="fw-bold mb-3">Quản lý Shipper</h3>
+							<h6 class="op-7 mb-2">Danh sách Shipper</h6>
+						</div>
+						<!-- Nút Thêm Shipper -->
+						<div>
+							<a class="btn btn-primary" th:href="@{/admin/shipper/add}">
+								<i class="fas fa-plus"></i> Thêm Shipper
+							</a>
+						</div>
+					</div>
+
+					<!-- Hiển thị thông báo -->
+					<div th:if="${error != null}" class="alert alert-danger" role="alert">
+						<i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+					</div>
+					<div th:if="${success != null}" class="alert alert-success" role="alert">
+						<i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+					</div>
+
+					<!-- Bảng danh sách Shipper -->
+					<table class="table table-bordered table-hover">
+						<thead class="thead-dark">
+							<tr>
+								<th style="text-align: center;">STT</th>
+								<th style="text-align: center;">Tên người dùng</th>
+								<th style="text-align: center;">Email</th>
+								<th style="text-align: center;">Số điện thoại</th>
+								<th style="text-align: center;">Thao tác</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="shipper, iterStat  : ${shippers}">
+								<td style="text-align: center;" th:text="${iterStat.count}"></td>
+								<td style="text-align: center;" th:text="${shipper.tenNguoiDung}"></td>
+								<td style="text-align: center;" th:text="${shipper.email}"></td>
+								<td style="text-align: center;" th:text="${shipper.soDienThoai}"></td>
+								<td style="text-align: center;">
+									<a th:href="@{/admin/shipper/edit/{id}(id=${shipper.maNguoiDung})}"
+										class="btn btn-warning">Sửa</a>
+
+									<a th:href="@{/admin/shipper/delete/{id}(id=${shipper.maNguoiDung})}"
+										class="btn btn-danger">
+										Xóa
+									</a>
+								</td>
+							</tr>
+						</tbody>
+
+					</table>
+					<!-- Kết thúc bảng danh sách Shipper -->
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>

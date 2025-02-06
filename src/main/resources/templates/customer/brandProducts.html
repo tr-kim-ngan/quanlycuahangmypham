@@ -65,11 +65,11 @@
 		<!-- Danh sách sản phẩm -->
 		<section class="product-list">
 			<div class="row" style="row-gap: 20px;">
-				<div class="col-lg-3 col-md-4 col-sm-6" th:each="product : ${products}"  th:if="${product.soLuong > 0}">
+				<div class="col-lg-3 col-md-4 col-sm-6" th:each="product : ${products}" th:if="${product.soLuong > 0}">
 					<a th:href="@{'/product/' + ${product.maSanPham}}" style="text-decoration: none; color: inherit;">
-
 						<div class="product-card"
-							style="border: 1px solid #ddd; border-radius: 10px; background: white; overflow: hidden; transition: transform 0.3s ease; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+							style="border: 1px solid #ddd; border-radius: 10px; background: white; overflow: hidden; transition: transform 0.3s ease; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);"
+							onmouseover="this.style.borderColor='#ffc107';" onmouseout="this.style.borderColor='#ddd';">
 							<!-- Hình ảnh sản phẩm -->
 							<div class="product-image"
 								style="position: relative; height: 250px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; overflow: hidden;">
@@ -83,16 +83,22 @@
 								<div class="product-pricing"
 									style="display: flex; align-items: center; gap: 13px; justify-content: space-between;">
 									<!-- Giá sau giảm -->
+									<!-- Giá sau giảm -->
 									<div class="product-price"
-										style="font-size: 14px; font-weight: bold; color: #e74c3c;"
-										th:text="${sanPhamGiaSauGiamMap[product.maSanPham]} + ' đ'">
+										style="font-size: 14px; font-weight: bold; color: #e74c3c;">
+										<span
+											th:text="${#numbers.formatDecimal(sanPhamGiaSauGiamMap[product.maSanPham], 0, 'COMMA', 0, 'POINT') + ' đ'}">
+										</span>
 									</div>
+
 									<div style="display: flex; align-items: center; gap: 5px;">
 										<!-- Giá cũ -->
 										<div th:if="${sanPhamKhuyenMaiMap[product.maSanPham] != null}"
-											style="font-size: 10px; color: #999; text-decoration: line-through; text-align: right;"
-											th:text="${product.donGiaBan} + ' đ'">
+											style="font-size: 10px; color: #999; text-decoration: line-through; text-align: right;">
+											<span
+												th:text="${#numbers.formatDecimal(product.donGiaBan, 0, 'COMMA', 0, 'POINT') + ' đ'}"></span>
 										</div>
+
 
 										<!-- Phần trăm giảm giá -->
 										<span th:if="${sanPhamKhuyenMaiMap[product.maSanPham] != null}"
