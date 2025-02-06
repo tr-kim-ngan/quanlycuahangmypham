@@ -1,6 +1,7 @@
 package com.kimngan.ComesticAdmin.services;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import com.kimngan.ComesticAdmin.repository.QuyenTruyCapRepository;
 
 @Service
 public class NguoiDungServiceImpl implements NguoiDungService {
+	
 	@Autowired
 	private NguoiDungRepository nguoiDungRepository;
 	@Autowired
@@ -35,18 +37,19 @@ public class NguoiDungServiceImpl implements NguoiDungService {
 		return nguoiDungRepository.findByTenNguoiDung(tenNguoiDung);
 	}
 
+
 	@Override
 	public void saveCustomer(NguoiDung nguoiDung) {
-		// Lấy quyền CUSTOMER từ cơ sở dữ liệu
-		QuyenTruyCap quyenCustomer = quyenTruyCapRepository.findByTenQuyen("CUSTOMER");
+	    // Chỉ gán quyền CUSTOMER nếu người dùng chưa có quyền nào
+	    if (nguoiDung.getQuyenTruyCap() == null) {
+	        QuyenTruyCap quyenCustomer = quyenTruyCapRepository.findByTenQuyen("CUSTOMER");
+	        nguoiDung.setQuyenTruyCap(quyenCustomer);
+	    }
 
-		// Gán quyền CUSTOMER cho người dùng mới
-		nguoiDung.setQuyenTruyCap(quyenCustomer);
-
-		// Lưu người dùng vào cơ sở dữ liệu
-		nguoiDungRepository.save(nguoiDung);
-
+	    // Lưu người dùng vào cơ sở dữ liệu
+	    nguoiDungRepository.save(nguoiDung);
 	}
+
 
 	@Override
 	public void save(NguoiDung nguoiDung) {
@@ -93,6 +96,46 @@ public class NguoiDungServiceImpl implements NguoiDungService {
 	public long countCustomers() {
 		// TODO Auto-generated method stub
 		 return nguoiDungRepository.countByQuyenTruyCap_TenQuyen("CUSTOMER");
+	}
+
+	@Override
+	public List<NguoiDung> findByRole(String role) {
+		
+		 return nguoiDungRepository.findByQuyenTruyCap_TenQuyen(role);
+	}
+
+	@Override
+	public void deleteById(Integer id) {
+		 nguoiDungRepository.deleteById(id);
+		
+	}
+
+
+	@Override
+	public boolean existsByEmail(String email) {
+		// TODO Auto-generated method stub
+		  return nguoiDungRepository.existsByEmail(email);
+	}
+
+
+	@Override
+	public boolean existsBySoDienThoai(String soDienThoai) {
+		// TODO Auto-generated method stub
+		 return nguoiDungRepository.existsBySoDienThoai(soDienThoai);
+	}
+
+
+	@Override
+	public boolean existsByEmailAndNotId(String email, Integer id) {
+		// TODO Auto-generated method stub
+		return nguoiDungRepository.existsByEmailAndMaNguoiDungNot(email, id);
+	}
+
+
+	@Override
+	public boolean existsBySoDienThoaiAndNotId(String soDienThoai, Integer id) {
+		// TODO Auto-generated method stub
+		return nguoiDungRepository.existsBySoDienThoaiAndMaNguoiDungNot(soDienThoai, id);
 	}
 
 
