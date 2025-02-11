@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="shipper/fragments/head::head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div class="sidebar" th:replace="~{shipper/fragments/sidebar::sidebar}"></div>
+
+		<!-- Nội dung chính -->
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="~{shipper/fragments/header::header}"></div>
+
+			<div class="container-fluid mt-4">
+				<h3 class="text-center">Quản lý đơn hàng</h3>
+				<p class="text-center text-muted">Danh sách đơn hàng của: <strong
+						th:text="${shipper.tenNguoiDung}"></strong></p>
+
+				<!-- Bảng danh sách đơn hàng -->
+				<table class="table table-striped mt-4">
+					<thead>
+						<tr>
+							<th>Mã đơn hàng</th>
+
+							<th>Ngày giao</th>
+							<!--	<th>Địa chỉ</th>-->
+							<th>Trạng thái</th>
+							<th>Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="order : ${danhSachDonHang}">
+							<td th:text="${order.maDonHang}"></td>
+							<td
+								th:text="${order.ngayDat != null ? #temporals.format(order.ngayDat, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+							</td>
+							<!--<td th:text="${order.diaChiGiaoHang}"></td>
+							<td th:text="${order.trangThaiDonHang}"></td>-->
+							<td>
+								<span th:text="${order.trangThaiDonHang}" th:classappend="${order.trangThaiDonHang == 'Đã hoàn thành'} ? 'badge bg-success' :
+                          (${order.trangThaiDonHang == 'Đang giao hàng'} ? 'badge bg-primary' :
+                          (${order.trangThaiDonHang == 'Đang chuẩn bị hàng'} ? 'badge bg-warning' :
+                          (${order.trangThaiDonHang == 'Đã hủy'} ? 'badge bg-danger' : 'badge bg-secondary')))">
+								</span>
+							</td>
+							<td>
+								<a th:href="@{/shipper/order/{id}(id=${order.maDonHang})}"
+									class="btn btn-info btn-sm">Chi tiết</a>
+							</td>
+						</tr>
+						<tr th:if="${danhSachDonHang == null or #lists.isEmpty(danhSachDonHang)}">
+							<td colspan="5" class="text-center text-muted">Không có đơn hàng nào.</td>
+						</tr>
+
+					</tbody>
+				</table>
+			</div>
+			<style>
+				.wrapper {
+					display: flex;
+					flex-direction: column;
+					min-height: 100vh;
+					/* Chiều cao tối thiểu 100% màn hình */
+				}
+
+
+				.sidebar {
+					width: 250px;
+					/* Cố định chiều rộng sidebar */
+					height: 100vh;
+					/* Full chiều cao */
+					position: fixed;
+					top: 0;
+					left: 0;
+					background-color: #fae1e1;
+					padding: 20px;
+				}
+
+				.main-panel {
+					flex: 1;
+					margin-left: 250px;
+					/* Dịch nội dung chính sang phải */
+					width: calc(100% - 250px);
+					/* Chiếm toàn bộ phần còn lại */
+					padding: 20px;
+					background-color: #fff;
+					margin-bottom: 50px;
+				}
+
+				
+			</style>
+			<!-- Footer -->
+			<div th:replace="~{shipper/fragments/footer::footer}"></div>
+		</div>
+	</div>
+
+	<div th:replace="~{shipper/fragments/script::script}"></div>
+</body>
+
+</html>

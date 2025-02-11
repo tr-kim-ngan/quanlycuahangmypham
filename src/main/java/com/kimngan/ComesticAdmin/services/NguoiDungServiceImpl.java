@@ -139,6 +139,27 @@ public class NguoiDungServiceImpl implements NguoiDungService {
 	}
 
 
+	@Override
+	public NguoiDung findByEmail(String email) {
+		// TODO Auto-generated method stub
+		 return nguoiDungRepository.findByEmail(email);
+	}
+
+
+	@Override
+	public boolean existsByTenNguoiDung(String tenNguoiDung) {
+		// TODO Auto-generated method stub
+		 return nguoiDungRepository.existsByTenNguoiDung(tenNguoiDung);
+	}
+
+
+	@Override
+	public boolean existsByTenNguoiDungAndNotId(String tenNguoiDung, Integer id) {
+		// TODO Auto-generated method stub
+		 return nguoiDungRepository.existsByTenNguoiDungAndMaNguoiDungNot(tenNguoiDung, id);
+	}
+
+
 
 
 

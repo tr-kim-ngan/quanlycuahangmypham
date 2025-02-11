@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.kimngan.ComesticAdmin.entity.DonHang;
+import com.kimngan.ComesticAdmin.entity.NguoiDung;
 
 public interface DonHangService {
     DonHang createDonHang(DonHang donHang); // Thêm mới đơn hàng
@@ -28,7 +29,8 @@ public interface DonHangService {
     long countByTrangThaiDonHang(String trangThaiDonHang);
     Page<DonHang> getOrdersByUserAndStatus(String username, String status, Pageable pageable);
     Page<DonHang> getLatestOrdersByUser(String username, Pageable pageable);
-
-    
-    
-}
+    List<DonHang> findOrdersByShipper(NguoiDung shipper);
+  //  List<DonHang> findOrdersByShipper(NguoiDung shipper, String trangThai);
+    List<DonHang> findOrdersByShipperAndStatus(NguoiDung shipper, String status);
+    List<String> getDisplayedStatuses(DonHang donHang);
+    }

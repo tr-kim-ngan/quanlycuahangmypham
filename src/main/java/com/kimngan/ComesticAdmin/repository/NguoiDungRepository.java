@@ -10,6 +10,9 @@ import com.kimngan.ComesticAdmin.entity.NguoiDung;
 public interface NguoiDungRepository extends JpaRepository<NguoiDung, Integer> {
 
 	NguoiDung findByTenNguoiDung(String tenNguoiDung);
+	NguoiDung findByEmail(String email);
+	boolean existsByTenNguoiDung(String tenNguoiDung);
+	boolean existsByTenNguoiDungAndMaNguoiDungNot(String tenNguoiDung, Integer id);
 
 	// Optional<NguoiDung> findByTenNguoiDung(String tenNguoiDung);
 	long countByQuyenTruyCap_TenQuyen(String tenQuyen);

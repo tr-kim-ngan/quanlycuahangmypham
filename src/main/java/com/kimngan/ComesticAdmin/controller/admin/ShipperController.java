@@ -68,6 +68,11 @@ public class ShipperController {
 	@PostMapping("/add")
 	public String addShipper(@ModelAttribute("nguoiDung") NguoiDung nguoiDung, 
 			RedirectAttributes redirectAttributes) {
+		 // Kiểm tra nếu tên đã tồn tại
+	    if (nguoiDungService.existsByTenNguoiDung(nguoiDung.getTenNguoiDung())) {
+	        redirectAttributes.addFlashAttribute("error", "Tên người dùng đã được sử dụng!");
+	        return "redirect:/admin/shipper/add";
+	    }
 	    // Kiểm tra nếu email đã tồn tại
 	    if (nguoiDungService.existsByEmail(nguoiDung.getEmail())) {
 	        redirectAttributes.addFlashAttribute("error", "Email đã được sử dụng!");
@@ -112,6 +117,11 @@ public class ShipperController {
 	    if (existingShipper == null) {
 	        redirectAttributes.addFlashAttribute("error", "Không tìm thấy shipper cần cập nhật!");
 	        return "redirect:/admin/shipper";
+	    }
+	    // Kiểm tra nếu tên đã tồn tại ở một Shipper khác
+	    if (nguoiDungService.existsByTenNguoiDungAndNotId(updatedShipper.getTenNguoiDung(), updatedShipper.getMaNguoiDung())) {
+	        redirectAttributes.addFlashAttribute("error", "Tên người dùng đã được sử dụng!");
+	        return "redirect:/admin/shipper/edit/" + updatedShipper.getMaNguoiDung();
 	    }
 
 	    // Kiểm tra nếu email đã tồn tại ở một Shipper khác

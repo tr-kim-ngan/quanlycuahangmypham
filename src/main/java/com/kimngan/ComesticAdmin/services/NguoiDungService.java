@@ -6,6 +6,9 @@ import com.kimngan.ComesticAdmin.entity.NguoiDung;
 
 public interface NguoiDungService {
 	NguoiDung findByTenNguoiDung(String tenNguoiDung);
+	NguoiDung findByEmail(String email);
+	boolean existsByTenNguoiDung(String tenNguoiDung);
+	boolean existsByTenNguoiDungAndNotId(String tenNguoiDung, Integer id);
 
 	void saveCustomer(NguoiDung nguoiDung);
 

@@ -44,18 +44,36 @@ public class HoaDonServiceImpl implements HoaDonService {
 
 	@Override
 	public HoaDon saveHoaDon(HoaDon hoaDon) {
-		return hoaDonRepository.save(hoaDon);
+		 System.out.println("💾 Lưu hóa đơn vào database: " + hoaDon);
+		    return hoaDonRepository.save(hoaDon);
 	}
 
+
+
+
+//	@Override
+//	public HoaDon getHoaDonByDonHang(DonHang donHang) {
+//		System.out.println("Lấy hóa đơn liên kết với đơn hàng: " + donHang.getMaDonHang());
+//		HoaDon hoaDon = hoaDonRepository.findByDonHang(donHang);
+//		if (hoaDon == null) {
+//			throw new RuntimeException("Không tìm thấy hóa đơn liên kết với đơn hàng: " + donHang.getMaDonHang());
+//		}
+//		return hoaDon;
+//	}
 	@Override
 	public HoaDon getHoaDonByDonHang(DonHang donHang) {
-		System.out.println("Lấy hóa đơn liên kết với đơn hàng: " + donHang.getMaDonHang());
-		HoaDon hoaDon = hoaDonRepository.findByDonHang(donHang);
-		if (hoaDon == null) {
-			throw new RuntimeException("Không tìm thấy hóa đơn liên kết với đơn hàng: " + donHang.getMaDonHang());
-		}
-		return hoaDon;
+	    System.out.println("🔍 Kiểm tra hóa đơn trong database cho đơn hàng: " + donHang.getMaDonHang());
+	    HoaDon hoaDon = hoaDonRepository.findByDonHang(donHang);
+	    
+	    if (hoaDon == null) {
+	        System.out.println("⚠️ Không tìm thấy hóa đơn trong database!");
+	        return null;
+	    }
+	    
+	    System.out.println("✅ Hóa đơn đã tồn tại: " + hoaDon);
+	    return hoaDon                                                                                                                                                                                                                                                                       ;
 	}
+
 
 	@Override
 	public Page<HoaDon> getAllHoaDons(Pageable pageable) {

@@ -32,10 +32,11 @@
 
 					<div class="row">
 						<!-- Thông Tin Đơn Hàng -->
-						<div class="col-md-6 mb-4">
+
+						<div class="col-md-5 mb-4">
 							<div class="card shadow-sm">
 								<div class="card-header bg-dark">
-									<h5 class="mb-0" style="color: #faeee7;">Thông Tin Đơn Hàng</h5>
+									<h5 class="mb-0 text-light">Thông Tin Đơn Hàng</h5>
 								</div>
 								<div class="card-body">
 									<p><strong>Mã Đơn Hàng:</strong> <span th:text="${donHang.maDonHang}"></span></p>
@@ -48,33 +49,97 @@
 											th:text="${donHang.diaChiGiaoHang}"></span></p>
 									<p><strong>Số Điện Thoại Nhận Hàng:</strong> <span
 											th:text="${donHang.sdtNhanHang}"></span></p>
-									<!--<p><strong>Trạng Thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span>
-									</p>-->
+
 									<p>
 										<strong>Trạng Thái:</strong>
-										<span th:text="${donHang.trangThaiDonHang}" th:styleappend="
-              ${donHang.trangThaiDonHang == 'Đã hủy'} ? 'color: #dc3545; font-weight: bold;' :
-              (${donHang.trangThaiDonHang == 'Đã hoàn thành'} ? 'color: #28a745; font-weight: bold;' : '')">
+										<span th:text="${donHang.trangThaiDonHang}" th:styleappend="${donHang.trangThaiDonHang == 'Đã hủy'} ? 'color: #dc3545; font-weight: bold;' :
+											(${donHang.trangThaiDonHang == 'Đã hoàn thành'} ? 'color: #28a745; font-weight: bold;' : '')">
 										</span>
 									</p>
-									<!-- Thêm liên kết đến hóa đơn nếu trạng thái là 'Đã xác nhận' -->
-									<div th:if="${donHang.trangThaiDonHang == 'Đã hoàn thành'}">
-										<a th:href="@{/admin/hoadon/{maDonHang}(maDonHang=${donHang.maDonHang})}"
-											class="btn btn-primary mt-2">
-											Đến Hóa Đơn
-										</a>
+									<!-- Nếu trạng thái đang chờ xác nhận, chỉ hiển thị hình ảnh do shipper gửi -->
+									<!-- Chỉ hiển thị hình ảnh khi trạng thái đang chờ xác nhận và shipper đã tải ảnh -->
+									<th:block
+										th:if="${donHang.trangThaiChoXacNhan != null and donHang.hinhAnhGiaoHang != null}">
+										<div class="text-center mt-3">
+											<h5>Hình ảnh chứng minh giao hàng của shipper</h5>
+											<img th:src="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}"
+												alt="Hình ảnh giao hàng"
+												style="width: 150px; height: auto; border-radius: 8px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);">
+										</div>
+									</th:block>
+
+
+									<!-- Nếu trạng thái chờ xác nhận là null (admin đã xác nhận), chỉ hiển thị hình ảnh sau khi chứng minh giao hàng -->
+									<th:block
+										th:if="${donHang.trangThaiChoXacNhan == null and donHang.trangThaiDonHang == 'Đã hoàn thành'}">
+										<div class="text mt-3">
+											<h5>Hình ảnh sau khi chứng minh giao hàng</h5>
+											<img th:src="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}"
+												alt="Hình ảnh giao hàng"
+												style="width: 100px; height: auto; border-radius: 8px; box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);">
+										</div>
+									</th:block>
+
+
+
+
+									<!-- Nếu trạng thái là "Đã xác nhận", chỉ hiển thị nút Gán shipper -->
+									<div
+										th:if="${donHang.trangThaiDonHang == 'Đã xác nhận' and donHang.shipper == null}">
+										<form
+											th:action="@{/admin/orders/{maDonHang}/assign-shipper(maDonHang=${donHang.maDonHang})}"
+											method="post">
+											<div class="form-group">
+												<label for="shipper">Chọn Shipper:</label>
+												<select id="shipper" name="shipperId" class="form-control" required>
+													<option value="">-- Chọn Shipper --</option>
+													<option th:each="shipper : ${danhSachShipper}"
+														th:value="${shipper.maNguoiDung}"
+														th:text="${shipper.tenNguoiDung + ' (ID: ' + shipper.maNguoiDung + ')'}">
+													</option>
+												</select>
+											</div>
+											<button type="submit" class="btn btn-primary mt-3">Gán Shipper</button>
+										</form>
+									</div>
+
+									<div
+										th:if="${donHang.trangThaiDonHang == 'Đang chuẩn bị hàng' and donHang.trangThaiChoXacNhan == null}">
+										<p class="text-warning">Đơn hàng đang chuẩn bị, shipper sẽ cập nhật trạng thái.
+										</p>
+									</div>
+
+
+									<!-- Nếu trạng thái là "Đang giao hàng" hoặc "Đã hoàn thành" và CHƯA ĐƯỢC admin xác nhận, hiển thị nút xác nhận -->
+									<div
+										th:if="${donHang.trangThaiChoXacNhan == 'Đang giao hàng' or donHang.trangThaiChoXacNhan == 'Đã hoàn thành'}">
+										<p class="text-warning">
+											Trạng thái chờ xác nhận từ shipper:
+											<strong th:text="${donHang.trangThaiChoXacNhan}"></strong>
+										</p>
+
+										<form
+											th:action="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
+											method="post" class="mt-3">
+											<button type="submit" class="btn btn-success">Xác nhận trạng thái từ
+												shipper</button>
+										</form>
 									</div>
 
 
 
-									<!-- Form cập nhật trạng thái đơn hàng -->
-									<div
-										th:if="${donHang.trangThaiDonHang != 'Đã hoàn thành' and donHang.trangThaiDonHang != 'Đã hủy' and donHang.trangThaiDonHang != 'Bị hủy do không đủ hàng'}">
+
+									<!-- Nếu trạng thái chưa phải "Đang giao hàng" hoặc "Đã hoàn thành" hoặc "Đã hủy", admin có thể cập nhật -->
+									<div th:if="${donHang.trangThaiDonHang != 'Đang giao hàng' 
+										and donHang.trangThaiDonHang != 'Đã hoàn thành' 
+										and donHang.trangThaiDonHang != 'Đã hủy' 
+										and donHang.trangThaiDonHang != 'Đang chuẩn bị hàng'
+										and donHang.trangThaiDonHang != 'Đã xác nhận'}">
 										<form
 											th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
-											method="post" class="mt-3">
+											method="post">
 											<div class="form-group">
-												<label for="status" style="color: #f1c40f;">Cập Nhật Trạng Thái Đơn Hàng:</label>
+												<label for="status">Cập Nhật Trạng Thái Đơn Hàng:</label>
 												<select id="status" name="status" class="form-control">
 													<option th:each="status : ${nextStatuses}" th:value="${status}"
 														th:text="${status}"></option>
@@ -84,23 +149,28 @@
 												thái</button>
 										</form>
 									</div>
+									<!-- Nếu đơn hàng đã hoàn thành, hiển thị nút "Xem Hóa Đơn" -->
+									<div th:if="${donHang.trangThaiDonHang == 'Đã hoàn thành'}">
+										<a th:href="@{/admin/hoadon/{maDonHang}(maDonHang=${donHang.maDonHang})}"
+											class="btn btn-success mt-3">
+											📜 Xem Hóa Đơn
+										</a>
+									</div>
+
+
+
+
 								</div>
 							</div>
 						</div>
 
 						<!-- Tổng Giá Trị -->
-						<div class="col-md-6">
+						<div class="col-md-7">
 							<div class="card shadow-sm">
 								<div class="card-header bg-dark">
 									<h5 class="mb-0" style="color: #faeee7;">Tổng Giá Trị</h5>
 								</div>
 								<div class="card-body">
-									<!--<p><strong>Phí Vận Chuyển:</strong> <span th:text="${donHang.phiVanChuyen}"></span>
-										VND</p>-->
-
-
-									<!--<p><strong>Tổng Giá Trị Đơn Hàng:</strong> <span
-											th:text="${donHang.tongGiaTriDonHang}"></span> VND</p>-->
 									<p><strong>Phí Vận Chuyển:</strong> <span th:text="${formattedPhiVanChuyen}"></span>
 										VND</p>
 									<p><strong>Tổng Giá Trị Đơn Hàng:</strong> <span
@@ -117,33 +187,125 @@
 									<h5 class="mb-0" style="color: #faeee7;">Lịch Sử Trạng Thái Đơn Hàng</h5>
 								</div>
 								<div class="card-body">
+
 									<div class="status-bar"
 										style="display: flex; align-items: center; justify-content: space-between; position: relative; padding: 10px 0;">
-										<div class="status-item" th:each="status, iterStat : ${allStatuses}"
-											style="display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; flex: 1;">
+										<div class="status-item" th:each="status, iterStat : ${displayedStatuses}"
+											style="display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; flex: 1; ">
 
-											<!-- Circle -->
-											<div class="circle" th:text="${iterStat.index + 1}"
-												style="width: 30px; height: 30px; border-radius: 50%; font-weight: bold; display: flex; justify-content: center; align-items: center; margin-bottom: 5px;"
-												th:styleappend="
-                        ${currentStatusIndex == allStatuses.size() - 1 && iterStat.index == currentStatusIndex} ? 'background-color: #dc3545; color: white;' :
-                        (${iterStat.index <= currentStatusIndex} ? 'background-color: #28a745; color: white;' :
-                        'background-color: #e0e0e0; color: black;')">
+											<!-- Icon trạng thái -->
+											<div class="circle" th:text="${iterStat.index + 1}" th:classappend="${status == donHang.trangThaiChoXacNhan} ? 'pending-status' : 
+                             (${iterStat.index <= currentStatusIndex} ? 'completed-status' : 'inactive-status')">
 											</div>
 
-											<!-- Status Text -->
-											<span th:text="${status}" style="font-size: 14px;" th:styleappend="
-                        ${currentStatusIndex == allStatuses.size() - 1 && iterStat.index == currentStatusIndex} ? 'color: #dc3545; font-weight: bold;' :
-                        (${iterStat.index <= currentStatusIndex} ? 'color: #28a745; font-weight: bold;' :
-                        'color: #6c757d;')">
+											<!-- Tên trạng thái -->
+											<span class="status-text" th:text="${status}" th:classappend="${status == donHang.trangThaiChoXacNhan} ? 'pending-text' : 
+                              (${iterStat.index <= currentStatusIndex} ? 'completed-text' : 'inactive-text')">
 											</span>
 										</div>
 									</div>
+
+
+									<style>
+										/* Màu xanh cho trạng thái đã hoàn thành */
+										.circle {
+											width: 30px;
+											height: 30px;
+											border-radius: 50%;
+											display: flex;
+											justify-content: center;
+											align-items: center;
+											font-weight: bold;
+											font-size: 14px;
+											margin-bottom: 5px;
+										}
+
+										.status-bar {
+											display: flex;
+											align-items: center;
+											justify-content: space-between;
+											padding: 10px 0;
+										}
+
+										.status-item {
+											display: flex;
+											flex-direction: column;
+											align-items: center;
+											text-align: center;
+											flex: 1;
+											min-width: 100px;
+										}
+
+										.status-text {
+											min-height: 40px;
+											display: flex;
+											align-items: center;
+											justify-content: center;
+											text-align: center;
+											word-wrap: break-word;
+											white-space: normal;
+											max-width: 90px;
+										}
+
+										.completed-status {
+											background-color: #28a745;
+											color: white;
+											font-weight: bold;
+										}
+
+										.completed-text {
+											color: #28a745;
+											font-weight: bold;
+										}
+
+										/* Màu xám cho trạng thái chưa đến */
+										.inactive-status {
+											background-color: #e0e0e0;
+											color: black;
+											font-weight: normal;
+										}
+
+										.inactive-text {
+											color: #6c757d;
+										}
+
+										/* Màu vàng cho trạng thái chờ xác nhận */
+										.pending-status {
+											background-color: #ff9800;
+											color: white;
+											font-weight: bold;
+										}
+
+										.pending-text {
+											color: #ff9800;
+											font-weight: bold;
+										}
+									</style>
+									<script>
+										document.addEventListener("DOMContentLoaded", function () {
+											let confirmBtn = document.getElementById("confirmBtn");
+											let pendingStatus = document.querySelector(".pending-status");
+											let pendingText = document.querySelector(".pending-text");
+
+											if (confirmBtn && pendingStatus && pendingText) {
+												confirmBtn.addEventListener("click", function () {
+													setTimeout(() => {
+														pendingStatus.classList.remove("pending-status");
+														pendingStatus.classList.add("completed-status");
+
+														pendingText.classList.remove("pending-text");
+														pendingText.classList.add("completed-text");
+													}, 1000); // Đổi màu sau 1 giây khi nhấn
+												});
+											}
+										});
+									</script>
+
+
+
+
 								</div>
 							</div>
-
-
-
 
 						</div>
 
