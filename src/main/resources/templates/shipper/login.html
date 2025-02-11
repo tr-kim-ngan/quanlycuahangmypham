@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Hello Shipper</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/favicon.ico.png}">
+
+	<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+	<style>
+		/* Background */
+		body {
+			font-family: Arial, sans-serif;
+			text-align: center;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background: url('/assets/img/bgshipper.png') no-repeat center center/cover;
+		}
+
+		/* Container Login */
+		.login-container {
+			width: 400px;
+			/* Giữ kích thước form cố định */
+			padding: 25px;
+			background: rgba(255, 255, 255, 0.9);
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+			border-radius: 12px;
+			backdrop-filter: blur(10px);
+			animation: fadeIn 0.8s ease-in-out;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(-20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.login-container h2 {
+			margin-bottom: 15px;
+			color: #333;
+			font-size: 24px;
+		}
+
+		.form-group {
+			text-align: left;
+			margin-bottom: 15px;
+			width: 100%;
+		}
+
+
+		.form-group label {
+			font-weight: bold;
+			font-size: 14px;
+			display: block;
+			margin-bottom: 5px;
+		}
+
+		/* Đảm bảo input vừa vặn với form */
+		.form-group input {
+			width: 100%;
+			/* Căn chỉnh input vừa với form */
+			padding: 10px;
+			border: 1px solid #ccc;
+			border-radius: 6px;
+			font-size: 16px;
+			transition: all 0.3s ease-in-out;
+			box-sizing: border-box;
+		}
+
+
+		.form-group input:focus {
+			border-color: #007bff;
+			box-shadow: 0 0 10px rgba(0, 123, 255, 0.2);
+			outline: none;
+		}
+
+		/* Icon trong ô nhập liệu */
+		.form-group .icon {
+			position: absolute;
+			left: 10px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #888;
+		}
+
+		/* Button */
+		.btn-login {
+			width: 100%;
+			background: linear-gradient(135deg, #007bff, #0056b3);
+			color: white;
+			border: none;
+			padding: 12px;
+			font-size: 16px;
+			cursor: pointer;
+			border-radius: 6px;
+			transition: transform 0.2s ease, box-shadow 0.2s ease;
+		}
+
+		.btn-login:hover {
+			background: linear-gradient(135deg, #0056b3, #003f8f);
+			transform: scale(1.05);
+			box-shadow: 0 5px 15px rgba(0, 91, 187, 0.3);
+		}
+
+		.error-message {
+			color: red;
+			margin-bottom: 10px;
+			font-size: 14px;
+		}
+
+		.success-message {
+			color: green;
+			margin-bottom: 10px;
+			font-size: 14px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="login-container">
+		<h2>🚚 Đăng nhập Shipper</h2>
+
+		<!-- Hiển thị thông báo lỗi nếu có -->
+		<div th:if="${param.error}" class="error-message">
+			<i class="fas fa-exclamation-circle"></i> Email hoặc mật khẩu không chính xác!
+		</div>
+
+		<div th:if="${param.logout}" class="success-message">
+			<i class="fas fa-check-circle"></i> Bạn đã đăng xuất thành công.
+		</div>
+
+		<form th:action="@{/shipper/login}" method="post">
+			<div class="form-group">
+				<label for="username"><i class="fas fa-user"></i> Tên đăng nhập:</label>
+				<input type="text" id="username" name="username" required>
+				<i class="fas fa-user icon"></i>
+			</div>
+
+			<div class="form-group">
+				<label for="password"><i class="fas fa-lock"></i> Mật khẩu:</label>
+				<input type="password" id="password" name="password" required>
+				<i class="fas fa-lock icon"></i>
+			</div>
+
+			<button type="submit" class="btn-login">🚀 Đăng nhập</button>
+		</form>
+	</div>
+
+</body>
+
+</html>

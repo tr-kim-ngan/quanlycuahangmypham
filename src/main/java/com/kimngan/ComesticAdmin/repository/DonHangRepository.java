@@ -18,6 +18,7 @@ import com.kimngan.ComesticAdmin.entity.NguoiDung;
 @Repository
 public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 
+	 List<DonHang> findByShipper(NguoiDung shipper);
 	List<DonHang> findByNguoiDung(NguoiDung nguoiDung);
 
 	// Nếu cần thêm các query tùy chỉnh, có thể thêm ở đây
@@ -40,4 +41,12 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 	Page<DonHang> findByNguoiDungTenNguoiDungAndTrangThaiDonHang(String username, String status, Pageable pageable);
 	Page<DonHang> findTopByNguoiDungTenNguoiDungOrderByNgayDatDesc(String username, Pageable pageable);
 
+	List<DonHang> findByNguoiDungAndTrangThaiDonHang(NguoiDung nguoiDung, String trangThaiDonHang);
+
+	@Query("SELECT d FROM DonHang d WHERE d.shipper = :shipper")
+	List<DonHang> findOrdersByShipper(@Param("shipper") NguoiDung shipper);
+
+	
+	
+	
 }

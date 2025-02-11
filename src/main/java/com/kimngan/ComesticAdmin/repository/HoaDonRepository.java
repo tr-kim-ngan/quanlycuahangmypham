@@ -16,8 +16,9 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 
 	Page<HoaDon> findByTenNguoiNhanContainingAndNgayXuatHoaDonBetween(String tenNguoiNhan, LocalDateTime startDate,
 			LocalDateTime endDate, Pageable pageable);
-
-	HoaDon findByDonHang(DonHang donHang);
+	//HoaDon findByDonHang(DonHang donHang);
+	@Query("SELECT h FROM HoaDon h WHERE h.donHang = :donHang")
+	HoaDon findByDonHang(@Param("donHang") DonHang donHang);
 
 	Page<HoaDon> findByTenNguoiNhanContainingIgnoreCase(String tenNguoiNhan, Pageable pageable);
 

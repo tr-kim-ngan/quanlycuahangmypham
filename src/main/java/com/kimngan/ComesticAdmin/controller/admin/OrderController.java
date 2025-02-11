@@ -2,24 +2,19 @@ package com.kimngan.ComesticAdmin.controller.admin;
 
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.DonHang;
-import com.kimngan.ComesticAdmin.entity.HoaDon;
+import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
-import com.kimngan.ComesticAdmin.entity.SanPham;
-import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
-import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DonHangService;
-import com.kimngan.ComesticAdmin.services.HoaDonService;
-import com.kimngan.ComesticAdmin.services.SanPhamService;
-
+import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
@@ -37,17 +32,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/admin")
 public class OrderController {
-	@Autowired
-	private SanPhamService sanPhamService;
+
 
 	@Autowired
 	private DonHangService donHangService;
+
+
+
 	@Autowired
-	private HoaDonService hoaDonService;
-	@Autowired
-	private ChiTietDonNhapHangService chiTietDonNhapHangService;
-	@Autowired
-	private ChiTietDonHangService chiTietDonHangService;
+	private NguoiDungService nguoiDungService;
+
 
 	// Hiển thị danh sách đơn hàng
 	@GetMapping("/orders")
@@ -95,6 +89,7 @@ public class OrderController {
 	}
 
 	// Xem chi tiết đơn hàng (cho phép admin sửa trạng thái đơn hàng)
+
 	@GetMapping("/orders/{maDonHang}")
 	public String viewOrder(@PathVariable("maDonHang") Integer maDonHang, Model model) {
 		DonHang donHang = donHangService.getDonHangById(maDonHang);
@@ -102,27 +97,60 @@ public class OrderController {
 			return "redirect:/admin/orders"; // Nếu đơn hàng không tồn tại, chuyển về danh sách đơn hàng
 		}
 
-		// Định dạng số tiền
-		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+		// ✅ Lấy danh sách shipper
+		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER");
 
-		// Định dạng tổng giá trị và phí vận chuyển
+		// 🔥 Kiểm tra trạng thái đơn hàng khi Admin mở trang chi tiết
+		System.out.println("✅ Trạng thái đơn hàng: " + donHang.getTrangThaiDonHang());
+		System.out.println("✅ Trạng thái chờ xác nhận: " + donHang.getTrangThaiChoXacNhan());
+
+		List<String> nextStatuses;
+		if (donHang.getTrangThaiChoXacNhan() != null && !donHang.getTrangThaiChoXacNhan().isEmpty()) {
+			nextStatuses = Arrays.asList(donHang.getTrangThaiChoXacNhan());
+		} else {
+			nextStatuses = getNextStatuses(donHang.getTrangThaiDonHang(), false);
+		}
+		// ✅ Nếu trạng thái chờ xác nhận != null thì dùng nó, ngược lại lấy trạng thái
+		// hiện tại
+
+		// ✅ Xác định trạng thái hiện tại
+		String currentStatus = (donHang.getTrangThaiChoXacNhan() != null && !donHang.getTrangThaiChoXacNhan().isEmpty())
+				? donHang.getTrangThaiChoXacNhan()
+				: donHang.getTrangThaiDonHang();
+
+		if (currentStatus == null || currentStatus.isEmpty()) {
+			currentStatus = "Đang xử lý"; // Trạng thái mặc định
+		}
+
+		// ✅ Danh sách trạng thái hiển thị (không có "Chờ admin xác nhận")
+		List<String> allStatuses = Arrays.asList("Đang xử lý", "Đã xác nhận", "Đang chuẩn bị hàng", "Đang giao hàng",
+				"Đã hoàn thành", "Đã hủy");
+
+		// ✅ Xóa trạng thái có chữ "Chờ admin xác nhận"
+		List<String> displayedStatuses = allStatuses.stream().filter(status -> !status.contains("(Chờ admin xác nhận)"))
+				.collect(Collectors.toList());
+
+		// ✅ Xác định trạng thái hiện tại
+		int currentStatusIndex = displayedStatuses.indexOf(currentStatus);
+		if (currentStatusIndex == -1) {
+			currentStatusIndex = 0; // Tránh lỗi nếu trạng thái không hợp lệ
+		}
+
+		// ✅ Định dạng số tiền
+		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
 		String formattedTongGiaTri = decimalFormat.format(donHang.getTongGiaTriDonHang());
 		String formattedPhiVanChuyen = decimalFormat.format(donHang.getPhiVanChuyen());
 
-		// Định dạng các giá trị trong chi tiết đơn hàng
+		// ✅ Định dạng các giá trị trong chi tiết đơn hàng
 		List<Map<String, String>> formattedChiTietDonHang = new ArrayList<>();
-		// Định dạng các giá trị trong chi tiết đơn hàng
-
-		// Kiểm tra nếu không có chi tiết đơn hàng
 		if (donHang.getChiTietDonHangs() == null || donHang.getChiTietDonHangs().isEmpty()) {
 			model.addAttribute("error", "Đơn hàng không có chi tiết sản phẩm.");
 		} else {
 			for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
 				if (chiTiet.getSanPham() == null) {
-					continue; // Bỏ qua nếu sản phẩm bị null
+					continue;
 				}
 				Map<String, String> chiTietMap = new HashMap<>();
-
 				chiTietMap.put("maSanPham", String.valueOf(chiTiet.getSanPham().getMaSanPham()));
 				chiTietMap.put("hinhAnh", chiTiet.getSanPham().getHinhAnh());
 				chiTietMap.put("tenSanPham", chiTiet.getSanPham().getTenSanPham());
@@ -135,371 +163,99 @@ public class OrderController {
 				formattedChiTietDonHang.add(chiTietMap);
 			}
 		}
+		System.out.println("🚀 nextStatuses: " + nextStatuses);
+		model.addAttribute("nextStatuses", nextStatuses);
+		// ✅ Gắn dữ liệu vào model
+		model.addAttribute("allStatuses", displayedStatuses);
 
-		// Gắn danh sách chi tiết đơn hàng vào model
-		model.addAttribute("formattedChiTietDonHang", formattedChiTietDonHang);
-
-		// Danh sách trạng thái cố định
-		List<String> allStatuses = Arrays.asList("Đang xử lý", "Đã xác nhận", "Đang giao hàng", "Đã hoàn thành",
-				"Đã hủy");
-		int currentStatusIndex = allStatuses.indexOf(donHang.getTrangThaiDonHang());
-
-		// Kiểm tra trạng thái hợp lệ
-		if (currentStatusIndex == -1) {
-			model.addAttribute("error", "Trạng thái đơn hàng không hợp lệ.");
-			return "admin/order/view"; // Trả về view với thông báo lỗi
-		}
-		// Danh sách trạng thái tiếp theo
-		List<String> nextStatuses = getNextStatuses(donHang.getTrangThaiDonHang());
-
-		// Gắn dữ liệu vào model
+		model.addAttribute("danhSachShipper", danhSachShipper);
 		model.addAttribute("donHang", donHang);
 		model.addAttribute("formattedTongGiaTri", formattedTongGiaTri);
 		model.addAttribute("formattedPhiVanChuyen", formattedPhiVanChuyen);
 		model.addAttribute("formattedChiTietDonHang", formattedChiTietDonHang);
-		model.addAttribute("nextStatuses", nextStatuses);
-
-		// Lịch sử trạng thái
-		model.addAttribute("allStatuses", allStatuses);
+		model.addAttribute("displayedStatuses", displayedStatuses);
 		model.addAttribute("currentStatusIndex", currentStatusIndex);
-		System.out.println("Danh sách trạng thái: " + allStatuses);
-		System.out.println("Chỉ số trạng thái hiện tại: " + currentStatusIndex);
 
-		// Thêm thông tin người dùng
+		// ✅ Thêm thông tin người dùng
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);
 
 		return "admin/order/view"; // Trả về trang view để hiển thị chi tiết đơn hàng và cập nhật trạng thái
 	}
+	@PostMapping("/orders/{maDonHang}/assign-shipper")
+	public String assignShipper(@PathVariable("maDonHang") Integer maDonHang,
+			@RequestParam("shipperId") Integer shipperId, RedirectAttributes redirectAttributes) {
+		try {
+			DonHang donHang = donHangService.getDonHangById(maDonHang);
+			if (donHang == null) {
+				redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng!");
+				return "redirect:/admin/orders";
+			}
 
-	// Cập nhật trạng thái đơn hàng
-//	@PostMapping("/orders/{maDonHang}/update-status")
-//	public String updateOrderStatus(@PathVariable("maDonHang") Integer maDonHang,
-//			@RequestParam("status") String newStatus, RedirectAttributes redirectAttributes) {
-//		try {
-//			DonHang donHang = donHangService.getDonHangById(maDonHang);
-//			if (donHang != null) {
-//
-//				String currentStatus = donHang.getTrangThaiDonHang();
-//				System.out.println("Trạng thái hiện tại: " + currentStatus);
-//				System.out.println("Trạng thái muốn cập nhật: " + newStatus);
-//				if (!isNextStatusValid(currentStatus, newStatus)) {
-//					redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
-//					return "redirect:/admin/orders/" + maDonHang; // Chuyển hướng lại trang chi tiết đơn hàng
-//				}
-//
-//				System.out.println("Đang kiểm tra kho hàng trước khi cập nhật trạng thái...");
-//
-//				// Kiểm tra số lượng tồn kho trước khi xác nhận đơn hàng
-//				if ("Đã xác nhận".equals(newStatus)) {
-//					for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-//						SanPham sanPham = chiTiet.getSanPham();
-//						int soLuongYeuCau = chiTiet.getSoLuong();
-//
-//						// Nếu số lượng yêu cầu lớn hơn số lượng tồn kho
-//						if (soLuongYeuCau > sanPham.getSoLuong()) {
-//							// Đơn hàng phải hủy vì không đủ tồn kho
-//							redirectAttributes.addFlashAttribute("errorMessage", "Sản phẩm '" + sanPham.getTenSanPham()
-//									+ "' không đủ số lượng tồn kho để xác nhận đơn hàng. Đơn hàng cần phải hủy.");
-//							// Lưu trạng thái đơn hàng là "Bị hủy do không đủ hàng" để không cộng lại số
-//							// lượng vào kho
-//							donHang.setTrangThaiDonHang("Bị hủy do không đủ hàng");
-//							donHangService.updateDonHang(donHang);
-//							return "redirect:/admin/orders/" + maDonHang; // Quay lại trang chi tiết đơn hàng
-//						}
-//					}
-//
-//					// Sau khi kiểm tra đủ tồn kho, tiến hành cập nhật lại số lượng tồn kho
-//					for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-//						SanPham sanPham = chiTiet.getSanPham();
-//						int soLuongYeuCau = chiTiet.getSoLuong();
-//
-//						// Trừ số lượng đã bán ra khỏi tồn kho
-//						int soLuongTonHienTai = sanPham.getSoLuong();
-//						sanPham.setSoLuong(soLuongTonHienTai - soLuongYeuCau);
-//						sanPhamService.update(sanPham); // Lưu lại sản phẩm với số lượng mới
-//					}
-//					
-//				}
-//				if ("Đã xác nhận".equals(newStatus)) {
-//				    boolean isOutOfStock = false;
-//				    List<String> outOfStockProducts = new ArrayList<>();
-//
-//				    for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-//				        SanPham sanPham = chiTiet.getSanPham();
-//				        int soLuongYeuCau = chiTiet.getSoLuong();
-//
-//				        // Kiểm tra nếu số lượng yêu cầu lớn hơn số lượng còn lại cho phép bán
-//				        if (soLuongYeuCau > sanPham.getSoLuong()) {
-//				            isOutOfStock = true;
-//				            outOfStockProducts.add(sanPham.getTenSanPham());
-//				        }
-//				    }
-//
-//				    if (isOutOfStock) {
-//				        // Hiển thị thông báo nhưng KHÔNG hủy đơn hàng
-//				        String errorMsg = "Không đủ hàng để xác nhận đơn hàng cho sản phẩm: " + String.join(", ", outOfStockProducts);
-//				        redirectAttributes.addFlashAttribute("errorMessage", errorMsg);
-//				        return "redirect:/admin/orders/" + maDonHang;
-//				    } else {
-//				        // Nếu đủ hàng, tiến hành trừ số lượng tồn kho
-//				        for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-//				            SanPham sanPham = chiTiet.getSanPham();
-//				            sanPham.setSoLuong(sanPham.getSoLuong() - chiTiet.getSoLuong());
-//				            sanPhamService.update(sanPham);
-//				        }
-//				    }
-//				}
-//
-//
-//				// Xử lý khi đơn hàng bị hủy
-//				if ("Đã hủy".equals(newStatus)) {
-//					// Kiểm tra xem đơn hàng có bị hủy do không đủ tồn kho hay không
-//					if (!"Bị hủy do không đủ hàng".equals(donHang.getTrangThaiDonHang())) {
-//						// Nếu đơn hàng không bị hủy do thiếu tồn kho, tiến hành cộng lại số lượng tồn
-//						// kho
-//						for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-//							SanPham sanPham = chiTiet.getSanPham();
-//							int soLuongHienTai = sanPham.getSoLuong();
-//							int soLuongTraLai = chiTiet.getSoLuong();
-//							sanPham.setSoLuong(soLuongHienTai + soLuongTraLai);
-//							sanPhamService.update(sanPham); // Lưu lại sản phẩm sau khi cộng số lượng
-//							 // In ra log kiểm tra sau khi cập nhật số lượng tồn kho
-//					        System.out.println("Sản phẩm: " + sanPham.getTenSanPham() + 
-//					            " | Số lượng tồn sau khi trừ: " + sanPham.getSoLuong());
-//						}
-//					}
-//				}
-//				
-//
-//				// Tạo hóa đơn khi đơn hàng chuyển sang "Đã hoàn thành"
-//				// Tạo hóa đơn khi đơn hàng chuyển sang "Đã hoàn thành"
-//				if ("Đã hoàn thành".equals(newStatus)) {
-//					System.out.println("Tạo hóa đơn cho đơn hàng: " + maDonHang);
-//
-//					HoaDon hoaDon = new HoaDon();
-//					hoaDon.setDonHang(donHang);
-//					hoaDon.setNgayXuatHoaDon(LocalDateTime.now());
-//
-//					// Sử dụng giá trị gốc BigDecimal để lưu vào cơ sở dữ liệu
-//					hoaDon.setTongTien(donHang.getTongGiaTriDonHang());
-//
-//					// Định dạng số tiền để log hoặc hiển thị
-//					DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
-//					String formattedTongTien = decimalFormat.format(donHang.getTongGiaTriDonHang());
-//					System.out.println("Tổng tiền (định dạng): " + formattedTongTien);
-//
-//					hoaDon.setTenNguoiNhan(donHang.getNguoiDung().getTenNguoiDung());
-//					hoaDon.setDiaChiGiaoHang(donHang.getDiaChiGiaoHang());
-//					hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
-//					hoaDon.setTrangThaiThanhToan("Chưa xác nhận"); // Gán giá trị mặc định cho trạng thái thanh toán
-//
-//					// Lưu hóa đơn vào cơ sở dữ liệu
-//					hoaDonService.saveHoaDon(hoaDon);
-//				}
-//
-//				donHang.setTrangThaiDonHang(newStatus);
-//				donHangService.updateDonHang(donHang); // Lưu lại đơn hàng với trạng thái mới
-//				System.out.println("Trạng thái đơn hàng sau khi cập nhật: " + donHang.getTrangThaiDonHang());
-//
-//				redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công.");
-//
-//			} else {
-//				redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng để cập nhật.");
-//			}
-//		} catch (Exception e) {
-//			redirectAttributes.addFlashAttribute("errorMessage",
-//					"Có lỗi xảy ra khi cập nhật trạng thái đơn hàng: " + e.getMessage());
-//		}
-//		return "redirect:/admin/orders/" + maDonHang; // Chuyển hướng về danh sách đơn hàng sau khi cập nhật
-//	}
+			NguoiDung shipper = nguoiDungService.findById(shipperId);
+			if (shipper == null) {
+				redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy shipper!");
+				return "redirect:/admin/orders/" + maDonHang;
+			}
 
-//	@PostMapping("/orders/{maDonHang}/update-status")
-//	public String updateOrderStatus(@PathVariable("maDonHang") Integer maDonHang,
-//	        @RequestParam("status") String newStatus, RedirectAttributes redirectAttributes) {
-//	    try {
-//	        DonHang donHang = donHangService.getDonHangById(maDonHang);
-//	        if (donHang != null) {
-//	            System.out.println("Trạng thái hiện tại: " + donHang.getTrangThaiDonHang());
-//	            System.out.println("Trạng thái muốn cập nhật: " + newStatus);
-//
-//	            // Kiểm tra trạng thái hợp lệ
-//	            if (!isNextStatusValid(donHang.getTrangThaiDonHang(), newStatus)) {
-//	                redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
-//	                return "redirect:/admin/orders/" + maDonHang;
-//	            }
-//
-//	            // Chỉ giảm số lượng tồn kho khi đơn hàng được xác nhận thành công
-//	            if ("Đã xác nhận".equals(newStatus)) {
-//	                for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-//	                    SanPham sanPham = chiTiet.getSanPham();
-//	                    int soLuongDaBan = chiTiet.getSoLuong();
-//	                    
-//	                    // Cập nhật số lượng tồn kho theo công thức: tồn kho = nhập vào - số lượng bán ra
-//	                    int soLuongTonKhoMoi = sanPham.getSoLuong() - soLuongDaBan;
-//	                    sanPham.setSoLuong(soLuongTonKhoMoi);
-//
-//	                    sanPhamService.update(sanPham);
-//	                }
-//	            }
-//
-//	            // Tạo hóa đơn khi đơn hàng được hoàn thành
-//	            if ("Đã hoàn thành".equals(newStatus)) {
-//	                System.out.println("Tạo hóa đơn cho đơn hàng: " + maDonHang);
-//
-//	                HoaDon hoaDon = new HoaDon();
-//	                hoaDon.setDonHang(donHang);
-//	                hoaDon.setNgayXuatHoaDon(LocalDateTime.now());
-//	                hoaDon.setTongTien(donHang.getTongGiaTriDonHang());
-//	                hoaDon.setTenNguoiNhan(donHang.getNguoiDung().getTenNguoiDung());
-//	                hoaDon.setDiaChiGiaoHang(donHang.getDiaChiGiaoHang());
-//	                hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
-//	                hoaDon.setTrangThaiThanhToan("Chưa xác nhận");
-//
-//	                hoaDonService.saveHoaDon(hoaDon);
-//	            }
-//
-//	            // Cập nhật trạng thái đơn hàng
-//	            donHang.setTrangThaiDonHang(newStatus);
-//	            donHangService.updateDonHang(donHang);
-//	            System.out.println("Trạng thái đơn hàng sau khi cập nhật: " + donHang.getTrangThaiDonHang());
-//
-//	            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công.");
-//	        } else {
-//	            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng để cập nhật.");
-//	        }
-//	    } catch (Exception e) {
-//	        redirectAttributes.addFlashAttribute("errorMessage",
-//	                "Có lỗi xảy ra khi cập nhật trạng thái đơn hàng: " + e.getMessage());
-//	    }
-//	    return "redirect:/admin/orders/" + maDonHang;
-//	}
+			// ✅ Gán shipper vào đơn hàng
+			donHang.setShipper(shipper);
+			donHang.setTrangThaiDonHang("Đang chuẩn bị hàng"); // Admin chỉ chuẩn bị hàng, chưa giao
+
+			donHangService.updateDonHang(donHang);
+			System.out.println("✅ Đơn hàng " + maDonHang + " đã gán cho shipper " + shipperId);
+
+			redirectAttributes.addFlashAttribute("successMessage", "Đã gán shipper thành công!");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi gán shipper: " + e.getMessage());
+		}
+
+		return "redirect:/admin/orders/" + maDonHang;
+	}
+
 
 	@PostMapping("/orders/{maDonHang}/update-status")
 	public String updateOrderStatus(@PathVariable("maDonHang") Integer maDonHang,
-			@RequestParam("status") String newStatus, RedirectAttributes redirectAttributes) {
-		try {
-			DonHang donHang = donHangService.getDonHangById(maDonHang);
-			if (donHang != null) {
-				System.out.println("Trạng thái hiện tại: " + donHang.getTrangThaiDonHang());
-				System.out.println("Trạng thái muốn cập nhật: " + newStatus);
+	                                @RequestParam("status") String newStatus,
+	                                @RequestParam(value = "shipperId", required = false) Integer shipperId,
+	                                RedirectAttributes redirectAttributes) {
 
-				// Kiểm tra trạng thái hợp lệ
-				if (!isNextStatusValid(donHang.getTrangThaiDonHang(), newStatus)) {
-					redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
-					return "redirect:/admin/orders/" + maDonHang;
-				}
+	    DonHang donHang = donHangService.getDonHangById(maDonHang);
+	    if (donHang == null) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+	        return "redirect:/admin/orders";
+	    }
 
-				// Chỉ giảm số lượng tồn kho khi đơn hàng được xác nhận thành công
-				// Chỉ giảm số lượng tồn kho khi đơn hàng được xác nhận thành công
-//				if ("Đã xác nhận".equals(newStatus)) {
-//				    for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-//				        SanPham sanPham = chiTiet.getSanPham();
-//
-//				        // Lấy tổng số lượng nhập thực tế từ chi tiết đơn nhập hàng
-//				        Integer totalImportedQuantity = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sanPham.getMaSanPham());
-//
-//				        // Lấy tổng số lượng đã bán từ chi tiết đơn hàng
-//				        Integer totalSoldQuantity = chiTietDonHangService.getSoldQuantityBySanPhamId(sanPham.getMaSanPham());
-//
-//				        // Kiểm tra null và gán giá trị mặc định
-//				        totalImportedQuantity = (totalImportedQuantity != null) ? totalImportedQuantity : 0;
-//				        totalSoldQuantity = (totalSoldQuantity != null) ? totalSoldQuantity : 0;
-//
-//				        // Cập nhật lại số lượng tồn kho theo tổng nhập - tổng bán (Không để bị âm)
-//				        int soLuongTonKhoMoi = Math.max(totalImportedQuantity - totalSoldQuantity, 0);
-//
-//				        // Chỉ cập nhật nếu tồn kho thay đổi
-//				        if (sanPham.getSoLuong() != soLuongTonKhoMoi) {
-//				            sanPham.setSoLuong(soLuongTonKhoMoi);
-//				            sanPhamService.update(sanPham);
-//				        }
-//				    }
-//				}
-				// Chỉ giảm số lượng tồn kho khi đơn hàng được xác nhận thành công
-				if ("Đã xác nhận".equals(newStatus)) {
-				    for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-				        SanPham sanPham = chiTiet.getSanPham();
-				        int soLuongDaBan = chiTiet.getSoLuong();
+	    System.out.println("✅ Đang cập nhật trạng thái cho đơn hàng: " + maDonHang);
+	    System.out.println("Trạng thái hiện tại: " + donHang.getTrangThaiDonHang());
+	    System.out.println("Trạng thái mới: " + newStatus);
 
-				        // Lấy số lượng tồn hiện tại từ sản phẩm
-				        int soLuongTonHienTai = sanPham.getSoLuong();
+	    // ✅ Bắt buộc chọn shipper trước khi chuyển sang "Đang chuẩn bị hàng"
+	    if ("Đang chuẩn bị hàng".equals(newStatus) && (shipperId == null || shipperId <= 0)) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn shipper trước khi chuẩn bị hàng.");
+	        return "redirect:/admin/orders/" + maDonHang;
+	    }
 
-				        // Cập nhật lại số lượng tồn kho: tồn kho mới = tồn kho hiện tại - số lượng đã bán
-				        int soLuongTonKhoMoi = Math.max(soLuongTonHienTai - soLuongDaBan, 0);
+	    // ✅ Nếu có shipper, gán shipper vào đơn hàng
+	    if (shipperId != null && shipperId > 0) {
+	        NguoiDung shipper = nguoiDungService.findById(shipperId);
+	        if (shipper != null) {
+	            donHang.setShipper(shipper);
+	        }
+	    }
+	 // 🔥 Kiểm tra nếu đơn hàng đã hoàn thành thì tạo hóa đơn
+	   
+	    // ✅ Cập nhật trạng thái đơn hàng
+	    donHang.setTrangThaiDonHang(newStatus);
+	    donHangService.updateDonHang(donHang);
+	    System.out.println("🔍 Giá trị newStatus nhận được từ request: '" + newStatus + "'");
+	    System.out.println("🚀 Gọi updateOrderStatus() với maDonHang: " + maDonHang);
 
-				        // Chỉ cập nhật nếu tồn kho thay đổi để tránh update không cần thiết
-				        if (sanPham.getSoLuong() != soLuongTonKhoMoi) {
-				            sanPham.setSoLuong(soLuongTonKhoMoi);
-				            sanPhamService.update(sanPham);
-				        }
-				    }
-				}
-				// Nếu admin hủy đơn hàng, số lượng sản phẩm phải được cộng lại
-				// Nếu admin hủy đơn hàng, số lượng sản phẩm phải được cộng lại vào kho
-				if ("Đã hủy".equals(newStatus)) {
-				    for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-				        SanPham sanPham = chiTiet.getSanPham();
-				        int soLuongDaBan = chiTiet.getSoLuong();
-
-				        // Lấy số lượng tồn hiện tại từ sản phẩm
-				        int soLuongTonHienTai = sanPham.getSoLuong();
-
-				        // Cộng lại số lượng đã bán vào kho khi hủy đơn
-				        int soLuongTonKhoMoi = soLuongTonHienTai + soLuongDaBan;
-
-				        // **In ra kiểm tra**
-				        System.out.println("Hủy đơn hàng - Cập nhật số lượng tồn:");
-				        System.out.println("Sản phẩm: " + sanPham.getTenSanPham());
-				        System.out.println("Số lượng trước khi cập nhật: " + soLuongTonHienTai);
-				        System.out.println("Số lượng trả lại: " + soLuongDaBan);
-				        System.out.println("Số lượng sau khi cập nhật: " + soLuongTonKhoMoi);
-
-				        // Chỉ cập nhật nếu tồn kho thay đổi để tránh update không cần thiết
-				        if (sanPham.getSoLuong() != soLuongTonKhoMoi) {
-				            sanPham.setSoLuong(soLuongTonKhoMoi);
-				            sanPhamService.update(sanPham);
-				        }
-				    }
-				}
-
-
-
-
-
-
-				// **Tạo hóa đơn khi đơn hàng được hoàn thành**
-				if ("Đã hoàn thành".equals(newStatus)) {
-					System.out.println("Tạo hóa đơn cho đơn hàng: " + maDonHang);
-
-					HoaDon hoaDon = new HoaDon();
-					hoaDon.setDonHang(donHang);
-					hoaDon.setNgayXuatHoaDon(LocalDateTime.now());
-					hoaDon.setTongTien(donHang.getTongGiaTriDonHang());
-					hoaDon.setTenNguoiNhan(donHang.getNguoiDung().getTenNguoiDung());
-					hoaDon.setDiaChiGiaoHang(donHang.getDiaChiGiaoHang());
-					hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
-					hoaDon.setTrangThaiThanhToan("Chưa xác nhận");
-
-					hoaDonService.saveHoaDon(hoaDon);
-				}
-
-				// Cập nhật trạng thái đơn hàng
-				donHang.setTrangThaiDonHang(newStatus);
-				donHangService.updateDonHang(donHang);
-				System.out.println("Trạng thái đơn hàng sau khi cập nhật: " + donHang.getTrangThaiDonHang());
-
-				redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công.");
-			} else {
-				redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng để cập nhật.");
-			}
-		} catch (Exception e) {
-			redirectAttributes.addFlashAttribute("errorMessage",
-					"Có lỗi xảy ra khi cập nhật trạng thái đơn hàng: " + e.getMessage());
-		}
-		return "redirect:/admin/orders/" + maDonHang;
+	    redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công.");
+	    return "redirect:/admin/orders/" + maDonHang;
 	}
+
 
 	// Trang xác nhận đơn hàng
 	@GetMapping("/order/confirm/{id}")
@@ -513,6 +269,10 @@ public class OrderController {
 		if (donHang == null) {
 			return "redirect:/admin/orders"; // Nếu đơn hàng không tồn tại, chuyển về trang danh sách
 		}
+
+		// Lấy danh sách shipper để admin chọn nếu cần
+		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER");
+		model.addAttribute("danhSachShipper", danhSachShipper);
 		// Định dạng số tiền
 		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
 		String formattedTongGiaTriDonHang = decimalFormat.format(donHang.getTongGiaTriDonHang());
@@ -574,36 +334,65 @@ public class OrderController {
 		}
 	}
 
-	// Kiểm tra trạng thái tiếp theo có hợp lệ không
-	// Kiểm tra trạng thái tiếp theo có hợp lệ không
-	private boolean isNextStatusValid(String currentStatus, String newStatus) {
-		List<String> validNextStatuses = getNextStatuses(currentStatus);
-		return validNextStatuses.contains(newStatus);
+	@PostMapping("/orders/{maDonHang}/confirm-status")
+	public String confirmShipperStatus(@PathVariable("maDonHang") Integer maDonHang,
+			RedirectAttributes redirectAttributes) {
+		DonHang donHang = donHangService.getDonHangById(maDonHang);
+		if (donHang == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+			return "redirect:/admin/orders";
+		}
+
+		// ✅ Kiểm tra nếu shipper đã gửi trạng thái mới
+		if (donHang.getTrangThaiChoXacNhan() != null) {
+			donHang.setTrangThaiDonHang(donHang.getTrangThaiChoXacNhan());
+			donHang.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận
+
+			donHangService.updateDonHang(donHang);
+			redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận trạng thái đơn hàng.");
+		} else {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không có trạng thái nào cần xác nhận.");
+		}
+
+		return "redirect:/admin/orders/" + maDonHang;
 	}
+	// Kiểm tra trạng thái tiếp theo có hợp lệ không
+	
 
 	@ModelAttribute("getNextStatuses")
-	public List<String> getNextStatuses(String currentStatus) {
-		if (currentStatus == null) {
+	public List<String> getNextStatuses(String currentStatus, boolean isShipperConfirmed) {
+		if (currentStatus == null || currentStatus.isEmpty()) {
 			return Collections.emptyList();
 		}
 
 		List<String> nextStatuses = new ArrayList<>();
+
 		switch (currentStatus) {
 		case "Đang xử lý":
 			nextStatuses.add("Đã xác nhận");
 			nextStatuses.add("Đã hủy");
 			break;
+
 		case "Đã xác nhận":
+			nextStatuses.add("Đang chuẩn bị hàng");
+			break;
+
+		case "Đang chuẩn bị hàng":
 			nextStatuses.add("Đang giao hàng");
-			nextStatuses.add("Đã hủy");
 			break;
+
 		case "Đang giao hàng":
-			nextStatuses.add("Đã hoàn thành");
+			if (isShipperConfirmed) {
+				nextStatuses.add("Đã hoàn thành");
+			}
 			break;
+
 		case "Đã hoàn thành":
 		case "Đã hủy":
 			break;
 		}
+
+		System.out.println("✅ Trạng thái hợp lệ tiếp theo: " + nextStatuses);
 		return nextStatuses;
 	}
 

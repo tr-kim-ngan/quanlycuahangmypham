@@ -91,9 +91,9 @@
 					<span th:text="${#temporals.format(order.ngayDat, 'dd/MM/yyyy HH:mm')}"></span>
 				</p>
 
-				<p><strong>📍 Địa chỉ giao hàng:</strong>
+				<!--<p><strong>📍 Địa chỉ giao hàng:</strong>
 					<span th:text="${order.diaChiGiaoHang}"></span>
-				</p>
+				</p>-->
 
 				<!-- ✅ Hiển thị trạng thái đơn hàng với màu sắc nổi bật -->
 				<p><strong>📌 Trạng thái:</strong>
@@ -117,9 +117,9 @@
 					</span>
 				</p>
 
-				<p><strong>🚚 Phí vận chuyển:</strong>
+				<!--<p><strong>🚚 Phí vận chuyển:</strong>
 					<span th:text="${#numbers.formatDecimal(order.phiVanChuyen, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
-				</p>
+				</p>-->
 
 				<p><strong>💰 Tổng tiền:</strong>
 					<span

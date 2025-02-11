@@ -1,0 +1,127 @@
+<div class="sidebar" th:fragment="sidebar">
+	<div class="sidebar-logo" style="padding-bottom: 0px;">
+		<div class="logo-header">
+			<a th:href="@{/shipper}" class="logo">
+				<img th:src="@{/assets/img/kaiadmin/logotruck.png}" alt="Shipper Logo" class="logo-img">
+			</a>
+		</div>
+	</div>
+
+	<div class="sidebar-wrapper">
+		<ul class="nav">
+			<!-- Quản lý đơn hàng -->
+			<li class="nav-section" style="margin-top: 0px;">
+				<span class="sidebar-mini-icon">
+					<i class="fas fa-truck"></i>
+				</span>
+				<h5 class="text-section">Quản lý đơn hàng</h5>
+			</li>
+
+			<li class="nav-item">
+				<a th:href="@{/shipper/orders}">
+					<i class="fas fa-clipboard-list"></i>
+					<p>Đơn hàng được giao</p>
+				</a>
+			</li>
+
+			<li class="nav-item">
+				<a th:href="@{/shipper/in-progress}">
+					<i class="fas fa-truck-moving"></i>
+					<p>Đơn hàng đang giao</p>
+				</a>
+			</li>
+			<li class="nav-item">
+				<a th:href="@{/shipper/delivered}">
+					<i class="fas fa-check-circle"></i>
+					<p>Đơn hàng đã giao</p>
+				</a>
+			</li>
+			<li class="nav-item">
+				<a th:href="@{/shipper/failed-delivery}">
+					<i class="fas fa-exclamation-triangle"></i>
+					<p>Đơn hàng giao thất bại</p>
+				</a>
+			</li>
+
+			<!-- Quản lý tài khoản -->
+			<li class="nav-section">
+				<span class="sidebar-mini-icon">
+					<i class="fas fa-user"></i>
+				</span>
+				<h4 class="text-section">Tài khoản</h4>
+			</li>
+
+			<li class="nav-item">
+				<a th:href="@{/shipper/profile}">
+					<i class="fas fa-user-circle"></i>
+					<p>Thông tin cá nhân</p>
+				</a>
+			</li>
+
+		</ul>
+	</div>
+
+	<style>
+		.sidebar {
+			width: 260px;
+			padding-left: 5px !important;
+			background-color: #c4c4c4 !important;
+			height: 100vh;
+			position: fixed;
+		}
+
+		.sidebar-logo {
+			text-align: center;
+			padding: 20px 0;
+		}
+
+		.logo-img {
+			width: 150px;
+		}
+
+		.sidebar-wrapper {
+			padding: 0 15px;
+		}
+
+		.nav {
+			list-style: none;
+			padding: 0;
+		}
+
+		.nav-item {
+			width: 100%;
+		}
+
+		.nav-item a {
+			display: flex;
+			align-items: center;
+			padding: 5px;
+			width: 100%;
+			text-decoration: none;
+			color: #333;
+			border-radius: 5px;
+			transition: all 0.3s ease;
+		}
+
+		.nav-item a:hover {
+			background-color: #6B6B6B;
+			color: #fff;
+		}
+
+		.nav-item i {
+			margin-right: 10px;
+		}
+
+		.nav-section {
+			margin-top: 15px;
+			font-size: 14px;
+			font-weight: bold;
+			color: #555;
+			padding-left: 10px;
+		}
+
+		.sidebar-mini-icon {
+			margin-right: 5px;
+		}
+	</style>
+</div>
