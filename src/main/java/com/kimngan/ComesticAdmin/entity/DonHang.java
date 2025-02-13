@@ -44,6 +44,8 @@ public class DonHang {
 
 	@Column(name = "PhiVanChuyen", precision = 8, scale = 2, nullable = false)
 	private BigDecimal phiVanChuyen;
+	@Column(name = "SoLanGiaoThatBai", nullable = false)
+	private Integer soLanGiaoThatBai = 0;
 
 	@Column(name = "GhiChu", length = 225)
 	private String ghiChu;
@@ -52,6 +54,9 @@ public class DonHang {
 
 	@Column(name = "SDTNhanHang", length = 10, nullable = false)
 	private String sdtNhanHang;
+	@Column(name = "lich_su_trang_thai", columnDefinition = "TEXT")
+	private String lichSuTrangThai;
+
 	// Quan hệ với bảng NguoiDung
 	@ManyToOne
 	@JoinColumn(name = "MaNguoiDung", nullable = false)
@@ -70,11 +75,12 @@ public class DonHang {
 	public DonHang() {
 	}
 
-	
+
+
 	public DonHang(Integer maDonHang, LocalDateTime ngayDat, String diaChiGiaoHang, String trangThaiDonHang,
-			String trangThaiChoXacNhan, BigDecimal tongGiaTriDonHang, BigDecimal phiVanChuyen, String ghiChu,
-			String hinhAnhGiaoHang, String sdtNhanHang, NguoiDung nguoiDung, NguoiDung shipper,
-			List<ChiTietDonHang> chiTietDonHangs) {
+			String trangThaiChoXacNhan, BigDecimal tongGiaTriDonHang, BigDecimal phiVanChuyen, Integer soLanGiaoThatBai,
+			String ghiChu, String hinhAnhGiaoHang, String sdtNhanHang, String lichSuTrangThai, NguoiDung nguoiDung,
+			NguoiDung shipper, List<ChiTietDonHang> chiTietDonHangs) {
 		super();
 		this.maDonHang = maDonHang;
 		this.ngayDat = ngayDat;
@@ -83,13 +89,16 @@ public class DonHang {
 		this.trangThaiChoXacNhan = trangThaiChoXacNhan;
 		this.tongGiaTriDonHang = tongGiaTriDonHang;
 		this.phiVanChuyen = phiVanChuyen;
+		this.soLanGiaoThatBai = soLanGiaoThatBai;
 		this.ghiChu = ghiChu;
 		this.hinhAnhGiaoHang = hinhAnhGiaoHang;
 		this.sdtNhanHang = sdtNhanHang;
+		this.lichSuTrangThai = lichSuTrangThai;
 		this.nguoiDung = nguoiDung;
 		this.shipper = shipper;
 		this.chiTietDonHangs = chiTietDonHangs;
 	}
+
 
 
 	// Getters và Setters
@@ -189,7 +198,6 @@ public class DonHang {
 		this.trangThaiChoXacNhan = trangThaiChoXacNhan;
 	}
 
-
 	public String getHinhAnhGiaoHang() {
 		return hinhAnhGiaoHang;
 	}
@@ -198,5 +206,22 @@ public class DonHang {
 		this.hinhAnhGiaoHang = hinhAnhGiaoHang;
 	}
 
+	public Integer getSoLanGiaoThatBai() {
+		return soLanGiaoThatBai;
+	}
+
+	public void setSoLanGiaoThatBai(Integer soLanGiaoThatBai) {
+		this.soLanGiaoThatBai = soLanGiaoThatBai;
+	}
+
+	public String getLichSuTrangThai() {
+		return lichSuTrangThai;
+	}
+
+	public void setLichSuTrangThai(String lichSuTrangThai) {
+		this.lichSuTrangThai = lichSuTrangThai;
+	}
 	
+	
+
 }

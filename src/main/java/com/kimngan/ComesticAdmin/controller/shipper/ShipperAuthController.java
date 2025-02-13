@@ -150,57 +150,140 @@ public class ShipperAuthController {
 	}
 
 	@PostMapping("/order/update-status")
-	public String updateOrderStatus(@RequestParam("orderId") Integer orderId,
-	                                @RequestParam("status") String status,
-	                                @RequestParam(value = "hinhAnh", required = false) MultipartFile hinhAnh,
-	                                Principal principal,
-	                                RedirectAttributes redirectAttributes) {
-	    if (principal == null) {
-	        return "redirect:/shipper/login";
-	    }
+	public String updateOrderStatus(
+			@RequestParam("orderId") Integer orderId, 
+			@RequestParam("status") String status,
+			@RequestParam(value = "hinhAnh", required = false) MultipartFile hinhAnh,
+			@RequestParam(value = "lyDo", required = false) String lyDo, 
+			Principal principal,
+			RedirectAttributes redirectAttributes) {
 
-	    DonHang order = donHangService.getDonHangById(orderId);
-	    if (order == null) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
-	        return "redirect:/shipper/orders";
-	    }
+		if (principal == null) {
+			return "redirect:/shipper/login";
+		}
 
-	    // ✅ Kiểm tra nếu shipper đang đăng nhập có phải là shipper của đơn hàng không
-	    if (order.getShipper() == null || !order.getShipper().getTenNguoiDung().equals(principal.getName())) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "Bạn không phải shipper của đơn hàng này.");
-	        return "redirect:/shipper/orders";
-	    }
+		DonHang order = donHangService.getDonHangById(orderId);
+		
+		if (order == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+			return "redirect:/shipper/orders";
+		}
+		// Nếu đơn hàng đang chuẩn bị -> chuyển sang trạng thái Đang giao hàng
+		// Nếu đơn hàng đang chuẩn bị hàng -> Cập nhật trạng thái chờ xác nhận, KHÔNG cập nhật trực tiếp
+		if ("Đang chuẩn bị hàng".equals(order.getTrangThaiDonHang())) {
+		    order.setTrangThaiChoXacNhan("Đang giao hàng");  // ✅ Lưu vào trạng thái chờ xác nhận
+		    donHangService.updateDonHang(order);
+		    redirectAttributes.addFlashAttribute("successMessage", "Đã gửi yêu cầu xác nhận đang giao hàng.");
+		    return "redirect:/shipper/order/" + orderId;
+		}
 
-	    // ✅ Chỉ cho phép shipper cập nhật "Đang giao hàng", "Đã giao hàng", "Giao thất bại"
-	  //  List<String> allowedStatuses = Arrays.asList("Đang giao hàng", "Đã hoàn thành", "Đã hủy");
-	    List<String> allowedStatuses = Arrays.asList("Đang giao hàng","Đã hoàn thành", "Giao thất bại");
+//		// Nếu đơn hàng đang giao hàng -> cho phép chọn hoàn thành hoặc thất bại
+//		if ("Đang giao hàng".equals(order.getTrangThaiDonHang())) {
+//		    if ("Giao thất bại".equals(status)) {
+//		        order.setTrangThaiChoXacNhan("Giao hàng thất bại");
+//		    } else {
+//		        order.setTrangThaiChoXacNhan(status);
+//		    }
+//		    donHangService.updateDonHang(order);
+//		    redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công. Chờ admin xác nhận.");
+//		    return "redirect:/shipper/order/" + orderId;
+//		}
 
-	    if (!allowedStatuses.contains(status)) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
-	        return "redirect:/shipper/orders";
-	    }
+		// ✅ Nếu trạng thái là "Chờ shipper lấy hàng" và trước đó đã giao thất bại (Lần
+		// 1)
+		// Nếu admin đã giao lại đơn hàng, shipper nhận đơn lại và chuyển sang "Đang
+		// giao hàng"
+		if (("Đã xác nhận".equals(order.getTrangThaiDonHang())
+				|| "Đang chuẩn bị hàng".equals(order.getTrangThaiDonHang()))
+				&& "Giao hàng thất bại (Lần 1)".equals(order.getTrangThaiChoXacNhan())
+				&& "Đang giao lại (Lần 2)".equals(status)) {
 
-	    // ✅ Lưu trạng thái vào "trangThaiChoXacNhan" để admin xác nhận
-	    order.setTrangThaiChoXacNhan(status);
+			order.setTrangThaiDonHang("Đang giao hàng");
+			donHangService.updateDonHang(order);
+			redirectAttributes.addFlashAttribute("successMessage", "Bạn đã nhận hàng lần 2! Bắt đầu giao lại.");
+			return "redirect:/shipper/order/" + orderId;
+		}
 
-	    // ✅ Nếu có ảnh, lưu ảnh
-	    if (hinhAnh != null && !hinhAnh.isEmpty()) {
-	        try {
-	            String fileName = storageService.storeFile(hinhAnh);
-	            order.setHinhAnhGiaoHang(fileName);
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi lưu ảnh.");
-	            return "redirect:/shipper/order/" + orderId;
+		// ✅ Nếu trạng thái là "Đang giao hàng", shipper có thể chọn "Giao hàng thành
+		// công" hoặc "Giao thất bại"
+		  // ✅ Nếu trạng thái là "Đang giao hàng", shipper có thể chọn "Giao hàng thành công" hoặc "Giao thất bại"
+	    if ("Đang giao hàng".equals(order.getTrangThaiDonHang())) {
+	        if ("Giao thất bại".equals(status)) {
+	            int soLanGiaoThatBai = order.getSoLanGiaoThatBai();
+	            order.setTrangThaiChoXacNhan("Giao hàng thất bại (Lần " + (soLanGiaoThatBai + 1) + ")");
+	            order.setSoLanGiaoThatBai(soLanGiaoThatBai + 1);
+	        } else {
+	            order.setTrangThaiChoXacNhan(status); // Lưu trạng thái chờ xác nhận từ admin
 	        }
+
+	        donHangService.updateDonHang(order);
+	        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công. Chờ admin xác nhận.");
+	        return "redirect:/shipper/order/" + orderId;
 	    }
 
-	    donHangService.updateDonHang(order);
+		// ✅ Kiểm tra nếu shipper đang đăng nhập có phải là shipper của đơn hàng không
+		if (order.getShipper() == null || !order.getShipper().getTenNguoiDung().equals(principal.getName())) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Bạn không phải shipper của đơn hàng này.");
+			return "redirect:/shipper/orders";
+		}
 
-	    redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công. Chờ admin xác nhận.");
-	    return "redirect:/shipper/order/" + orderId;
+		 // ✅ Nếu shipper nhận đơn giao lại (Admin đã chọn giao lại)
+	    if ("Chờ shipper xác nhận lại".equals(order.getTrangThaiChoXacNhan())) {
+	        order.setTrangThaiDonHang("Đang chuẩn bị hàng"); // Quay về trạng thái chuẩn bị hàng
+	        order.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận
+	        donHangService.updateDonHang(order);
+	        redirectAttributes.addFlashAttribute("successMessage", "Bạn đã nhận đơn hàng để giao lại.");
+	        return "redirect:/shipper/order/" + orderId;
+	    }
+		// ✅ Chỉ cho phép shipper cập nhật trạng thái hợp lệ
+		List<String> allowedStatuses = Arrays.asList("Đang giao hàng", "Đã hoàn thành", "Giao thất bại");
+
+		if (!allowedStatuses.contains(status)) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
+			return "redirect:/shipper/orders";
+		}
+
+		// ✅ Nếu trạng thái là "Giao thất bại", kiểm tra số lần giao thất bại
+		if (status.equals("Giao thất bại")) {
+			int soLanGiaoThatBai = order.getSoLanGiaoThatBai(); // Cần có trường này trong DonHang
+
+			if (soLanGiaoThatBai >= 2) {
+				redirectAttributes.addFlashAttribute("errorMessage", "Đơn hàng đã thất bại 2 lần, không thể giao lại.");
+				return "redirect:/shipper/orders";
+			}
+
+			// ✅ Lưu trạng thái theo số lần thất bại
+			if (soLanGiaoThatBai == 0) {
+				order.setTrangThaiChoXacNhan("Giao hàng thất bại (Lần 1)");
+			} else if (soLanGiaoThatBai == 1) {
+				order.setTrangThaiChoXacNhan("Giao hàng thất bại (Lần 2)");
+			}
+
+			order.setGhiChu(lyDo); // Lưu lý do thất bại
+			order.setSoLanGiaoThatBai(soLanGiaoThatBai + 1);
+			donHangService.updateDonHang(order);
+
+			redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thất bại. Chờ admin xác nhận.");
+			return "redirect:/shipper/order/" + orderId;
+		}
+
+		// ✅ Nếu trạng thái là "Đã hoàn thành", lưu ảnh giao hàng
+		if (status.equals("Đã hoàn thành") && hinhAnh != null && !hinhAnh.isEmpty()) {
+			try {
+				String fileName = storageService.storeFile(hinhAnh);
+				order.setHinhAnhGiaoHang(fileName);
+			} catch (IOException e) {
+				e.printStackTrace();
+				redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi lưu ảnh.");
+				return "redirect:/shipper/order/" + orderId;
+			}
+		}
+
+		order.setTrangThaiChoXacNhan(status);
+		donHangService.updateDonHang(order);
+
+		redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công. Chờ admin xác nhận.");
+		return "redirect:/shipper/order/" + orderId;
 	}
-
-
 
 }
