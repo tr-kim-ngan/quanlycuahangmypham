@@ -56,33 +56,32 @@ public class DonHangServiceImpl implements DonHangService {
 
 	@Override
 	public DonHang updateDonHang(DonHang donHang) {
-	    System.out.println("💾 Cập nhật đơn hàng: " + donHang.getMaDonHang() + " - Trạng thái mới: " + donHang.getTrangThaiDonHang());
+		System.out.println("💾 Cập nhật đơn hàng: " + donHang.getMaDonHang() + " - Trạng thái mới: "
+				+ donHang.getTrangThaiDonHang());
 
-	    // 🔥 Nếu đơn hàng hoàn thành mà chưa có hóa đơn thì tạo hóa đơn
-	    if ("Đã hoàn thành".equals(donHang.getTrangThaiDonHang())) {
-	        HoaDon hoaDon = hoaDonRepository.findByDonHang(donHang);
-	        if (hoaDon == null) {
-	            System.out.println("✅ Tạo hóa đơn mới...");
-	            hoaDon = new HoaDon();
-	            hoaDon.setDonHang(donHang);
-	            hoaDon.setNgayXuatHoaDon(LocalDateTime.now());
-	            hoaDon.setTongTien(donHang.getTongGiaTriDonHang());
-	            hoaDon.setTenNguoiNhan(donHang.getNguoiDung().getTenNguoiDung());
-	            hoaDon.setDiaChiGiaoHang(donHang.getDiaChiGiaoHang());
-	            hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
-	            hoaDon.setTrangThaiThanhToan("Chưa xác nhận");
+		// 🔥 Nếu đơn hàng hoàn thành mà chưa có hóa đơn thì tạo hóa đơn
+		if ("Đã hoàn thành".equals(donHang.getTrangThaiDonHang())) {
+			HoaDon hoaDon = hoaDonRepository.findByDonHang(donHang);
+			if (hoaDon == null) {
+				System.out.println("✅ Tạo hóa đơn mới...");
+				hoaDon = new HoaDon();
+				hoaDon.setDonHang(donHang);
+				hoaDon.setNgayXuatHoaDon(LocalDateTime.now());
+				hoaDon.setTongTien(donHang.getTongGiaTriDonHang());
+				hoaDon.setTenNguoiNhan(donHang.getNguoiDung().getTenNguoiDung());
+				hoaDon.setDiaChiGiaoHang(donHang.getDiaChiGiaoHang());
+				hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
+				hoaDon.setTrangThaiThanhToan("Chưa xác nhận");
 
-	            hoaDonRepository.save(hoaDon);
-	            System.out.println("✅ Hóa đơn đã được tạo và lưu vào database!");
-	        } else {
-	            System.out.println("❌ Hóa đơn đã tồn tại, không tạo mới.");
-	        }
-	    }
+				hoaDonRepository.save(hoaDon);
+				System.out.println("✅ Hóa đơn đã được tạo và lưu vào database!");
+			} else {
+				System.out.println("❌ Hóa đơn đã tồn tại, không tạo mới.");
+			}
+		}
 
-	    return donHangRepository.save(donHang);
+		return donHangRepository.save(donHang);
 	}
-
-
 
 	@Override
 	public void deleteDonHang(Integer maDonHang) {
@@ -308,21 +307,18 @@ public class DonHangServiceImpl implements DonHangService {
 
 	@Override
 	public List<DonHang> findOrdersByShipper(NguoiDung shipper) {
-	    System.out.println("🔥 Đang gọi findOrdersByShipper() với Shipper ID: " + shipper.getMaNguoiDung());
+		System.out.println("🔥 Đang gọi findOrdersByShipper() với Shipper ID: " + shipper.getMaNguoiDung());
 
-	    List<DonHang> orders = donHangRepository.findByShipper(shipper);
+		List<DonHang> orders = donHangRepository.findByShipper(shipper);
 
-	    // Sắp xếp giảm dần theo mã đơn hàng
-	    orders.sort(Comparator.comparing(DonHang::getMaDonHang).reversed());
-	    System.out.println("🛒 Tổng số đơn hàng tìm thấy: " + orders.size());
-	    for (DonHang dh : orders) {
-	        System.out.println("📦 Đơn hàng: " + dh.getMaDonHang() + " - Trạng thái: " + dh.getTrangThaiDonHang());
-	    }
-	    return orders;
+		// Sắp xếp giảm dần theo mã đơn hàng
+		orders.sort(Comparator.comparing(DonHang::getMaDonHang).reversed());
+		System.out.println("🛒 Tổng số đơn hàng tìm thấy: " + orders.size());
+		for (DonHang dh : orders) {
+			System.out.println("📦 Đơn hàng: " + dh.getMaDonHang() + " - Trạng thái: " + dh.getTrangThaiDonHang());
+		}
+		return orders;
 	}
-
-
-
 
 	@Override
 	public List<DonHang> findOrdersByShipperAndStatus(NguoiDung shipper, String status) {
@@ -333,16 +329,30 @@ public class DonHangServiceImpl implements DonHangService {
 	@Override
 	public List<String> getDisplayedStatuses(DonHang donHang) {
 		// TODO Auto-generated method stub
-		 List<String> statuses = Arrays.asList(
-		            "Đang xử lý", "Đã xác nhận", "Đang chuẩn bị hàng", "Đang giao hàng", "Đã hoàn thành", "Đã hủy"
-		        );
+		List<String> statuses = Arrays.asList("Đang xử lý", "Đã xác nhận", "Đang chuẩn bị hàng", "Đang giao hàng",
+				"Đã hoàn thành", "Đã hủy");
 
-		        // ✅ Chỉ hiển thị trạng thái đã được admin xác nhận
-		        int currentIndex = statuses.indexOf(donHang.getTrangThaiDonHang());
-		        if (currentIndex == -1) {
-		            return statuses.subList(0, 1); // Nếu có lỗi, chỉ hiển thị trạng thái đầu tiên
-		        }
-		        return statuses.subList(0, currentIndex + 1);
+		// ✅ Chỉ hiển thị trạng thái đã được admin xác nhận
+		int currentIndex = statuses.indexOf(donHang.getTrangThaiDonHang());
+		if (currentIndex == -1) {
+			return statuses.subList(0, 1); // Nếu có lỗi, chỉ hiển thị trạng thái đầu tiên
+		}
+		return statuses.subList(0, currentIndex + 1);
+	}
+
+	@Override
+	public void capNhatTrangThai(DonHang donHang, String trangThaiMoi) {
+	    // Lấy lịch sử cũ nếu có
+	    String lichSuCu = (donHang.getLichSuTrangThai() != null) ? donHang.getLichSuTrangThai() : "";
+
+	    // Ghi nhận trạng thái mới mà không cần admin
+	    String lichSuMoi = lichSuCu + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) 
+	        + " - " + trangThaiMoi + "\n";
+
+	    // Cập nhật đơn hàng
+	    donHang.setLichSuTrangThai(lichSuMoi);
+	    donHang.setTrangThaiDonHang(trangThaiMoi);
+	    donHangRepository.save(donHang);
 	}
 
 

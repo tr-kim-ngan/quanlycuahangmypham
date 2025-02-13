@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="content"
+				style="background-color: #faeee7; padding: 20px; border-radius: 8px; padding-top: 100px;">
+				<div class="page-inner">
+					<div class="row justify-content-center">
+						<div class="col-md-8">
+							<div class="card shadow-sm">
+								<div class="card-header bg-dark text-light">
+									<h5>Xác Nhận Trạng Thái Đơn Hàng</h5>
+								</div>
+								<div class="card-body">
+
+									<!-- Lịch sử trạng thái -->
+									<!-- Lịch sử trạng thái -->
+									<h5 class="text-center mb-3">📌 Lịch sử trạng thái</h5>
+									<ul class="timeline" th:if="${donHang.lichSuTrangThai != null}">
+										<li th:each="status : ${#strings.arraySplit(donHang.lichSuTrangThai, '\n')}">
+											<span th:text="${status}"></span>
+										</li>
+									</ul>
+
+
+									<!-- Hiển thị trạng thái chờ xác nhận -->
+									<th:block th:if="${donHang.trangThaiChoXacNhan != null}">
+										<p class="text-warning text-center mt-3">
+											🔄 Trạng thái chờ xác nhận từ shipper:
+											<strong th:text="${donHang.trangThaiChoXacNhan}"></strong>
+										</p>
+									</th:block>
+
+									<!-- Trạng thái Đang xử lý -> Xác nhận đơn hàng -->
+									<th:block th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}">
+										<form
+											th:action="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
+											method="post">
+											<button type="submit" class="btn btn-primary">✅ Xác nhận đơn hàng</button>
+										</form>
+									</th:block>
+
+									<!-- Trạng thái Đã xác nhận -> Chọn shipper -->
+									<th:block
+										th:if="${donHang.trangThaiDonHang == 'Đã xác nhận' and donHang.shipper == null}">
+										<form
+											th:action="@{/admin/orders/{maDonHang}/assign-shipper(maDonHang=${donHang.maDonHang})}"
+											method="post">
+											<label for="shipper">📌 Chọn Shipper:</label>
+											<select id="shipper" name="shipperId" class="form-control" required>
+												<option value="">-- Chọn Shipper --</option>
+												<option th:each="shipper : ${danhSachShipper}"
+													th:value="${shipper.maNguoiDung}"
+													th:text="${shipper.tenNguoiDung + ' (ID: ' + shipper.maNguoiDung + ')'}">
+												</option>
+											</select>
+											<button type="submit" class="btn btn-primary mt-3">🚚 Gán Shipper</button>
+										</form>
+									</th:block>
+
+
+									<!-- Nếu shipper đã được gán, hiển thị trạng thái -->
+									<div th:if="${donHang.shipper != null}">
+										<p>🚚 Đơn hàng đã được giao cho shipper: <span
+												th:text="${donHang.shipper.tenNguoiDung}"
+												class="text-success fw-bold"></span></p>
+
+										<!-- Nếu trạng thái từ shipper là "Đang giao hàng", admin bấm xác nhận -->
+										<th:block th:if="${donHang.trangThaiChoXacNhan == 'Đang giao hàng'}">
+											<form
+												th:action="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
+												method="post">
+												<button type="submit" class="btn btn-success">
+													✅ Xác nhận trạng thái "Đang giao hàng"
+												</button>
+											</form>
+										</th:block>
+										<!-- Nếu trạng thái từ shipper là "Giao thất bại", admin có 2 lựa chọn -->
+										<th:block
+											th:if="${#strings.contains(donHang.trangThaiChoXacNhan, 'Giao hàng thất bại (Lần 1)')}">
+											<p>🚨 Đơn hàng giao thất bại. Admin cần quyết định:</p>
+
+											<form
+												th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
+												method="post">
+												<label for="adminDecision">📌 Chọn hành động:</label>
+												<select id="adminDecision" name="status" class="form-control" required>
+													<option value="">-- Chọn trạng thái --</option>
+													<option value="retry">🔄 Giao lại</option>
+													<option value="cancel">❌ Hủy đơn hàng</option>
+												</select>
+												<button type="submit" id="confirmButton" class="btn btn-primary mt-3">✅
+													Xác nhận</button>
+											</form>
+
+											<!-- Nếu chọn giao lại, admin chọn shipper -->
+											<div id="selectShipper" style="display: none; margin-top: 10px;">
+												<form
+													th:action="@{/admin/orders/{maDonHang}/assign-shipper(maDonHang=${donHang.maDonHang})}"
+													method="post">
+													<label for="shipper">📌 Chọn Shipper:</label>
+													<select id="shipper" name="shipperId" class="form-control" required>
+														<option value="">-- Chọn Shipper --</option>
+														<option th:each="shipper : ${danhSachShipper}"
+															th:value="${shipper.maNguoiDung}"
+															th:text="${shipper.tenNguoiDung + ' (ID: ' + shipper.maNguoiDung + ')'}">
+														</option>
+													</select>
+													<button type="submit" class="btn btn-warning mt-3">🚚 Xác nhận giao
+														lại</button>
+												</form>
+											</div>
+										</th:block>
+										<th:block
+											th:if="${donHang.trangThaiChoXacNhan == 'Giao hàng thất bại (Lần 2)'}">
+											<p class="text-danger fw-bold">🚨 Đơn hàng đã thất bại lần 2. Không thể giao
+												lại!</p>
+											<form
+												th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
+												method="post">
+												<button type="submit" name="status" value="cancel"
+													class="btn btn-danger mt-3">
+													❌ Xác nhận hủy đơn hàng
+												</button>
+											</form>
+										</th:block>
+
+
+										<script>
+											document.addEventListener("DOMContentLoaded", function () {
+												let adminDecision = document.getElementById("adminDecision");
+												let selectShipper = document.getElementById("selectShipper");
+												let confirmButton = document.getElementById("confirmButton");
+
+												if (adminDecision) {
+													adminDecision.addEventListener("change", function () {
+														if (this.value === "retry") {
+															selectShipper.style.display = "block"; // Hiện phần chọn shipper
+															confirmButton.style.display = "none"; // Ẩn nút Xác nhận
+														} else {
+															selectShipper.style.display = "none"; // Ẩn chọn shipper
+															confirmButton.style.display = "block"; // Hiện nút Xác nhận nếu không phải "Giao lại"
+														}
+													});
+												}
+											});
+										</script>
+
+
+
+
+										<!-- Nếu trạng thái từ shipper là "Giao hàng thành công", admin bấm xác nhận -->
+										<th:block th:if="${donHang.trangThaiChoXacNhan == 'Đã hoàn thành'}">
+											<form
+												th:action="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
+												method="post">
+												<button type="submit" class="btn btn-success">✅ Xác nhận hoàn
+													thành</button>
+											</form>
+										</th:block>
+									</div>
+
+
+									<!-- Nút quay lại -->
+									<a href="/admin/orders" class="btn btn-secondary mt-3 d-block text-center">⬅ Quay
+										lại</a>
+
+								</div>
+							</div>
+							<!-- 🕘 Lịch sử trạng thái đơn hàng (luôn hiển thị) -->
+							<!-- Hiển thị lịch sử trạng thái đơn hàng -->
+							<h5 class="text-center mb-3">📌 Lịch sử trạng thái</h5>
+							<ul class="timeline" th:if="${donHang.lichSuTrangThai != null}">
+								<li th:each="status : ${#strings.arraySplit(donHang.lichSuTrangThai, '\n')}">
+									<span th:text="${status}"></span>
+								</li>
+							</ul>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer :: footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script :: script"></div>
+	<!-- End JS -->
+</body>
+
+</html>
