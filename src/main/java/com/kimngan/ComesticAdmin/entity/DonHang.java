@@ -36,7 +36,7 @@ public class DonHang {
 	@Column(name = "TrangThaiDonHang", nullable = false, length = 50)
 	private String trangThaiDonHang;
 
-	@Column(name = "TrangThaiChoXacNhan", nullable = true, length = 50)
+	@Column(name = "TrangThaiChoXacNhan", nullable = true, length =255)
 	private String trangThaiChoXacNhan;
 
 	@Column(name = "TongGiaTriDonHang", precision = 15, scale = 2, nullable = false)

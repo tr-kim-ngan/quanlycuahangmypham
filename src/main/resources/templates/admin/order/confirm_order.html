@@ -14,43 +14,79 @@
 			<div th:replace="admin/fragments/header :: header"></div>
 			<!-- End Header -->
 
-			<div class="content"
-				style="background-color: #faeee7; padding: 20px; border-radius: 8px; padding-top: 100px;">
-				<div class="page-inner">
-					<div class="row justify-content-center">
+			<div class="content" style="background-color: #faeee7;  padding-top: 30px; padding-bottom: 400px;">
+				<div class="p-4">
+					<div class="row p-4">
 						<div class="col-md-8">
+							<!-- Nút quay lại -->
+							<a href="/admin/orders" class="btn  btn-secondary ">⬅ Quay
+								lại</a>
 							<div class="card shadow-sm">
-								<div class="card-header bg-dark text-light">
+
+								<div class="card-header bg-dark text-light text-center">
 									<h5>Xác Nhận Trạng Thái Đơn Hàng</h5>
 								</div>
 								<div class="card-body">
 
-									<!-- Lịch sử trạng thái -->
-									<!-- Lịch sử trạng thái -->
-									<h5 class="text-center mb-3">📌 Lịch sử trạng thái</h5>
-									<ul class="timeline" th:if="${donHang.lichSuTrangThai != null}">
-										<li th:each="status : ${#strings.arraySplit(donHang.lichSuTrangThai, '\n')}">
-											<span th:text="${status}"></span>
-										</li>
-									</ul>
-
-
 									<!-- Hiển thị trạng thái chờ xác nhận -->
 									<th:block th:if="${donHang.trangThaiChoXacNhan != null}">
-										<p class="text-warning text-center mt-3">
+										<p class=" text-center mt-3">
 											🔄 Trạng thái chờ xác nhận từ shipper:
 											<strong th:text="${donHang.trangThaiChoXacNhan}"></strong>
 										</p>
 									</th:block>
 
+									<th:block th:if="${donHang != null}">
+										<h5>Thông tin Đơn Hàng</h5>
+										<p><strong>Mã đơn hàng:</strong> <span th:text="${donHang.maDonHang}"></span>
+										</p>
+										<p><strong>Trạng thái:</strong>
+											<span th:text="${donHang.trangThaiDonHang}">
+											</span>
+											
+
+										</p>
+
+										<th:block th:if="${donHang.trangThaiDonHang == 'Đã hủy'}">
+											<p class="text-danger">Đơn hàng này đã bị hủy.</p>
+											
+										</th:block>
+									</th:block>
+									<th:block
+										th:if="${donHang != null and donHang.ghiChu != null and not #strings.isEmpty(donHang.ghiChu)}">
+										<p class="mt-2">❌ Lý Do Giao Hàng Thất Bại</p>
+										<div class="">
+											<ul style="list-style: none; padding-left: 0;">
+												<li th:each="reason, iterStat : ${#strings.arraySplit(donHang.ghiChu, '🛑')}"
+													th:style="'display: flex; align-items: center; margin-bottom: 2px;'">
+													<span style=" font-size: 13px; margin-right: 1px;">🛑</span>
+													<span th:text="${reason}"></span>
+												</li>
+											</ul>
+										</div>
+									</th:block>
+
+
 									<!-- Trạng thái Đang xử lý -> Xác nhận đơn hàng -->
+									<!-- Nếu đơn hàng đang xử lý, admin có thể xác nhận hoặc hủy -->
 									<th:block th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}">
-										<form
-											th:action="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
-											method="post">
-											<button type="submit" class="btn btn-primary">✅ Xác nhận đơn hàng</button>
+										<form id="orderActionForm"
+											th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
+											method="post"
+											onsubmit="return confirm('Bạn có chắc chắn thực hiện hành động này không?');">
+
+											<label for="orderAction">📌 Chọn hành động:</label>
+											<select id="orderAction" name="status" class="form-control" required>
+												<option value="">-- Chọn trạng thái --</option>
+												<option value="confirm">✅ Xác nhận đơn hàng</option>
+												<option value="cancel">❌ Hủy đơn hàng</option>
+											</select>
+
+											<button type="submit" id="confirmButton" class="btn btn-primary mt-3">✔ Thực
+												hiện</button>
 										</form>
 									</th:block>
+
 
 									<!-- Trạng thái Đã xác nhận -> Chọn shipper -->
 									<th:block
@@ -69,27 +105,58 @@
 											<button type="submit" class="btn btn-primary mt-3">🚚 Gán Shipper</button>
 										</form>
 									</th:block>
+									<!-- Hiển thị hình ảnh giao hàng nếu có -->
+									<th:block
+										th:if="${donHang.hinhAnhGiaoHang != null and not #strings.isEmpty(donHang.hinhAnhGiaoHang)}">
+										<h5 class="mt-3">📷 Hình Ảnh Giao Hàng</h5>
+										<img th:src="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}"
+											alt="Hình ảnh giao hàng"
+											style="max-width: 300px; border-radius: 8px; box-shadow: 0px 0px 5px rgba(0,0,0,0.2);">
+									</th:block>
+
+
+									<!-- Hiển thị lý do giao thất bại nếu có -->
+									<!-- ❌ Hiển thị toàn bộ lịch sử lý do giao hàng thất bại -->
+									<th:block
+										th:if="${order != null and order.ghiChu != null and not #strings.isEmpty(order.ghiChu)}">
+										<h5 class="mt-3 text-danger">❌ Lý Do Giao Hàng Thất Bại</h5>
+										<div class="alert alert-warning">
+											<ul>
+												<li th:each="reason : ${#strings.arraySplit(order.ghiChu, '\n')}"
+													th:text="${#strings.trim(reason)}"></li>
+											</ul>
+										</div>
+									</th:block>
+
+
+
+
 
 
 									<!-- Nếu shipper đã được gán, hiển thị trạng thái -->
 									<div th:if="${donHang.shipper != null}">
 										<p>🚚 Đơn hàng đã được giao cho shipper: <span
 												th:text="${donHang.shipper.tenNguoiDung}"
-												class="text-success fw-bold"></span></p>
+												class="text-success fw-bold"></span>
+										</p>
+										<p>📞 Số điện thoại shipper:
+											<span th:text="${donHang.shipper.soDienThoai}" class="text-primary"></span>
+										</p>
 
 										<!-- Nếu trạng thái từ shipper là "Đang giao hàng", admin bấm xác nhận -->
 										<th:block th:if="${donHang.trangThaiChoXacNhan == 'Đang giao hàng'}">
 											<form
 												th:action="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
 												method="post">
-												<button type="submit" class="btn btn-success">
+												<button type="submit" class="btn btn" style="color: green;">
 													✅ Xác nhận trạng thái "Đang giao hàng"
 												</button>
 											</form>
 										</th:block>
+
 										<!-- Nếu trạng thái từ shipper là "Giao thất bại", admin có 2 lựa chọn -->
 										<th:block
-											th:if="${#strings.contains(donHang.trangThaiChoXacNhan, 'Giao hàng thất bại (Lần 1)')}">
+											th:if="${donHang.trangThaiChoXacNhan != null and #strings.contains(donHang.trangThaiChoXacNhan, 'Giao hàng thất bại (Lần 1)')}">
 											<p>🚨 Đơn hàng giao thất bại. Admin cần quyết định:</p>
 
 											<form
@@ -101,7 +168,8 @@
 													<option value="retry">🔄 Giao lại</option>
 													<option value="cancel">❌ Hủy đơn hàng</option>
 												</select>
-												<button type="submit" id="confirmButton" class="btn btn-primary mt-3">✅
+												<button type="submit" id="confirmButton" class="btn mt-3"
+													style="color: green;">✅
 													Xác nhận</button>
 											</form>
 
@@ -131,8 +199,8 @@
 												th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
 												method="post">
 												<button type="submit" name="status" value="cancel"
-													class="btn btn-danger mt-3">
-													❌ Xác nhận hủy đơn hàng
+													class="btn btn-danger mt-3" ;>
+													Xác nhận hủy đơn hàng
 												</button>
 											</form>
 										</th:block>
@@ -166,27 +234,18 @@
 											<form
 												th:action="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
 												method="post">
-												<button type="submit" class="btn btn-success">✅ Xác nhận hoàn
+												<button type="submit" style="color: green;" class="btn">✅ Xác nhận hoàn
 													thành</button>
 											</form>
 										</th:block>
 									</div>
 
 
-									<!-- Nút quay lại -->
-									<a href="/admin/orders" class="btn btn-secondary mt-3 d-block text-center">⬅ Quay
-										lại</a>
+
 
 								</div>
 							</div>
-							<!-- 🕘 Lịch sử trạng thái đơn hàng (luôn hiển thị) -->
-							<!-- Hiển thị lịch sử trạng thái đơn hàng -->
-							<h5 class="text-center mb-3">📌 Lịch sử trạng thái</h5>
-							<ul class="timeline" th:if="${donHang.lichSuTrangThai != null}">
-								<li th:each="status : ${#strings.arraySplit(donHang.lichSuTrangThai, '\n')}">
-									<span th:text="${status}"></span>
-								</li>
-							</ul>
+
 
 						</div>
 					</div>
