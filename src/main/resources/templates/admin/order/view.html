@@ -32,6 +32,8 @@
 							<a th:href="@{/admin/hoadon/{maDonHang}(maDonHang=${donHang.maDonHang})}"
 								class="btn btn-primary px-4">📜 Xem Hóa Đơn</a>
 						</div>
+
+
 					</div>
 
 					<!-- Thông tin đơn hàng -->
@@ -69,20 +71,19 @@
 												<th>Ngày Đặt</th>
 												<td th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}">
 												</td>
-												<th>Trạng Thái</th>
-												<!--<td th:text="${donHang.trangThaiDonHang}"
-													th:styleappend="${
-														donHang.trangThaiDonHang == 'Đã hủy'} 
-														? 'color: #dc3545; font-weight: bold;' : (${donHang.trangThaiDonHang == 'Đã hoàn thành'} ? 'color: #28a745; font-weight: bold;' : '')">
-												</td>-->
-												<!--<td th:text="${donHang.trangThaiDonHang}" th:styleappend="
-												
-											        ${donHang.trangThaiDonHang == 'Đã hoàn thành'} ? 'color: #28a745; font-weight: bold;' :
-											        (${donHang.trangThaiDonHang == 'Đang giao hàng'} ? 'color: #17a2b8; font-weight: bold;' :
-											        (${donHang.trangThaiDonHang == 'Giao thất bại'} ? 'color: #dc3545; font-weight: bold;' :
-											        (${donHang.trangThaiDonHang == 'Đã hủy'} ? 'color: #dc3545; font-weight: bold;' :
-											        '')))">
-												</td>-->
+												<th>Trạng Thái
+													<th:block
+														th:if="${donHang.trangThaiChoXacNhan != null and not #strings.isEmpty(donHang.trangThaiChoXacNhan)}">
+														<span
+															style="color: #e67e22; font-weight: bold; font-size: 11px;">(Chờ
+															xác nhận:
+															<span th:text="${donHang.trangThaiChoXacNhan}"></span>)
+														</span>
+													</th:block>
+
+												</th>
+
+
 												<td th:text="${donHang.trangThaiDonHang}" th:styleappend="${
 											        donHang.trangThaiDonHang == 'Đã hoàn thành' ? 'color: #28a745; font-weight: bold;' :
 											        donHang.trangThaiDonHang == 'Đang giao hàng' ? 'color: #17a2b8; font-weight: bold;' :
@@ -92,27 +93,22 @@
 											        donHang.trangThaiDonHang == 'Đã xác nhận' ? 'color: #ff9800; font-weight: bold;' : 
 											        ''}">
 
+
 												</td>
+
+												<!-- Hiển thị trạng thái cần xác nhận ngay bên cạnh -->
+
 
 
 
 											</tr>
+
 										</tbody>
 									</table>
 									<div class="text-center mt-3">
 
-										<!--<th:block th:if="${donHang.trangThaiDonHang != 'Đã hoàn thành' 
-											and donHang.trangThaiDonHang != 'Đã hủy' 
-											and donHang.trangThaiDonHang != 'Giao thất bại'
-											and donHang.trangThaiChoXacNhan != null 
-											and donHang.trangThaiChoXacNhan != ''
-											}">
-											<a th:href="@{/admin/order/confirm/{id}(id=${donHang.maDonHang})}"
-												class="btn btn-warning">
-												🔄 Xác nhận trạng thái
-											</a>
-										</th:block>-->
-										<th:block th:if="${
+
+									<!--	<th:block th:if="${
 											donHang.trangThaiDonHang != 'Đã hoàn thành' 
 										    and donHang.trangThaiDonHang != 'Đã hủy' 
 										    and donHang.trangThaiDonHang != 'Giao thất bại'
@@ -127,25 +123,14 @@
 												class="btn btn-warning">
 												🔄 Trạng thái cần xác nhận
 											</a>
-										</th:block>
-										<!--<th:block th:if="${
-										    donHang.trangThaiDonHang != 'Đã hoàn thành' 
-										    and donHang.trangThaiDonHang != 'Đã hủy' 
-										    and donHang.trangThaiDonHang != 'Giao thất bại'
-										    and donHang.trangThaiChoXacNhan != 'Giao lại đơn hàng' 
-										    and donHang.trangThaiChoXacNhan != 'Chờ shipper xác nhận lại' 
-										    and (donHang.trangThaiChoXacNhan != null and donHang.trangThaiChoXacNhan != '') 
-										    and donHang.trangThaiDonHang != 'Đang chuẩn bị hàng' 
-										    and donHang.trangThaiDonHang != 'Đang giao hàng' 
-										    and (donHang.trangThaiDonHang == 'Đang xử lý' or donHang.trangThaiDonHang == 'Đã xác nhận') 
-										}">
-											<a th:href="@{/admin/order/confirm/{id}(id=${donHang.maDonHang})}"
-												class="btn btn-warning">
-												🔄 Trạng thái cần xác nhận
-											</a>
 										</th:block>-->
 
 
+										<!-- Thay vì nút xác nhận trạng thái, đổi thành "Chi tiết đơn hàng" -->
+										<a th:href="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
+											class="btn btn-info">
+											📋 Chi tiết đơn hàng
+										</a>
 
 
 

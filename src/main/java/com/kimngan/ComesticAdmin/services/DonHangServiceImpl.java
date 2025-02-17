@@ -80,6 +80,16 @@ public class DonHangServiceImpl implements DonHangService {
 			}
 		}
 
+		// ✅ Lưu lại lịch sử trạng thái
+		String lichSuCu = donHang.getLichSuTrangThai() == null ? "" : donHang.getLichSuTrangThai() + "\n";
+		String trangThaiMoi = "🕘 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+				+ " - " + donHang.getTrangThaiDonHang();
+		donHang.setLichSuTrangThai(lichSuCu + trangThaiMoi);
+
+		System.out.println("💾 Cập nhật đơn hàng: " + donHang.getMaDonHang());
+		System.out.println("🔹 Trạng thái mới: " + donHang.getTrangThaiDonHang());
+		System.out.println("📷 Hình ảnh giao hàng: " + donHang.getHinhAnhGiaoHang());
+
 		return donHangRepository.save(donHang);
 	}
 
@@ -339,21 +349,34 @@ public class DonHangServiceImpl implements DonHangService {
 		}
 		return statuses.subList(0, currentIndex + 1);
 	}
-
 	@Override
 	public void capNhatTrangThai(DonHang donHang, String trangThaiMoi) {
-	    // Lấy lịch sử cũ nếu có
-	    String lichSuCu = (donHang.getLichSuTrangThai() != null) ? donHang.getLichSuTrangThai() : "";
+	    // Kiểm tra nếu trạng thái cuối cùng đã lưu trùng với trạng thái mới
+	    if (donHang.getLichSuTrangThai() != null && donHang.getLichSuTrangThai().contains(trangThaiMoi)) {
+	        System.out.println("⚠ Trạng thái đã tồn tại, không lưu trùng: " + trangThaiMoi);
+	        return; // Không lưu trùng
+	    }
 
-	    // Ghi nhận trạng thái mới mà không cần admin
-	    String lichSuMoi = lichSuCu + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) 
-	        + " - " + trangThaiMoi + "\n";
+	    // Lưu trạng thái mới vào lịch sử
+	    String thoiGian = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+	    String lichSuMoi = "🕘 " + thoiGian + " - " + trangThaiMoi;
 
-	    // Cập nhật đơn hàng
-	    donHang.setLichSuTrangThai(lichSuMoi);
-	    donHang.setTrangThaiDonHang(trangThaiMoi);
+	    // Thêm vào lịch sử (nếu có dữ liệu cũ thì nối thêm)
+	    if (donHang.getLichSuTrangThai() == null || donHang.getLichSuTrangThai().isEmpty()) {
+	        donHang.setLichSuTrangThai(lichSuMoi);
+	    } else {
+	        donHang.setLichSuTrangThai(donHang.getLichSuTrangThai() + "\n" + lichSuMoi);
+	    }
+
+	    // Cập nhật vào database
 	    donHangRepository.save(donHang);
 	}
+
+
+
+
+
+
 
 
 }

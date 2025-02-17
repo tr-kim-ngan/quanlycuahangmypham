@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -177,7 +179,7 @@ public class OrderController {
 		// Gán shipper vào đơn hàng và cập nhật trạng thái
 		donHang.setShipper(shipper);
 		donHang.setTrangThaiDonHang("Đang chuẩn bị hàng");
-
+		donHangService.capNhatTrangThai(donHang, "Đang chuẩn bị hàng");
 		donHangService.updateDonHang(donHang);
 
 		// **Kiểm tra trạng thái sau khi cập nhật**
@@ -189,6 +191,107 @@ public class OrderController {
 		return "redirect:/admin/orders/" + maDonHang;
 	}
 
+	@PostMapping("/orders/{maDonHang}/update-status")
+	public String updateOrderStatus(@PathVariable("maDonHang") Integer maDonHang,
+	                                @RequestParam("status") String action,
+	                                @RequestParam(value = "shipperId", required = false) Integer shipperId,
+	                                RedirectAttributes redirectAttributes) {
+
+	    DonHang donHang = donHangService.getDonHangById(maDonHang);
+	    if (donHang == null) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+	        return "redirect:/admin/orders";
+	    }
+
+	    // ✅ Xác nhận đơn hàng
+	    if ("confirm".equals(action)) {
+	        donHang.setTrangThaiDonHang("Đã xác nhận");
+	        donHangService.updateDonHang(donHang);
+	        redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã được xác nhận.");
+	        return "redirect:/admin/orders/" + maDonHang;
+	    }
+	 // ❌ Hủy đơn hàng
+	    else if ("cancel".equals(action)) {
+	        donHang.setTrangThaiDonHang("Đã hủy");
+	        donHangService.updateDonHang(donHang);
+	        redirectAttributes.addFlashAttribute("errorMessage", "Đơn hàng đã bị hủy.");
+	    } 
+	    // 🚨 Trạng thái không hợp lệ
+	    else {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
+	    }
+
+	    // ✅ Hủy đơn hàng
+	    if ("cancel".equals(action)) {
+	        donHang.setTrangThaiDonHang("Đã hủy");
+	        donHang.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận (nếu có)
+	        donHangService.updateDonHang(donHang);
+	        redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã bị hủy.");
+	        return "redirect:/admin/orders/" + maDonHang;
+	    }
+
+	    // ✅ Nếu shipper báo "Giao hàng thất bại lần 2"
+	    if ("Giao hàng thất bại (Lần 2)".equals(donHang.getTrangThaiChoXacNhan())
+	            || "Giao thất bại".equals(action)) {
+	        donHang.setTrangThaiDonHang("Giao thất bại");
+	        donHang.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận
+	        donHangService.updateDonHang(donHang);
+	        redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận đơn hàng giao thất bại.");
+	        return "redirect:/admin/orders/" + maDonHang;
+	    }
+
+	    // ✅ Nếu admin chọn "Giao lại"
+	 // ✅ Nếu admin chọn "Giao lại"
+	    if ("retry".equals(action)) {
+	        if (donHang.getSoLanGiaoThatBai() >= 2) {
+	            redirectAttributes.addFlashAttribute("errorMessage", "Không thể giao lại vì đã thất bại 2 lần.");
+	            return "redirect:/admin/orders/" + maDonHang;
+	        }
+
+	        // 🔥 Kiểm tra shipper có được chọn không
+	        if (shipperId == null || shipperId == 0) {
+	            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn shipper khi giao lại.");
+	            return "redirect:/admin/orders/" + maDonHang;
+	        }
+
+	        // ✅ Lấy thông tin shipper mới từ DB
+	        NguoiDung shipperMoi = nguoiDungService.findById(shipperId);
+	        if (shipperMoi == null) {
+	            redirectAttributes.addFlashAttribute("errorMessage", "Shipper không hợp lệ.");
+	            return "redirect:/admin/orders/" + maDonHang;
+	        }
+
+	        // ✅ Cập nhật thông tin đơn hàng
+	        NguoiDung shipperCu = donHang.getShipper(); // Lưu shipper cũ
+	        donHang.setShipper(shipperMoi);
+	        donHang.setTrangThaiDonHang("Đang chuẩn bị hàng"); // Để shipper thấy đơn hàng
+	        donHang.setTrangThaiChoXacNhan("Chờ shipper xác nhận lại"); // Để shipper mới xác nhận giao lại
+	        donHang.setSoLanGiaoThatBai(donHang.getSoLanGiaoThatBai() + 1); // Tăng số lần giao thất bại
+
+	        // ✅ Nếu shipper cũ khác shipper mới, ghi nhận việc bàn giao đơn hàng
+	        if (shipperCu != null && !shipperCu.equals(shipperMoi)) {
+	            String lichSu = donHang.getLichSuTrangThai() != null ? donHang.getLichSuTrangThai() : "";
+	            String thoiGian = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+	            lichSu += "\n🛑 " + thoiGian + " - Đơn hàng được bàn giao từ " + shipperCu.getTenNguoiDung() 
+	                    + " sang shipper " + shipperMoi.getTenNguoiDung();
+	            donHang.setLichSuTrangThai(lichSu);
+	        }
+
+	        donHangService.updateDonHang(donHang);
+	        redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đang được giao lại cho " + shipperMoi.getTenNguoiDung());
+	        return "redirect:/admin/orders/" + maDonHang;
+	    }
+
+
+	    // ✅ Nếu không khớp với trạng thái nào ở trên
+	    redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
+	    return "redirect:/admin/orders/" + maDonHang;
+	}
+
+
+
+
+//
 //	@PostMapping("/orders/{maDonHang}/update-status")
 //	public String updateOrderStatus(@PathVariable("maDonHang") Integer maDonHang,
 //			@RequestParam("status") String newStatus,
@@ -204,20 +307,16 @@ public class OrderController {
 //		// ✅ Nếu admin xác nhận giao hàng thất bại lần 2
 //		if ("Giao hàng thất bại (Lần 2)".equals(donHang.getTrangThaiChoXacNhan())
 //				|| "Giao thất bại".equals(newStatus)) {
-//			donHang.setTrangThaiDonHang("Giao thất bại");
-//			donHang.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận
-//			donHangService.updateDonHang(donHang);
+//			donHangService.capNhatTrangThai(donHang, "Giao thất bại");
+//			donHang.setTrangThaiChoXacNhan(null);
 //			redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận đơn hàng giao thất bại.");
 //			return "redirect:/admin/orders/" + maDonHang;
 //		}
 //
 //		// ✅ Nếu admin chọn "Hủy đơn hàng"
-//		// ✅ Nếu admin chọn "Hủy đơn hàng"
 //		if ("cancel".equals(newStatus)) {
-//			donHang.setTrangThaiDonHang("Đã hủy");
-//			donHang.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận (nếu có)
-//			donHangService.updateDonHang(donHang);
-//
+//			donHangService.capNhatTrangThai(donHang, "Đã hủy");
+//			donHang.setTrangThaiChoXacNhan(null);
 //			redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã bị hủy.");
 //			return "redirect:/admin/orders/" + maDonHang;
 //		}
@@ -229,101 +328,32 @@ public class OrderController {
 //				return "redirect:/admin/orders/" + maDonHang;
 //			}
 //
-//			// 🔥 Quan trọng: Cần kiểm tra shipper có được chọn không
 //			if (shipperId == null || shipperId == 0) {
 //				redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn shipper khi giao lại.");
 //				return "redirect:/admin/orders/" + maDonHang;
 //			}
 //
-//			// ✅ Lấy thông tin shipper từ DB
 //			NguoiDung shipper = nguoiDungService.findById(shipperId);
 //			if (shipper == null) {
 //				redirectAttributes.addFlashAttribute("errorMessage", "Shipper không hợp lệ.");
 //				return "redirect:/admin/orders/" + maDonHang;
 //			}
 //
-//			// ✅ Cập nhật đơn hàng
 //			donHang.setShipper(shipper);
-//			donHang.setTrangThaiDonHang("Đang chuẩn bị hàng"); // Để shipper thấy đơn hàng
-//			donHang.setTrangThaiChoXacNhan("Chờ shipper xác nhận lại"); // Để shipper xác nhận giao lại
+//			donHangService.capNhatTrangThai(donHang, "Đang chuẩn bị hàng");
+//			donHang.setTrangThaiChoXacNhan("Chờ shipper xác nhận lại");
 //			donHang.setSoLanGiaoThatBai(0);
-//			donHangService.updateDonHang(donHang);
 //
 //			redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đang được giao lại.");
 //			return "redirect:/admin/orders/" + maDonHang;
 //		}
 //
-//		
-//
-//		// ✅ Cập nhật trạng thái mới nếu có
-//		donHang.setTrangThaiDonHang(newStatus);
-//		donHangService.updateDonHang(donHang);
+//		// ✅ Cập nhật trạng thái mới mà vẫn giữ lịch sử
+//		donHangService.capNhatTrangThai(donHang, newStatus);
 //
 //		redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công.");
 //		return "redirect:/admin/orders/" + maDonHang;
 //	}
-	@PostMapping("/orders/{maDonHang}/update-status")
-	public String updateOrderStatus(@PathVariable("maDonHang") Integer maDonHang,
-			@RequestParam("status") String newStatus,
-			@RequestParam(value = "shipperId", required = false) Integer shipperId,
-			RedirectAttributes redirectAttributes) {
-
-		DonHang donHang = donHangService.getDonHangById(maDonHang);
-		if (donHang == null) {
-			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
-			return "redirect:/admin/orders";
-		}
-
-		// ✅ Nếu admin xác nhận giao hàng thất bại lần 2
-		if ("Giao hàng thất bại (Lần 2)".equals(donHang.getTrangThaiChoXacNhan())
-				|| "Giao thất bại".equals(newStatus)) {
-			donHangService.capNhatTrangThai(donHang, "Giao thất bại");
-			donHang.setTrangThaiChoXacNhan(null);
-			redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận đơn hàng giao thất bại.");
-			return "redirect:/admin/orders/" + maDonHang;
-		}
-
-		// ✅ Nếu admin chọn "Hủy đơn hàng"
-		if ("cancel".equals(newStatus)) {
-			donHangService.capNhatTrangThai(donHang, "Đã hủy");
-			donHang.setTrangThaiChoXacNhan(null);
-			redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã bị hủy.");
-			return "redirect:/admin/orders/" + maDonHang;
-		}
-
-		// ✅ Nếu admin chọn "Giao lại"
-		if ("retry".equals(newStatus)) {
-			if (donHang.getSoLanGiaoThatBai() >= 2) {
-				redirectAttributes.addFlashAttribute("errorMessage", "Không thể giao lại vì đã thất bại 2 lần.");
-				return "redirect:/admin/orders/" + maDonHang;
-			}
-
-			if (shipperId == null || shipperId == 0) {
-				redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn shipper khi giao lại.");
-				return "redirect:/admin/orders/" + maDonHang;
-			}
-
-			NguoiDung shipper = nguoiDungService.findById(shipperId);
-			if (shipper == null) {
-				redirectAttributes.addFlashAttribute("errorMessage", "Shipper không hợp lệ.");
-				return "redirect:/admin/orders/" + maDonHang;
-			}
-
-			donHang.setShipper(shipper);
-			donHangService.capNhatTrangThai(donHang, "Đang chuẩn bị hàng");
-			donHang.setTrangThaiChoXacNhan("Chờ shipper xác nhận lại");
-			donHang.setSoLanGiaoThatBai(0);
-
-			redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đang được giao lại.");
-			return "redirect:/admin/orders/" + maDonHang;
-		}
-
-		// ✅ Cập nhật trạng thái mới mà vẫn giữ lịch sử
-		donHangService.capNhatTrangThai(donHang, newStatus);
-
-		redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công.");
-		return "redirect:/admin/orders/" + maDonHang;
-	}
 
 	// Trang xác nhận đơn hàng
 //	@GetMapping("/order/confirm/{id}")
@@ -347,7 +377,9 @@ public class OrderController {
 //		return "admin/order/confirm_order"; // Điều hướng đúng qua trang xác nhận
 //	}
 	@GetMapping("/order/confirm/{id}")
-	public String confirmOrder(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
+	public String confirmOrder(@PathVariable("id") Integer id, 
+			Model model, 
+			RedirectAttributes redirectAttributes) {
 		DonHang donHang = donHangService.getDonHangById(id);
 
 		// Kiểm tra nếu đơn hàng không tồn tại
@@ -402,8 +434,10 @@ public class OrderController {
 
 	// Xác nhận đơn hàng
 	@PostMapping("/order/confirm/{id}")
-	public String confirmOrder(@PathVariable("id") Integer id, @RequestParam("address") String address,
-			@RequestParam("phone") String phone, Model model) {
+	public String confirmOrder(@PathVariable("id") Integer id, 
+			@RequestParam("address") String address,
+			@RequestParam("phone") String phone, 
+			Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);
@@ -501,6 +535,7 @@ public class OrderController {
 		// ✅ Nếu shipper báo "Đang giao hàng", admin xác nhận đơn hàng đang giao
 		if ("Đang giao hàng".equals(trangThaiMoi)) {
 			donHang.setTrangThaiDonHang("Đang giao hàng");
+			donHangService.capNhatTrangThai(donHang, "Đang giao hàng");
 			donHang.setTrangThaiChoXacNhan(null);
 			donHangService.updateDonHang(donHang);
 			redirectAttributes.addFlashAttribute("successMessage",
@@ -563,21 +598,26 @@ public class OrderController {
 //	    redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đang được giao lại. Hãy chọn shipper.");
 //	    return "redirect:/admin/orders/" + maDonHang;
 //	}
-//	@PostMapping("/orders/{maDonHang}/cancel-order")
-//	public String cancelOrder(@PathVariable("maDonHang") Integer maDonHang,
-//	        RedirectAttributes redirectAttributes) {
-//	    DonHang donHang = donHangService.getDonHangById(maDonHang);
-//	    if (donHang == null) {
-//	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
-//	        return "redirect:/admin/orders";
-//	    }
-//
-//	    // ✅ Hủy đơn hàng
-//	    donHang.setTrangThaiDonHang("Đã hủy");
-//	    donHangService.updateDonHang(donHang);
-//	    redirectAttributes.addFlashAttribute("errorMessage", "Đơn hàng đã bị hủy.");
-//	    return "redirect:/admin/orders/" + maDonHang;
-//	}
+	@PostMapping("/orders/{maDonHang}/cancel-order")
+	public String cancelOrder(@PathVariable("maDonHang") Integer maDonHang, RedirectAttributes redirectAttributes) {
+	    DonHang donHang = donHangService.getDonHangById(maDonHang);
+	    if (donHang == null) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng!");
+	        return "redirect:/admin/orders";
+	    }
+
+	    // Nếu đơn hàng đang xử lý, cho phép hủy
+	    if ("Đang xử lý".equals(donHang.getTrangThaiDonHang())) {
+	        donHang.setTrangThaiDonHang("Đã hủy");
+	        donHangService.updateDonHang(donHang);
+	        redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã được hủy thành công.");
+	    } else {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Chỉ có thể hủy đơn hàng ở trạng thái 'Đang xử lý'.");
+	    }
+
+	    return "redirect:/admin/orders";
+	}
+
 
 	// Kiểm tra trạng thái tiếp theo có hợp lệ không
 
@@ -621,6 +661,64 @@ public class OrderController {
 
 		System.out.println("🚀 nextStatuses: " + nextStatuses);
 		return nextStatuses;
+	}
+	
+	@GetMapping("/orders/{maDonHang}/confirm-status")
+	public String confirmOrderPage(
+			  @PathVariable("maDonHang") Integer maDonHang,
+			Model model, 
+			RedirectAttributes redirectAttributes) {
+		DonHang donHang = donHangService.getDonHangById(maDonHang);
+
+		// Kiểm tra nếu đơn hàng không tồn tại
+		if (donHang == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+			return "redirect:/admin/orders";
+		}
+
+		// Debug kiểm tra giá trị donHang
+		System.out.println("🚀 Đơn hàng: " + donHang.getMaDonHang());
+		System.out.println("🚀 Trạng thái hiện tại: " + donHang.getTrangThaiDonHang());
+
+		// Kiểm tra trạng thái chờ xác nhận (từ shipper)
+		String trangThaiChoXacNhan = donHang.getTrangThaiChoXacNhan();
+		if (trangThaiChoXacNhan != null) {
+			System.out.println("🚀 Trạng thái chờ xác nhận từ shipper: " + trangThaiChoXacNhan);
+		}
+
+		// Định dạng số tiền
+		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+		String formattedTongGiaTriDonHang = decimalFormat.format(donHang.getTongGiaTriDonHang());
+		String formattedPhiVanChuyen = decimalFormat.format(donHang.getPhiVanChuyen());
+
+		Map<Integer, String> formattedGiaSanPhamMap = new HashMap<>();
+		Map<Integer, String> formattedThanhTienMap = new HashMap<>();
+		for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+			formattedGiaSanPhamMap.put(chiTiet.getSanPham().getMaSanPham(),
+					decimalFormat.format(chiTiet.getGiaTaiThoiDiemDat()));
+			BigDecimal thanhTien = chiTiet.getGiaTaiThoiDiemDat().multiply(new BigDecimal(chiTiet.getSoLuong()));
+			formattedThanhTienMap.put(chiTiet.getSanPham().getMaSanPham(), decimalFormat.format(thanhTien));
+		}
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+		model.addAttribute("user", userDetails);
+
+		// Thêm thông tin vào model
+		// Lấy danh sách shipper
+		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER");
+		List<String> nextStatuses = getNextStatuses(donHang.getTrangThaiDonHang(), false,
+				donHang.getSoLanGiaoThatBai());
+		model.addAttribute("nextStatuses", nextStatuses);
+
+		model.addAttribute("danhSachShipper", danhSachShipper);
+		model.addAttribute("donHang", donHang);
+		model.addAttribute("formattedTongGiaTriDonHang", formattedTongGiaTriDonHang);
+		model.addAttribute("formattedPhiVanChuyen", formattedPhiVanChuyen);
+		model.addAttribute("formattedGiaSanPhamMap", formattedGiaSanPhamMap);
+		model.addAttribute("formattedThanhTienMap", formattedThanhTienMap);
+
+	    return "admin/order/confirm_order";
+
 	}
 
 }

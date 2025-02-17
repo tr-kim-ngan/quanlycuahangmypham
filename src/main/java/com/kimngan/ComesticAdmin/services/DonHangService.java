@@ -33,6 +33,8 @@ public interface DonHangService {
   //  List<DonHang> findOrdersByShipper(NguoiDung shipper, String trangThai);
     List<DonHang> findOrdersByShipperAndStatus(NguoiDung shipper, String status);
     List<String> getDisplayedStatuses(DonHang donHang);
-    
     void capNhatTrangThai(DonHang donHang, String trangThaiMoi);
+   // void capNhatTrangThai(DonHang donHang, String trangThaiMoi, boolean isFromShipper);
+    
+    
     }
