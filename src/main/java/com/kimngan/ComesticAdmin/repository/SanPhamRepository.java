@@ -1,5 +1,6 @@
 package com.kimngan.ComesticAdmin.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -86,5 +87,15 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 
     long countByTrangThaiTrue();
     boolean existsByDonViTinhMaDonVi(Integer maDonVi); 
+    
+    
+    @Query("SELECT s FROM SanPham s WHERE s.trangThai = true AND s.donGiaBan BETWEEN :minPrice AND :maxPrice")
+    Page<SanPham> findAllActiveByPriceRange(@Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice, Pageable pageable);
+
+    @Query("SELECT s FROM SanPham s WHERE s.trangThai = true AND s.danhMuc.maDanhMuc = :maDanhMuc AND s.donGiaBan BETWEEN :minPrice AND :maxPrice")
+    Page<SanPham> findActiveProductsByCategoryAndPrice(@Param("maDanhMuc") Integer maDanhMuc, @Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice, Pageable pageable);
+
+    
+    
     
 }

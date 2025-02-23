@@ -31,7 +31,7 @@ public interface HoaDonService {
     List<SanPham> findTopSoldProductsByBrand(Integer maThuongHieu, int limit);
     List<SanPham> findTopSoldProductsByCategory(Integer maDanhMuc, int limit) ;
     int getTotalSoldQuantityByProduct(Integer maSanPham);
-
+    void createHoaDon(DonHang donHang, String phuongThucThanhToan);
 
 
 }

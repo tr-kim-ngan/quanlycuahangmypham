@@ -2,7 +2,6 @@ package com.kimngan.ComesticAdmin.services;
 
 import java.util.List;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.kimngan.ComesticAdmin.entity.DonHang;
@@ -35,6 +34,10 @@ public interface DonHangService {
     List<String> getDisplayedStatuses(DonHang donHang);
     void capNhatTrangThai(DonHang donHang, String trangThaiMoi);
    // void capNhatTrangThai(DonHang donHang, String trangThaiMoi, boolean isFromShipper);
-    
+    void updateOrderStatus(Integer maDonHang, String trangThaiMoi);
+    void updatePaymentStatus(Integer maDonHang, String trangThaiThanhToan);
+    void addOrderStatusHistory(Integer maDonHang, String trangThaiMoi);
+
+
     
     }

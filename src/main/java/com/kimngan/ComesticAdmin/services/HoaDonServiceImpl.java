@@ -222,6 +222,22 @@ public class HoaDonServiceImpl implements HoaDonService {
 	            .sum();
 	}
 
+	@Override
+	public void createHoaDon(DonHang donHang, String phuongThucThanhToan) {
+		 HoaDon hoaDon = new HoaDon();
+		    hoaDon.setDonHang(donHang);
+		    hoaDon.setNgayXuatHoaDon(LocalDateTime.now());
+		    hoaDon.setTongTien(donHang.getTongGiaTriDonHang());
+		    hoaDon.setTenNguoiNhan(donHang.getNguoiDung().getTenNguoiDung());
+		    hoaDon.setDiaChiGiaoHang(donHang.getDiaChiGiaoHang());
+		    hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
+		    hoaDon.setTrangThaiThanhToan("Chưa thanh toán"); // Mặc định khi tạo hóa đơn
+		    hoaDon.setPhuongThucThanhToan(phuongThucThanhToan); // Thêm phương thức thanh toán ✅
+
+		    hoaDonRepository.save(hoaDon);
+		
+	}
+
 
 	
 

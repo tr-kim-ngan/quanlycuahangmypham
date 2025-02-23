@@ -12,9 +12,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+
 
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHangId;
@@ -28,7 +28,7 @@ import com.kimngan.ComesticAdmin.repository.ChiTietDonHangRepository;
 import com.kimngan.ComesticAdmin.repository.DonHangRepository;
 import com.kimngan.ComesticAdmin.repository.HoaDonRepository;
 import com.kimngan.ComesticAdmin.repository.NguoiDungRepository;
-import org.springframework.http.HttpStatus;
+
 
 @Service
 public class DonHangServiceImpl implements DonHangService {
@@ -43,8 +43,7 @@ public class DonHangServiceImpl implements DonHangService {
 	private ChiTietDonHangRepository chiTietDonHangRepository;
 	@Autowired
 	private NguoiDungService nguoiDungService;
-	@Autowired
-	private SanPhamService sanPhamService;
+
 	@Autowired
 	private HoaDonRepository hoaDonRepository;
 
@@ -73,6 +72,8 @@ public class DonHangServiceImpl implements DonHangService {
 				hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
 				hoaDon.setTrangThaiThanhToan("Chưa xác nhận");
 
+	            // ✅ Nếu không có giá trị từ `DonHang`, đặt mặc định là "Tiền mặt"
+	            hoaDon.setPhuongThucThanhToan("Tiền mặt");
 				hoaDonRepository.save(hoaDon);
 				System.out.println("✅ Hóa đơn đã được tạo và lưu vào database!");
 			} else {
@@ -371,6 +372,46 @@ public class DonHangServiceImpl implements DonHangService {
 	    // Cập nhật vào database
 	    donHangRepository.save(donHang);
 	}
+
+	@Override
+	public void updateOrderStatus(Integer maDonHang, String trangThaiMoi) {
+	    Optional<DonHang> optionalDonHang = donHangRepository.findById(maDonHang);
+	    if (optionalDonHang.isPresent()) {
+	        DonHang donHang = optionalDonHang.get();
+	        donHang.setTrangThaiDonHang(trangThaiMoi); // Cập nhật trạng thái
+	        addOrderStatusHistory(maDonHang, trangThaiMoi);
+	        donHangRepository.save(donHang);
+	    } else {
+	        throw new RuntimeException("Không tìm thấy đơn hàng với mã: " + maDonHang);
+	    }
+	}
+
+	@Override
+	public void updatePaymentStatus(Integer maDonHang, String trangThaiThanhToan) {
+	    Optional<DonHang> optionalDonHang = donHangRepository.findById(maDonHang);
+	    if (optionalDonHang.isPresent()) {
+	        DonHang donHang = optionalDonHang.get();
+	        donHang.setTrangThaiChoXacNhan(trangThaiThanhToan); // Cập nhật trạng thái thanh toán
+	        addOrderStatusHistory(maDonHang, "Cập nhật trạng thái thanh toán: " + trangThaiThanhToan);
+	        donHangRepository.save(donHang);
+	    } else {
+	        throw new RuntimeException("Không tìm thấy đơn hàng với mã: " + maDonHang);
+	    }
+	}
+
+	@Override
+	public void addOrderStatusHistory(Integer maDonHang, String trangThaiMoi) {
+	    Optional<DonHang> optionalDonHang = donHangRepository.findById(maDonHang);
+	    if (optionalDonHang.isPresent()) {
+	        DonHang donHang = optionalDonHang.get();
+	        String currentHistory = donHang.getLichSuTrangThai();
+	        String updatedHistory = (currentHistory == null ? "" : currentHistory + "\n") +
+	                LocalDateTime.now() + ": " + trangThaiMoi;
+	        donHang.setLichSuTrangThai(updatedHistory);
+	        donHangRepository.save(donHang);
+	    }
+	}
+
 
 
 

@@ -12,8 +12,7 @@
 		<!-- Danh sách sản phẩm đã chọn -->
 		<div class="list-group">
 			<div th:each="item : ${cartItems}" class="list-group-item d-flex align-items-center"
-			style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
-			>
+				style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 				<a th:href="@{'/product/' + ${item.sanPham.maSanPham}}">
 					<img th:src="@{'/upload/' + ${item.sanPham.hinhAnh}}" class="img-thumbnail me-4"
 						style="width: 120px; border-radius: 8px;">
@@ -37,31 +36,51 @@
 		</div>
 
 		<!-- Tổng tiền và phí vận chuyển -->
-		<div class="text-center my-4" >
-			<h4 >Tổng tiền sản phẩm: <span style="color: blue;" th:text="${totalPrice} + ' VND'"></span></h4>
+		<div class="text-center my-4">
+			<h4>Tổng tiền sản phẩm: <span style="color: blue;" th:text="${totalPrice} + ' VND'"></span></h4>
 			<h5>Phí vận chuyển toàn quốc: <span style="color: red;" th:text="'30000 VND'"></span></h5>
 		</div>
 
 
-		<!-- Form nhập thông tin -->
+	
 		<form th:action="@{/customer/order/create}" method="POST" class="mt-4">
 			<div class="mb-3">
-				<label for="address"  style="font-weight: bold; color: #333;">Địa chỉ giao hàng:</label>
-				<!-- Tự động điền địa chỉ của người dùng -->
+				<label for="address" style="font-weight: bold; color: #333;">Địa chỉ giao hàng:</label>
 				<input type="text" id="address" name="address" th:value="${currentUser.diaChi}" class="form-control"
 					style="border: 1px solid #ced4da; border-radius: 5px; padding: 10px;" required>
 			</div>
 			<div class="mb-3">
 				<label for="phone" style="font-weight: bold; color: #333;">Số điện thoại:</label>
-				<!-- Tự động điền số điện thoại của người dùng -->
 				<input type="text" id="phone" name="phone" th:value="${currentUser.soDienThoai}" class="form-control"
 					style="border: 1px solid #ced4da; border-radius: 5px; padding: 10px;" required>
 			</div>
-			<a href="/customer/cart" class="btn btn-secondary" style="margin-right: 10px; padding: 10px 20px; border-radius: 5px;">Quay lại giỏ hàng</a>
-			<button type="submit" class="btn btn-success" style="padding: 10px 20px; border-radius: 5px; font-weight: bold;">Xác nhận đặt hàng</button>
 		</form>
+
 		
-		
+
+
+
+
+		<!-- Form thanh toán COD -->
+		<form th:action="@{/customer/order/create}" method="POST" class="mt-4">
+			<input type="hidden" name="address" th:value="${currentUser.diaChi}">
+			<input type="hidden" name="phone" th:value="${currentUser.soDienThoai}">
+			<input type="hidden" name="phuongThucThanhToan" value="COD">
+
+			<button type="submit" class="btn btn-success"
+				style="padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+				Thanh toán khi nhận hàng (COD)
+			</button>
+		</form>
+
+
+
+
+		<a href="/customer/cart" class="btn btn-secondary"
+			style="margin-right: 10px; padding: 10px 20px; border-radius: 5px;">Quay lại giỏ hàng</a>
+
+
+
 	</main>
 	<script>
 
