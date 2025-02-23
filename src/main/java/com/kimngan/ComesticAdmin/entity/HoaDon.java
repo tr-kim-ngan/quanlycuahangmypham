@@ -28,14 +28,22 @@ public class HoaDon {
     private String soDienThoaiNhanHang;
     @Column(nullable = false)
     private String trangThaiThanhToan; 
+    
+    @Column(nullable = false) // Thêm phương thức thanh toán ✅
+    private String phuongThucThanhToan;
+
+    
     // Constructors
     public HoaDon() {
     }
 
     
 
+
+
 	public HoaDon(Integer maHoaDon, DonHang donHang, LocalDateTime ngayXuatHoaDon, BigDecimal tongTien,
-			String tenNguoiNhan, String diaChiGiaoHang, String soDienThoaiNhanHang, String trangThaiThanhToan) {
+			String tenNguoiNhan, String diaChiGiaoHang, String soDienThoaiNhanHang, String trangThaiThanhToan,
+			String phuongThucThanhToan) {
 		super();
 		this.maHoaDon = maHoaDon;
 		this.donHang = donHang;
@@ -45,7 +53,10 @@ public class HoaDon {
 		this.diaChiGiaoHang = diaChiGiaoHang;
 		this.soDienThoaiNhanHang = soDienThoaiNhanHang;
 		this.trangThaiThanhToan = trangThaiThanhToan;
+		this.phuongThucThanhToan = phuongThucThanhToan;
 	}
+
+
 
 
 
@@ -124,6 +135,14 @@ public class HoaDon {
 
 	public void setTrangThaiThanhToan(String trangThaiThanhToan) {
 		this.trangThaiThanhToan = trangThaiThanhToan;
+	}
+
+	public String getPhuongThucThanhToan() {
+		return phuongThucThanhToan;
+	}
+
+	public void setPhuongThucThanhToan(String phuongThucThanhToan) {
+		this.phuongThucThanhToan = phuongThucThanhToan;
 	}
 	
     

@@ -65,6 +65,8 @@ public interface SanPhamService {
 
 	 long countActiveProducts();
 	 public Page<SanPham> findActiveProductsByBrand(Integer maThuongHieu, Pageable pageable);
+	 Page<SanPham> findAllActiveByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
 
+	 Page<SanPham> findActiveProductsByCategoryAndPrice(Integer maDanhMuc, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
 
 }

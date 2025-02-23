@@ -222,6 +222,19 @@ public class SanPhamServiceImpl implements SanPhamService {
 	    return sanPhamRepository.findByThuongHieu_MaThuongHieuAndTrangThai(maThuongHieu, true, pageable);
 	}
 
+	@Override
+	public Page<SanPham> findAllActiveByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+		// TODO Auto-generated method stub
+        return sanPhamRepository.findAllActiveByPriceRange(minPrice, maxPrice, pageable);
+	}
+
+	@Override
+	public Page<SanPham> findActiveProductsByCategoryAndPrice(Integer maDanhMuc, BigDecimal minPrice,
+			BigDecimal maxPrice, Pageable pageable) {
+		// TODO Auto-generated method stub
+        return sanPhamRepository.findActiveProductsByCategoryAndPrice(maDanhMuc, minPrice, maxPrice, pageable);
+	}
+
 	
 	
 

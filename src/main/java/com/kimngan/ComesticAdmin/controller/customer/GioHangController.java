@@ -4,8 +4,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,13 +26,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.kimngan.ComesticAdmin.entity.ChiTietGioHang;
-import com.kimngan.ComesticAdmin.entity.DonHang;
-import com.kimngan.ComesticAdmin.entity.GioHang;
+
 import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.SanPham;
-import com.kimngan.ComesticAdmin.services.ChiTietGioHangService;
-import com.kimngan.ComesticAdmin.services.DonHangService;
+
 import com.kimngan.ComesticAdmin.services.GioHangService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
@@ -54,10 +50,7 @@ public class GioHangController {
 	@Autowired
 	private NguoiDungService nguoiDungService;
 
-	@Autowired
-	private ChiTietGioHangService chiTietGioHangService;
-	@Autowired
-	private DonHangService donHangService;
+
 
 	@ModelAttribute
 	public void addAttributes(Model model, Principal principal) {
@@ -226,7 +219,11 @@ public class GioHangController {
 
 
 	@PostMapping("/checkout")
-	public String checkout(Principal principal, Model model, RedirectAttributes redirectAttributes) {
+	public String checkout(
+			Principal principal, 
+			Model model, 
+			
+			RedirectAttributes redirectAttributes) {
 		if (principal == null) {
 			return "redirect:/customer/login";
 		}
@@ -247,6 +244,9 @@ public class GioHangController {
 		}else {
 		    System.out.println("Cart items found: " + cartItems.size());
 		}
+		
+		
+		
 
 		// Kiểm tra số lượng còn lại và tính tổng giá trị giỏ hàng
 		BigDecimal totalPrice = BigDecimal.ZERO;

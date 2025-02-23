@@ -34,7 +34,6 @@ import com.kimngan.ComesticAdmin.services.YeuThichService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-
 import java.time.LocalDate;
 
 @Controller
@@ -54,7 +53,9 @@ public class CustomerCategoryController {
 	@GetMapping({ "/{maDanhMuc}", "/all", "/", "" })
 	public String productsByCategoryOrAll(@PathVariable(value = "maDanhMuc", required = false) Integer maDanhMuc,
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(value = "sortOrder", defaultValue = "asc") String sortOrder, Model model,
+			@RequestParam(value = "sortOrder", defaultValue = "asc") String sortOrder,
+			@RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+			@RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice, Model model,
 			Authentication authentication) {
 
 		// Lấy thông tin người dùng hiện tại nếu đăng nhập
@@ -81,22 +82,36 @@ public class CustomerCategoryController {
 
 		Page<SanPham> products;
 		String selectedCategoryName;
+		 // Giá trị mặc định cho khoảng giá
+	    if (minPrice == null) minPrice = BigDecimal.ZERO;
+	    if (maxPrice == null) maxPrice = new BigDecimal("999999999");
 
-		if (maDanhMuc == null) {
-			// Hiển thị tất cả sản phẩm đang hoạt động
-			products = sanPhamService.findAllActive(PageRequest.of(page, 15));
-			selectedCategoryName = "Tất cả";
-		} else {
-			// Hiển thị sản phẩm theo danh mục đã chọn
-			products = sanPhamService.findActiveProductsInOrderDetailsByCategory(maDanhMuc, PageRequest.of(page, 15));
-			DanhMuc selectedCategory = danhMucService.findById(maDanhMuc);
-			selectedCategoryName = selectedCategory != null ? selectedCategory.getTenDanhMuc()
-					: "Danh mục không tồn tại";
-		}
+//		if (maDanhMuc == null) {
+//			// Hiển thị tất cả sản phẩm đang hoạt động
+//			products = sanPhamService.findAllActive(PageRequest.of(page, 15));
+//			selectedCategoryName = "Tất cả";
+//		} else {
+//			// Hiển thị sản phẩm theo danh mục đã chọn
+//			products = sanPhamService.findActiveProductsInOrderDetailsByCategory(maDanhMuc, PageRequest.of(page, 15));
+//			DanhMuc selectedCategory = danhMucService.findById(maDanhMuc);
+//			selectedCategoryName = selectedCategory != null ? selectedCategory.getTenDanhMuc()
+//					: "Danh mục không tồn tại";
+//		}
+
+	    if (maDanhMuc == null) {
+	        products = sanPhamService.findAllActiveByPriceRange(minPrice, maxPrice, PageRequest.of(page, 15));
+	        selectedCategoryName = "Tất cả";
+	    } else {
+	        products = sanPhamService.findActiveProductsByCategoryAndPrice(maDanhMuc, minPrice, maxPrice, PageRequest.of(page, 15));
+	        DanhMuc selectedCategory = danhMucService.findById(maDanhMuc);
+	        selectedCategoryName = selectedCategory != null ? selectedCategory.getTenDanhMuc() : "Danh mục không tồn tại";
+	    }
 
 		Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
 		Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
 		Map<Integer, Double> sanPhamAverageRatingMap = new HashMap<>();
+		Map<Integer, String> sanPhamThuongHieuMap = new HashMap<>();
+		
 		LocalDate today = LocalDate.now();
 
 		// Tính toán giá sau giảm và lưu vào map
@@ -114,13 +129,17 @@ public class CustomerCategoryController {
 				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
 			}
 			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
-			
-			   // Lấy danh sách đánh giá sản phẩm và tính trung bình số sao
-		    List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
-		    Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0);
-		    sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
-			
-			
+
+			// Lấy danh sách đánh giá sản phẩm và tính trung bình số sao
+			List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
+			Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0);
+			sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
+			 // 🔹 **Thêm logic lấy thương hiệu sản phẩm**
+		    if (sanPham.getThuongHieu() != null) { 
+		        sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), sanPham.getThuongHieu().getTenThuongHieu());
+		    } else {
+		        sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), "Không có thương hiệu");
+		    }
 		}
 
 		// Chuyển đổi Page<SanPham> sang List<SanPham> và thực hiện sắp xếp
@@ -152,6 +171,10 @@ public class CustomerCategoryController {
 		model.addAttribute("sortOrder", sortOrder); // Để giữ giá trị sắp xếp hiện tại trên giao diện
 		model.addAttribute("favoriteProductIds", favoriteProductIds);
 		model.addAttribute("sanPhamAverageRatingMap", sanPhamAverageRatingMap);
+	    model.addAttribute("minPrice", minPrice);
+	    model.addAttribute("maxPrice", maxPrice);
+	    model.addAttribute("sanPhamThuongHieuMap", sanPhamThuongHieuMap);
+
 
 		return "customer/categoryProduct";
 	}
@@ -172,10 +195,9 @@ public class CustomerCategoryController {
 			}
 		}
 		if (currentUser != null) {
-	        model.addAttribute("currentUser", currentUser);
-	    }
-	    model.addAttribute("timestamp", System.currentTimeMillis()); // Thêm timestamp vào Model
-
+			model.addAttribute("currentUser", currentUser);
+		}
+		model.addAttribute("timestamp", System.currentTimeMillis()); // Thêm timestamp vào Model
 
 		// Nếu người dùng đã đăng nhập, lấy danh sách sản phẩm yêu thích
 		Set<Integer> favoriteProductIds = new HashSet<>();
@@ -236,9 +258,9 @@ public class CustomerCategoryController {
 			}
 			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
 			// Lấy danh sách đánh giá sản phẩm và tính trung bình số sao
-		    List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
-		    Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0);
-		    sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
+			List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
+			Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0);
+			sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
 		}
 
 		// Lấy danh sách danh mục và thêm vào model

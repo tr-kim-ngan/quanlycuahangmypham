@@ -10,8 +10,11 @@ import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
 import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.GioHangService;
+import com.kimngan.ComesticAdmin.services.HoaDonService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +24,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
+
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
@@ -34,6 +39,8 @@ import java.util.Map;
 @Controller
 @RequestMapping("/customer/order")
 public class DonHangController {
+	@Autowired
+	private HoaDonService hoaDonService;
 
 	@Autowired
 	private DonHangService donHangService;
@@ -63,46 +70,68 @@ public class DonHangController {
 			model.addAttribute("timestamp", System.currentTimeMillis()); // Timestamp luôn được cập nhật
 		}
 	}
-
-
-	
-	@GetMapping
-	public String viewOrders(@RequestParam(value = "status", required = false, defaultValue = "all") String status,
-	                         @RequestParam(value = "page", defaultValue = "0") int page,
-	                         @RequestParam(value = "size", defaultValue = "2") int size,
-	                         Principal principal, Model model) {
-		 if (page < 0) {
-		        page = 0; // Đảm bảo không để số âm gây lỗi
-		    }
-
+	@GetMapping("/confirm")
+	public String confirmOrder(@RequestParam("orderId") Integer orderId, Model model, Principal principal) {
 	    if (principal == null) {
 	        return "redirect:/customer/login";
 	    }
+	    
+	    // 🔍 Debug kiểm tra orderId
+	    System.out.println("🔍 Debug confirmOrder - Order ID nhận vào: " + orderId);
 
-	    String username = principal.getName();
-	    PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "ngayDat"));
+	    DonHang donHang = donHangService.getDonHangById(orderId);
+	    
+	    // 🔍 Debug kiểm tra donHang
+	    System.out.println("🔍 Debug confirmOrder - DonHang từ DB: " + donHang);
 
-	    Page<DonHang> donHangPage;
-	    if ("all".equals(status)) {
-	        // Lấy tất cả đơn hàng
-	        donHangPage = donHangService.getOrdersByUser(username, pageRequest);
-	    } else if ("Mới đặt".equals(status)) {
-	        // Chỉ lấy các đơn hàng có ngày đặt mới nhất
-	        donHangPage = donHangService.getLatestOrdersByUser(username, pageRequest);
-	    } else {
-	        // Lọc theo trạng thái khác
-	        donHangPage = donHangService.getOrdersByUserAndStatus(username, status, pageRequest);
+	    if (donHang == null) {
+	        model.addAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+	        return "redirect:/customer/order";
 	    }
 
-	    model.addAttribute("donHangs", donHangPage.getContent());
-	    model.addAttribute("currentPage", donHangPage.getNumber());
-	    model.addAttribute("totalPages", donHangPage.getTotalPages());
-	    model.addAttribute("selectedStatus", status);
-	    model.addAttribute("size", size);
-
-	    return "customer/order";
+	    // ✅ Thêm donHang vào model để Thymeleaf có thể sử dụng
+	    model.addAttribute("donHang", donHang);
+	    
+	    return "customer/confirmOrder"; // ✅ Trả về giao diện xác nhận đơn hàng
 	}
 
+
+
+	@GetMapping
+	public String viewOrders(@RequestParam(value = "status", required = false, defaultValue = "all") String status,
+			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "2") int size, Principal principal, Model model) {
+		if (page < 0) {
+			page = 0; // Đảm bảo không để số âm gây lỗi
+		}
+
+		if (principal == null) {
+			return "redirect:/customer/login";
+		}
+
+		String username = principal.getName();
+		PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "ngayDat"));
+
+		Page<DonHang> donHangPage;
+		if ("all".equals(status)) {
+			// Lấy tất cả đơn hàng
+			donHangPage = donHangService.getOrdersByUser(username, pageRequest);
+		} else if ("Mới đặt".equals(status)) {
+			// Chỉ lấy các đơn hàng có ngày đặt mới nhất
+			donHangPage = donHangService.getLatestOrdersByUser(username, pageRequest);
+		} else {
+			// Lọc theo trạng thái khác
+			donHangPage = donHangService.getOrdersByUserAndStatus(username, status, pageRequest);
+		}
+
+		model.addAttribute("donHangs", donHangPage.getContent());
+		model.addAttribute("currentPage", donHangPage.getNumber());
+		model.addAttribute("totalPages", donHangPage.getTotalPages());
+		model.addAttribute("selectedStatus", status);
+		model.addAttribute("size", size);
+
+		return "customer/order";
+	}
 
 	// Phương thức hiển thị chi tiết đơn hàng
 	@GetMapping("/{maDonHang}")
@@ -130,7 +159,10 @@ public class DonHangController {
 
 	@PostMapping("/create")
 	public String createOrder(Principal principal, @RequestParam("address") String address,
-			@RequestParam("phone") String phone, Model model) {
+			@RequestParam("phone") String phone, @RequestParam("phuongThucThanhToan") String phuongThucThanhToan,
+			HttpServletRequest request, RedirectAttributes redirectAttributes, Model model) {
+	
+		System.out.println("🔍 Debug: BẮT ĐẦU XỬ LÝ TẠO ĐƠN HÀNG");
 		if (principal == null) {
 			return "redirect:/customer/login";
 		}
@@ -146,6 +178,8 @@ public class DonHangController {
 				model.addAttribute("errorMessage", "Giỏ hàng của bạn đang trống.");
 				return "redirect:/customer/cart";
 			}
+			// 🔍 Debug kiểm tra trước khi tạo đơn hàng
+	        System.out.println("🔍 Debug: Bắt đầu tạo đơn hàng");
 
 			// Tạo đối tượng DonHang và thiết lập các thông tin ban đầu
 			DonHang donHang = new DonHang();
@@ -153,8 +187,23 @@ public class DonHangController {
 			donHang.setDiaChiGiaoHang(address);
 			donHang.setSdtNhanHang(phone);
 			donHang.setNgayDat(LocalDateTime.now());
-			donHang.setTrangThaiDonHang("Đang xử lý");
-
+		//	donHang.setTrangThaiDonHang("Đang xử lý");
+			
+			
+			// 🔍 Kiểm tra khách hàng chọn phương thức nào
+	        if ("COD".equals(phuongThucThanhToan)) {
+	            donHang.setTrangThaiDonHang("Đang xử lý"); // Trạng thái xử lý ngay khi đặt hàng
+	        } else if ("VNPay".equals(phuongThucThanhToan)) {
+	            donHang.setTrangThaiDonHang("Chờ thanh toán"); // Chờ khách hàng thanh toán online
+	        } else {
+	            redirectAttributes.addFlashAttribute("errorMessage", "Phương thức thanh toán không hợp lệ.");
+	            return "redirect:/customer/order";
+	        }
+			  // Lưu đơn hàng vào DB
+	   
+			 // 🔍 Debug kiểm tra trước khi lưu
+	     
+	        
 			BigDecimal tongGiaTriDonHang = BigDecimal.ZERO;
 			BigDecimal phiVanChuyen = BigDecimal.valueOf(30000); // Giá trị phí vận chuyển mặc định
 
@@ -186,7 +235,10 @@ public class DonHangController {
 
 			// Lưu đơn hàng lần đầu vào cơ sở dữ liệu
 			donHangService.save(donHang);
+		     // 🔍 Debug Order ID để kiểm tra giá trị trước khi chuyển hướng
+	      //  System.out.println("🔍 Debug Order ID sau khi tạo: " + donHang.getMaDonHang());
 
+	        
 			// Duyệt qua các sản phẩm trong giỏ hàng và lưu chi tiết đơn hàng
 			for (ChiTietGioHang cartItem : cartItems) {
 				// Tạo ID tổng hợp cho chi tiết đơn hàng
@@ -227,13 +279,34 @@ public class DonHangController {
 			// Xóa giỏ hàng sau khi tạo đơn hàng
 			gioHangService.clearCart(currentUser);
 
-			return "redirect:/customer/order"; // Chuyển đến danh sách đơn hàng
+			
+			
+	        System.out.println("✅ Đơn hàng đã tạo! Mã đơn hàng: " + donHang.getMaDonHang());
+
+			// 🔹 Nếu chọn COD, xử lý bình thường
+	        if ("COD".equals(phuongThucThanhToan)) {
+	            redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã được tạo thành công!");
+	            System.out.println("✅ Đơn hàng COD đã tạo! Mã đơn hàng: " + donHang.getMaDonHang());
+	            return "redirect:/customer/order";
+	        }
+
+	        // 🔹 Nếu chọn VNPay, chuyển hướng sang VNPay
+//	        if ("VNPay".equals(phuongThucThanhToan)) {
+//	            System.out.println("🔍 Chuyển hướng sang VNPay với Order ID: " + donHang.getMaDonHang());
+//	            return "redirect:/customer/vnpay/create-payment?orderId=" + donHang.getMaDonHang();
+//	        }
+	        return "redirect:/customer/order";
+		//	return "redirect:/customer/order"; // Chuyển đến danh sách đơn hàng
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("errorMessage", "Không thể tạo đơn hàng: " + e.getMessage());
 			return "redirect:/customer/cart";
 		}
 	}
+	
+	
+
+
 
 	// Hủy đơn hàng
 	@PostMapping("/cancel")
