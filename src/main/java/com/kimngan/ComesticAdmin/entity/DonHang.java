@@ -51,7 +51,7 @@ public class DonHang {
 	@Column(name = "HinhAnhGiaoHang", length = 255, nullable = true)
 	private String hinhAnhGiaoHang;
 
-	@Column(name = "SDTNhanHang", length = 10, nullable = false)
+	@Column(name = "SDTNhanHang", length = 50, nullable = false)
 	private String sdtNhanHang;
 	@Column(name = "lich_su_trang_thai", columnDefinition = "TEXT")
 	private String lichSuTrangThai;

@@ -1,6 +1,7 @@
 package com.kimngan.ComesticAdmin.services;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -235,6 +236,20 @@ public class SanPhamServiceImpl implements SanPhamService {
         return sanPhamRepository.findActiveProductsByCategoryAndPrice(maDanhMuc, minPrice, maxPrice, pageable);
 	}
 
+	@Override
+	public List<SanPham> findByIdIn(List<Integer> maSanPhams) {
+		// TODO Auto-generated method stub
+		return sanPhamRepository.findByMaSanPhamIn(maSanPhams);
+	}
+
+	@Override
+	public Page<SanPham> findAllActiveWithStock(Pageable pageable) {
+	    return sanPhamRepository.findAllActiveWithStock(pageable);
+	}
+
+
+
+	
 	
 	
 

@@ -1,11 +1,15 @@
 package com.kimngan.ComesticAdmin.services;
 
+import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.DonHang;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
+import com.kimngan.ComesticAdmin.entity.SanPham;
 
 public interface DonHangService {
     DonHang createDonHang(DonHang donHang); // Thêm mới đơn hàng
@@ -37,7 +41,17 @@ public interface DonHangService {
     void updateOrderStatus(Integer maDonHang, String trangThaiMoi);
     void updatePaymentStatus(Integer maDonHang, String trangThaiThanhToan);
     void addOrderStatusHistory(Integer maDonHang, String trangThaiMoi);
-
+    List<ChiTietDonHang> getCurrentOfflineOrder();
+    void addToOfflineOrder(SanPham sanPham, int quantity);
+    void removeFromOfflineOrder(Integer sanPhamId);
+    BigDecimal calculateTotalPrice();
+    boolean confirmOfflineOrder();
+    
+    
+    void processOfflineOrder(List<Integer> productIds, List<Integer> quantities);
+    List<ChiTietDonHang> getOfflineOrderItems();
+    Collection<ChiTietDonHang> getOfflineOrder();
+    boolean processAndGenerateInvoiceForOfflineOrder(String soDienThoaiKhach);
 
     
     }

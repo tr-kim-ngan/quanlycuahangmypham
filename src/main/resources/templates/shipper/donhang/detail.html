@@ -178,8 +178,7 @@
 
 							<div id="hinhAnhDiv" style="margin-top: 10px;">
 								<label for="hinhAnh">Hình ảnh chứng minh giao hàng (tối đa 2MB):</label>
-								<input type="file" name="hinhAnh" id="hinhAnh" class="form-control" accept="image/*"
-									required>
+								<input type="file" name="hinhAnh" id="hinhAnh" class="form-control" accept="image/*">
 							</div>
 
 							<button type="submit" class="btn btn-primary mt-3">Gửi cập nhật</button>
@@ -192,7 +191,7 @@
 							var lyDoDiv = document.getElementById("lyDoGiaoThatBai");
 							var hinhAnhDiv = document.getElementById("hinhAnhDiv");
 							var hinhAnhInput = document.getElementById("hinhAnh");
-
+							var lyDoInput = document.getElementById("lyDo");
 							if (status === "Giao thất bại") {
 								lyDoDiv.style.display = "block";  // Hiện ô nhập lý do thất bại
 								hinhAnhDiv.style.display = "none"; // Ẩn ô nhập ảnh
@@ -200,6 +199,7 @@
 							} else {
 								lyDoDiv.style.display = "none";
 								hinhAnhDiv.style.display = "block"; // Hiện ô nhập ảnh nếu chọn "Đã hoàn thành"
+								lyDoInput.value = ""; // Xóa lý do nếu không cần // Hiện ô nhập ảnh nếu chọn "Đã hoàn thành"
 							}
 						}
 

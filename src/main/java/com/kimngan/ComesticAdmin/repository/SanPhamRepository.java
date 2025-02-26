@@ -94,8 +94,14 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 
     @Query("SELECT s FROM SanPham s WHERE s.trangThai = true AND s.danhMuc.maDanhMuc = :maDanhMuc AND s.donGiaBan BETWEEN :minPrice AND :maxPrice")
     Page<SanPham> findActiveProductsByCategoryAndPrice(@Param("maDanhMuc") Integer maDanhMuc, @Param("minPrice") BigDecimal minPrice, @Param("maxPrice") BigDecimal maxPrice, Pageable pageable);
+    List<SanPham> findByTenSanPhamContainingIgnoreCase(String tenSanPham);
 
-    
-    
+    List<SanPham> findByMaSanPhamIn(List<Integer> maSanPhams);
+    @Query("SELECT sp FROM SanPham sp LEFT JOIN FETCH sp.khuyenMais WHERE sp.maSanPham IN :productIds")
+    List<SanPham> findByIdInWithKhuyenMai(@Param("productIds") List<Integer> productIds);
+
+    @Query("SELECT sp FROM SanPham sp WHERE sp.trangThai = true AND sp.soLuong > 0")
+    Page<SanPham> findAllActiveWithStock(Pageable pageable);
+
     
 }
