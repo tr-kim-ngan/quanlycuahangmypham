@@ -25,7 +25,7 @@
 					<div class="d-flex justify-content-start gap-3 mt-4" style="margin: 0px 30px;">
 						<!-- Nút Quay Lại -->
 						<a th:href="@{/admin/hoadon}" class="btn btn-secondary">
-							<i class="fas fa-arrow-left"></i>  Quay Lại
+							<i class="fas fa-arrow-left"></i> Quay Lại
 						</a>
 
 						<!-- Nút Xuất PDF -->
@@ -67,9 +67,19 @@
 					<div class="details-header">
 						<div class="column">
 							<p><strong>Người Nhận:</strong> <span th:text="${hoaDon.tenNguoiNhan}"></span></p>
-							<p><strong>Địa Chỉ:</strong> <span th:text="${hoaDon.diaChiGiaoHang}"></span></p>
-							<p><strong>Số Điện Thoại:</strong> <span th:text="${hoaDon.soDienThoaiNhanHang}"></span>
+							<!-- 🚀 Nếu có địa chỉ giao hàng thì hiển thị "Địa Chỉ:", nếu không thì chỉ hiển thị "Mua tại quầy KN" -->
+							<p th:if="${hoaDon.diaChiGiaoHang != null}">
+								<strong>Địa Chỉ:</strong> <span th:text="${hoaDon.diaChiGiaoHang}"></span>
 							</p>
+							<p th:if="${hoaDon.diaChiGiaoHang == null}">Mua tại quầy KN</p>
+							<!-- 🚀 Nếu mua tại quầy thì ẩn số điện thoại -->
+							<p th:if="${hoaDon.tenNguoiNhan != 'Khách vãng lai'}">
+								<strong>Số Điện Thoại:</strong> <span th:text="${hoaDon.soDienThoaiNhanHang}"></span>
+							</p>
+
+
+							<!--<p><strong>Số Điện Thoại:</strong> <span th:text="${hoaDon.soDienThoaiNhanHang}"></span>
+							</p>-->
 
 							<!--	<p><strong>Trạng Thái Thanh Toán:</strong>
 									<span th:text="${formattedTrangThaiThanhToan}"

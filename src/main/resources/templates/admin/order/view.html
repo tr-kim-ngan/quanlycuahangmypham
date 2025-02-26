@@ -65,8 +65,12 @@
 												<th>Khách Hàng</th>
 												<td th:text="${donHang.nguoiDung.tenNguoiDung}"></td>
 												<th>Số Điện Thoại Nhận Hàng</th>
-												<td th:text="${donHang.sdtNhanHang}"></td>
+												<td th:if="${donHang.nguoiDung.tenNguoiDung != 'Khách vãng lai'}"
+													th:text="${donHang.sdtNhanHang}"></td>
+												<td th:if="${donHang.nguoiDung.tenNguoiDung == 'Khách vãng lai'}"></td>
+
 											</tr>
+
 											<tr>
 												<th>Ngày Đặt</th>
 												<td th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}">
@@ -107,30 +111,17 @@
 									</table>
 									<div class="text-center mt-3">
 
-
-									<!--	<th:block th:if="${
-											donHang.trangThaiDonHang != 'Đã hoàn thành' 
-										    and donHang.trangThaiDonHang != 'Đã hủy' 
-										    and donHang.trangThaiDonHang != 'Giao thất bại'
-										    and donHang.trangThaiChoXacNhan != 'Giao lại đơn hàng'
-										    and donHang.trangThaiChoXacNhan != 'Chờ shipper xác nhận lại' 
-										    and (donHang.trangThaiChoXacNhan != null 
-										    and donHang.trangThaiChoXacNhan != '') 
-										 
-										    or donHang.trangThaiDonHang == 'Đang xử lý'
-										    or donHang.trangThaiDonHang == 'Đã xác nhận'}">
-											<a th:href="@{/admin/order/confirm/{id}(id=${donHang.maDonHang})}"
-												class="btn btn-warning">
-												🔄 Trạng thái cần xác nhận
+										<!-- Ẩn nút "Chi tiết đơn hàng" nếu là khách vãng lai -->
+										<!-- Ẩn nút "Chi tiết đơn hàng" nếu là khách vãng lai hoặc mua tại quầy -->
+										<th:block
+											th:if="${donHang.nguoiDung.tenNguoiDung != 'Khách vãng lai' and donHang.diaChiGiaoHang != 'Mua tại quầy KN'}">
+											<a th:href="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
+												class="btn btn-info">
+												📋 Chi tiết đơn hàng
 											</a>
-										</th:block>-->
+										</th:block>
 
 
-										<!-- Thay vì nút xác nhận trạng thái, đổi thành "Chi tiết đơn hàng" -->
-										<a th:href="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
-											class="btn btn-info">
-											📋 Chi tiết đơn hàng
-										</a>
 
 
 

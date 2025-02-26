@@ -6,7 +6,6 @@ import com.kimngan.ComesticAdmin.entity.ChiTietDonHangId;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.repository.ChiTietDonHangRepository;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -14,15 +13,11 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 
-
 @Service
 public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
 
 	@Autowired
 	private ChiTietDonHangRepository chiTietDonHangRepository;
-
-   
-
 
 	@Override
 	public ChiTietDonHang createChiTietDonHang(ChiTietDonHang chiTietDonHang) {
@@ -63,17 +58,36 @@ public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
 		return chiTietDonHangRepository.save(chiTietDonHang);
 	}
 
+//	@Override
+//	public Integer getSoldQuantityBySanPhamId(Integer sanPhamId) {
+//		// Lấy danh sách chi tiết đơn hàng với trạng thái "Đã xác nhận", "Đang giao
+//		// hàng" hoặc "Đã hoàn thành"
+//		List<ChiTietDonHang> chiTietDonHangList = chiTietDonHangRepository
+//				.findBySanPhamMaSanPhamAndDonHangTrangThaiDonHangIn(sanPhamId,
+//						Arrays.asList("Đã xác nhận", "Đang giao hàng", "Đã hoàn thành"));
+//
+//		// Tính tổng số lượng đã bán từ các chi tiết đơn hàng
+//		return chiTietDonHangList.stream().mapToInt(ChiTietDonHang::getSoLuong).sum();
+//	}
 	@Override
 	public Integer getSoldQuantityBySanPhamId(Integer sanPhamId) {
-		// Lấy danh sách chi tiết đơn hàng với trạng thái "Đã xác nhận", "Đang giao
-		// hàng" hoặc "Đã hoàn thành"
-		List<ChiTietDonHang> chiTietDonHangList = chiTietDonHangRepository
-				.findBySanPhamMaSanPhamAndDonHangTrangThaiDonHangIn(sanPhamId,
-						Arrays.asList("Đã xác nhận", "Đang giao hàng", "Đã hoàn thành"));
+	    // Lấy số lượng từ hóa đơn online đã hoàn thành
+	    Integer onlineSold = chiTietDonHangRepository.getSoldQuantityFromCompletedInvoices(sanPhamId);
+	    onlineSold = (onlineSold != null) ? onlineSold : 0; // Nếu null thì gán giá trị 0
 
-		// Tính tổng số lượng đã bán từ các chi tiết đơn hàng
-		return chiTietDonHangList.stream().mapToInt(ChiTietDonHang::getSoLuong).sum();
+	    // Lấy số lượng từ hóa đơn offline đã thanh toán
+	    Integer offlineSold = chiTietDonHangRepository.getSoldQuantityFromOfflineOrders(sanPhamId);
+	    offlineSold = (offlineSold != null) ? offlineSold : 0; // Nếu null thì gán giá trị 0
+
+	    // Tổng số lượng bán ra
+	    return onlineSold + offlineSold;
 	}
+
+
+
+
+
+
 
 	@Override
 	public List<Object[]> getTop3BestSellingProducts() {
@@ -86,5 +100,6 @@ public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
 		return chiTietDonHangRepository.findTopSoldProductsByBrand(maThuongHieu, PageRequest.of(0, limit + 1));
 	}
 
-	
+
+
 }

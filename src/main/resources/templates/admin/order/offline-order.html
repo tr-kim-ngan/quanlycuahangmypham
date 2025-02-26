@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar :: sidebar"></div>
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="~{admin/fragments/header :: header}"></div>
+
+			<div class="container" style="background-color: #faeee7; border-radius: 0px;">
+				<div class="page-inner">
+					<h3 class="mb-4 text-center">Tạo Đơn Hàng Offline</h3>
+
+					<!-- 🔥 Thanh tìm kiếm sản phẩm -->
+					<form th:action="@{/admin/offline-orders}" method="get" class="d-flex mb-3">
+						<input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm sản phẩm..."
+							class="form-control me-2" style="max-width: 300px;">
+						<button type="submit" class="btn btn-primary">
+							<i class="fa fa-search"></i> Tìm kiếm
+						</button>
+
+						<!-- 🟢 Input ẩn để giữ danh sách sản phẩm đã chọn -->
+						<input type="hidden" name="selectedProductIds"
+							th:value="${#strings.listJoin(selectedProductIds, ',')}">
+						<input type="hidden" name="selectedQuantities"
+							th:value="${#strings.listJoin(selectedQuantities, ',')}">
+					</form>
+
+
+					<!-- 🔥 Chọn sản phẩm trước -->
+					<div class="mb-3">
+						<h4 class="text-center">Sản phẩm đã chọn</h4>
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Hình ảnh</th>
+									<th>Sản phẩm</th>
+									<th>Giá</th>
+									<th>Số lượng còn lại</th>
+									<th>Số lượng</th>
+
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="sp : ${sanPhamList}">
+									<td><img th:src="@{/upload/} + ${sp.hinhAnh}" style="width: 80px;"></td>
+									<td th:text="${sp.tenSanPham}"></td>
+									<td>
+										<span
+											th:utext="${formattedDiscountPrices != null and formattedDiscountPrices.containsKey(sp.maSanPham) ? formattedDiscountPrices[sp.maSanPham] : 'Không có giá'}"></span>
+									</td>
+									<td th:text="${sp.soLuong}"></td>
+									<td>
+										<form th:action="@{/admin/offline-orders/add}" method="post">
+											<input type="hidden" name="sanPhamId" th:value="${sp.maSanPham}">
+											<input type="number" class="form-control" name="soLuong" value="1" min="1"
+												th:attr="max=${sp.soLuong}">
+											<button type="submit" class="btn btn-primary mt-2">Thêm</button>
+										</form>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+
+					</div>
+
+
+					<!-- 🟢 Giữ danh sách đã chọn -->
+					<input type="hidden" name="selectedProductIds"
+						th:value="${selectedProductIds != null ? #strings.listJoin(selectedProductIds, ',') : ''}">
+					<input type="hidden" name="selectedQuantities"
+						th:value="${selectedQuantities != null ? #strings.listJoin(selectedQuantities, ',') : ''}">
+
+					<div class="text-center mt-3">
+						<a href="/admin/offline-orders/confirm" class="btn btn-success">Xác Nhận</a>
+					</div>
+
+
+					<!-- ✅ Thanh phân trang -->
+					<nav aria-label="Page navigation">
+						<ul class="pagination justify-content-center">
+							<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+								<a class="page-link"
+									th:href="@{/admin/offline-orders(page=0, keyword=${keyword}, selectedProductIds=${selectedProductIds != null ? #strings.listJoin(selectedProductIds, ',') : ''}, selectedQuantities=${selectedQuantities != null ? #strings.listJoin(selectedQuantities, ',') : ''})}">
+									Đầu
+								</a>
+							</li>
+							<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+								<a class="page-link"
+									th:href="@{/admin/offline-orders(page=${currentPage > 0 ? currentPage - 1 : 0}, keyword=${keyword}, selectedProductIds=${selectedProductIds != null ? #strings.listJoin(selectedProductIds, ',') : ''}, selectedQuantities=${selectedQuantities != null ? #strings.listJoin(selectedQuantities, ',') : ''})}">
+									‹
+								</a>
+							</li>
+							<li class="page-item"
+								th:each="i : ${#numbers.sequence(0, totalPages > 0 ? totalPages - 1 : 0)}"
+								th:classappend="${currentPage == i} ? 'active'">
+								<a class="page-link"
+									th:href="@{/admin/offline-orders(page=${i}, keyword=${keyword}, selectedProductIds=${selectedProductIds != null ? #strings.listJoin(selectedProductIds, ',') : ''}, selectedQuantities=${selectedQuantities != null ? #strings.listJoin(selectedQuantities, ',') : ''})}"
+									th:text="${i + 1}"></a>
+							</li>
+							<li class="page-item"
+								th:classappend="${currentPage == totalPages - 1 or totalPages == 0} ? 'disabled'">
+								<a class="page-link"
+									th:href="@{/admin/offline-orders(page=${currentPage < totalPages - 1 ? currentPage + 1 : totalPages - 1}, keyword=${keyword}, selectedProductIds=${selectedProductIds != null ? #strings.listJoin(selectedProductIds, ',') : ''}, selectedQuantities=${selectedQuantities != null ? #strings.listJoin(selectedQuantities, ',') : ''})}">
+									›
+								</a>
+							</li>
+							<li class="page-item"
+								th:classappend="${currentPage == totalPages - 1 or totalPages == 0} ? 'disabled'">
+								<a class="page-link"
+									th:href="@{/admin/offline-orders(page=${totalPages > 0 ? totalPages - 1 : 0}, keyword=${keyword}, selectedProductIds=${selectedProductIds != null ? #strings.listJoin(selectedProductIds, ',') : ''}, selectedQuantities=${selectedQuantities != null ? #strings.listJoin(selectedQuantities, ',') : ''})}">
+									Cuối
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer :: footer"></div>
+		</div>
+	</div>
+
+	<div th:replace="admin/fragments/script :: script"></div>
+</body>
+
+</html>

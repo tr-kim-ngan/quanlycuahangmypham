@@ -68,5 +68,8 @@ public interface SanPhamService {
 	 Page<SanPham> findAllActiveByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
 
 	 Page<SanPham> findActiveProductsByCategoryAndPrice(Integer maDanhMuc, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+	 List<SanPham> findByIdIn(List<Integer> maSanPhams);
+
+	 Page<SanPham> findAllActiveWithStock(Pageable pageable);
 
 }

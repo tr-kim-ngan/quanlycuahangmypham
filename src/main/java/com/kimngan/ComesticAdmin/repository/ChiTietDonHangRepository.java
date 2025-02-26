@@ -27,20 +27,26 @@ public interface ChiTietDonHangRepository extends JpaRepository<ChiTietDonHang, 
 			+ "GROUP BY c.sanPham.maSanPham " + "ORDER BY totalQuantity DESC")
 	List<Object[]> findTop3BestSellingProducts();
 
-//	@Query("SELECT ctdh.sanPham, SUM(ctdh.soLuong) as totalQuantity " + "FROM ChiTietDonHang ctdh "
-//			+ "JOIN ctdh.donHang dh " + "WHERE ctdh.sanPham.thuongHieu.maThuongHieu = :maThuongHieu "
-//			+ "AND dh.trangThaiDonHang = 'Đã xác nhận' " + "GROUP BY ctdh.sanPham " + "ORDER BY totalQuantity DESC")
-//	List<SanPham> findTopSoldProductsByBrand(@Param("maThuongHieu") Integer maThuongHieu, Pageable pageable);
-//
-	@Query("SELECT ctdh.sanPham, SUM(ctdh.soLuong) as totalQuantity " +
-		       "FROM ChiTietDonHang ctdh " +
+	@Query("SELECT ctdh.sanPham, SUM(ctdh.soLuong) as totalQuantity " + "FROM ChiTietDonHang ctdh "
+			+ "JOIN ctdh.donHang dh " + "WHERE ctdh.sanPham.thuongHieu.maThuongHieu = :maThuongHieu "
+			+ "AND dh.trangThaiDonHang = 'Đã xác nhận' " + "GROUP BY ctdh.sanPham " + "ORDER BY totalQuantity DESC")
+	List<SanPham> findTopSoldProductsByBrand(@Param("maThuongHieu") Integer maThuongHieu, Pageable pageable);
+
+	@Query("SELECT c FROM ChiTietDonHang c JOIN FETCH c.sanPham s LEFT JOIN FETCH s.khuyenMais WHERE c.donHang IS NULL")
+	List<ChiTietDonHang> findOfflineOrderWithKhuyenMai();
+
+	@Query("SELECT SUM(ctdh.soLuong) FROM ChiTietDonHang ctdh " +
 		       "JOIN ctdh.donHang dh " +
-		       "WHERE ctdh.sanPham.thuongHieu.maThuongHieu = :maThuongHieu " +
-		       "AND dh.trangThaiDonHang = 'Đã xác nhận' " +
-		       "GROUP BY ctdh.sanPham " +
-		       "ORDER BY totalQuantity DESC")
-		List<SanPham> findTopSoldProductsByBrand(@Param("maThuongHieu") Integer maThuongHieu, Pageable pageable);
+		       "JOIN HoaDon hd ON hd.donHang = dh " +
+		       "WHERE ctdh.sanPham.maSanPham = :sanPhamId " +
+		       "AND hd.trangThaiThanhToan = 'Đã hoàn thành'")
+		Integer getSoldQuantityFromOfflineOrders(@Param("sanPhamId") Integer sanPhamId);
+	@Query("SELECT SUM(ctdh.soLuong) FROM ChiTietDonHang ctdh " +
+		       "JOIN ctdh.donHang dh " +
+		       "JOIN HoaDon hd ON hd.donHang = dh " +
+		       "WHERE ctdh.sanPham.maSanPham = :sanPhamId " +
+		       "AND hd.trangThaiThanhToan = 'Đã xác nhận'")
+		Integer getSoldQuantityFromCompletedInvoices(@Param("sanPhamId") Integer sanPhamId);
 
 	
-
 }

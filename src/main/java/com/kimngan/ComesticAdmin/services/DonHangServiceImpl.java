@@ -1,20 +1,26 @@
 package com.kimngan.ComesticAdmin.services;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
-
 
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHangId;
@@ -22,13 +28,16 @@ import com.kimngan.ComesticAdmin.entity.ChiTietGioHang;
 import com.kimngan.ComesticAdmin.entity.DonHang;
 import com.kimngan.ComesticAdmin.entity.GioHang;
 import com.kimngan.ComesticAdmin.entity.HoaDon;
+import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.repository.ChiTietDonHangRepository;
 import com.kimngan.ComesticAdmin.repository.DonHangRepository;
 import com.kimngan.ComesticAdmin.repository.HoaDonRepository;
 import com.kimngan.ComesticAdmin.repository.NguoiDungRepository;
+import com.kimngan.ComesticAdmin.repository.SanPhamRepository;
 
+import jakarta.transaction.Transactional;
 
 @Service
 public class DonHangServiceImpl implements DonHangService {
@@ -43,9 +52,13 @@ public class DonHangServiceImpl implements DonHangService {
 	private ChiTietDonHangRepository chiTietDonHangRepository;
 	@Autowired
 	private NguoiDungService nguoiDungService;
+	@Autowired
+	private SanPhamRepository sanPhamRepository;
 
 	@Autowired
 	private HoaDonRepository hoaDonRepository;
+	// ✅ Thêm biến offlineOrder để lưu tạm đơn hàng offline
+	private final Map<Integer, ChiTietDonHang> offlineOrder = new HashMap<>();
 
 	@Override
 	public DonHang createDonHang(DonHang donHang) {
@@ -72,8 +85,8 @@ public class DonHangServiceImpl implements DonHangService {
 				hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
 				hoaDon.setTrangThaiThanhToan("Chưa xác nhận");
 
-	            // ✅ Nếu không có giá trị từ `DonHang`, đặt mặc định là "Tiền mặt"
-	            hoaDon.setPhuongThucThanhToan("Tiền mặt");
+				// ✅ Nếu không có giá trị từ `DonHang`, đặt mặc định là "Tiền mặt"
+				hoaDon.setPhuongThucThanhToan("COD");
 				hoaDonRepository.save(hoaDon);
 				System.out.println("✅ Hóa đơn đã được tạo và lưu vào database!");
 			} else {
@@ -121,20 +134,6 @@ public class DonHangServiceImpl implements DonHangService {
 		//
 		return donHangRepository.findAll();
 	}
-
-//	@Override
-//	public List<DonHang> getOrdersByUser(String username) {
-//		// 
-//		// Lấy người dùng dựa trên username
-//		NguoiDung nguoiDung = nguoiDungRepository.findByTenNguoiDung(username);
-//		//Optional<NguoiDung> optionalUser = nguoiDungRepository.findByTenNguoiDung(username);
-//
-//		if (nguoiDung == null) {
-//			throw new IllegalArgumentException("Người dùng không tồn tại");
-//		}
-//		// Lấy danh sách đơn hàng dựa trên người dùng
-//		return donHangRepository.findByNguoiDung(nguoiDung);
-//	}
 
 	@Override
 	public DonHang createOrderFromCart(String username, String address, String phone) {
@@ -350,70 +349,321 @@ public class DonHangServiceImpl implements DonHangService {
 		}
 		return statuses.subList(0, currentIndex + 1);
 	}
+
 	@Override
 	public void capNhatTrangThai(DonHang donHang, String trangThaiMoi) {
-	    // Kiểm tra nếu trạng thái cuối cùng đã lưu trùng với trạng thái mới
-	    if (donHang.getLichSuTrangThai() != null && donHang.getLichSuTrangThai().contains(trangThaiMoi)) {
-	        System.out.println("⚠ Trạng thái đã tồn tại, không lưu trùng: " + trangThaiMoi);
-	        return; // Không lưu trùng
-	    }
+		// Kiểm tra nếu trạng thái cuối cùng đã lưu trùng với trạng thái mới
+		if (donHang.getLichSuTrangThai() != null && donHang.getLichSuTrangThai().contains(trangThaiMoi)) {
+			System.out.println("⚠ Trạng thái đã tồn tại, không lưu trùng: " + trangThaiMoi);
+			return; // Không lưu trùng
+		}
 
-	    // Lưu trạng thái mới vào lịch sử
-	    String thoiGian = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
-	    String lichSuMoi = "🕘 " + thoiGian + " - " + trangThaiMoi;
+		// Lưu trạng thái mới vào lịch sử
+		String thoiGian = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+		String lichSuMoi = "🕘 " + thoiGian + " - " + trangThaiMoi;
 
-	    // Thêm vào lịch sử (nếu có dữ liệu cũ thì nối thêm)
-	    if (donHang.getLichSuTrangThai() == null || donHang.getLichSuTrangThai().isEmpty()) {
-	        donHang.setLichSuTrangThai(lichSuMoi);
-	    } else {
-	        donHang.setLichSuTrangThai(donHang.getLichSuTrangThai() + "\n" + lichSuMoi);
-	    }
+		// Thêm vào lịch sử (nếu có dữ liệu cũ thì nối thêm)
+		if (donHang.getLichSuTrangThai() == null || donHang.getLichSuTrangThai().isEmpty()) {
+			donHang.setLichSuTrangThai(lichSuMoi);
+		} else {
+			donHang.setLichSuTrangThai(donHang.getLichSuTrangThai() + "\n" + lichSuMoi);
+		}
 
-	    // Cập nhật vào database
-	    donHangRepository.save(donHang);
+		// Cập nhật vào database
+		donHangRepository.save(donHang);
 	}
 
 	@Override
 	public void updateOrderStatus(Integer maDonHang, String trangThaiMoi) {
-	    Optional<DonHang> optionalDonHang = donHangRepository.findById(maDonHang);
-	    if (optionalDonHang.isPresent()) {
-	        DonHang donHang = optionalDonHang.get();
-	        donHang.setTrangThaiDonHang(trangThaiMoi); // Cập nhật trạng thái
-	        addOrderStatusHistory(maDonHang, trangThaiMoi);
-	        donHangRepository.save(donHang);
-	    } else {
-	        throw new RuntimeException("Không tìm thấy đơn hàng với mã: " + maDonHang);
-	    }
+		Optional<DonHang> optionalDonHang = donHangRepository.findById(maDonHang);
+		if (optionalDonHang.isPresent()) {
+			DonHang donHang = optionalDonHang.get();
+			donHang.setTrangThaiDonHang(trangThaiMoi); // Cập nhật trạng thái
+			addOrderStatusHistory(maDonHang, trangThaiMoi);
+			donHangRepository.save(donHang);
+		} else {
+			throw new RuntimeException("Không tìm thấy đơn hàng với mã: " + maDonHang);
+		}
 	}
 
 	@Override
 	public void updatePaymentStatus(Integer maDonHang, String trangThaiThanhToan) {
-	    Optional<DonHang> optionalDonHang = donHangRepository.findById(maDonHang);
-	    if (optionalDonHang.isPresent()) {
-	        DonHang donHang = optionalDonHang.get();
-	        donHang.setTrangThaiChoXacNhan(trangThaiThanhToan); // Cập nhật trạng thái thanh toán
-	        addOrderStatusHistory(maDonHang, "Cập nhật trạng thái thanh toán: " + trangThaiThanhToan);
-	        donHangRepository.save(donHang);
-	    } else {
-	        throw new RuntimeException("Không tìm thấy đơn hàng với mã: " + maDonHang);
-	    }
+		Optional<DonHang> optionalDonHang = donHangRepository.findById(maDonHang);
+		if (optionalDonHang.isPresent()) {
+			DonHang donHang = optionalDonHang.get();
+			donHang.setTrangThaiChoXacNhan(trangThaiThanhToan); // Cập nhật trạng thái thanh toán
+			addOrderStatusHistory(maDonHang, "Cập nhật trạng thái thanh toán: " + trangThaiThanhToan);
+			donHangRepository.save(donHang);
+		} else {
+			throw new RuntimeException("Không tìm thấy đơn hàng với mã: " + maDonHang);
+		}
 	}
 
 	@Override
 	public void addOrderStatusHistory(Integer maDonHang, String trangThaiMoi) {
-	    Optional<DonHang> optionalDonHang = donHangRepository.findById(maDonHang);
-	    if (optionalDonHang.isPresent()) {
-	        DonHang donHang = optionalDonHang.get();
-	        String currentHistory = donHang.getLichSuTrangThai();
-	        String updatedHistory = (currentHistory == null ? "" : currentHistory + "\n") +
-	                LocalDateTime.now() + ": " + trangThaiMoi;
-	        donHang.setLichSuTrangThai(updatedHistory);
-	        donHangRepository.save(donHang);
+		Optional<DonHang> optionalDonHang = donHangRepository.findById(maDonHang);
+		if (optionalDonHang.isPresent()) {
+			DonHang donHang = optionalDonHang.get();
+			String currentHistory = donHang.getLichSuTrangThai();
+			String updatedHistory = (currentHistory == null ? "" : currentHistory + "\n") + LocalDateTime.now() + ": "
+					+ trangThaiMoi;
+			donHang.setLichSuTrangThai(updatedHistory);
+			donHangRepository.save(donHang);
+		}
+	}
+
+	@Override
+	public List<ChiTietDonHang> getCurrentOfflineOrder() {
+		// TODO Auto-generated method stub
+		return new ArrayList<>(offlineOrder.values());
+	}
+
+	@Override
+	public void addToOfflineOrder(SanPham sanPham, int quantity) {
+		if (offlineOrder.containsKey(sanPham.getMaSanPham())) {
+			ChiTietDonHang chiTiet = offlineOrder.get(sanPham.getMaSanPham());
+			chiTiet.setSoLuong(chiTiet.getSoLuong() + quantity); // ✅ Cập nhật số lượng trực tiếp
+		} else {
+			// ✅ Dùng constructor có sẵn của ChiTietDonHang
+			ChiTietDonHang chiTiet = new ChiTietDonHang();
+			chiTiet.setSanPham(sanPham);
+			chiTiet.setSoLuong(quantity);
+			offlineOrder.put(sanPham.getMaSanPham(), chiTiet);
+		}
+	}
+
+	@Override
+	public void removeFromOfflineOrder(Integer sanPhamId) {
+		// TODO Auto-generated method stub
+		offlineOrder.remove(sanPhamId);
+	}
+
+	@Override
+	public BigDecimal calculateTotalPrice() {
+		BigDecimal total = BigDecimal.ZERO;
+		for (ChiTietDonHang item : offlineOrder.values()) {
+			total = total.add(item.getSanPham().getDonGiaBan().multiply(BigDecimal.valueOf(item.getSoLuong())));
+		}
+		return total;
+	}
+
+	@Override
+	public boolean confirmOfflineOrder() {
+		if (offlineOrder.isEmpty()) {
+			return false;
+		}
+		offlineOrder.clear();
+		return true;
+	}
+
+	@Override
+	@Transactional
+	public void processOfflineOrder(List<Integer> productIds, List<Integer> quantities) {
+	    offlineOrder.clear();
+
+	    System.out.println("🔵 Nhận dữ liệu vào processOfflineOrder:");
+	    System.out.println("🔵 Sản phẩm nhận được: " + productIds);
+	    System.out.println("🔵 Số lượng nhận được: " + quantities);
+
+	    List<SanPham> selectedProducts = sanPhamRepository.findByIdInWithKhuyenMai(productIds);
+
+	    for (int i = 0; i < selectedProducts.size(); i++) {
+	        SanPham sanPham = selectedProducts.get(i);
+	        Hibernate.initialize(sanPham.getKhuyenMais());
+
+	        Integer quantity = (quantities.get(i) != null) ? quantities.get(i) : 1;
+	        if (quantity > sanPham.getSoLuong()) {
+	            quantity = sanPham.getSoLuong();
+	        }
+
+	        // 🔥 Đảm bảo giá tại thời điểm đặt hàng không bị null
+	        BigDecimal giaGoc = sanPham.getDonGiaBan();
+	        if (giaGoc == null) {
+	            System.out.println("⚠️ Cảnh báo: Sản phẩm ID " + sanPham.getMaSanPham() + " không có giá, gán 0.");
+	            giaGoc = BigDecimal.ZERO;
+	        }
+
+	        // ✅ Tính giá sau khuyến mãi nếu có
+	        BigDecimal giaSauGiam = giaGoc;
+	        if (!sanPham.getKhuyenMais().isEmpty()) {
+	            Optional<KhuyenMai> highestKhuyenMai = sanPham.getKhuyenMais().stream()
+	                .filter(KhuyenMai::getTrangThai)
+	                .max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+
+	            if (highestKhuyenMai.isPresent()) {
+	                BigDecimal phanTramGiam = highestKhuyenMai.get().getPhanTramGiamGia();
+	                giaSauGiam = giaGoc.subtract(giaGoc.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
+	            }
+	        }
+
+	        // 🔥 Nếu giá sau giảm vẫn bị null, gán về 0
+	        if (giaSauGiam == null) {
+	            System.out.println("⚠️ Giá sau giảm bị null, đặt về 0.");
+	            giaSauGiam = BigDecimal.ZERO;
+	        }
+
+	        // ✅ Kiểm tra trước khi lưu vào ChiTietDonHang
+	        System.out.println("🟢 Kiểm tra giá trị trước khi lưu:");
+	        System.out.println("   - ID sản phẩm: " + sanPham.getMaSanPham());
+	        System.out.println("   - Giá gốc: " + giaGoc);
+	        System.out.println("   - Giá sau giảm: " + giaSauGiam);
+	        System.out.println("   - Số lượng: " + quantity);
+
+	        ChiTietDonHang chiTiet = new ChiTietDonHang();
+	        chiTiet.setSanPham(sanPham);
+	        chiTiet.setSoLuong(quantity);
+	        chiTiet.setGiaTaiThoiDiemDat(giaSauGiam); // ✅ Đảm bảo không bị null
+
+	        offlineOrder.put(sanPham.getMaSanPham(), chiTiet);
 	    }
 	}
 
 
 
+
+
+
+
+
+	@Override
+	public List<ChiTietDonHang> getOfflineOrderItems() {
+		// TODO Auto-generated method stub
+		return new ArrayList<>(offlineOrder.values());
+	}
+
+	@Override
+	public Collection<ChiTietDonHang> getOfflineOrder() {
+		// TODO Auto-generated method stub
+		return chiTietDonHangRepository.findOfflineOrderWithKhuyenMai();
+	}
+
+
+	@Override
+	@Transactional
+	public boolean processAndGenerateInvoiceForOfflineOrder(String soDienThoaiKhach) {
+	    System.out.println("🔵 Đang xử lý tạo hóa đơn cho số điện thoại: " + soDienThoaiKhach);
+
+	    if (offlineOrder.isEmpty()) {
+	        System.out.println("❌ Lỗi: Không có sản phẩm trong offlineOrder.");
+	        return false;
+	    }
+
+	    NguoiDung khachHang;
+	    boolean isGuest = false;
+
+	  //  NguoiDung existingGuest = nguoiDungRepository.findByTenNguoiDung("Khách vãng lai");
+	    Optional<NguoiDung> existingUser = nguoiDungRepository.findBySoDienThoai(soDienThoaiKhach);
+
+//	    if (existingGuest != null) {
+//	        khachHang = existingGuest;
+//	    } else {
+//	        khachHang = new NguoiDung();
+//	        khachHang.setTenNguoiDung("Khách vãng lai");
+//	        khachHang.setSoDienThoai("0000000000");
+//	        khachHang.setDiaChi("Mua tại quầy KN");
+//	        khachHang = nguoiDungRepository.save(khachHang);
+//	    }
+	    if (existingUser.isPresent()) {
+	        khachHang = existingUser.get();
+	    } else {
+	        khachHang = new NguoiDung();
+	        khachHang.setTenNguoiDung("Khách vãng lai");
+	        khachHang.setSoDienThoai("0000000000");
+	        khachHang.setDiaChi("Mua tại quầy KN");
+	        khachHang = nguoiDungRepository.save(khachHang);
+	        isGuest = true;
+	    }
+
+	    BigDecimal totalPrice = BigDecimal.ZERO;
+	    List<ChiTietDonHang> chiTietList = new ArrayList<>();
+
+	    for (ChiTietDonHang chiTiet : offlineOrder.values()) {
+	        SanPham sanPham = chiTiet.getSanPham();
+	        Integer quantity = chiTiet.getSoLuong(); // ✅ Lấy đúng số lượng sản phẩm
+
+	        BigDecimal giaGoc = sanPham.getDonGiaBan();
+	        if (giaGoc == null) {
+	            System.out.println("⚠️ Cảnh báo: Giá gốc của sản phẩm ID " + sanPham.getMaSanPham() + " bị null, gán 0.");
+	            giaGoc = BigDecimal.ZERO;
+	        }
+
+	        BigDecimal giaSauGiam = giaGoc;
+	        if (!sanPham.getKhuyenMais().isEmpty()) {
+	            Optional<KhuyenMai> highestKhuyenMai = sanPham.getKhuyenMais().stream()
+	                .filter(km -> km.getTrangThai() &&
+	                             km.getNgayBatDau().toLocalDate().isBefore(LocalDate.now()) &&
+	                             km.getNgayKetThuc().toLocalDate().isAfter(LocalDate.now()))
+	                .max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+
+	            if (highestKhuyenMai.isPresent()) {
+	                BigDecimal phanTramGiam = highestKhuyenMai.get().getPhanTramGiamGia();
+	                giaSauGiam = giaGoc.multiply(BigDecimal.ONE.subtract(phanTramGiam.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)));
+	            }
+	        }
+	        // ✅ Cập nhật giá vào chi tiết đơn hàng
+	        chiTiet.setGiaTaiThoiDiemDat(giaSauGiam);
+
+	        // ✅ Tính tổng tiền
+	        totalPrice = totalPrice.add(giaSauGiam.multiply(BigDecimal.valueOf(quantity)));
+	        // ✅ Trừ số lượng sản phẩm trên kệ và cộng số lượng đã bán
+	     // ✅ Trừ số lượng sản phẩm trên kệ
+	        if (sanPham.getSoLuong() >= quantity) {
+	            sanPham.setSoLuong(sanPham.getSoLuong() - quantity);
+	        } else {
+	            System.out.println("❌ Lỗi: Số lượng sản phẩm không đủ. Sản phẩm ID: " + sanPham.getMaSanPham());
+	            return false;
+	        }
+
+	        // ✅ Lưu cập nhật vào database
+	        sanPhamRepository.save(sanPham);
+	        // 🟢 Debug log để kiểm tra giá
+	        System.out.println("🟢 Kiểm tra giá trị đơn hàng:");
+	        System.out.println("   - ID sản phẩm: " + sanPham.getMaSanPham());
+	        System.out.println("   - Giá gốc: " + giaGoc);
+	        System.out.println("   - Giá sau giảm: " + giaSauGiam);
+	        System.out.println("   - Số lượng: " + quantity);
+	        System.out.println("   - Thành tiền: " + giaSauGiam.multiply(BigDecimal.valueOf(quantity)));
+
+	        chiTietList.add(chiTiet);
+	    }
+
+	 // ✅ Lưu đơn hàng với thông tin khách hàng
+	    DonHang donHang = new DonHang();
+	    donHang.setNguoiDung(khachHang);
+	    donHang.setNgayDat(LocalDateTime.now());
+	    donHang.setTrangThaiDonHang("Đã hoàn thành");
+	    donHang.setDiaChiGiaoHang("Mua tại quầy KN");
+	    donHang.setSdtNhanHang(isGuest ? "0000000000" : khachHang.getSoDienThoai());
+	    donHang.setHinhAnhGiaoHang(null);
+	    donHang.setPhiVanChuyen(BigDecimal.ZERO);
+	    donHang.setTongGiaTriDonHang(totalPrice);
+
+	    donHang = donHangRepository.save(donHang);
+
+	    // ✅ Cập nhật mã đơn hàng cho từng chi tiết đơn hàng
+	    for (ChiTietDonHang chiTiet : chiTietList) {
+	        chiTiet.setDonHang(donHang);
+	        chiTiet.setId(new ChiTietDonHangId(donHang.getMaDonHang(), chiTiet.getSanPham().getMaSanPham()));
+	    }
+
+	    chiTietDonHangRepository.saveAll(chiTietList);
+
+	    HoaDon hoaDon = new HoaDon();
+	    hoaDon.setDonHang(donHang);
+	    hoaDon.setNgayXuatHoaDon(LocalDateTime.now());
+	    hoaDon.setTongTien(donHang.getTongGiaTriDonHang());
+	    hoaDon.setTrangThaiThanhToan("Đã hoàn thành");
+	    hoaDon.setPhuongThucThanhToan("Tiền mặt (COD)");
+	    hoaDon.setDiaChiGiaoHang(donHang.getDiaChiGiaoHang());
+	    hoaDon.setTenNguoiNhan(donHang.getNguoiDung().getTenNguoiDung());
+	    hoaDon.setSoDienThoaiNhanHang(isGuest ? "" : donHang.getSdtNhanHang());
+
+	    hoaDonRepository.save(hoaDon);
+
+	    offlineOrder.clear();
+
+	    return true;
+	}
 
 
 

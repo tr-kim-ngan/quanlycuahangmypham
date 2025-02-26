@@ -16,4 +16,9 @@ public interface ChiTietDonHangService {
     Integer getSoldQuantityBySanPhamId(Integer sanPhamId);
     List<Object[]> getTop3BestSellingProducts();
     List<SanPham> findTopSoldProductsByBrand(Integer maThuongHieu, int limit) ;
+   
+
+
+
+
 }

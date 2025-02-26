@@ -1,6 +1,10 @@
 package com.kimngan.ComesticAdmin.services;
 
 import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 
@@ -28,4 +32,12 @@ public interface NguoiDungService {
 	boolean existsByEmailAndNotId(String email, Integer id);
 	
 	boolean existsBySoDienThoaiAndNotId(String soDienThoai, Integer id);
+	 Optional<NguoiDung> findBySoDienThoai(String phone);
+
+
+
 }
+
+
+
+
