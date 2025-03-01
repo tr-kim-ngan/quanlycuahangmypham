@@ -14,6 +14,7 @@ import com.kimngan.ComesticAdmin.services.HoaDonService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.ShippingFeeConfigService;
+import com.kimngan.ComesticAdmin.services.VNPayService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -56,8 +57,13 @@ public class DonHangController {
 
 	@Autowired
 	private SanPhamService sanPhamService;
+	
+	@Autowired
+	private VNPayService vnpayService;
+	
 	@Autowired
 	private ShippingFeeConfigService shippingFeeConfigService;
+	
 	
 	@ModelAttribute
 	public void addAttributes(Model model, Principal principal) {
@@ -293,6 +299,16 @@ public class DonHangController {
 	            System.out.println("✅ Đơn hàng COD đã tạo! Mã đơn hàng: " + donHang.getMaDonHang());
 	            return "redirect:/customer/order";
 	        }
+	        
+	        // thêm chỗ VND 
+	     // 🔹 Nếu chọn VNPay, chuyển hướng sang VNPay
+	        if ("VNPay".equals(phuongThucThanhToan)) {
+	            System.out.println("🔍 Chuyen huong sang VNPay voi: " + donHang.getMaDonHang() + "và " + donHang.getTongGiaTriDonHang());
+				String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+				String vnpayUrl = vnpayService.createOrder(donHang.getTongGiaTriDonHang().intValue(), donHang.getMaDonHang().toString(), baseUrl);
+				System.out.println("🔍 VNPay URL: " + vnpayUrl);
+	            return "redirect:" + vnpayUrl;
+	        }
 
 	        return "redirect:/customer/order";
 		//	return "redirect:/customer/order"; // Chuyển đến danh sách đơn hàng
@@ -303,9 +319,6 @@ public class DonHangController {
 		}
 	}
 	
-	
-
-
 
 	// Hủy đơn hàng
 	@PostMapping("/cancel")

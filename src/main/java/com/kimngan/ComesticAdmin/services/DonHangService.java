@@ -41,6 +41,8 @@ public interface DonHangService {
     void updateOrderStatus(Integer maDonHang, String trangThaiMoi);
     void updatePaymentStatus(Integer maDonHang, String trangThaiThanhToan);
     void addOrderStatusHistory(Integer maDonHang, String trangThaiMoi);
+   
+    void updateDonHangVNPay(Integer maDonHang);
     List<ChiTietDonHang> getCurrentOfflineOrder();
     void addToOfflineOrder(SanPham sanPham, int quantity);
     void removeFromOfflineOrder(Integer sanPhamId);
