@@ -13,6 +13,7 @@ import com.kimngan.ComesticAdmin.services.GioHangService;
 import com.kimngan.ComesticAdmin.services.HoaDonService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
+import com.kimngan.ComesticAdmin.services.ShippingFeeConfigService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -55,7 +56,9 @@ public class DonHangController {
 
 	@Autowired
 	private SanPhamService sanPhamService;
-
+	@Autowired
+	private ShippingFeeConfigService shippingFeeConfigService;
+	
 	@ModelAttribute
 	public void addAttributes(Model model, Principal principal) {
 		if (principal != null) {
@@ -205,7 +208,7 @@ public class DonHangController {
 	     
 	        
 			BigDecimal tongGiaTriDonHang = BigDecimal.ZERO;
-			BigDecimal phiVanChuyen = BigDecimal.valueOf(30000); // Giá trị phí vận chuyển mặc định
+			//BigDecimal phiVanChuyen = BigDecimal.valueOf(0); // Giá trị phí vận chuyển mặc định
 
 			// Duyệt qua các sản phẩm trong giỏ hàng để tính tổng giá trị đơn hàng trước
 			for (ChiTietGioHang cartItem : cartItems) {
@@ -228,6 +231,9 @@ public class DonHangController {
 				tongGiaTriDonHang = tongGiaTriDonHang.add(thanhTien);
 			}
 
+			   // 🔥 **Tính phí vận chuyển từ bảng cấu hình**
+	        BigDecimal phiVanChuyen = shippingFeeConfigService.getShippingFeeForOrder(tongGiaTriDonHang);
+
 			// Đặt tổng giá trị đơn hàng và phí vận chuyển
 			tongGiaTriDonHang = tongGiaTriDonHang.add(phiVanChuyen);
 			donHang.setTongGiaTriDonHang(tongGiaTriDonHang);
@@ -235,8 +241,6 @@ public class DonHangController {
 
 			// Lưu đơn hàng lần đầu vào cơ sở dữ liệu
 			donHangService.save(donHang);
-		     // 🔍 Debug Order ID để kiểm tra giá trị trước khi chuyển hướng
-	      //  System.out.println("🔍 Debug Order ID sau khi tạo: " + donHang.getMaDonHang());
 
 	        
 			// Duyệt qua các sản phẩm trong giỏ hàng và lưu chi tiết đơn hàng
@@ -290,11 +294,6 @@ public class DonHangController {
 	            return "redirect:/customer/order";
 	        }
 
-	        // 🔹 Nếu chọn VNPay, chuyển hướng sang VNPay
-//	        if ("VNPay".equals(phuongThucThanhToan)) {
-//	            System.out.println("🔍 Chuyển hướng sang VNPay với Order ID: " + donHang.getMaDonHang());
-//	            return "redirect:/customer/vnpay/create-payment?orderId=" + donHang.getMaDonHang();
-//	        }
 	        return "redirect:/customer/order";
 		//	return "redirect:/customer/order"; // Chuyển đến danh sách đơn hàng
 		} catch (Exception e) {

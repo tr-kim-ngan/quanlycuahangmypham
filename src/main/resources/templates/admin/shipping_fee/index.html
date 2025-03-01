@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+
+					<h2>Quản lý phí vận chuyển</h2>
+					<a th:href="@{/admin/shipping-fee/add}" class="btn btn-success">Thêm mới</a>
+
+					<!-- Bảng hiển thị danh sách phí vận chuyển -->
+					<table border="1">
+						<thead>
+							<tr>
+								<th>Khoảng giá đơn hàng</th>
+								<th>Phí vận chuyển</th>
+								<th>Hành động</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="config : ${shippingConfigs}">
+								<td th:text="${config.minOrderValue} + ' - ' + ${config.maxOrderValue}"></td>
+								<td th:text="${config.shippingFee} + ' VND'"></td>
+								<td>
+									<a th:href="@{/admin/shipping-fee/edit/{id}(id=${config.id})}">Chỉnh sửa</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+
+</html>
