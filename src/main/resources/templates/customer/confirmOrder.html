@@ -42,7 +42,7 @@
 		</div>
 
 
-	
+
 		<form th:action="@{/customer/order/create}" method="POST" class="mt-4">
 			<div class="mb-3">
 				<label for="address" style="font-weight: bold; color: #333;">Địa chỉ giao hàng:</label>
@@ -56,7 +56,7 @@
 			</div>
 		</form>
 
-		
+
 
 
 
@@ -73,8 +73,21 @@
 			</button>
 		</form>
 
+		<!-- Form thanh toán VNPay -->
+		<form th:action="@{/customer/order/create}" method="POST" class="mt-4">
+			<input type="hidden" name="address" th:value="${currentUser.diaChi}">
+			<input type="hidden" name="phone" th:value="${currentUser.soDienThoai}">
+			<input type="hidden" name="phuongThucThanhToan" value="VNPay">
 
+			<button type="submit" class="btn btn-success"
+				style="padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+				Thanh toán qua VNPay
+			</button>
+		</form>
 
+		<br>
+		
+		
 
 		<a href="/customer/cart" class="btn btn-secondary"
 			style="margin-right: 10px; padding: 10px 20px; border-radius: 5px;">Quay lại giỏ hàng</a>

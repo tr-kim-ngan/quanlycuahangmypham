@@ -665,6 +665,22 @@ public class DonHangServiceImpl implements DonHangService {
 	    return true;
 	}
 
+	@Override
+	public void updateDonHangVNPay(Integer maDonHang) {
+		// TODO Auto-generated method stub
+		Optional<DonHang> optionalDonHang = donHangRepository.findById(maDonHang);
+		if (optionalDonHang.isPresent()) {
+			DonHang donHang = optionalDonHang.get();
+			//donHang.setTrangThaiDonHang("Đã thanh toán");
+			//donHang.setTrangThaiDonHang("Đã hoàn thành");
+			donHang.setTrangThaiDonHang("Đang xử lý");
+
+			donHangRepository.save(donHang);
+		} else {
+			throw new RuntimeException("Không tìm thấy đơn hàng với mã: " + maDonHang);
+		}
+	}
+
 
 
 
