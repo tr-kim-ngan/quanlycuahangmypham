@@ -101,7 +101,7 @@ public class OrderController {
 			return "redirect:/admin/orders";
 		}
 
-		// ✅ Nếu trạng thái cần admin chọn lại shipper, luôn lấy danh sách shipper
+		//   Nếu trạng thái cần admin chọn lại shipper, luôn lấy danh sách shipper
 		List<NguoiDung> danhSachShipper = new ArrayList<>();
 		if ("Giao hàng thất bại".equals(donHang.getTrangThaiChoXacNhan())
 				|| "Đã xác nhận".equals(donHang.getTrangThaiDonHang())) {
@@ -188,7 +188,7 @@ public class OrderController {
 		donHangService.updateDonHang(donHang);
 
 		// **Kiểm tra trạng thái sau khi cập nhật**
-		System.out.println("✅ [DEBUG] Trạng thái đơn hàng sau cập nhật: " + donHang.getTrangThaiDonHang());
+		System.out.println("  [DEBUG] Trạng thái đơn hàng sau cập nhật: " + donHang.getTrangThaiDonHang());
 
 		redirectAttributes.addFlashAttribute("successMessage",
 				"Đã gán shipper thành công! Đơn hàng chuyển sang trạng thái 'Đang chuẩn bị hàng'.");
@@ -207,13 +207,17 @@ public class OrderController {
 			return "redirect:/admin/orders";
 		}
 
-		// ✅ Xác nhận đơn hàng
+		//   Xác nhận đơn hàng
 		if ("confirm".equals(action)) {
 			donHang.setTrangThaiDonHang("Đã xác nhận");
+			 // 🔹 Nếu đơn hàng thanh toán bằng VNPay, set tổng giá trị về 0
+	        
 			donHangService.updateDonHang(donHang);
 			redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã được xác nhận.");
 			return "redirect:/admin/orders/" + maDonHang;
 		}
+	
+
 		// ❌ Hủy đơn hàng
 		else if ("cancel".equals(action)) {
 			donHang.setTrangThaiDonHang("Đã hủy");
@@ -225,7 +229,7 @@ public class OrderController {
 			redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
 		}
 
-		// ✅ Hủy đơn hàng
+		//  Hủy đơn hàng
 		if ("cancel".equals(action)) {
 			donHang.setTrangThaiDonHang("Đã hủy");
 			donHang.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận (nếu có)
@@ -234,7 +238,7 @@ public class OrderController {
 			return "redirect:/admin/orders/" + maDonHang;
 		}
 
-		// ✅ Nếu shipper báo "Giao hàng thất bại lần 2"
+		//  Nếu shipper báo "Giao hàng thất bại lần 2"
 		if ("Giao hàng thất bại (Lần 2)".equals(donHang.getTrangThaiChoXacNhan()) || "Giao thất bại".equals(action)) {
 			donHang.setTrangThaiDonHang("Giao thất bại");
 			donHang.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận
@@ -243,35 +247,35 @@ public class OrderController {
 			return "redirect:/admin/orders/" + maDonHang;
 		}
 
-		// ✅ Nếu admin chọn "Giao lại"
-		// ✅ Nếu admin chọn "Giao lại"
+	
+		//  Nếu admin chọn "Giao lại"
 		if ("retry".equals(action)) {
 			if (donHang.getSoLanGiaoThatBai() >= 2) {
 				redirectAttributes.addFlashAttribute("errorMessage", "Không thể giao lại vì đã thất bại 2 lần.");
 				return "redirect:/admin/orders/" + maDonHang;
 			}
 
-			// 🔥 Kiểm tra shipper có được chọn không
+			//  Kiểm tra shipper có được chọn không
 			if (shipperId == null || shipperId == 0) {
 				redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn shipper khi giao lại.");
 				return "redirect:/admin/orders/" + maDonHang;
 			}
 
-			// ✅ Lấy thông tin shipper mới từ DB
+			//  Lấy thông tin shipper mới từ DB
 			NguoiDung shipperMoi = nguoiDungService.findById(shipperId);
 			if (shipperMoi == null) {
 				redirectAttributes.addFlashAttribute("errorMessage", "Shipper không hợp lệ.");
 				return "redirect:/admin/orders/" + maDonHang;
 			}
 
-			// ✅ Cập nhật thông tin đơn hàng
+			//  Cập nhật thông tin đơn hàng
 			NguoiDung shipperCu = donHang.getShipper(); // Lưu shipper cũ
 			donHang.setShipper(shipperMoi);
 			donHang.setTrangThaiDonHang("Đang chuẩn bị hàng"); // Để shipper thấy đơn hàng
 			donHang.setTrangThaiChoXacNhan("Chờ shipper xác nhận lại"); // Để shipper mới xác nhận giao lại
 			donHang.setSoLanGiaoThatBai(donHang.getSoLanGiaoThatBai() + 1); // Tăng số lần giao thất bại
 
-			// ✅ Nếu shipper cũ khác shipper mới, ghi nhận việc bàn giao đơn hàng
+			//  Nếu shipper cũ khác shipper mới, ghi nhận việc bàn giao đơn hàng
 			if (shipperCu != null && !shipperCu.equals(shipperMoi)) {
 				String lichSu = donHang.getLichSuTrangThai() != null ? donHang.getLichSuTrangThai() : "";
 				String thoiGian = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
@@ -286,7 +290,7 @@ public class OrderController {
 			return "redirect:/admin/orders/" + maDonHang;
 		}
 
-		// ✅ Nếu không khớp với trạng thái nào ở trên
+		//   Nếu không khớp với trạng thái nào ở trên
 		redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
 		return "redirect:/admin/orders/" + maDonHang;
 	}
@@ -302,13 +306,13 @@ public class OrderController {
 		}
 
 		// Debug kiểm tra giá trị donHang
-		System.out.println("🚀 Đơn hàng: " + donHang.getMaDonHang());
-		System.out.println("🚀 Trạng thái hiện tại: " + donHang.getTrangThaiDonHang());
+		System.out.println("Đơn hàng: " + donHang.getMaDonHang());
+		System.out.println("Trạng thái hiện tại: " + donHang.getTrangThaiDonHang());
 
 		// Kiểm tra trạng thái chờ xác nhận (từ shipper)
 		String trangThaiChoXacNhan = donHang.getTrangThaiChoXacNhan();
 		if (trangThaiChoXacNhan != null) {
-			System.out.println("🚀 Trạng thái chờ xác nhận từ shipper: " + trangThaiChoXacNhan);
+			System.out.println(" Trạng thái chờ xác nhận từ shipper: " + trangThaiChoXacNhan);
 		}
 
 		// Định dạng số tiền
@@ -387,7 +391,7 @@ public class OrderController {
 			return "redirect:/admin/orders";
 		}
 
-		// ✅ Nếu đơn hàng đang xử lý, admin xác nhận đơn hàng
+		//  Nếu đơn hàng đang xử lý, admin xác nhận đơn hàng
 		if ("Đang xử lý".equals(donHang.getTrangThaiDonHang())) {
 			donHang.setTrangThaiDonHang("Đã xác nhận");
 			donHangService.updateDonHang(donHang);
@@ -395,13 +399,13 @@ public class OrderController {
 			return "redirect:/admin/orders/" + maDonHang;
 		}
 
-		// ✅ Kiểm tra trạng thái chờ xác nhận từ shipper
+		//  Kiểm tra trạng thái chờ xác nhận từ shipper
 		String trangThaiMoi = donHang.getTrangThaiChoXacNhan();
 		if (trangThaiMoi == null || trangThaiMoi.isEmpty()) {
 			redirectAttributes.addFlashAttribute("errorMessage", "Không có trạng thái nào cần xác nhận.");
 			return "redirect:/admin/orders/" + maDonHang;
 		}
-		// ✅ Nếu trạng thái chờ xác nhận là "Giao lại đơn hàng"
+		//  Nếu trạng thái chờ xác nhận là "Giao lại đơn hàng"
 		if ("Giao lại đơn hàng".equals(trangThaiMoi)) {
 			donHang.setTrangThaiDonHang("Đang chuẩn bị hàng"); // Cập nhật trạng thái thành "Đang chuẩn bị hàng"
 			donHang.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận
@@ -409,7 +413,7 @@ public class OrderController {
 			redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã xác nhận giao lại.");
 		}
 
-		// ✅ Nếu shipper báo "Đang giao hàng", admin xác nhận đơn hàng đang giao
+		//  Nếu shipper báo "Đang giao hàng", admin xác nhận đơn hàng đang giao
 		if ("Đang giao hàng".equals(trangThaiMoi)) {
 			donHang.setTrangThaiDonHang("Đang giao hàng");
 			donHangService.capNhatTrangThai(donHang, "Đang giao hàng");
@@ -418,14 +422,14 @@ public class OrderController {
 			redirectAttributes.addFlashAttribute("successMessage",
 					"Đã xác nhận trạng thái 'Đang giao hàng' từ shipper.");
 		}
-		// ✅ Nếu shipper báo "Giao hàng thành công", admin xác nhận hoàn thành
+		//  Nếu shipper báo "Giao hàng thành công", admin xác nhận hoàn thành
 		else if ("Đã hoàn thành".equals(trangThaiMoi)) {
 			donHang.setTrangThaiDonHang("Đã hoàn thành");
 			donHang.setTrangThaiChoXacNhan(null);
 			donHangService.updateDonHang(donHang);
 			redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã được giao thành công.");
 		}
-		// ✅ Nếu shipper báo "Giao thất bại"
+		//  Nếu shipper báo "Giao thất bại"
 		else if (trangThaiMoi.startsWith("Giao hàng thất bại")) {
 			int soLanGiaoThatBai = (donHang.getSoLanGiaoThatBai() == null) ? 0 : donHang.getSoLanGiaoThatBai();
 			soLanGiaoThatBai++;
@@ -444,14 +448,14 @@ public class OrderController {
 
 			donHangService.updateDonHang(donHang);
 		}
-		// ✅ Nếu trạng thái là "Chờ shipper xác nhận lại"
+		//  Nếu trạng thái là "Chờ shipper xác nhận lại"
 		else if ("Chờ shipper xác nhận lại".equals(trangThaiMoi)) {
 			donHang.setTrangThaiDonHang("Đang chuẩn bị hàng"); // Cho phép shipper nhận đơn
 			donHang.setTrangThaiChoXacNhan(null);
 			donHangService.updateDonHang(donHang);
 			redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã được giao lại cho shipper.");
 		}
-		// ✅ Nếu trạng thái không hợp lệ
+		//  Nếu trạng thái không hợp lệ
 		else {
 			redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
 		}
@@ -519,7 +523,7 @@ public class OrderController {
 			break;
 		}
 
-		System.out.println("🚀 nextStatuses: " + nextStatuses);
+		System.out.println(" nextStatuses: " + nextStatuses);
 		return nextStatuses;
 	}
 
@@ -535,8 +539,8 @@ public class OrderController {
 		}
 
 		// Debug kiểm tra giá trị donHang
-		System.out.println("🚀 Đơn hàng: " + donHang.getMaDonHang());
-		System.out.println("🚀 Trạng thái hiện tại: " + donHang.getTrangThaiDonHang());
+		System.out.println(" Đơn hàng: " + donHang.getMaDonHang());
+		System.out.println(" Trạng thái hiện tại: " + donHang.getTrangThaiDonHang());
 
 		// Kiểm tra trạng thái chờ xác nhận (từ shipper)
 		String trangThaiChoXacNhan = donHang.getTrangThaiChoXacNhan();
@@ -693,7 +697,7 @@ public class OrderController {
 	    for (ChiTietDonHang chiTiet : orderItems) {
 	        SanPham sp = chiTiet.getSanPham();
 
-	        // ✅ Load danh sách khuyến mãi trước khi xử lý
+	        //   Load danh sách khuyến mãi trước khi xử lý
 	        sp.setKhuyenMais(new HashSet<>(sanPhamRepository.findByIdInWithKhuyenMai(List.of(sp.getMaSanPham())).get(0).getKhuyenMais()));
 
 	        Optional<KhuyenMai> highestKhuyenMai = sp.getKhuyenMais().stream()
@@ -712,7 +716,7 @@ public class OrderController {
 	        totalPrice = totalPrice.add(giaSauGiam.multiply(BigDecimal.valueOf(chiTiet.getSoLuong())));
 	    }
 
-	 //  // ✅ Kiểm tra số điện thoại, nếu tìm thấy khách hàng thì lấy thông tin
+	 //  //  Kiểm tra số điện thoại, nếu tìm thấy khách hàng thì lấy thông tin
 	    NguoiDung khachHang = nguoiDungRepository.findBySoDienThoai(soDienThoai).orElse(null);
 	    if (khachHang != null) {
 	        model.addAttribute("tenKhachHang", khachHang.getTenNguoiDung());
@@ -722,7 +726,7 @@ public class OrderController {
 	        model.addAttribute("soDienThoai", "0000000000");
 	    }
 
-	    // ✅ Địa chỉ luôn là "Mua tại quầy KN" dù khách có tài khoản hay không
+	    //  Địa chỉ luôn là "Mua tại quầy KN" dù khách có tài khoản hay không
 	    model.addAttribute("diaChiGiaoHang", "Mua tại quầy KN");
 	    
 	    
@@ -742,13 +746,13 @@ public class OrderController {
 	        @RequestParam Map<String, String> allParams,
 	        RedirectAttributes redirectAttributes) { 
 
-	    // ✅ Kiểm tra danh sách sản phẩm được chọn
+	    //   Kiểm tra danh sách sản phẩm được chọn
 	    if (selectedProductIds == null || selectedProductIds.isEmpty()) {
 	        redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn ít nhất một sản phẩm.");
 	        return "redirect:/admin/offline-orders";
 	    }
 
-	    // ✅ Xử lý danh sách sản phẩm và số lượng
+	    //   Xử lý danh sách sản phẩm và số lượng
 	    List<Integer> selectedQuantities = new ArrayList<>();
 	    for (Integer productId : selectedProductIds) {
 	        String quantityStr = allParams.get("quantities[" + productId + "]");
@@ -756,7 +760,7 @@ public class OrderController {
 	        selectedQuantities.add(quantity);
 	    }
 
-	    // ✅ Gọi `donHangService` để xử lý đơn hàng offline
+	    //   Gọi `donHangService` để xử lý đơn hàng offline
 	    donHangService.processOfflineOrder(selectedProductIds, selectedQuantities);
 
 	    return "redirect:/admin/offline-orders/confirm";

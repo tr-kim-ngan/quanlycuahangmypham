@@ -1,6 +1,7 @@
 package com.kimngan.ComesticAdmin.controller.customer;
 
 import com.kimngan.ComesticAdmin.entity.DonHang;
+import com.kimngan.ComesticAdmin.entity.HoaDon;
 import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHangId;
@@ -85,23 +86,23 @@ public class DonHangController {
 	        return "redirect:/customer/login";
 	    }
 	    
-	    // 🔍 Debug kiểm tra orderId
-	    System.out.println("🔍 Debug confirmOrder - Order ID nhận vào: " + orderId);
+	    //  Debug kiểm tra orderId
+	    System.out.println(" Debug confirmOrder - Order ID nhận vào: " + orderId);
 
 	    DonHang donHang = donHangService.getDonHangById(orderId);
 	    
-	    // 🔍 Debug kiểm tra donHang
-	    System.out.println("🔍 Debug confirmOrder - DonHang từ DB: " + donHang);
+	    //  Debug kiểm tra donHang
+	    System.out.println(" Debug confirmOrder - DonHang từ DB: " + donHang);
 
 	    if (donHang == null) {
 	        model.addAttribute("errorMessage", "Không tìm thấy đơn hàng.");
 	        return "redirect:/customer/order";
 	    }
 
-	    // ✅ Thêm donHang vào model để Thymeleaf có thể sử dụng
+	    //  Thêm donHang vào model để Thymeleaf có thể sử dụng
 	    model.addAttribute("donHang", donHang);
 	    
-	    return "customer/confirmOrder"; // ✅ Trả về giao diện xác nhận đơn hàng
+	    return "customer/confirmOrder"; //  Trả về giao diện xác nhận đơn hàng
 	}
 
 
@@ -171,7 +172,7 @@ public class DonHangController {
 			@RequestParam("phone") String phone, @RequestParam("phuongThucThanhToan") String phuongThucThanhToan,
 			HttpServletRequest request, RedirectAttributes redirectAttributes, Model model) {
 	
-		System.out.println("🔍 Debug: BẮT ĐẦU XỬ LÝ TẠO ĐƠN HÀNG");
+		System.out.println(" Debug: BẮT ĐẦU XỬ LÝ TẠO ĐƠN HÀNG");
 		if (principal == null) {
 			return "redirect:/customer/login";
 		}
@@ -187,8 +188,8 @@ public class DonHangController {
 				model.addAttribute("errorMessage", "Giỏ hàng của bạn đang trống.");
 				return "redirect:/customer/cart";
 			}
-			// 🔍 Debug kiểm tra trước khi tạo đơn hàng
-	        System.out.println("🔍 Debug: Bắt đầu tạo đơn hàng");
+			//  Debug kiểm tra trước khi tạo đơn hàng
+	        System.out.println(" Debug: Bắt đầu tạo đơn hàng");
 
 			// Tạo đối tượng DonHang và thiết lập các thông tin ban đầu
 			DonHang donHang = new DonHang();
@@ -199,7 +200,7 @@ public class DonHangController {
 		//	donHang.setTrangThaiDonHang("Đang xử lý");
 			
 			
-			// 🔍 Kiểm tra khách hàng chọn phương thức nào
+			//  Kiểm tra khách hàng chọn phương thức nào
 	        if ("COD".equals(phuongThucThanhToan)) {
 	            donHang.setTrangThaiDonHang("Đang xử lý"); // Trạng thái xử lý ngay khi đặt hàng
 	        } else if ("VNPay".equals(phuongThucThanhToan)) {
@@ -208,9 +209,7 @@ public class DonHangController {
 	            redirectAttributes.addFlashAttribute("errorMessage", "Phương thức thanh toán không hợp lệ.");
 	            return "redirect:/customer/order";
 	        }
-			  // Lưu đơn hàng vào DB
-	   
-			 // 🔍 Debug kiểm tra trước khi lưu
+			  
 	     
 	        
 			BigDecimal tongGiaTriDonHang = BigDecimal.ZERO;
@@ -237,7 +236,7 @@ public class DonHangController {
 				tongGiaTriDonHang = tongGiaTriDonHang.add(thanhTien);
 			}
 
-			   // 🔥 **Tính phí vận chuyển từ bảng cấu hình**
+			   //  **Tính phí vận chuyển từ bảng cấu hình**
 	        BigDecimal phiVanChuyen = shippingFeeConfigService.getShippingFeeForOrder(tongGiaTriDonHang);
 
 			// Đặt tổng giá trị đơn hàng và phí vận chuyển
@@ -291,27 +290,27 @@ public class DonHangController {
 
 			
 			
-	        System.out.println("✅ Đơn hàng đã tạo! Mã đơn hàng: " + donHang.getMaDonHang());
+	        System.out.println(" Đơn hàng đã tạo! Mã đơn hàng: " + donHang.getMaDonHang());
 
 			// 🔹 Nếu chọn COD, xử lý bình thường
 	        if ("COD".equals(phuongThucThanhToan)) {
 	            redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã được tạo thành công!");
-	            System.out.println("✅ Đơn hàng COD đã tạo! Mã đơn hàng: " + donHang.getMaDonHang());
+	            System.out.println(" Đơn hàng COD đã tạo! Mã đơn hàng: " + donHang.getMaDonHang());
 	            return "redirect:/customer/order";
 	        }
 	        
 	        // thêm chỗ VND 
 	     // 🔹 Nếu chọn VNPay, chuyển hướng sang VNPay
 	        if ("VNPay".equals(phuongThucThanhToan)) {
-	            System.out.println("🔍 Chuyen huong sang VNPay voi: " + donHang.getMaDonHang() + "và " + donHang.getTongGiaTriDonHang());
+	            System.out.println(" Chuyen huong sang VNPay voi: " + donHang.getMaDonHang() + "và " + donHang.getTongGiaTriDonHang());
 				String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
 				String vnpayUrl = vnpayService.createOrder(donHang.getTongGiaTriDonHang().intValue(), donHang.getMaDonHang().toString(), baseUrl);
-				System.out.println("🔍 VNPay URL: " + vnpayUrl);
-	            return "redirect:" + vnpayUrl;
+				System.out.println(" VNPay URL: " + vnpayUrl);
+				
+				return "redirect:" + vnpayUrl;
 	        }
 
 	        return "redirect:/customer/order";
-		//	return "redirect:/customer/order"; // Chuyển đến danh sách đơn hàng
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("errorMessage", "Không thể tạo đơn hàng: " + e.getMessage());

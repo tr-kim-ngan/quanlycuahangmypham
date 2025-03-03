@@ -57,7 +57,7 @@ public class DonHangServiceImpl implements DonHangService {
 
 	@Autowired
 	private HoaDonRepository hoaDonRepository;
-	// ✅ Thêm biến offlineOrder để lưu tạm đơn hàng offline
+	//  Thêm biến offlineOrder để lưu tạm đơn hàng offline
 	private final Map<Integer, ChiTietDonHang> offlineOrder = new HashMap<>();
 
 	@Override
@@ -68,14 +68,14 @@ public class DonHangServiceImpl implements DonHangService {
 
 	@Override
 	public DonHang updateDonHang(DonHang donHang) {
-		System.out.println("💾 Cập nhật đơn hàng: " + donHang.getMaDonHang() + " - Trạng thái mới: "
+		System.out.println(" Cập nhật đơn hàng: " + donHang.getMaDonHang() + " - Trạng thái mới: "
 				+ donHang.getTrangThaiDonHang());
 
-		// 🔥 Nếu đơn hàng hoàn thành mà chưa có hóa đơn thì tạo hóa đơn
+		//  Nếu đơn hàng hoàn thành mà chưa có hóa đơn thì tạo hóa đơn
 		if ("Đã hoàn thành".equals(donHang.getTrangThaiDonHang())) {
 			HoaDon hoaDon = hoaDonRepository.findByDonHang(donHang);
 			if (hoaDon == null) {
-				System.out.println("✅ Tạo hóa đơn mới...");
+				System.out.println(" Tạo hóa đơn mới...");
 				hoaDon = new HoaDon();
 				hoaDon.setDonHang(donHang);
 				hoaDon.setNgayXuatHoaDon(LocalDateTime.now());
@@ -85,24 +85,36 @@ public class DonHangServiceImpl implements DonHangService {
 				hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
 				hoaDon.setTrangThaiThanhToan("Chưa xác nhận");
 
-				// ✅ Nếu không có giá trị từ `DonHang`, đặt mặc định là "Tiền mặt"
+				//  Nếu không có giá trị từ `DonHang`, đặt mặc định là "Tiền mặt"
 				hoaDon.setPhuongThucThanhToan("COD");
+			
+				  // Nếu đơn hàng có tổng tiền = 0 (thanh toán VNPay), tự động xác nhận hóa đơn
+		        if (donHang.getTongGiaTriDonHang().compareTo(BigDecimal.ZERO) == 0) {
+		            hoaDon.setPhuongThucThanhToan("VNPay");
+		            hoaDon.setTrangThaiThanhToan("Đã xác nhận"); //  Cập nhật trạng thái hóa đơn
+		            System.out.println(" Hóa đơn VNPay đã được cập nhật thành 'Đã xác nhận'!");
+		        }
+
+	           
+
 				hoaDonRepository.save(hoaDon);
-				System.out.println("✅ Hóa đơn đã được tạo và lưu vào database!");
+				System.out.println(" Hóa đơn đã được tạo và lưu vào database!");
 			} else {
-				System.out.println("❌ Hóa đơn đã tồn tại, không tạo mới.");
+				System.out.println(" Hóa đơn đã tồn tại, không tạo mới.");
+	           
 			}
+			
 		}
 
-		// ✅ Lưu lại lịch sử trạng thái
+		//  Lưu lại lịch sử trạng thái
 		String lichSuCu = donHang.getLichSuTrangThai() == null ? "" : donHang.getLichSuTrangThai() + "\n";
-		String trangThaiMoi = "🕘 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+		String trangThaiMoi =  LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
 				+ " - " + donHang.getTrangThaiDonHang();
 		donHang.setLichSuTrangThai(lichSuCu + trangThaiMoi);
 
-		System.out.println("💾 Cập nhật đơn hàng: " + donHang.getMaDonHang());
-		System.out.println("🔹 Trạng thái mới: " + donHang.getTrangThaiDonHang());
-		System.out.println("📷 Hình ảnh giao hàng: " + donHang.getHinhAnhGiaoHang());
+		System.out.println(" Cập nhật đơn hàng: " + donHang.getMaDonHang());
+		System.out.println(" Trạng thái mới: " + donHang.getTrangThaiDonHang());
+		System.out.println(" Hình ảnh giao hàng: " + donHang.getHinhAnhGiaoHang());
 
 		return donHangRepository.save(donHang);
 	}
@@ -317,15 +329,15 @@ public class DonHangServiceImpl implements DonHangService {
 
 	@Override
 	public List<DonHang> findOrdersByShipper(NguoiDung shipper) {
-		System.out.println("🔥 Đang gọi findOrdersByShipper() với Shipper ID: " + shipper.getMaNguoiDung());
+		System.out.println(" Đang gọi findOrdersByShipper() với Shipper ID: " + shipper.getMaNguoiDung());
 
 		List<DonHang> orders = donHangRepository.findByShipper(shipper);
 
 		// Sắp xếp giảm dần theo mã đơn hàng
 		orders.sort(Comparator.comparing(DonHang::getMaDonHang).reversed());
-		System.out.println("🛒 Tổng số đơn hàng tìm thấy: " + orders.size());
+		System.out.println(" Tổng số đơn hàng tìm thấy: " + orders.size());
 		for (DonHang dh : orders) {
-			System.out.println("📦 Đơn hàng: " + dh.getMaDonHang() + " - Trạng thái: " + dh.getTrangThaiDonHang());
+			System.out.println(" Đơn hàng: " + dh.getMaDonHang() + " - Trạng thái: " + dh.getTrangThaiDonHang());
 		}
 		return orders;
 	}
@@ -342,7 +354,7 @@ public class DonHangServiceImpl implements DonHangService {
 		List<String> statuses = Arrays.asList("Đang xử lý", "Đã xác nhận", "Đang chuẩn bị hàng", "Đang giao hàng",
 				"Đã hoàn thành", "Đã hủy");
 
-		// ✅ Chỉ hiển thị trạng thái đã được admin xác nhận
+		//  Chỉ hiển thị trạng thái đã được admin xác nhận
 		int currentIndex = statuses.indexOf(donHang.getTrangThaiDonHang());
 		if (currentIndex == -1) {
 			return statuses.subList(0, 1); // Nếu có lỗi, chỉ hiển thị trạng thái đầu tiên
@@ -354,7 +366,7 @@ public class DonHangServiceImpl implements DonHangService {
 	public void capNhatTrangThai(DonHang donHang, String trangThaiMoi) {
 		// Kiểm tra nếu trạng thái cuối cùng đã lưu trùng với trạng thái mới
 		if (donHang.getLichSuTrangThai() != null && donHang.getLichSuTrangThai().contains(trangThaiMoi)) {
-			System.out.println("⚠ Trạng thái đã tồn tại, không lưu trùng: " + trangThaiMoi);
+			System.out.println(" Trạng thái đã tồn tại, không lưu trùng: " + trangThaiMoi);
 			return; // Không lưu trùng
 		}
 
@@ -422,9 +434,9 @@ public class DonHangServiceImpl implements DonHangService {
 	public void addToOfflineOrder(SanPham sanPham, int quantity) {
 		if (offlineOrder.containsKey(sanPham.getMaSanPham())) {
 			ChiTietDonHang chiTiet = offlineOrder.get(sanPham.getMaSanPham());
-			chiTiet.setSoLuong(chiTiet.getSoLuong() + quantity); // ✅ Cập nhật số lượng trực tiếp
+			chiTiet.setSoLuong(chiTiet.getSoLuong() + quantity); //  Cập nhật số lượng trực tiếp
 		} else {
-			// ✅ Dùng constructor có sẵn của ChiTietDonHang
+			//  Dùng constructor có sẵn của ChiTietDonHang
 			ChiTietDonHang chiTiet = new ChiTietDonHang();
 			chiTiet.setSanPham(sanPham);
 			chiTiet.setSoLuong(quantity);
@@ -461,9 +473,9 @@ public class DonHangServiceImpl implements DonHangService {
 	public void processOfflineOrder(List<Integer> productIds, List<Integer> quantities) {
 	    offlineOrder.clear();
 
-	    System.out.println("🔵 Nhận dữ liệu vào processOfflineOrder:");
-	    System.out.println("🔵 Sản phẩm nhận được: " + productIds);
-	    System.out.println("🔵 Số lượng nhận được: " + quantities);
+	    System.out.println(" Nhận dữ liệu vào processOfflineOrder:");
+	    System.out.println(" Sản phẩm nhận được: " + productIds);
+	    System.out.println(" Số lượng nhận được: " + quantities);
 
 	    List<SanPham> selectedProducts = sanPhamRepository.findByIdInWithKhuyenMai(productIds);
 
@@ -479,11 +491,11 @@ public class DonHangServiceImpl implements DonHangService {
 	        // 🔥 Đảm bảo giá tại thời điểm đặt hàng không bị null
 	        BigDecimal giaGoc = sanPham.getDonGiaBan();
 	        if (giaGoc == null) {
-	            System.out.println("⚠️ Cảnh báo: Sản phẩm ID " + sanPham.getMaSanPham() + " không có giá, gán 0.");
+	            System.out.println(" Cảnh báo: Sản phẩm ID " + sanPham.getMaSanPham() + " không có giá, gán 0.");
 	            giaGoc = BigDecimal.ZERO;
 	        }
 
-	        // ✅ Tính giá sau khuyến mãi nếu có
+	        //  Tính giá sau khuyến mãi nếu có
 	        BigDecimal giaSauGiam = giaGoc;
 	        if (!sanPham.getKhuyenMais().isEmpty()) {
 	            Optional<KhuyenMai> highestKhuyenMai = sanPham.getKhuyenMais().stream()
@@ -498,21 +510,21 @@ public class DonHangServiceImpl implements DonHangService {
 
 	        // 🔥 Nếu giá sau giảm vẫn bị null, gán về 0
 	        if (giaSauGiam == null) {
-	            System.out.println("⚠️ Giá sau giảm bị null, đặt về 0.");
+	            System.out.println(" Giá sau giảm bị null, đặt về 0.");
 	            giaSauGiam = BigDecimal.ZERO;
 	        }
 
-	        // ✅ Kiểm tra trước khi lưu vào ChiTietDonHang
-	        System.out.println("🟢 Kiểm tra giá trị trước khi lưu:");
-	        System.out.println("   - ID sản phẩm: " + sanPham.getMaSanPham());
-	        System.out.println("   - Giá gốc: " + giaGoc);
-	        System.out.println("   - Giá sau giảm: " + giaSauGiam);
-	        System.out.println("   - Số lượng: " + quantity);
+	        //  Kiểm tra trước khi lưu vào ChiTietDonHang
+	        System.out.println(" Kiểm tra giá trị trước khi lưu:");
+	        System.out.println(" - ID sản phẩm: " + sanPham.getMaSanPham());
+	        System.out.println(" - Giá gốc: " + giaGoc);
+	        System.out.println(" - Giá sau giảm: " + giaSauGiam);
+	        System.out.println(" - Số lượng: " + quantity);
 
 	        ChiTietDonHang chiTiet = new ChiTietDonHang();
 	        chiTiet.setSanPham(sanPham);
 	        chiTiet.setSoLuong(quantity);
-	        chiTiet.setGiaTaiThoiDiemDat(giaSauGiam); // ✅ Đảm bảo không bị null
+	        chiTiet.setGiaTaiThoiDiemDat(giaSauGiam); //  Đảm bảo không bị null
 
 	        offlineOrder.put(sanPham.getMaSanPham(), chiTiet);
 	    }
@@ -541,10 +553,10 @@ public class DonHangServiceImpl implements DonHangService {
 	@Override
 	@Transactional
 	public boolean processAndGenerateInvoiceForOfflineOrder(String soDienThoaiKhach) {
-	    System.out.println("🔵 Đang xử lý tạo hóa đơn cho số điện thoại: " + soDienThoaiKhach);
+	    System.out.println(" Đang xử lý tạo hóa đơn cho số điện thoại: " + soDienThoaiKhach);
 
 	    if (offlineOrder.isEmpty()) {
-	        System.out.println("❌ Lỗi: Không có sản phẩm trong offlineOrder.");
+	        System.out.println(" Lỗi: Không có sản phẩm trong offlineOrder.");
 	        return false;
 	    }
 
@@ -579,11 +591,11 @@ public class DonHangServiceImpl implements DonHangService {
 
 	    for (ChiTietDonHang chiTiet : offlineOrder.values()) {
 	        SanPham sanPham = chiTiet.getSanPham();
-	        Integer quantity = chiTiet.getSoLuong(); // ✅ Lấy đúng số lượng sản phẩm
+	        Integer quantity = chiTiet.getSoLuong(); //  Lấy đúng số lượng sản phẩm
 
 	        BigDecimal giaGoc = sanPham.getDonGiaBan();
 	        if (giaGoc == null) {
-	            System.out.println("⚠️ Cảnh báo: Giá gốc của sản phẩm ID " + sanPham.getMaSanPham() + " bị null, gán 0.");
+	            System.out.println(" Cảnh báo: Giá gốc của sản phẩm ID " + sanPham.getMaSanPham() + " bị null, gán 0.");
 	            giaGoc = BigDecimal.ZERO;
 	        }
 
@@ -600,34 +612,34 @@ public class DonHangServiceImpl implements DonHangService {
 	                giaSauGiam = giaGoc.multiply(BigDecimal.ONE.subtract(phanTramGiam.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)));
 	            }
 	        }
-	        // ✅ Cập nhật giá vào chi tiết đơn hàng
+	        //  Cập nhật giá vào chi tiết đơn hàng
 	        chiTiet.setGiaTaiThoiDiemDat(giaSauGiam);
 
-	        // ✅ Tính tổng tiền
+	        //  Tính tổng tiền
 	        totalPrice = totalPrice.add(giaSauGiam.multiply(BigDecimal.valueOf(quantity)));
-	        // ✅ Trừ số lượng sản phẩm trên kệ và cộng số lượng đã bán
-	     // ✅ Trừ số lượng sản phẩm trên kệ
+	        //  Trừ số lượng sản phẩm trên kệ và cộng số lượng đã bán
+	     //  Trừ số lượng sản phẩm trên kệ
 	        if (sanPham.getSoLuong() >= quantity) {
 	            sanPham.setSoLuong(sanPham.getSoLuong() - quantity);
 	        } else {
-	            System.out.println("❌ Lỗi: Số lượng sản phẩm không đủ. Sản phẩm ID: " + sanPham.getMaSanPham());
+	            System.out.println(" Lỗi: Số lượng sản phẩm không đủ. Sản phẩm ID: " + sanPham.getMaSanPham());
 	            return false;
 	        }
 
-	        // ✅ Lưu cập nhật vào database
+	        //  Lưu cập nhật vào database
 	        sanPhamRepository.save(sanPham);
 	        // 🟢 Debug log để kiểm tra giá
-	        System.out.println("🟢 Kiểm tra giá trị đơn hàng:");
-	        System.out.println("   - ID sản phẩm: " + sanPham.getMaSanPham());
-	        System.out.println("   - Giá gốc: " + giaGoc);
-	        System.out.println("   - Giá sau giảm: " + giaSauGiam);
-	        System.out.println("   - Số lượng: " + quantity);
-	        System.out.println("   - Thành tiền: " + giaSauGiam.multiply(BigDecimal.valueOf(quantity)));
+	        System.out.println(" Kiểm tra giá trị đơn hàng:");
+	        System.out.println(" - ID sản phẩm: " + sanPham.getMaSanPham());
+	        System.out.println(" - Giá gốc: " + giaGoc);
+	        System.out.println(" - Giá sau giảm: " + giaSauGiam);
+	        System.out.println(" - Số lượng: " + quantity);
+	        System.out.println(" - Thành tiền: " + giaSauGiam.multiply(BigDecimal.valueOf(quantity)));
 
 	        chiTietList.add(chiTiet);
 	    }
 
-	 // ✅ Lưu đơn hàng với thông tin khách hàng
+	 //  Lưu đơn hàng với thông tin khách hàng
 	    DonHang donHang = new DonHang();
 	    donHang.setNguoiDung(khachHang);
 	    donHang.setNgayDat(LocalDateTime.now());
@@ -640,7 +652,7 @@ public class DonHangServiceImpl implements DonHangService {
 
 	    donHang = donHangRepository.save(donHang);
 
-	    // ✅ Cập nhật mã đơn hàng cho từng chi tiết đơn hàng
+	    //  Cập nhật mã đơn hàng cho từng chi tiết đơn hàng
 	    for (ChiTietDonHang chiTiet : chiTietList) {
 	        chiTiet.setDonHang(donHang);
 	        chiTiet.setId(new ChiTietDonHangId(donHang.getMaDonHang(), chiTiet.getSanPham().getMaSanPham()));
@@ -674,12 +686,15 @@ public class DonHangServiceImpl implements DonHangService {
 			//donHang.setTrangThaiDonHang("Đã thanh toán");
 			//donHang.setTrangThaiDonHang("Đã hoàn thành");
 			donHang.setTrangThaiDonHang("Đang xử lý");
-
+			donHang.setTongGiaTriDonHang(BigDecimal.ZERO);
 			donHangRepository.save(donHang);
+			
 		} else {
 			throw new RuntimeException("Không tìm thấy đơn hàng với mã: " + maDonHang);
 		}
 	}
+	
+
 
 
 
