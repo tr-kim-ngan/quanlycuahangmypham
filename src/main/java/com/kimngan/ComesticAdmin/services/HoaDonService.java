@@ -33,7 +33,6 @@ public interface HoaDonService {
     int getTotalSoldQuantityByProduct(Integer maSanPham);
     void createHoaDon(DonHang donHang, String phuongThucThanhToan);
 
-
 }
 
 

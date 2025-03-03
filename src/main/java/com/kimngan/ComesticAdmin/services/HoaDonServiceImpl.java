@@ -232,21 +232,15 @@ public class HoaDonServiceImpl implements HoaDonService {
 		    hoaDon.setDiaChiGiaoHang(donHang.getDiaChiGiaoHang());
 		    hoaDon.setSoDienThoaiNhanHang(donHang.getSdtNhanHang());
 		    hoaDon.setTrangThaiThanhToan("Chưa thanh toán"); // Mặc định khi tạo hóa đơn
-		    hoaDon.setPhuongThucThanhToan(phuongThucThanhToan); // Thêm phương thức thanh toán ✅
+		    hoaDon.setPhuongThucThanhToan(phuongThucThanhToan); // Thêm phương thức thanh toán 
 
+		 
+		    
+		    
 		    hoaDonRepository.save(hoaDon);
 		
 	}
 
-
 	
-
-	
-
-
-
-	
-
-
 	
 }
