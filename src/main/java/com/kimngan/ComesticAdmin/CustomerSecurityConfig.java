@@ -20,7 +20,19 @@ public class CustomerSecurityConfig {
         http.securityMatcher("/**") // Áp dụng cho toàn bộ URL của khách hàng
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/", "/index", "/brands/**","/customer/register", "/customer/login", "/product/**", "/category/**", "/search/**","/api/payment/**").permitAll() // Cho phép truy cập tự do cho đăng ký, đăng nhập, chi tiết sản phẩm, danh mục và tìm kiếm
+                .requestMatchers("/", "/index", 
+                		"/brands/**",
+                		"/customer/register", 
+                		"/customer/login", 
+                		"/product/**", 
+                		"/category/**", 
+                		"/search/**",
+                		"/api/payment/**",
+                		"/shipping-fee"
+                		
+                		
+                		
+                		).permitAll() // Cho phép truy cập tự do cho đăng ký, đăng nhập, chi tiết sản phẩm, danh mục và tìm kiếm
                 .requestMatchers("/customer/**").hasAuthority("CUSTOMER") // Yêu cầu quyền "CUSTOMER" cho các URL khách hàng
                 .anyRequest().authenticated())
             .formLogin((form) -> form
