@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="customer/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Header -->
+		<header class="bg-white shadow-sm py-3">
+			<div class="container d-flex align-items-center">
+				<!-- Logo bên trái -->
+				<a th:href="@{/index}" class="d-flex align-items-center">
+					<img th:src="@{/fe/images/logo1.png}" alt="logo" class="img-fluid"
+						style="max-height: 80px; width: auto; margin-right: 15px;">
+				</a>
+
+
+				<!-- Thanh điều hướng bên phải -->
+				<nav class="ms-auto">
+					<ul class="nav">
+						<li class="nav-item"><a class="nav-link" th:href="@{/category/all}">Danh mục</a></li>
+						<li class="nav-item"><a class="nav-link" th:href="@{/index}">Sản phẩm</a></li>
+						<li class="nav-item"><a class="nav-link" th:href="@{/shipping-fee}">Phí vận chuyển</a>
+						</li>
+						<li class="nav-item"><a class="nav-link" th:href="@{/customer/login}">Đăng nhập</a></li>
+					</ul>
+				</nav>
+			</div>
+		</header>
+
+		<div class="container py-4">
+			<div class="page-inner bg-white p-4 shadow-sm rounded" style="max-width: 900px; margin: auto;">
+				<!-- Tiêu đề -->
+				<h2 class="fw-bold">
+					<span style="color: #ff6600;">KN Express</span>
+					<span style="color: #333333;">là gì?</span>
+				</h2>
+
+				<p style="color: #333; font-size: 16px;">
+					<strong>KN Express</strong> là dịch vụ giao hàng nhanh <strong>nội thành Cần Thơ</strong>, giúp
+					khách hàng nhận
+					hàng ngay trong ngày với <strong>phí ưu đãi</strong> hoặc <strong>miễn phí giao hàng</strong> khi
+					đạt mức đơn hàng quy định.
+				</p>
+
+				<!-- Điều kiện áp dụng -->
+				<h4 class="fw-bold mt-4" style="color: #222;">Điều kiện áp dụng KN Express - Giao hàng nhanh nội thành?
+				</h4>
+				<ul class="list-unstyled" style="color: #444; font-size: 16px;">
+					<li>
+						- <strong>Miễn phí giao hàng</strong> cho đơn từ
+						<span class="fw-bold text-danger" style="color: #d9534f !important;">
+							<span th:if="${minFreeShipping != null}"
+								th:text="${#numbers.formatDecimal(minFreeShipping, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+							</span>
+							<span th:if="${minFreeShipping == null}">Liên hệ hỗ trợ</span>
+						</span>
+						trở lên.
+					</li>
+					<li>- Áp dụng cho địa chỉ nhận hàng trong khu vực <strong>nội thành Cần Thơ</strong>.</li>
+					<li>- Sản phẩm trong đơn hàng <strong>có sẵn trong kho gần nhất</strong> để đảm bảo giao nhanh.</li>
+				</ul>
+
+
+
+
+				<!-- Đối tượng áp dụng -->
+				<h4 class="fw-bold mt-4">Ai có thể sử dụng dịch vụ KN Express?</h4>
+				<p>
+					Dịch vụ này **chỉ áp dụng cho khách hàng có địa chỉ nhận hàng trong nội thành Cần Thơ**.
+					Với những đơn hàng ở ngoại thành hoặc tỉnh khác, thời gian giao hàng sẽ theo chính sách vận chuyển
+					tiêu chuẩn.
+				</p>
+
+				<!-- Bảng mức phí -->
+				<h4 class="fw-bold mt-4">Mức phí áp dụng cho dịch vụ giao hàng</h4>
+				<div class="table-responsive">
+					<table class="table table-bordered text-center">
+						<thead>
+							<tr>
+								<th class="fw-bold">Điều kiện đơn hàng</th>
+								<th class="fw-bold">Mức phí</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="fee : ${shippingFees}">
+								<td>
+									<span class="fw-bold">
+										<span
+											th:text="${#numbers.formatDecimal(fee.minOrderValue, 0, 'COMMA', 0, 'POINT')}"></span>
+										đ
+										<span th:if="${fee.maxOrderValue != null}"> -
+											<span
+												th:text="${#numbers.formatDecimal(fee.maxOrderValue, 0, 'COMMA', 0, 'POINT')}"></span>
+											đ
+										</span>
+										<span th:if="${fee.maxOrderValue == null}">trở lên</span>
+									</span>
+								</td>
+								<td>
+									<span th:if="${fee.shippingFee == 0}">Miễn phí</span>
+									<span th:if="${fee.shippingFee != 0}">
+										<span
+											th:text="${#numbers.formatDecimal(fee.shippingFee, 0, 'COMMA', 0, 'POINT')}"></span>
+										đ
+									</span>
+								</td>
+							</tr>
+							<!-- Hàng cuối cùng: Miễn phí vận chuyển cho đơn hàng lớn hơn maxOrderValue -->
+							<tr th:if="${shippingFees != null and shippingFees.size() > 0}">
+								<td class="fw-bold text-danger">
+									≥ <span
+										th:text="${#numbers.formatDecimal(shippingFees[shippingFees.size() - 1].maxOrderValue, 0, 'COMMA', 0, 'POINT')}"></span>
+									đ
+								</td>
+								<td>
+									<span class="fw-bold">Miễn phí</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+
+				</div>
+			</div>
+		</div>
+		<style>
+			.nav .nav-link {
+				color: #FFC107 !important;
+				/* Màu vàng */
+				font-weight: bold;
+				/* Chữ đậm */
+				transition: color 0.3s ease-in-out;
+			}
+
+			.nav .nav-link:hover {
+				color: #FFA000 !important;
+				/* Màu vàng đậm hơn khi hover */
+			}
+
+			.table th,
+			.table td {
+				color: black !important;
+				/* Màu đen đậm */
+				font-weight: bold;
+				/* Đậm */
+			}
+		</style>
+
+
+		<!-- Footer -->
+		<div th:replace="customer/fragments/footer :: footer"></div>
+	</div>
+
+	<!-- JS -->
+	<div th:replace="customer/fragments/script :: script"></div>
+</body>
+
+</html>
