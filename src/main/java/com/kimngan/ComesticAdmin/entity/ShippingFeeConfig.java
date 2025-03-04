@@ -30,37 +30,49 @@ public class ShippingFeeConfig {
     public ShippingFeeConfig() {
     }
 
-    public ShippingFeeConfig(BigDecimal minOrderValue, BigDecimal maxOrderValue, BigDecimal shippingFee) {
-        this.minOrderValue = minOrderValue;
-        this.maxOrderValue = maxOrderValue;
-        this.shippingFee = shippingFee;
-    }
+   
 
-    public Integer getId() {
-        return id;
-    }
+	public ShippingFeeConfig(Integer id, BigDecimal minOrderValue, BigDecimal maxOrderValue, BigDecimal shippingFee) {
+		super();
+		this.id = id;
+		this.minOrderValue = minOrderValue;
+		this.maxOrderValue = maxOrderValue;
+		this.shippingFee = shippingFee;
+	}
 
-    public BigDecimal getMinOrderValue() {
-        return minOrderValue;
-    }
 
-    public BigDecimal getMaxOrderValue() {
-        return maxOrderValue;
-    }
 
-    public BigDecimal getShippingFee() {
-        return shippingFee;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public void setMinOrderValue(BigDecimal minOrderValue) {
-        this.minOrderValue = minOrderValue;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setMaxOrderValue(BigDecimal maxOrderValue) {
-        this.maxOrderValue = maxOrderValue;
-    }
+	public BigDecimal getMinOrderValue() {
+		return minOrderValue;
+	}
 
-    public void setShippingFee(BigDecimal shippingFee) {
-        this.shippingFee = shippingFee;
-    }
+	public void setMinOrderValue(BigDecimal minOrderValue) {
+		this.minOrderValue = minOrderValue;
+	}
+
+	public BigDecimal getMaxOrderValue() {
+		return maxOrderValue;
+	}
+
+	public void setMaxOrderValue(BigDecimal maxOrderValue) {
+		this.maxOrderValue = maxOrderValue;
+	}
+
+	public BigDecimal getShippingFee() {
+		return shippingFee;
+	}
+
+	public void setShippingFee(BigDecimal shippingFee) {
+		this.shippingFee = shippingFee;
+	}
+
+
 }

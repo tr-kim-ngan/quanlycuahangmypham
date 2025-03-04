@@ -4,55 +4,92 @@
 <head th:replace="admin/fragments/head :: head"></head>
 
 <body>
-	<div class="wrapper">
-		<!-- Sidebar -->
-		<div th:replace="admin/fragments/sidebar::sidebar"></div>
-		<!-- End Sidebar -->
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div th:replace="admin/fragments/sidebar::sidebar"></div>
+        <!-- End Sidebar -->
 
-		<div class="main-panel">
-			<!-- Header -->
-			<div th:replace="admin/fragments/header :: header"></div>
-			<!-- End Header -->
+        <div class="main-panel">
+            <!-- Header -->
+            <div th:replace="admin/fragments/header :: header"></div>
+            <!-- End Header -->
 
-			<div class="container" style="background-color: #faeee7;">
-				<div class="page-inner">
+            <div class="container py-4" style="background-color: #faeee7; min-height: 100vh;">
+                <div class="page-inner shadow-sm p-4 rounded bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="text-dark fw-bold">Quản lý phí vận chuyển</h2>
+                        <th:block th:if="${canAddNew}">
+                            <a href="/admin/shipping-fee/add" class="btn btn-primary shadow-sm px-4 py-2">
+                                <i class="fas fa-plus"></i> Thêm mới
+                            </a>
+                        </th:block>
+                    </div>
 
-					<h2>Quản lý phí vận chuyển</h2>
-					<a th:href="@{/admin/shipping-fee/add}" class="btn btn-success">Thêm mới</a>
+                    <div class="table-responsive">
+                        <table class="table text-center align-middle">
+                            <thead class="bg-primary text-white border-bottom border-dark">
+                                <tr>
+                                    <th class="p-3 text-uppercase fw-bold">Khoảng giá đơn hàng</th>
+                                    <th class="p-3 text-uppercase fw-bold">Phí vận chuyển</th>
+                                    <th class="p-3 text-uppercase fw-bold">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="config, iterStat : ${shippingConfigs}" class="bg-white">
+                                    <td class="p-3">
+                                        <th:block th:if="${config.maxOrderValue != null}">
+                                            <span class="fw-bold" th:text="${#numbers.formatDecimal(config.minOrderValue, 0, 'COMMA', 0, 'POINT')} + ' đ - ' + ${#numbers.formatDecimal(config.maxOrderValue, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                        </th:block>
+                                        <th:block th:if="${config.maxOrderValue == null}">
+                                            <span class="fw-bold text-danger">Lớn hơn <span th:text="${#numbers.formatDecimal(config.minOrderValue, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span></span>
+                                        </th:block>
+                                    </td>
+                                    <td class="p-3">
+                                        <th:block th:if="${config.maxOrderValue != null}">
+                                            <span class="fw-bold text-success" th:text="${#numbers.formatDecimal(config.shippingFee, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                        </th:block>
+                                        <th:block th:if="${config.maxOrderValue == null}">
+                                            <span class="fw-bold text-success" style="background: none; border: none;">Miễn phí vận chuyển</span>
+                                        </th:block>
+                                    </td>
+                                    <td class="p-3">
+                                        <th:block th:if="${config.maxOrderValue != null}">
+                                            <a th:href="@{/admin/shipping-fee/edit/{id}(id=${config.id})}" class="btn btn-outline-dark btn-sm px-3 py-1">
+                                                <i class="fas fa-edit"></i> Chỉnh sửa
+                                            </a>
+                                        </th:block>
+                                        <th:block th:if="${config.maxOrderValue == null}">
+                                            <span class="text-muted fst-italic">Không thể chỉnh sửa</span>
+                                        </th:block>
+                                    </td>
+                                </tr>
+                                
+                                <tr th:if="${shippingConfigs != null and shippingConfigs.size() > 0}" class="bg-light">
+                                    <td class="p-3 fw-bold text-danger">
+                                        Lớn hơn <span th:text="${#numbers.formatDecimal(shippingConfigs[shippingConfigs.size() - 1].maxOrderValue, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                                    </td>
+                                    <td class="p-3">
+                                        <span class="fw-bold text-success" style="background: none; border: none;">Miễn phí vận chuyển</span>
+                                    </td>
+                                    <td class="p-3">
+                                        <span class="text-muted fst-italic">Không thể chỉnh sửa</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-					<!-- Bảng hiển thị danh sách phí vận chuyển -->
-					<table border="1">
-						<thead>
-							<tr>
-								<th>Khoảng giá đơn hàng</th>
-								<th>Phí vận chuyển</th>
-								<th>Hành động</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr th:each="config : ${shippingConfigs}">
-								<td th:text="${config.minOrderValue} + ' - ' + ${config.maxOrderValue}"></td>
-								<td th:text="${config.shippingFee} + ' VND'"></td>
-								<td>
-									<a th:href="@{/admin/shipping-fee/edit/{id}(id=${config.id})}">Chỉnh sửa</a>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+            <!-- Footer -->
+            <div th:replace="admin/fragments/footer::footer"></div>
+            <!-- End Footer -->
+        </div>
+    </div>
 
-				</div>
-			</div>
-
-			<!-- Footer -->
-			<div th:replace="admin/fragments/footer::footer"></div>
-			<!-- End Footer -->
-		</div>
-	</div>
-
-	<!-- Core JS Files -->
-	<div th:replace="admin/fragments/script::script"></div>
-	<!-- End JS -->
+    <!-- Core JS Files -->
+    <div th:replace="admin/fragments/script::script"></div>
+    <!-- End JS -->
 </body>
-
 
 </html>

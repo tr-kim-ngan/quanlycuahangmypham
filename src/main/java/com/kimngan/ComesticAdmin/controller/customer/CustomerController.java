@@ -98,11 +98,12 @@ public class CustomerController {
 
 		// Lấy sản phẩm từ phương thức của service
 		Pageable pageable = PageRequest.of(page, size);
-		Page<SanPham> sanPhamPage = sanPhamService.getProductsInOrderDetails(pageable);
-
+		//Page<SanPham> sanPhamPage = sanPhamService.getProductsInOrderDetails(pageable);
+		Page<SanPham> sanPhamPage = sanPhamService.findAllActiveWithStock(pageable);
 		// Lọc sản phẩm có số lượng > 0
-		List<SanPham> filteredSanPhams = sanPhamPage.getContent().stream().filter(sanPham -> sanPham.getSoLuong() > 0)
-				.collect(Collectors.toList());
+//		List<SanPham> filteredSanPhams = sanPhamPage.getContent().stream().filter(sanPham -> sanPham.getSoLuong() > 0)
+//				.collect(Collectors.toList());
+		List<SanPham> filteredSanPhams = sanPhamPage.getContent();
 
 		// Nếu không có sản phẩm nào sau khi lọc
 		if (filteredSanPhams.isEmpty()) {
@@ -195,7 +196,14 @@ public class CustomerController {
 		model.addAttribute("sanPhamAverageRatingMap", sanPhamAverageRatingMap);
 		model.addAttribute("sanPhamThuongHieuMap", sanPhamThuongHieuMap);
 		model.addAttribute("danhMucs", danhMucs);
-		model.addAttribute("totalPages", sanPhamPage.getTotalPages());
+		//model.addAttribute("totalPages", sanPhamPage.getTotalPages());
+		int totalPages = sanPhamPage.getTotalPages();
+		if (filteredSanPhams.size() < size && page < totalPages - 1) {
+		    totalPages--; // Giảm tổng số trang nếu trang cuối bị thiếu sản phẩm
+		}
+		model.addAttribute("totalPages", totalPages);
+
+		
 		model.addAttribute("currentPage", page);
 		model.addAttribute("size", size);
 
