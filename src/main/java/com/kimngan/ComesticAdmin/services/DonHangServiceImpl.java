@@ -124,7 +124,7 @@ public class DonHangServiceImpl implements DonHangService {
 		if (donHangRepository.existsById(maDonHang)) {
 			donHangRepository.deleteById(maDonHang);
 		} else {
-			throw new RuntimeException("Đơn hà ng không tồn tại với mã: " + maDonHang);
+			throw new RuntimeException("Đơn hàng không tồn tại với mã: " + maDonHang);
 		}
 
 	}

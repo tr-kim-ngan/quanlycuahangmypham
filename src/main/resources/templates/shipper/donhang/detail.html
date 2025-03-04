@@ -51,18 +51,18 @@
 
 
 
-					<th:block style="padding-left:100px;"
+					<th:block class="mt-3" style="padding-left:100px;"
 						th:if="${order != null and order.ghiChu != null and not #strings.isEmpty(order.ghiChu)}">
-						<h5 class="mt-3 text-danger">❌ Lý Do Giao Hàng Thất Bại</h5>
-						<div class="alert alert-warning">
-							<ul style="list-style: none; padding-left: 0;">
+						<h5 style="padding-left:100px;" class="mt-3 text-danger">❌ Lý Do Giao Hàng Thất Bại</h5>
+						
+							<ul style="list-style: none; padding-left: 100px;">
 								<li th:each="reason, iterStat : ${#strings.arraySplit(order.ghiChu, '🛑')}"
 									th:style="'display: flex; align-items: center; margin-bottom: 5px;'">
 									<span style="color: red; font-size: 1.2em; margin-right: 5px;">🛑</span>
 									<span th:text="${reason}"></span>
 								</li>
 							</ul>
-						</div>
+						
 					</th:block>
 
 

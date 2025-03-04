@@ -14,6 +14,5 @@ public interface ShippingFeeConfigService {
 	 ShippingFeeConfig getShippingConfigById(Integer id) ;
 	
 	 void updateShippingConfig(ShippingFeeConfig config) ;
-	 boolean isValidRange(ShippingFeeConfig newConfig);
-	
+	 
 }

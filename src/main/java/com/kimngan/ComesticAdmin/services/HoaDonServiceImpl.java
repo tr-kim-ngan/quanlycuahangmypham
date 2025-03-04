@@ -62,11 +62,11 @@ public class HoaDonServiceImpl implements HoaDonService {
 //	}
 	@Override
 	public HoaDon getHoaDonByDonHang(DonHang donHang) {
-	    System.out.println("🔍 Kiểm tra hóa đơn trong database cho đơn hàng: " + donHang.getMaDonHang());
+	    System.out.println(" Kiểm tra hóa đơn trong database cho đơn hàng: " + donHang.getMaDonHang());
 	    HoaDon hoaDon = hoaDonRepository.findByDonHang(donHang);
 	    
 	    if (hoaDon == null) {
-	        System.out.println("⚠️ Không tìm thấy hóa đơn trong database!");
+	        System.out.println(" Không tìm thấy hóa đơn trong database!");
 	        return null;
 	    }
 	    
