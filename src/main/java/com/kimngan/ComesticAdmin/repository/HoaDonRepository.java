@@ -43,6 +43,24 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     
     
     List<HoaDon> findByTrangThaiThanhToan(String trangThai);
+    List<HoaDon> findByTrangThaiThanhToanIn(List<String> trangThai);
+
+    
+    @Query("SELECT DATE(h.ngayXuatHoaDon), SUM(h.tongTien) " +
+            "FROM HoaDon h WHERE h.trangThaiThanhToan = 'Đã xác nhận' OR h.trangThaiThanhToan = 'Đã hoàn thành' " +
+            "GROUP BY DATE(h.ngayXuatHoaDon) ORDER BY DATE(h.ngayXuatHoaDon)")
+     List<Object[]> getRevenueByDate();
+
+     @Query("SELECT YEARWEEK(h.ngayXuatHoaDon), SUM(h.tongTien) " +
+            "FROM HoaDon h WHERE h.trangThaiThanhToan = 'Đã xác nhận' OR h.trangThaiThanhToan = 'Đã hoàn thành' " +
+            "GROUP BY YEARWEEK(h.ngayXuatHoaDon) ORDER BY YEARWEEK(h.ngayXuatHoaDon)")
+     List<Object[]> getRevenueByWeek();
+
+     @Query("SELECT YEAR(h.ngayXuatHoaDon), MONTH(h.ngayXuatHoaDon), SUM(h.tongTien) " +
+            "FROM HoaDon h WHERE h.trangThaiThanhToan = 'Đã xác nhận' OR h.trangThaiThanhToan = 'Đã hoàn thành' " +
+            "GROUP BY YEAR(h.ngayXuatHoaDon), MONTH(h.ngayXuatHoaDon) " +
+            "ORDER BY YEAR(h.ngayXuatHoaDon), MONTH(h.ngayXuatHoaDon)")
+     List<Object[]> getRevenueByMonth();
 
 
 }

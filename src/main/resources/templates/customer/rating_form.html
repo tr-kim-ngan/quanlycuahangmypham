@@ -5,39 +5,63 @@
 
 <body>
 	<div th:replace="~{customer/fragments/header :: header}"></div>
-	<main style="padding: 0px 170px; padding-top: 180px;">
-		<div class="container">
+	<main class="container py-5">
+		<div class="card shadow-lg p-4 rounded-4 border-0 mx-auto" style="max-width: 700px; margin-top: 130px ; background-color: #ffffff;">
+			<h3 class="text-center fw-bold text-dark mb-4">Đánh Giá Sản Phẩm</h3>
+
+			<!-- Hiển thị thông báo lỗi nếu có -->
 			<div th:if="${errorMessage != null and #strings.contains(errorMessage, 'không thành công')}"
-				class="alert alert-danger">
+				class="alert alert-danger text-center">
 				<p th:text="${errorMessage}"></p>
 			</div>
 
-			<h3>Đánh Giá Sản Phẩm</h3>
 			<div th:if="${sanPham != null}">
-				<p><strong>Tên Sản Phẩm:</strong> <span th:text="${sanPham.tenSanPham}"></span></p>
+				<!-- Sản phẩm cần đánh giá -->
+				<div class="d-flex align-items-center mb-4">
+					<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Sản phẩm" class="rounded shadow-sm me-3"
+						style="width: 80px; height: 80px; object-fit: cover;">
+					<h5 class="fw-bold text-primary mb-0" th:text="${sanPham.tenSanPham}"></h5>
+				</div>
 
-				<form th:action="@{'/customer/hoadon/' + ${hoaDon.maHoaDon} + '/danhgia/' + ${sanPham.maSanPham}}" method="post">
+				<!-- Form đánh giá -->
+				<form th:action="@{'/customer/hoadon/' + ${hoaDon.maHoaDon} + '/danhgia/' + ${sanPham.maSanPham}}"
+					method="post">
 
 					<input type="hidden" th:value="${sanPham.maSanPham}" name="maSanPham" />
-					<div class="mb-3">
-						<label for="rating" class="form-label">Số Sao:</label>
+
+					<!-- Đánh giá sao -->
+					<div class="mb-4">
+						<label class="form-label text-dark">Số Sao:</label>
 						<div class="rating">
-							<input type="radio" id="star5" name="rating" value="5" required /><label for="star5">&#9733;</label>
-							<input type="radio" id="star4" name="rating" value="4" /><label for="star4">&#9733;</label>
-							<input type="radio" id="star3" name="rating" value="3" /><label for="star3">&#9733;</label>
-							<input type="radio" id="star2" name="rating" value="2" /><label for="star2">&#9733;</label>
-							<input type="radio" id="star1" name="rating" value="1" /><label for="star1">&#9733;</label>
+							<input type="radio" id="star5" name="rating" value="5" required />
+							<label for="star5">&#9733;</label>
+							<input type="radio" id="star4" name="rating" value="4" />
+							<label for="star4">&#9733;</label>
+							<input type="radio" id="star3" name="rating" value="3" />
+							<label for="star3">&#9733;</label>
+							<input type="radio" id="star2" name="rating" value="2" />
+							<label for="star2">&#9733;</label>
+							<input type="radio" id="star1" name="rating" value="1" />
+							<label for="star1">&#9733;</label>
 						</div>
 					</div>
-					<div class="mb-3">
-						<label for="comment" class="form-label">Nội Dung Đánh Giá:</label>
-						<textarea id="comment" name="comment" class="form-control" rows="4" required></textarea>
+
+					<!-- Nội dung đánh giá -->
+					<div class="mb-4">
+						<label for="comment" class="form-label text-dark">Nội Dung Đánh Giá:</label>
+						<textarea id="comment" name="comment" class="form-control" rows="4"
+							placeholder="Nhập đánh giá của bạn..." required></textarea>
 					</div>
-					<button type="submit" class="btn btn-primary">Gửi Đánh Giá</button>
+
+					<!-- Nút gửi đánh giá -->
+					<div class="text-center">
+						<button type="submit" class="btn btn-primary px-4 py-2 fw-bold">Gửi Đánh Giá</button>
+					</div>
 				</form>
 			</div>
 		</div>
 	</main>
+
 	<div th:replace="~{customer/fragments/footer :: footer}"></div>
 
 	<div th:replace="~{customer/fragments/script :: script}"></div>
@@ -62,9 +86,9 @@
 		}
 
 		/* Highlight stars when selected */
-		.rating input:checked ~ label,
+		.rating input:checked~label,
 		.rating label:hover,
-		.rating label:hover ~ label {
+		.rating label:hover~label {
 			color: #ffd700;
 		}
 	</style>

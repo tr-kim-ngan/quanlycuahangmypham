@@ -2,6 +2,7 @@ package com.kimngan.ComesticAdmin.controller.customer;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -30,10 +31,11 @@ import com.kimngan.ComesticAdmin.entity.ChiTietGioHang;
 import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.SanPham;
-
+import com.kimngan.ComesticAdmin.entity.ShippingFeeConfig;
 import com.kimngan.ComesticAdmin.services.GioHangService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
+import com.kimngan.ComesticAdmin.services.ShippingFeeConfigService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -50,7 +52,8 @@ public class GioHangController {
 	@Autowired
 	private NguoiDungService nguoiDungService;
 
-
+	@Autowired
+	private ShippingFeeConfigService shippingFeeConfigService;
 
 	@ModelAttribute
 	public void addAttributes(Model model, Principal principal) {
@@ -83,11 +86,10 @@ public class GioHangController {
 		NguoiDung nguoiDung = getCurrentUser(principal);
 
 		// Lấy danh sách sản phẩm trong giỏ hàng
-		 // Lấy danh sách sản phẩm trong giỏ hàng và lọc chỉ những sản phẩm còn hàng
-	    List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(nguoiDung).stream()
-	            .filter(item -> item.getSanPham().getSoLuong() > 0)
-	            .collect(Collectors.toList());
-	    
+		// Lấy danh sách sản phẩm trong giỏ hàng và lọc chỉ những sản phẩm còn hàng
+		List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(nguoiDung).stream()
+				.filter(item -> item.getSanPham().getSoLuong() > 0).collect(Collectors.toList());
+
 		// Tính tổng giá trị và phần trăm giảm giá
 		BigDecimal totalPrice = BigDecimal.ZERO;
 		Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
@@ -131,47 +133,45 @@ public class GioHangController {
 	}
 
 	@PostMapping("/add")
-	public String addToCart(
-	        @RequestParam("productId") Integer productId, 
-	        @RequestParam(value = "quantity", required = false, defaultValue = "1") Integer quantity,
-	        Principal principal, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+	public String addToCart(@RequestParam("productId") Integer productId,
+			@RequestParam(value = "quantity", required = false, defaultValue = "1") Integer quantity,
+			Principal principal, RedirectAttributes redirectAttributes, HttpServletRequest request) {
 
-	    // Kiểm tra nếu quantity null hoặc nhỏ hơn 1 thì đặt lại thành 1
-	    if (quantity == null || quantity < 1) {
-	        quantity = 1;
-	    }
+		// Kiểm tra nếu quantity null hoặc nhỏ hơn 1 thì đặt lại thành 1
+		if (quantity == null || quantity < 1) {
+			quantity = 1;
+		}
 
-	    // Kiểm tra người dùng đã đăng nhập hay chưa
-	    if (principal == null) {
-	        redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập để thêm vào giỏ hàng.");
-	        return "redirect:/login"; // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
-	    }
+		// Kiểm tra người dùng đã đăng nhập hay chưa
+		if (principal == null) {
+			redirectAttributes.addFlashAttribute("error", "Vui lòng đăng nhập để thêm vào giỏ hàng.");
+			return "redirect:/login"; // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+		}
 
-	    try {
-	        System.out.println("ProductId nhận được: " + productId);
-	        System.out.println("Số lượng nhận được: " + quantity);
+		try {
+			System.out.println("ProductId nhận được: " + productId);
+			System.out.println("Số lượng nhận được: " + quantity);
 
-	        NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
-	        Optional<SanPham> optionalSanPham = sanPhamService.findByIdOptional(productId);
+			NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
+			Optional<SanPham> optionalSanPham = sanPhamService.findByIdOptional(productId);
 
-	        if (!optionalSanPham.isPresent()) {
-	            redirectAttributes.addFlashAttribute("error", "Sản phẩm không tồn tại.");
-	            return "redirect:" + request.getHeader("Referer");
-	        }
+			if (!optionalSanPham.isPresent()) {
+				redirectAttributes.addFlashAttribute("error", "Sản phẩm không tồn tại.");
+				return "redirect:" + request.getHeader("Referer");
+			}
 
-	        SanPham sanPham = optionalSanPham.get();
-	        gioHangService.addToCart(currentUser, sanPham, quantity);
+			SanPham sanPham = optionalSanPham.get();
+			gioHangService.addToCart(currentUser, sanPham, quantity);
 
-	        redirectAttributes.addFlashAttribute("success", "Sản phẩm đã được thêm vào giỏ hàng!");
-	        return "redirect:" + request.getHeader("Referer");
+			redirectAttributes.addFlashAttribute("success", "Sản phẩm đã được thêm vào giỏ hàng!");
+			return "redirect:" + request.getHeader("Referer");
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        redirectAttributes.addFlashAttribute("error", "Lỗi trong quá trình thêm sản phẩm vào giỏ hàng.");
-	        return "redirect:" + request.getHeader("Referer");
-	    }
+		} catch (Exception e) {
+			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("error", "Lỗi trong quá trình thêm sản phẩm vào giỏ hàng.");
+			return "redirect:" + request.getHeader("Referer");
+		}
 	}
-
 
 	@PostMapping("/remove")
 	public String removeFromCart(@RequestParam("sanPhamId") Integer sanPhamId, Principal principal,
@@ -216,13 +216,9 @@ public class GioHangController {
 		return "redirect:/customer/cart";
 	}
 
-
-
 	@PostMapping("/checkout")
-	public String checkout(
-			Principal principal, 
-			Model model, 
-			
+	public String checkout(Principal principal, Model model,
+
 			RedirectAttributes redirectAttributes) {
 		if (principal == null) {
 			return "redirect:/customer/login";
@@ -241,12 +237,9 @@ public class GioHangController {
 		if (cartItems.isEmpty()) {
 			redirectAttributes.addFlashAttribute("errorMessage", "Giỏ hàng của bạn đang trống.");
 			return "redirect:/customer/cart";
-		}else {
-		    System.out.println("Cart items found: " + cartItems.size());
+		} else {
+			System.out.println("Cart items found: " + cartItems.size());
 		}
-		
-		
-		
 
 		// Kiểm tra số lượng còn lại và tính tổng giá trị giỏ hàng
 		BigDecimal totalPrice = BigDecimal.ZERO;
@@ -284,12 +277,39 @@ public class GioHangController {
 			totalPrice = totalPrice.add(giaSauGiam.multiply(BigDecimal.valueOf(item.getSoLuong())));
 		}
 
+		System.out.println("💰 [Debug] Tổng tiền sản phẩm: " + totalPrice);
+
+		List<ShippingFeeConfig> shippingConfigs = shippingFeeConfigService.getAllShippingConfigs();
+		BigDecimal shippingFee = BigDecimal.ZERO;
+		for (ShippingFeeConfig config : shippingConfigs) {
+			if (config.getMinOrderValue().compareTo(totalPrice) <= 0
+					&& (config.getMaxOrderValue() == null || config.getMaxOrderValue().compareTo(totalPrice) >= 0)) {
+				shippingFee = config.getShippingFee();
+				break;
+			}
+		}
+
+		System.out.println("🚚 [Debug] Phí vận chuyển áp dụng từ CSDL: " + shippingFee);
+		// Tính tổng tiền đơn hàng sau khi cộng phí vận chuyển
+		BigDecimal finalTotal = totalPrice.add(shippingFee);
+		System.out.println("🛒 [Debug] Tổng tiền đơn hàng (bao gồm phí vận chuyển): " + finalTotal);
+
+		// Định dạng số tiền trước khi hiển thị
+		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+
+		model.addAttribute("formattedTotalPrice", decimalFormat.format(totalPrice));
+		model.addAttribute("formattedShippingFee", decimalFormat.format(shippingFee));
+		model.addAttribute("formattedFinalTotal", decimalFormat.format(finalTotal));
 		// Truyền dữ liệu vào model
 		model.addAttribute("currentUser", currentUser); // Thêm thông tin người dùng
 		model.addAttribute("cartItems", cartItems);
 		model.addAttribute("totalPrice", totalPrice);
 		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
 		model.addAttribute("phanTramGiamMap", phanTramGiamMap); // Thêm map phần trăm giảm giá vào model
+		model.addAttribute("finalTotal", finalTotal);
+		model.addAttribute("shippingFee", shippingFee);
+		
+		System.out.println("✅ [Debug] Hoàn tất checkout. Chuyển đến confirmOrder.html");
 
 		return "customer/confirmOrder"; // Chuyển đến trang confirmOrder
 	}
@@ -349,13 +369,11 @@ public class GioHangController {
 
 		NguoiDung currentUser = getCurrentUser(principal);
 		List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(currentUser);
-		 // Đếm số loại sản phẩm trong giỏ hàng có số lượng lớn hơn 0
-	    long totalItems = cartItems.stream()
-	                               .filter(item -> item.getSanPham().getSoLuong() > 0)
-	                               .count();
+		// Đếm số loại sản phẩm trong giỏ hàng có số lượng lớn hơn 0
+		long totalItems = cartItems.stream().filter(item -> item.getSanPham().getSoLuong() > 0).count();
 		// Trả về số loại sản phẩm trong giỏ hàng
-		//return cartItems.size();
-	    return (int) totalItems;
+		// return cartItems.size();
+		return (int) totalItems;
 	}
 
 	@ModelAttribute("cartItems")

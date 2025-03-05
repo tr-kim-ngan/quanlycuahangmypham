@@ -45,10 +45,16 @@
 									th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></td>
 								<!--<td style="text-align: center;" th:text="${hoaDon.tongTien} + ' VND'"></td>
 							-->
-								<td style="text-align: center;">
+								<!--<td style="text-align: center;">
 									<span
 										th:text="${hoaDon.tongTien != null ? #numbers.formatDecimal(hoaDon.tongTien, 0, 'COMMA', 0, 'POINT') + ' đ' : 'Đang cập nhật'}"></span>
+								</td>-->
+								<td style="text-align: center;">
+									<span class="fw-bold"
+										th:text="${#numbers.formatDecimal(hoaDon.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+									</span>
 								</td>
+
 
 
 

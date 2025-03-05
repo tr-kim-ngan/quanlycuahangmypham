@@ -3,6 +3,7 @@ package com.kimngan.ComesticAdmin.services;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import com.kimngan.ComesticAdmin.entity.DonHang;
 import com.kimngan.ComesticAdmin.entity.HoaDon;
@@ -32,6 +33,13 @@ public interface HoaDonService {
     List<SanPham> findTopSoldProductsByCategory(Integer maDanhMuc, int limit) ;
     int getTotalSoldQuantityByProduct(Integer maSanPham);
     void createHoaDon(DonHang donHang, String phuongThucThanhToan);
+    
+    
+    // vẽ bảng đồ doanh thu 
+    List<Map<String, Object>> getRevenueByDate();
+    List<Map<String, Object>> getRevenueByWeek();
+    List<Map<String, Object>> getRevenueByMonth();
+    void updateHoaDon(HoaDon hoaDon);
 
 }
 

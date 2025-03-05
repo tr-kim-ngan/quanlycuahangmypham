@@ -78,11 +78,13 @@
 
 
 					<div class="flash-deal-container"
-						style="background: linear-gradient(90deg, #ff7b00, #ff5a00); padding: 8px; border-radius: 4px; color: white; font-weight: bold; display: flex; align-items: center; justify-content: space-between; font-size: 14px;">
+						style="background: linear-gradient(90deg, #ff7b00, #ff5a00); padding: 8px; border-radius: 4px; color: white; font-weight: bold; display: flex; align-items: center; justify-content: space-between; font-size: 14px;"
+						
+						>
 
 						<!-- FLASH DEAL -->
 						<div style="display: flex; align-items: center; gap: 5px;">
-							d
+							
 
 							<strong style="font-size: 14px;">FLASH DEAL</strong>
 						</div>
@@ -90,7 +92,7 @@
 						<!-- Đếm ngược -->
 						<div style="display: flex; align-items: center; gap: 5px;">
 							<span style="font-size: 13px;">KẾT THÚC TRONG</span>
-							<div style="display: flex; align-items: center; gap: 2px;">
+							<div th:if="${countdown != null}" style="display: flex; align-items: center; gap: 2px;">
 								<span id="countdown-days"
 									style="background-color: black; color: white; padding: 3px 6px; border-radius: 3px; font-size: 13px; font-weight: bold; min-width: 22px; text-align: center;"
 									th:text="${countdown.days}"></span> :

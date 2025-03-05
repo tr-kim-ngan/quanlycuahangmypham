@@ -6,98 +6,169 @@
 <body>
 	<header th:replace="customer/fragments/header :: header"></header>
 
-	<main class="container my-4" style="padding: 100px; padding-top:120px;">
-		<h2 class="my-5 text-center">Giỏ Hàng Của Bạn</h2>
+	<main class="container my-4" style="padding-top: 170px;">
+		<!-- Đường dẫn điều hướng -->
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="/index" style="font-weight: bold; color: #007bff;">Trang chủ</a>
+				</li>
+				<li class="breadcrumb-item active" aria-current="page" style="color: #000;">Giỏ hàng</li>
+			</ol>
+		</nav>
+
+		<!-- Tiêu đề -->
+		<h3 class="my-4 fw-bold" style="color: #000;">Giỏ hàng (<span th:text="${cartItems.size()}"></span> sản phẩm)
+		</h3>
+
+		<!-- Kiểm tra giỏ hàng có sản phẩm không -->
+		<div th:if="${cartItems.size() > 0}">
+			<div class="row">
+				<!-- Danh sách sản phẩm -->
+				<div class="col-md-8">
+					<table class="table table-borderless align-middle">
+						<thead>
+							<tr style="background: #f8f9fa;">
+								<th scope="col" style="color: #333; font-weight: bold;">Sản phẩm</th>
+								<th scope="col" class="text-center" style="color: #333; font-weight: bold;">Giá tiền
+								</th>
+								<th scope="col" class="text-center" style="color: #333; font-weight: bold;">Số lượng
+								</th>
+								<th scope="col" class="text-center" style="color: #333; font-weight: bold;">Thành tiền
+								</th>
+							</tr>
+							<tr>
+								<td colspan="4">
+									<hr style="border-top: 3px solid #000; margin: 0;">
+								</td>
+							</tr>
 
 
+						</thead>
 
-		<!-- Danh sách sản phẩm trong giỏ hàng -->
-		<div class="list-group">
-			<div th:each="item : ${cartItems}" class="list-group-item d-flex align-items-center"
-				style="border: 2px solid #00bcd4; border-radius: 10px; margin-bottom: 20px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); position: relative;">
-				<!-- th:if="${item.sanPham.soLuong > 0}" -->
+						<tbody>
+							<tr th:each="item : ${cartItems}" style="border-bottom: 1px solid #ddd;">
+								<!-- Hình ảnh sản phẩm -->
+								<td class="d-flex align-items-center">
+									<a th:href="@{'/product/' + ${item.sanPham.maSanPham}}" class="me-3">
+										<img th:src="@{'/upload/' + ${item.sanPham.hinhAnh}}" class="img-thumbnail"
+											style="width: 80px; height: 80px; object-fit: cover; border: 1px solid #ddd;">
+									</a>
+									<div>
+										<h6 class="fw-bold" style="color: #000;" th:text="${item.sanPham.tenSanPham}">
+										</h6>
 
+										<form th:action="@{/customer/cart/remove}" method="POST"
+											style="display: inline;">
+											<input type="hidden" name="sanPhamId" th:value="${item.sanPham.maSanPham}">
+											<button type="submit" class="fw-bold border-0 bg-transparent"
+												style="cursor: pointer; color: #d70000; font-size: 16px; text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.3);">
+												❌ Xóa
+											</button>
+										</form>
+									</div>
+								</td>
 
-				<!-- Hình ảnh sản phẩm -->
-				<a th:href="@{'/product/' + ${item.sanPham.maSanPham}}" th:title="${item.sanPham.tenSanPham}">
-					<img th:src="@{'/upload/' + ${item.sanPham.hinhAnh}}" class="img-thumbnail me-4"
-						style="width: 120px; height: 120px; border-radius: 10px; object-fit: cover;" alt="Sản phẩm">
-				</a>
-
-				<!-- Thông tin sản phẩm -->
-				<div class="flex-grow-1">
-					<h5 th:text="${item.sanPham.tenSanPham}" style="color: #333; font-weight: bold;"></h5>
-
-					<p>Đơn vị tính: <span th:text="${item.sanPham.donViTinh.tenDonVi}"></span></p>
-
-					<!-- Cập nhật số lượng sản phẩm 
-					<div class="d-flex">
-						<form th:action="@{/customer/cart/update-quantity}" method="POST" class="d-flex">
-							<input type="hidden" name="sanPhamId" th:value="${item.sanPham.maSanPham}">
-							<input type="number" name="quantity" th:value="${item.soLuong}" min="1"
-								class="form-control me-2" style="width: 80px;">
-							<button type="submit" class="btn btn-info">Cập nhật</button>
-						</form>
-					</div>-->
-					<!-- Cập nhật số lượng sản phẩm -->
-					<span style="color: #555;">Số lượng còn lại: <span th:text="${item.sanPham.soLuong}"></span></span>
-
-					<div class="d-flex">
-
-
-						<form th:action="@{/customer/cart/update-quantity}" method="POST" class="d-flex">
-							<input type="hidden" name="sanPhamId" th:value="${item.sanPham.maSanPham}">
-							<input type="number" name="quantity" th:value="${item.soLuong}" min="1"
-								th:max="${item.sanPham.soLuong}" class="form-control me-2" style="width: 80px;">
-							<button type="submit" class="btn btn-info">Tính tiền</button>
-						</form>
-
-					</div>
+								<!-- Giá tiền -->
+								<td class="text-center">
+									<span class="fw-bold" style="color: #d70000; font-size: 14px;"
+										th:text="${sanPhamGiaSauGiamMap[item.sanPham.maSanPham] != null ? 
+        #numbers.formatDecimal(sanPhamGiaSauGiamMap[item.sanPham.maSanPham], 0, 'COMMA', 0, 'POINT') + ' đ' : 'Đang cập nhật'}">
+									</span>
+									<br>
+									<del class="fw-bold" style="color: #000; font-size: 14px;"
+										th:if="${sanPhamKhuyenMaiMap[item.sanPham.maSanPham] != null}"
+										th:text="${#numbers.formatDecimal(item.sanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+									</del>
+								</td>
 
 
-					<!-- Hiển thị giá (có hoặc không có khuyến mãi) -->
-					<div th:if="${sanPhamKhuyenMaiMap[item.sanPham.maSanPham] != null}">
-						<p style="text-decoration: line-through;" th:text="${item.sanPham.donGiaBan} + ' VND'"></p>
-						<p style="color: red;" th:text="${sanPhamGiaSauGiamMap[item.sanPham.maSanPham]} + ' VND'"></p>
-						<p style="color: #007bff;">
-							Giảm giá:
-							<span th:text="${phanTramGiamMap[item.sanPham.maSanPham]} + '%'"></span>
-						</p>
-					</div>
-					<div th:if="${sanPhamKhuyenMaiMap[item.sanPham.maSanPham] == null}">
-						<p style="color: green;" th:text="${item.sanPham.donGiaBan} + ' VND'"></p>
-					</div>
+								<!-- Số lượng -->
+								<td class="text-center">
+									<form th:action="@{/customer/cart/update-quantity}" method="POST"
+										class="d-flex align-items-center">
+										<input type="hidden" name="sanPhamId" th:value="${item.sanPham.maSanPham}">
+										<input type="number" name="quantity" th:value="${item.soLuong}" min="1"
+											th:max="${item.sanPham.soLuong}" class="form-control text-center me-2"
+											style="width: 60px; display: inline-block; border: 2px solid #000; ">
+										<button type="submit" class="btn btn-info fw-bold"
+											style="background-color: #000; color: white; padding: 1px 2px; font-size: 13.5px;">
+											Tính tiền
+										</button>
+									</form>
+								</td>
+
+
+								<!-- Thành tiền -->
+								<td class="text-center fw-bold" style="color: #000; font-size: 14px;">
+									<span th:text="${sanPhamGiaSauGiamMap[item.sanPham.maSanPham] != null ? 
+        #numbers.formatDecimal(item.soLuong * sanPhamGiaSauGiamMap[item.sanPham.maSanPham], 0, 'COMMA', 0, 'POINT') + ' đ' 
+        : 'Đang cập nhật'}">
+									</span>
+								</td>
+
+							</tr>
+						</tbody>
+					</table>
+
+					<!-- Tiếp tục mua hàng -->
+					<a href="/index" class="fw-bold"
+						style="color: #28a745; text-decoration: none; transition: color 0.3s ease-in-out;"
+						onmouseover="this.style.color='#1e7e34'" onmouseout="this.style.color='#28a745'">
+						← Tiếp tục mua hàng
+					</a>
 				</div>
 
-				<!-- Nút xóa sản phẩm -->
-				<div class="ms-auto">
-					<form th:action="@{/customer/cart/remove}" method="POST">
-						<input type="hidden" name="sanPhamId" th:value="${item.sanPham.maSanPham}">
-						<button type="submit" class="btn btn-danger">Xóa</button>
-					</form>
+				<!-- Hóa đơn tóm tắt -->
+				<div class="col-md-4">
+					<div class="border p-3 rounded shadow-sm" style="background: #fff; border: #000;">
+						<h5 class="fw-bold" style="color: #000;">🧾 Hóa đơn của bạn</h5>
+						<hr style="border-top: 3px solid #000; margin: 0;">
+
+						<p class="d-flex justify-content-between">
+							<span style="color: #333;">Tạm tính:</span>
+							<span class="fw-bold" style="color: #000;"
+								th:text="${totalPrice != null ? #numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + ' đ' : 'Đang cập nhật'}">
+							</span>
+						</p>
+
+						<p class="d-flex justify-content-between">
+							<span style="color: #333;">Giảm giá:</span>
+							<span style="color: #000;"
+								th:text="${discount != null ? '-' + discount : '- 0'} + ' đ'"></span>
+						</p>
+						<hr>
+						<h4 class="fw-bold text-danger d-flex justify-content-between">
+							<span style="color: #000;">Tổng cộng:</span>
+							<span style="color: #ff6600;"
+								th:text="${totalPrice != null ? #numbers.formatDecimal((discount != null ? totalPrice - discount : totalPrice), 0, 'COMMA', 0, 'POINT') + ' đ' : 'Đang cập nhật'}">
+							</span>
+						</h4>
+
+						<p class="text-muted small" style="color: #000;">(Đã bao gồm VAT)</p>
+
+						<!-- Nút thanh toán -->
+						<form th:action="@{/customer/cart/checkout}" method="POST">
+							<button type="submit" class="btn btn-warning w-100 fw-bold"
+								style="background: #ff6600; border: none; font-size: 18px; color: #f8f9fa;">Tiến hành
+								đặt
+								hàng</button>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Tổng giá trị giỏ hàng -->
-		<div class="text-center my-5">
-			<h4 style="color: #007bff;">Tổng tiền: <span th:text="${totalPrice} + ' VND'"></span></h4>
-			<form th:action="@{/customer/cart/checkout}" method="POST">
-				<button type="submit" class="btn btn-primary">Đặt hàng</button>
-			</form>
+		<!-- Hiển thị nếu giỏ hàng trống -->
+		<div th:if="${cartItems.size() == 0}" class="text-center py-5">
+			<h5 class="text-muted fw-bold" style="color: #000;">🛒 Giỏ hàng của bạn đang trống!</h5>
+			<a href="/index" class="btn btn-outline-primary mt-3 fw-bold">Quay lại mua sắm</a>
 		</div>
-		<!-- Tổng giá trị giỏ hàng -->
-
-
 	</main>
 
 	<footer th:replace="customer/fragments/footer :: footer"></footer>
 
-	<!-- Script cập nhật số lượng sản phẩm trên icon -->
-	<!-- JavaScript -->
-
+	<!-- JavaScript cập nhật số lượng giỏ hàng -->
 	<script>
-
 		function updateCartIconCount() {
 			fetch('/customer/cart/total-items')
 				.then(response => response.json())
@@ -107,11 +178,8 @@
 						cartCountElement.textContent = totalItems;
 					}
 				})
-				.catch(error => {
-					console.error("Lỗi khi cập nhật số lượng giỏ hàng: ", error);
-				});
+				.catch(error => console.error("Lỗi khi cập nhật số lượng giỏ hàng: ", error));
 		}
-
 		document.addEventListener("DOMContentLoaded", function () {
 			updateCartIconCount();
 		});

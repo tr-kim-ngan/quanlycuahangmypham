@@ -99,6 +99,7 @@ public class DonHangController {
 	        return "redirect:/customer/order";
 	    }
 
+
 	    //  Thêm donHang vào model để Thymeleaf có thể sử dụng
 	    model.addAttribute("donHang", donHang);
 	    
@@ -150,6 +151,7 @@ public class DonHangController {
 
 		// Tính giá trị thành tiền cho từng sản phẩm trong đơn hàng
 		Map<ChiTietDonHang, BigDecimal> thanhTienMap = new HashMap<>();
+		 BigDecimal tongGiaTriSanPham = BigDecimal.ZERO; 
 		for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
 			BigDecimal giaSauKhuyenMai = chiTiet.getGiaTaiThoiDiemDat(); // Lấy giá tại thời điểm đặt từ chi tiết đơn
 																			// hàng
@@ -157,11 +159,22 @@ public class DonHangController {
 			// Tính thành tiền cho sản phẩm này
 			BigDecimal thanhTien = giaSauKhuyenMai.multiply(BigDecimal.valueOf(chiTiet.getSoLuong()));
 			thanhTienMap.put(chiTiet, thanhTien);
+			tongGiaTriSanPham = tongGiaTriSanPham.add(thanhTien); 
 		}
+		  // Lấy phí vận chuyển từ đơn hàng
+	    BigDecimal phiVanChuyen = donHang.getPhiVanChuyen();
 
+	    // Tính tổng tiền đơn hàng
+	    BigDecimal tongGiaTriDonHang = tongGiaTriSanPham.add(phiVanChuyen);
+	    System.out.println("💰 Tổng giá trị sản phẩm: " + tongGiaTriSanPham);
+	    System.out.println("🚚 Phí vận chuyển: " + phiVanChuyen);
+	    System.out.println("🛒 Tổng giá trị đơn hàng: " + tongGiaTriDonHang);
 		// Đưa `thanhTienMap` vào model để sử dụng trong view
-		model.addAttribute("donHang", donHang);
-		model.addAttribute("thanhTienMap", thanhTienMap);
+	    model.addAttribute("donHang", donHang);
+	    model.addAttribute("thanhTienMap", thanhTienMap);
+	    model.addAttribute("tongGiaTriSanPham", tongGiaTriSanPham);
+	    model.addAttribute("phiVanChuyen", phiVanChuyen);
+	    model.addAttribute("tongGiaTriDonHang", tongGiaTriDonHang);
 
 		return "customer/order_detail"; // Trả về trang order_detail.html
 	}
