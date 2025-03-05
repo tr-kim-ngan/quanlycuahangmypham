@@ -100,8 +100,15 @@
 						<div class="column">
 							<p><strong>Mã Hóa Đơn:</strong> <span th:text="${hoaDon.maHoaDon}"></span></p>
 							<p><strong>Ngày Xuất:</strong> <span th:text="${formattedNgayXuat}"></span></p>
-
-
+							<p><strong>Tổng Giá Trị Sản Phẩm:</strong>
+								<span class="fw-bold text-primary" th:text="${formattedTongGiaTriSanPham}"></span>
+							</p>
+							<p><strong>Phí Vận Chuyển:</strong>
+								<span class="fw-bold text-danger" th:text="${formattedPhiVanChuyen}"></span>
+							</p>
+							<p><strong>Tổng Giá Trị Đơn Hàng:</strong>
+								<span class="fw-bold text-success" th:text="${formattedTongGiaTriDonHang}"></span>
+							</p>
 							<p><strong>Tổng Tiền:</strong> <span th:text="${formattedTongTien}"></span></p>
 
 						</div>

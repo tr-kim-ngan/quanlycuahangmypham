@@ -107,6 +107,25 @@ public class HoaDonController {
 		// Định dạng tiền tệ trực tiếp vào `HoaDon` khi thêm vào model
 
 		// model.addAttribute("hoaDons", formattedHoaDons);
+		// DecimalFormat currencyFormat = new DecimalFormat("#,### đ");
+
+		for (HoaDon hoaDon : hoaDonPage.getContent()) {
+			BigDecimal tongGiaTriSanPham = BigDecimal.ZERO;
+			BigDecimal phiVanChuyen = hoaDon.getDonHang().getPhiVanChuyen(); // Lấy phí vận chuyển
+
+			// Tính tổng giá trị sản phẩm
+			for (ChiTietDonHang chiTiet : hoaDon.getDonHang().getChiTietDonHangs()) {
+				BigDecimal thanhTien = chiTiet.getGiaTaiThoiDiemDat().multiply(new BigDecimal(chiTiet.getSoLuong()));
+				tongGiaTriSanPham = tongGiaTriSanPham.add(thanhTien);
+			}
+
+			// Tính tổng giá trị đơn hàng
+			BigDecimal tongGiaTriDonHang = tongGiaTriSanPham.add(phiVanChuyen);
+			// Thêm vào model
+			hoaDon.setTongTien(tongGiaTriDonHang); // Gán tổng đơn hàng vào hoaDon
+			hoaDonService.updateHoaDon(hoaDon);
+
+		}
 
 		model.addAttribute("isEmpty", isEmpty);
 		model.addAttribute("formattedStartDate", formattedStartDate);
@@ -185,6 +204,13 @@ public class HoaDonController {
 		DecimalFormat currencyFormat = new DecimalFormat("#,###.## VND");
 		String formattedTongTien = currencyFormat.format(hoaDon.getTongTien());
 
+		// Lấy phí vận chuyển từ đơn hàng
+		BigDecimal phiVanChuyen = donHang.getPhiVanChuyen();
+		String formattedPhiVanChuyen = currencyFormat.format(phiVanChuyen);
+
+		// Tính tổng giá trị sản phẩm và tổng giá trị đơn hàng
+		BigDecimal tongGiaTriSanPham = BigDecimal.ZERO;
+
 		// Lấy chi tiết đơn hàng và định dạng tiền cho mỗi chi tiết
 		List<Map<String, String>> formattedChiTietDonHang = new ArrayList<>();
 		for (ChiTietDonHang chiTiet : hoaDon.getDonHang().getChiTietDonHangs()) {
@@ -196,14 +222,26 @@ public class HoaDonController {
 
 			// Định dạng giá trị tiền
 			String giaTaiThoiDiemDat = currencyFormat.format(chiTiet.getGiaTaiThoiDiemDat());
-			String thanhTien = currencyFormat
-					.format(chiTiet.getGiaTaiThoiDiemDat().multiply(new BigDecimal(chiTiet.getSoLuong())));
+//			String thanhTien = currencyFormat
+//					.format(chiTiet.getGiaTaiThoiDiemDat().multiply(new BigDecimal(chiTiet.getSoLuong())));
 
-			chiTietMap.put("giaTaiThoiDiemDat", giaTaiThoiDiemDat);
-			chiTietMap.put("thanhTien", thanhTien);
+//			chiTietMap.put("giaTaiThoiDiemDat", giaTaiThoiDiemDat);
+//			chiTietMap.put("thanhTien", thanhTien);
+			BigDecimal thanhTien = chiTiet.getGiaTaiThoiDiemDat().multiply(new BigDecimal(chiTiet.getSoLuong()));
+			tongGiaTriSanPham = tongGiaTriSanPham.add(thanhTien);
+			chiTietMap.put("giaTaiThoiDiemDat", currencyFormat.format(chiTiet.getGiaTaiThoiDiemDat()));
+			chiTietMap.put("thanhTien", currencyFormat.format(thanhTien));
 
 			formattedChiTietDonHang.add(chiTietMap);
 		}
+
+		BigDecimal tongGiaTriDonHang = tongGiaTriSanPham.add(phiVanChuyen);
+		String formattedTongGiaTriSanPham = currencyFormat.format(tongGiaTriSanPham);
+		String formattedTongGiaTriDonHang = currencyFormat.format(tongGiaTriDonHang);
+
+		model.addAttribute("formattedPhiVanChuyen", formattedPhiVanChuyen);
+		model.addAttribute("formattedTongGiaTriSanPham", formattedTongGiaTriSanPham);
+		model.addAttribute("formattedTongGiaTriDonHang", formattedTongGiaTriDonHang);
 
 		// Đưa dữ liệu vào model
 		model.addAttribute("hoaDon", hoaDon);
@@ -313,12 +351,10 @@ public class HoaDonController {
 
 		// Chiều cao của hàng (tăng để phần dưới header cao hơn)
 		float headerCellHeight = 30; // Tăng chiều cao tiêu đề
-		
 
 		// Vẽ tiêu đề bảng với chiều cao lớn hơn
 		drawRow(contentStream, font, leftColumnX, startY, headerCellHeight, columnWidths, headers, null, document);
 		startY -= headerCellHeight; // Trừ đi chiều cao của tiêu đề
-
 
 		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
 		if (donHang.getChiTietDonHangs() != null && !donHang.getChiTietDonHangs().isEmpty()) {

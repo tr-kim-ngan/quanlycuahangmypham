@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,10 +139,36 @@ public class HoaDonServiceImpl implements HoaDonService {
 
 	@Override
 	public BigDecimal calculateTotalRevenue() {
-		// 
-        return hoaDonRepository.calculateTotalRevenueByStatus("Đã xác nhận");
+	    // Lấy danh sách hóa đơn có trạng thái "Đã xác nhận"
+	    List<HoaDon> hoaDons = hoaDonRepository.findByTrangThaiThanhToanIn(Arrays.asList("Đã xác nhận", "Đã hoàn thành")); 
 
+	    BigDecimal totalRevenue = BigDecimal.ZERO;
+
+	    for (HoaDon hoaDon : hoaDons) {
+	        BigDecimal tongGiaTriSanPham = BigDecimal.ZERO;
+	        BigDecimal phiVanChuyen = hoaDon.getDonHang().getPhiVanChuyen(); // Lấy phí vận chuyển
+
+	        // Kiểm tra nếu phí vận chuyển là null thì gán 0
+	        if (phiVanChuyen == null) {
+	            phiVanChuyen = BigDecimal.ZERO;
+	        }
+
+	        // Tính tổng giá trị sản phẩm của hóa đơn
+	        for (ChiTietDonHang chiTiet : hoaDon.getDonHang().getChiTietDonHangs()) {
+	            BigDecimal thanhTien = chiTiet.getGiaTaiThoiDiemDat().multiply(new BigDecimal(chiTiet.getSoLuong()));
+	            tongGiaTriSanPham = tongGiaTriSanPham.add(thanhTien);
+	        }
+
+	        // Tính tổng giá trị đơn hàng
+	        BigDecimal tongGiaTriDonHang = tongGiaTriSanPham.add(phiVanChuyen);
+
+	        // Cộng vào tổng doanh thu
+	        totalRevenue = totalRevenue.add(tongGiaTriDonHang);
+	    }
+
+	    return totalRevenue;
 	}
+
 
 	@Override
 	public long countUnconfirmedInvoices() {
@@ -239,6 +267,40 @@ public class HoaDonServiceImpl implements HoaDonService {
 		    
 		    hoaDonRepository.save(hoaDon);
 		
+	}
+
+	@Override
+	 public List<Map<String, Object>> getRevenueByDate() {
+        List<Object[]> results = hoaDonRepository.getRevenueByDate();
+        return formatRevenueData(results);
+    }
+	@Override
+	public List<Map<String, Object>> getRevenueByWeek() {
+		// TODO Auto-generated method stub
+		   List<Object[]> results = hoaDonRepository.getRevenueByWeek();
+	        return formatRevenueData(results);
+	}
+
+	@Override
+	public List<Map<String, Object>> getRevenueByMonth() {
+		// TODO Auto-generated method stub
+		List<Object[]> results = hoaDonRepository.getRevenueByMonth();
+        return formatRevenueData(results);
+	}
+	 private List<Map<String, Object>> formatRevenueData(List<Object[]> results) {
+	        List<Map<String, Object>> formattedData = new ArrayList<>();
+	        for (Object[] result : results) {
+	            Map<String, Object> data = new HashMap<>();
+	            data.put("date", result[0]); // Ngày, tuần, hoặc tháng
+	            data.put("totalRevenue", result[1]); // Tổng doanh thu
+	            formattedData.add(data);
+	        }
+	        return formattedData;
+	    }
+
+	@Override
+	public void updateHoaDon(HoaDon hoaDon) {
+	    hoaDonRepository.save(hoaDon);
 	}
 
 	

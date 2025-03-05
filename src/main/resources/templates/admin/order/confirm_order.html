@@ -54,7 +54,7 @@
 									</th:block>
 									<th:block
 										th:if="${donHang != null and donHang.ghiChu != null and not #strings.isEmpty(donHang.ghiChu)}">
-										<p class="mt-2">❌ Lý Do Giao Hàng Thất Bại</p>
+										<p class="mt-2">Lý Do Giao Hàng Thất Bại</p>
 										<div class="">
 											<ul style="list-style: none; padding-left: 0;">
 												<li th:each="reason, iterStat : ${#strings.arraySplit(donHang.ghiChu, '🛑')}"
@@ -75,11 +75,11 @@
 											method="post"
 											onsubmit="return confirm('Bạn có chắc chắn thực hiện hành động này không?');">
 
-											<label for="orderAction">📌 Chọn hành động:</label>
+											<label for="orderAction">Chọn hành động:</label>
 											<select id="orderAction" name="status" class="form-control" required>
 												<option value="">-- Chọn trạng thái --</option>
-												<option value="confirm">✅ Xác nhận đơn hàng</option>
-												<option value="cancel">❌ Hủy đơn hàng</option>
+												<option value="confirm">Xác nhận đơn hàng</option>
+												<option value="cancel">Hủy đơn hàng</option>
 											</select>
 
 											<button type="submit" id="confirmButton" class="btn btn-primary mt-3">✔ Thực
@@ -94,21 +94,21 @@
 										<form
 											th:action="@{/admin/orders/{maDonHang}/assign-shipper(maDonHang=${donHang.maDonHang})}"
 											method="post">
-											<label for="shipper">📌 Chọn Shipper:</label>
+											<label for="shipper">Chọn Shipper:</label>
 											<select id="shipper" name="shipperId" class="form-control" required>
 												<option value="">-- Chọn Shipper --</option>
 												<option th:each="shipper : ${danhSachShipper}"
 													th:value="${shipper.maNguoiDung}"
-													th:text="${shipper.tenNguoiDung + ' (ID: ' + shipper.maNguoiDung + ')'}">
+													th:text="${shipper.tenNguoiDung}">
 												</option>
 											</select>
-											<button type="submit" class="btn btn-primary mt-3">🚚 Gán Shipper</button>
+											<button type="submit" class="btn btn-primary mt-3">Gán Shipper</button>
 										</form>
 									</th:block>
 									<!-- Hiển thị hình ảnh giao hàng nếu có -->
 									<th:block
 										th:if="${donHang.hinhAnhGiaoHang != null and not #strings.isEmpty(donHang.hinhAnhGiaoHang)}">
-										<h5 class="mt-3">📷 Hình Ảnh Giao Hàng</h5>
+										<h5 class="mt-3">Hình Ảnh Giao Hàng</h5>
 										<img th:src="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}"
 											alt="Hình ảnh giao hàng"
 											style="max-width: 300px; border-radius: 8px; box-shadow: 0px 0px 5px rgba(0,0,0,0.2);">
@@ -135,11 +135,12 @@
 
 									<!-- Nếu shipper đã được gán, hiển thị trạng thái -->
 									<div th:if="${donHang.shipper != null}">
-										<p>🚚 Đơn hàng đã được giao cho shipper: <span
+										<p > <strong>Đơn hàng đã được giao cho shipper: </strong>
+											<span
 												th:text="${donHang.shipper.tenNguoiDung}"
 												class="text-success fw-bold"></span>
 										</p>
-										<p>📞 Số điện thoại shipper:
+										<p> <strong>Số điện thoại shipper:</strong>
 											<span th:text="${donHang.shipper.soDienThoai}" class="text-primary"></span>
 										</p>
 

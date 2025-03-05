@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.math.BigDecimal;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 
 
@@ -65,6 +68,7 @@ public class AdminController {
 
         // Tính doanh thu từ các hóa đơn đã xác nhận
         BigDecimal totalRevenue = hoaDonService.calculateTotalRevenue();
+        System.out.println("🔍 Tổng doanh thu từ hóa đơn đã xác nhận: " + totalRevenue);
         model.addAttribute("totalRevenue", totalRevenue);
 		
      // Thêm số hóa đơn chưa xác nhận vào model
@@ -77,6 +81,15 @@ public class AdminController {
 		return "admin/index"; // Trang chính cho admin sau khi đăng nhập thành công
 	}
 
-	// Thêm một phương thức để chuyển hướng từ "/" sang "/admin/index"
+	 @GetMapping("/revenue-data")
+	    public ResponseEntity<Map<String, List<Map<String, Object>>>> getRevenueData() {
+	        Map<String, List<Map<String, Object>>> revenueData = new HashMap<>();
 
+	        // Lấy doanh thu theo ngày, tuần, tháng
+	        revenueData.put("daily", hoaDonService.getRevenueByDate());
+	        revenueData.put("weekly", hoaDonService.getRevenueByWeek());
+	        revenueData.put("monthly", hoaDonService.getRevenueByMonth());
+
+	        return ResponseEntity.ok(revenueData);
+	    }
 }

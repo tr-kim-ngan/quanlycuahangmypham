@@ -6,73 +6,126 @@
 <body>
 	<header th:replace="~{customer/fragments/header :: header}"></header>
 
-	<main class="container my-4" style="padding: 100px; padding-top:120px;">
-		<h2 class="my-5 text-center">Chi Tiết Đơn Hàng</h2>
+	<main class="container my-5" style="padding: 100px; padding-top:120px;">
+		<div class="card shadow-lg p-4">
+			<h2 class="my-5 text-center">Chi Tiết Đơn Hàng</h2>
 
-		<!-- Thông tin đơn hàng -->
-		<div class="mb-4" style="line-height: 1.8; color: #555;">
-			<p><strong>Mã đơn hàng:</strong> <span th:text="${donHang.maDonHang}"></span></p>
-			<p><strong>Ngày đặt hàng:</strong> <span
-					th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></span></p>
-			<p><strong>Địa chỉ giao hàng:</strong> <span th:text="${donHang.diaChiGiaoHang}"></span></p>
-			<p><strong>Số điện thoại:</strong> <span th:text="${donHang.sdtNhanHang}"></span></p>
-			<p><strong>Tổng giá trị:</strong> <span th:text="${donHang.tongGiaTriDonHang} + ' VND'"></span></p>
-			<p><strong>Trạng thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span></p>
-		</div>
+			<!-- Thông tin đơn hàng -->
+			<div class="bg-light p-4 rounded mb-4">
+				<div class="row">
+					<!-- Cột 1: Thông tin đơn hàng -->
+					<div class="col-md-6">
+						<p class="text-dark"><span>Mã đơn hàng:</span>
+							<span class="text-dark fw-bold" th:text="${donHang.maDonHang}"></span>
+						</p>
+						<p class="text-dark"><span>Ngày đặt hàng:</span>
+							<span class="text-dark fw-bold"
+								th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></span>
+						</p>
+						<p class="text-dark"><span>Địa chỉ giao hàng:</span>
+							<span class="text-dark fw-bold" th:text="${donHang.diaChiGiaoHang}"></span>
+						</p>
+						<p class="text-dark"><span>Số điện thoại:</span>
+							<span class="text-dark fw-bold" th:text="${donHang.sdtNhanHang}"></span>
+						</p>
+					</div>
 
-		<!-- Danh sách sản phẩm trong đơn hàng -->
-		<!-- Danh sách sản phẩm trong đơn hàng -->
-		<table class="table"
-			style="background-color: #ffffff; border: 3px solid rgb(64, 0, 64); border-radius: 10px; overflow: hidden;">
-			<thead style="background-color: rgb(192, 192, 192); color: #ffffff;">
-				<tr>
-					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">STT</th>
-					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">Hình ảnh</th>
-					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">Sản Phẩm</th>
-					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">Số Lượng</th>
-					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">Giá</th>
-					<th style="padding: 10px; text-align: center; border: 1px solid #ccc;">Thành Tiền</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="chiTiet, iterStat : ${donHang.chiTietDonHangs}" style="border: 1px solid rgb(64, 0, 64);">
-					<td th:text="${iterStat.count}"></td>
-					<td>
-						<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}" style="width: 100px; height: auto;"
-							alt="Ảnh sản phẩm" />
-					</td>
-					<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
-					<td th:text="${chiTiet.soLuong}"></td>
-					<td th:text="${chiTiet.giaTaiThoiDiemDat} + ' VND'"></td>
-					<!--<td th:text="${thanhTienMap[chiTiet]} + ' VND'"></td>-->
-					<td th:text="${thanhTienMap.get(chiTiet)} + ' VND'"></td>
-				</tr>
-			</tbody>
-			<!--<tbody>
-				<tr th:each="chiTiet, iterStat : ${chiTietDonHangs}">
-					<td th:text="${iterStat.count}"></td>
-					<td>
-						<img th:src="@{${#servletContext.contextPath()}/upload/${chiTiet.sanPham.hinhAnh}}"
-							style="width: 100px; height: auto;" alt="Ảnh sản phẩm" />
+					<!-- Cột 2: Giá trị đơn hàng -->
+					<div class="col-md-6">
+						<p class="text-dark"><span>Tổng giá trị sản phẩm:</span>
+							<span class="fw-bold"
+								th:text="${#numbers.formatDecimal(tongGiaTriSanPham, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+							</span>
+						</p>
+						<p class="text-dark"><span>Phí vận chuyển:</span>
+							<span class="text-dark fw-bold"
+								th:text="${#numbers.formatDecimal(phiVanChuyen, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+							</span>
+						</p>
 
-					</td>
-					<td th:text="${chiTiet.get('tenSanPham')}"></td>
-					<td th:text="${chiTiet.get('soLuong')}"></td>
-					<td th:text="${chiTiet.get('giaTaiThoiDiemDat')}"></td>
-					<td th:text="${chiTiet.get('thanhTien')}"></td>
-				</tr>
-			</tbody>-->
-
-
-		</table>
+						<p class="text-dark"><span>Tổng giá trị đơn hàng:</span>
+							<span class="text-dark fw-bold"
+								th:text="${#numbers.formatDecimal(tongGiaTriDonHang, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+							</span>
+						</p>
+						<p class="text-dark"><span>Số tiền cần trả:</span>
+							<span class="fw-bold" style="color: red;"
+								th:text="${#numbers.formatDecimal(donHang.tongGiaTriDonHang, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+							</span>
+						</p>
+						<p class="text-dark"><span>Trạng thái:</span>
+							<span style="color: blue;" th:text="${donHang.trangThaiDonHang}"></span>
+						</p>
+					</div>
+				</div>
+			</div>
 
 
 
-		<!-- Nút quay lại -->
-		<div class="text-center">
-			<a th:href="@{/customer/order}" class="btn btn-secondary">Quay Lại Danh Sách Đơn Hàng</a>
+			<!-- Danh sách sản phẩm trong đơn hàng -->
+			<!-- Danh sách sản phẩm trong đơn hàng -->
+			<table class="table table-bordered text-center">
+				<thead class="text-dark fw-bold">
+					<tr>
+						<th class="text-dark" style="padding: 10px; text-align: center; border: 1px solid #ccc;">STT
+						</th>
+						<th class="text-dark" style="padding: 10px; text-align: center; border: 1px solid #ccc;">Hình
+							ảnh</th>
+						<th class="text-dark" style="padding: 10px; text-align: center; border: 1px solid #ccc;">Sản
+							Phẩm & Số Lượng</th>
+						<th class="text-dark" style="padding: 10px; text-align: center; border: 1px solid #ccc;">Giá
+						</th>
+						<th class="text-dark" style="padding: 10px; text-align: center; border: 1px solid #ccc;">Thành
+							Tiền</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="chiTiet, iterStat : ${donHang.chiTietDonHangs}">
+						<td class=" fw-bold text-dark" th:text="${iterStat.count}"></td>
+						<td>
+							<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}" class="img-thumbnail"
+								style="width: 80px; height: 80px; object-fit: cover;" alt="Ảnh sản phẩm" />
+						</td>
+						<td class="fw-bold text-start text-dark">
+							<span th:text="${chiTiet.sanPham.tenSanPham}"></span>
+							<br>
+							<small class="text-dark">Số lượng: <span th:text="${chiTiet.soLuong}"></span></small>
+						</td>
+						<td class=" fw-bold text-dark"
+							th:text="${#numbers.formatDecimal(chiTiet.giaTaiThoiDiemDat, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+						</td>
+						<td class="fw-bold text-dark"
+							th:text="${#numbers.formatDecimal(thanhTienMap.get(chiTiet), 0, 'COMMA', 0, 'POINT')} + ' VND'">
+						</td>
+					</tr>
+				</tbody>
+
+
+
+			</table>
+
+
+
+			<!-- Nút quay lại -->
+			<div class="text-center">
+				<a th:href="@{/customer/order}" class="btn btn-secondary">Quay Lại Danh Sách Đơn Hàng</a>
+			</div>
 		</div>
 	</main>
+	<style>
+		/* Đảm bảo toàn bộ bảng có viền */
+		.table {
+			border: 1px solid #ccc;
+			border-collapse: collapse;
+			/* Giúp viền không bị tách ra */
+		}
+
+		.table th,
+		.table td {
+			border: 1px solid #ccc !important;
+			padding: 10px;
+		}
+	</style>
 	<script>
 
 		function updateCartIconCount() {

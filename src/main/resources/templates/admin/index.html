@@ -26,6 +26,16 @@
 
 					<!-- Các thẻ card để hiển thị thông tin thống kê -->
 					<!-- Card để hiển thị tổng số khách hàng -->
+					<div class="container mt-4">
+						<h3 class="text-center">📊 Doanh Thu</h3>
+						<select id="revenueFilter" class="form-select mb-3">
+							<option value="daily">Doanh thu theo ngày</option>
+							<option value="weekly">Doanh thu theo tuần</option>
+							<option value="monthly">Doanh thu theo tháng</option>
+						</select>
+						<canvas id="revenueChart"></canvas>
+					</div>
+
 					<div class="col-lg-3 col-md-6 col-sm-6">
 						<div class="card card-stats">
 							<div class="card-body">
@@ -166,15 +176,18 @@
 								<div class="col-7">
 									<div class="numbers">
 										<p class="card-category">Doanh thu</p>
-										<h3 class="card-title font-weight-bold" style="font-size: 15px;"
-											th:text="${totalRevenue} + ' VND'">0 VND
-										</h3>
+										<h3 class="text-success fw-bold"
+											th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+											</h2>
+
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+				<hr>
+				
 
 
 			</div>
@@ -189,6 +202,62 @@
 
 
 	</div>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const ctx = document.getElementById('revenueChart').getContext('2d');
+			let revenueChart;
+
+			function fetchRevenueData(filterType) {
+				fetch('/admin/revenue-data')
+					.then(response => response.json())
+					.then(data => {
+						updateChart(data[filterType]);
+					})
+					.catch(error => console.error("Lỗi khi lấy dữ liệu doanh thu:", error));
+			}
+
+			function updateChart(revenueData) {
+				const labels = revenueData.map(item => item.date);
+				const revenues = revenueData.map(item => item.totalRevenue);
+
+				if (revenueChart) {
+					revenueChart.destroy();
+				}
+
+				revenueChart = new Chart(ctx, {
+					type: 'line',
+					data: {
+						labels: labels,
+						datasets: [{
+							label: 'Doanh thu (VNĐ)',
+							data: revenues,
+							borderColor: 'rgba(75, 192, 192, 1)',
+							backgroundColor: 'rgba(75, 192, 192, 0.2)',
+							borderWidth: 2,
+							pointRadius: 4,
+							pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						scales: {
+							x: {title: {display: true, text: 'Thời gian'}},
+							y: {title: {display: true, text: 'Doanh thu (VNĐ)'}, beginAtZero: true}
+						}
+					}
+				});
+			}
+
+			document.getElementById('revenueFilter').addEventListener('change', function () {
+				fetchRevenueData(this.value);
+			});
+
+			fetchRevenueData('daily'); // Mặc định hiển thị doanh thu theo ngày
+		});
+	</script>
+
 
 	<!-- Custom Styles and Scripts -->
 	<style>
@@ -203,7 +272,6 @@
 			box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 		}
 	</style>
-
 	<div th:replace="~{admin/fragments/script::script}"></div>
 </body>
 

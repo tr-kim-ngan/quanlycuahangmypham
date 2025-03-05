@@ -36,6 +36,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -332,7 +333,17 @@ public class CustomerController {
 
 			    // ✅ Lấy thời gian kết thúc khuyến mãi
 			    Date ngayKetThuc = highestCurrentKhuyenMai.get().getNgayKetThuc();
-			    long thoiGianKetThuc = ngayKetThuc.getTime(); // Timestamp chính xác
+			 
+			    Calendar calendar = Calendar.getInstance();
+			    calendar.setTime(ngayKetThuc);
+			    calendar.set(Calendar.HOUR_OF_DAY, 23);
+			    calendar.set(Calendar.MINUTE, 59);
+			    calendar.set(Calendar.SECOND, 59);
+			    calendar.set(Calendar.MILLISECOND, 999);
+			    
+			    
+			  //  long thoiGianKetThuc = ngayKetThuc.getTime(); // Timestamp chính xác
+			    long thoiGianKetThuc = calendar.getTimeInMillis(); // Timestamp chính xác đến cuối ngày
 
 			    // ✅ Lấy thời gian hiện tại
 			    long thoiGianHienTai = System.currentTimeMillis();
@@ -369,9 +380,16 @@ public class CustomerController {
 			        model.addAttribute("countdown", countdown);
 			    } else {
 			        System.out.println("❌ Khuyến mãi đã hết hạn hoặc thời gian còn lại bị lỗi.");
+			        model.addAttribute("countdown", null);
 			    }
 			} else {
-			    sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), null);
+			   // sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), null);
+				 Map<String, Long> countdown = new HashMap<>();
+				    countdown.put("days", 0L);
+				    countdown.put("hours", 0L);
+				    countdown.put("minutes", 0L);
+				    countdown.put("seconds", 0L);
+				    model.addAttribute("countdown", countdown);
 			}
 
 

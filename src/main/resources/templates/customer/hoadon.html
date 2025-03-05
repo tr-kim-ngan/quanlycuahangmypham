@@ -7,131 +7,149 @@
 	<!-- Header -->
 	<div th:replace="~{customer/fragments/header :: header}"></div>
 	<!-- End Header -->
-	<main style="padding: 0px 300px; padding-top: 180px;">
+	<main class="container my-5" style="padding-top: 130px;">
+		<div class="row justify-content-center">
+			<div class="col-lg-10">
+				<!-- ✅ Chỉ hiển thị danh sách hóa đơn nếu chưa chọn hóa đơn chi tiết -->
+				<div th:if="${hoaDon == null}">
+					<div class="text-center mb-4">
+						<h2 class="fw-bold text-dark">📜 Danh Sách Hóa Đơn</h2>
+						<p class="text-muted">Dưới đây là thông tin các hóa đơn bạn đã đặt.</p>
+					</div>
 
-		<div class="container" style="background-color: #faeee7; border-radius: 20px; padding: 20px;">
-			<div class="page-inner" style="border-radius: 20px;">
-				<!-- Danh sách hóa đơn -->
-				<div class="d-flex justify-content-between align-items-center" style="border-radius: 10px;">
-					<div>
-						<h3 class="fw-bold mb-3">Danh Sách Hóa Đơn</h3>
-						<h6 class="op-7 mb-2">Thông tin các hóa đơn đã đặt</h6>
+					<div class="card shadow-lg p-4 rounded-4" style="border-left: 5px solid #ff6600;">
+						<table class="table table-hover align-middle text-center">
+							<thead class="table-dark text-white">
+								<tr>
+									<th>Mã Hóa Đơn</th>
+									<th>Ngày Xuất</th>
+									<th>Tổng Tiền</th>
+									<th>Thao Tác</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="hoaDon : ${hoaDons}" class="fw-bold">
+									<td th:text="${hoaDon.maHoaDon}"></td>
+									<td th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></td>
+									<td class="text-success fw-bold"
+										th:text="${#numbers.formatDecimal(hoaDon.tongTien, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+									</td>
+									<td>
+										<a th:href="@{/customer/hoadon/{maDonHang}(maDonHang=${hoaDon.donHang.maDonHang})}"
+											class="btn btn-outline-primary rounded-pill px-3">Xem Chi Tiết</a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 				</div>
 
-				<div th:if="${hoaDons != null}">
-					<table class="table table-bordered mt-4" style="border-radius: 15px; overflow: hidden;">
-						<thead class="table-light" style="border-radius: 10px;">
-							<tr>
-								<th>Mã Hóa Đơn</th>
-								<th>Ngày Xuất</th>
-								<th>Tổng Tiền</th>
-								<!--<th>Người Nhận</th>-->
-								<th>Thao Tác</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr th:each="hoaDon : ${hoaDons}">
-								<td th:text="${hoaDon.maHoaDon}"></td>
-								<td th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></td>
-								<td th:text="${hoaDon.tongTien} + ' VND'"></td>
-								<!--<td th:text="${hoaDon.tenNguoiNhan}"></td>-->
-								<td>
-									<a th:href="@{/customer/hoadon/{maDonHang}(maDonHang=${hoaDon.donHang.maDonHang})}"
-										class="btn btn-primary">Xem Chi Tiết</a>
-
-
-								</td>
-
-
-							</tr>
-						</tbody>
-					</table>
-				</div>
-
-				<!-- Chi tiết hóa đơn -->
-				<div class="mt-5" th:if="${hoaDon != null}">
-					<div class="card p-4" style="border-radius: 20px; background-color: #ffffff;">
-						<h5>Chi Tiết Hóa Đơn</h5>
+				<!-- ✅ Chỉ hiển thị chi tiết hóa đơn khi đã chọn một hóa đơn -->
+				<div th:if="${hoaDon != null}" class="mt-5">
+					<div class="card p-4 shadow-lg rounded-4 border-0">
+						<h4 class="fw-bold text-center text-primary">Chi Tiết Hóa Đơn</h4>
 						<div class="row mt-4">
+							<!-- Cột 1 -->
 							<div class="col-md-6">
-								<h5>Thông Tin Hóa Đơn</h5>
-								<p><strong>Mã Hóa Đơn:</strong> <span th:text="${hoaDon.maHoaDon}"></span></p>
-								<p><strong>Ngày Xuất:</strong> <span
+								<p><strong>Ngày Xuất:</strong>
+									<span class="text-dark fw-bold"
 										th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}"></span>
 								</p>
-								<!--<p><strong>Tổng Tiền:</strong> <span th:text="${formattedTotal} + ' VND'"></span></p>-->
 
-								<p><strong>Tổng Tiền:</strong> <span th:text="${hoaDon.tongTien} + ' VND'"></span></p>
-								<p><strong>Người Nhận:</strong> <span th:text="${hoaDon.tenNguoiNhan}"></span></p>
-								<p><strong>Địa Chỉ:</strong> <span th:text="${hoaDon.diaChiGiaoHang}"></span></p>
-								<p><strong>Số Điện Thoại:</strong> <span th:text="${hoaDon.soDienThoaiNhanHang}"></span>
+								<p><strong>Người Nhận:</strong> <span class="text-dark fw-bold"
+										th:text="${hoaDon.tenNguoiNhan}"></span></p>
+								<p><strong>Số Điện Thoại:</strong> <span class="text-dark fw-bold"
+										th:text="${hoaDon.soDienThoaiNhanHang}"></span>
 								</p>
+								<p><strong>Địa Chỉ:</strong> <span class="text-dark fw-bold"
+										th:text="${hoaDon.diaChiGiaoHang}"></span></p>
+
+							</div>
+
+							<!-- Cột 2 -->
+							<div class="col-md-6">
+
+
+
+								<p><strong>Tổng Giá Trị Sản Phẩm:</strong>
+									<span class="text-dark fw-bold" th:text="${tongGiaTriSanPham} + ' VND'"></span>
+								</p>
+
+								<p><strong>Phí Vận Chuyển:</strong>
+									<span class="text-dark fw-bold" th:text="${phiVanChuyen} + ' VND'"></span>
+								</p>
+								<p><strong>Tổng Giá Trị:</strong>
+									<span class="text-dark fw-bold" th:text="${tongGiaTriDonHang} + ' VND'"></span>
+								</p>
+							<!--	<p><strong>Số tiền đã trả:</strong>
+									<span class="text-dark fw-bold" style="color: red;"
+										th:text="${#numbers.formatDecimal(hoaDon.tongTien, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+									</span>
+								</p>-->
+
+
+
 							</div>
 						</div>
 
-						<!-- Danh sách sản phẩm trong hóa đơn -->
-						<h5 class="mt-5">Danh Sách Sản Phẩm Trong Đơn Hàng</h5>
-						<table class="table table-bordered mt-4" style="border-radius: 15px; overflow: hidden;">
-							<thead class="table-light" style="border-radius: 10px;">
+
+						<!-- Danh sách sản phẩm -->
+						<table class="table table-striped mt-3">
+							<thead class="table-light">
 								<tr>
-									<th>Mã Sản Phẩm</th>
+									<th>#</th>
 									<th>Hình Ảnh</th>
-									<th>Tên Sản Phẩm</th>
-									<th>Số Lượng</th>
-									<th>Giá Tại Thời Điểm Đặt</th>
+									<th>Sản Phẩm</th>
+
+									<th>Giá</th>
 									<th>Thành Tiền</th>
-									<th>Đánh giá</th>
+									<th>Đánh Giá</th>
 								</tr>
 							</thead>
-
-
 							<tbody>
 								<tr th:each="chiTiet, iterStat : ${hoaDon.donHang.chiTietDonHangs}">
 									<td th:text="${iterStat.count}"></td>
-									<td style="text-align: center;">
+									<td class="text-center">
 										<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}"
-											style="width: 100px; height: auto; border-radius: 10px;"
-											alt="Ảnh sản phẩm" />
+											class="rounded shadow-sm" style="width: 80px; height: auto;">
 									</td>
-									<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
-									<td th:text="${chiTiet.soLuong}"></td>
-									<td th:text="${chiTiet.giaTaiThoiDiemDat} + ' VND'"></td>
-									<td
-										th:text="${chiTiet.giaTaiThoiDiemDat.multiply(new java.math.BigDecimal(chiTiet.soLuong))} + ' VND'">
+									<td class="fw-bold">
+										<span th:text="${chiTiet.sanPham.tenSanPham}"></span>
+										<br>
+										<span class="text-muted">Số lượng: <span
+												th:text="${chiTiet.soLuong}"></span></span>
 									</td>
-									
+
+									<td class="text-dark"
+										th:text="${#numbers.formatDecimal(chiTiet.giaTaiThoiDiemDat, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+									</td>
+									<td class="fw-bold text-primary"
+										th:text="${#numbers.formatDecimal(chiTiet.giaTaiThoiDiemDat.multiply(new java.math.BigDecimal(chiTiet.soLuong)), 0, 'COMMA', 0, 'POINT')} + ' VND'">
+									</td>
 									<td>
-										<!-- Hiển thị nút "Xem Đánh Giá" hoặc "Đánh Giá" -->
 										<a th:if="${danhGiaStatuses[iterStat.index]}"
 											th:href="@{'/customer/hoadon/' + ${hoaDon.maHoaDon} + '/danhgia/' + ${chiTiet.sanPham.maSanPham} + '/view'}"
-											class="btn btn-primary">
-											Xem Đánh Giá
-										</a>
+											class="btn btn-outline-success rounded-pill px-3">Xem Đánh Giá</a>
 										<a th:if="${!danhGiaStatuses[iterStat.index]}"
 											th:href="@{'/customer/hoadon/' + ${hoaDon.maHoaDon} + '/danhgia/' + ${chiTiet.sanPham.maSanPham}}"
-											class="btn btn-secondary">Đánh Giá</a>
+											class="btn btn-outline-secondary rounded-pill px-3">Đánh Giá</a>
 									</td>
-
-
 								</tr>
 							</tbody>
-
 						</table>
-						<div class="mt-4">
-							<a th:href="@{/customer/hoadon}" class="btn btn-secondary">Quay Lại</a>
+
+						<!-- Nút Quay lại -->
+						<div class="text-center mt-4">
+							<a th:href="@{/customer/hoadon}" class="btn btn-outline-dark rounded-pill px-4">🔙 Quay
+								Lại</a>
 						</div>
 					</div>
 				</div>
 
-				<!-- Nút Quay lại -->
-				<!-- <div class="mt-4">
-                    <a th:href="@{/customer/hoadon}" class="btn btn-secondary">Quay Lại</a>
-                </div>-->
 			</div>
 		</div>
-
 	</main>
+
 	<!-- Footer -->
 	<div th:replace="~{customer/fragments/footer :: footer}"></div>
 	<!-- End Footer -->
