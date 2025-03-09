@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Quản lý Đơn Nhập Hàng</title>
+	<style>
+		/* Căn chỉnh toàn bộ trang */
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+
+		}
+
+		/* Thanh tiêu đề */
+		.header {
+			background-color: #f8f9fa;
+			padding: 15px 20px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 2px solid #dee2e6;
+		}
+
+		.header h2 {
+			margin: 0;
+			font-size: 20px;
+			color: #333;
+		}
+
+		.header-buttons {
+			display: flex;
+			gap: 10px;
+
+		}
+
+		.btn-success {
+			background-color: black;
+			color: white;
+			padding: 10px 15px;
+			border: none;
+			font-size: 16px;
+			cursor: pointer;
+			transition: background 0.3s ease;
+			text-decoration: none;
+		}
+
+
+
+
+
+		.btn-primary {
+			background-color: #007bff;
+			color: white;
+		}
+
+		.btn-primary:hover {
+			background-color: #0056b3;
+		}
+
+		.btn-secondary {
+			background-color: #6c757d;
+			color: white;
+		}
+
+		.btn-secondary:hover {
+			background-color: #5a6268;
+		}
+
+		/* Container chính */
+		.container {
+			max-width: 1100px;
+			margin: 20px auto;
+			background: white;
+			padding: 20px;
+
+		}
+
+		/* Bảng dữ liệu */
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-top: 20px;
+			background: white;
+		}
+
+		th,
+		td {
+			padding: 12px;
+			text-align: center;
+			border-bottom: 1px solid #ddd;
+		}
+
+		th {
+			background-color: azure;
+			color: black;
+			text-transform: uppercase;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f9f9f9;
+		}
+
+		tr:hover {
+			background-color: #f1f1f1;
+		}
+
+		/* Thông báo lỗi */
+		.alert {
+			padding: 10px;
+			text-align: center;
+			margin-top: 15px;
+			color: white;
+		}
+
+		.alert-danger {
+			background-color: #dc3545;
+		}
+
+		/* Hành động */
+		.action a {
+			text-decoration: none;
+			color: #007bff;
+			font-weight: bold;
+			padding: 5px 10px;
+			transition: 0.3s;
+		}
+
+		.action a:hover {
+			background-color: #007bff;
+			color: white;
+		}
+
+		.pagination {
+			display: flex;
+			justify-content: center;
+			margin-top: 20px;
+		}
+
+		.pagination ul {
+			list-style: none;
+			padding: 0;
+			display: flex;
+			gap: 5px;
+		}
+
+		.pagination li {
+			display: inline;
+		}
+
+		.pagination a {
+			text-decoration: none;
+			padding: 8px 12px;
+			border: 1px solid #ddd;
+			color: #007bff;
+			border-radius: 4px;
+		}
+
+		.pagination a:hover {
+			background-color: #007bff;
+			color: white;
+		}
+
+		.pagination a.active {
+			background-color: #007bff;
+			color: white;
+			font-weight: bold;
+		}
+	</style>
+</head>
+
+<body>
+	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+	<!-- Thanh tiêu đề -->
+	<div class="header" style="padding-left: 300px;">
+		<form th:action="@{/warehouse/import/purchaseorder}" method="get"
+			style="display: flex; gap: 5px; align-items: center;">
+			<input type="text" name="keyword" th:value="${keyword}" placeholder="Nhập tên nhà cung cấp..."
+				style="padding: 6px; width: 250px; border: 1px solid #ccc; border-radius: 4px;">
+			<button type="submit" class="btn btn-primary" style="padding: 7px 12px; border: none;">Tìm kiếm</button>
+		</form>
+		<h2>Quản lý Đơn Nhập Hàng</h2>
+		<div class="header-buttons">
+			<a href="/warehouse/import/add-purchase-order" class="btn btn-success">+ Thêm Đơn Nhập Hàng</a>
+		</div>
+	</div>
+
+	<!-- Thanh điều hướng -->
+	<!-- Thanh tìm kiếm -->
+
+
+	<div class="container" style="padding-left: 300px;">
+
+
+		<!-- Hiển thị lỗi nếu có -->
+		<div th:if="${errorMessage}" class="alert alert-danger">
+			<span th:text="${errorMessage}"></span>
+		</div>
+
+		<!-- Bảng danh sách đơn nhập hàng -->
+		<table>
+			<thead>
+				<tr>
+					<th>STT</th>
+					<th>Ngày Nhập</th>
+					<th>Nhà Cung Cấp</th>
+					<th>Tổng Số Tiền</th>
+					<th>Hành động</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:if="${listDonNhapHang == null or listDonNhapHang.isEmpty()}">
+					<td colspan="5" class="text-center">Không có đơn nhập hàng.</td>
+				</tr>
+				<tr th:each="donNhapHang, stat : ${listDonNhapHang}">
+					<td th:text="${stat.count}"></td>
+					<td th:text="${formattedNgayNhapHangValues[donNhapHang.maDonNhapHang]}"></td>
+					<td th:text="${donNhapHang.nhaCungCap.tenNhaCungCap}"></td>
+					<td th:text="${formattedTotalValues[donNhapHang.maDonNhapHang]}"></td>
+					<td class="action">
+						<a
+							th:href="@{/warehouse/import/purchaseorder/details/{id}(id=${donNhapHang.maDonNhapHang})}">Xem</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- Điều hướng phân trang -->
+	<div class="pagination">
+		<ul>
+			<li th:if="${currentPage > 0}">
+				<a th:href="@{${searchAction}(page=0, size=${size}, keyword=${keyword})}">«</a>
+			</li>
+			<li th:if="${currentPage > 0}">
+				<a th:href="@{${searchAction}(page=${currentPage - 1}, size=${size}, keyword=${keyword})}">‹</a>
+			</li>
+
+			<li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+				<a th:href="@{${searchAction}(page=${i}, size=${size}, keyword=${keyword})}"
+					th:classappend="${currentPage == i} ? 'active' : ''" th:text="${i + 1}"></a>
+			</li>
+
+			<li th:if="${currentPage < totalPages - 1}">
+				<a th:href="@{${searchAction}(page=${currentPage + 1}, size=${size}, keyword=${keyword})}">›</a>
+			</li>
+			<li th:if="${currentPage < totalPages - 1}">
+				<a th:href="@{${searchAction}(page=${totalPages - 1}, size=${size}, keyword=${keyword})}">»</a>
+			</li>
+		</ul>
+	</div>
+
+
+</body>
+
+</html>

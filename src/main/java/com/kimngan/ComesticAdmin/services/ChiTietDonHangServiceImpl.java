@@ -100,6 +100,13 @@ public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
 		return chiTietDonHangRepository.findTopSoldProductsByBrand(maThuongHieu, PageRequest.of(0, limit + 1));
 	}
 
+	@Override
+	public Integer getTotalQuantityBySanPhamId(Integer maSanPham) {
+		// TODO Auto-generated method stub
+		Integer totalQuantity = chiTietDonHangRepository.getTotalQuantityBySanPhamId(maSanPham);
+	    return (totalQuantity != null) ? totalQuantity : 0;
+	}
+
 
 
 }

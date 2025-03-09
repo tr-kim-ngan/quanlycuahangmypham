@@ -1,5 +1,6 @@
 package com.kimngan.ComesticAdmin.services;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,10 +112,29 @@ public class ChiTietDonNhapHangServiceImpl implements ChiTietDonNhapHangService 
 	}
 
 	@Override
-	public Integer getTotalImportedQuantityBySanPhamId(Integer sanPhamId) {
-	    Integer totalImported = chiTietDonNhapHangRepository.getTotalImportedQuantityBySanPhamId(sanPhamId);
-	    return (totalImported != null) ? totalImported : 0; // Tránh trả về null
+	 public Integer getTotalImportedQuantityBySanPhamId(Integer maSanPham) {
+        return chiTietDonNhapHangRepository.getTotalImportedQuantityBySanPhamId(maSanPham);
+    }
+
+	@Override
+	public LocalDate findLastTimeStockEmpty(Integer maSanPham) {
+		// TODO Auto-generated method stub
+        return chiTietDonNhapHangRepository.findLastTimeStockEmpty(maSanPham);
+
 	}
+
+	@Override
+	public Integer getTotalImportedQuantityAfterStockEmpty(Integer maSanPham, LocalDate lastStockEmptyTime) {
+	    if (lastStockEmptyTime == null) {
+	        Integer total = chiTietDonNhapHangRepository.getTotalImportedQuantityBySanPhamId(maSanPham);
+	        return (total != null) ? total : 0;  // Nếu null thì trả về 0
+	    }
+	    
+	    Integer total = chiTietDonNhapHangRepository.getTotalImportedQuantityAfterStockEmpty(maSanPham, lastStockEmptyTime);
+	    return (total != null) ? total : 0;  // Nếu null thì trả về 0
+	}
+
+
 
 
 }

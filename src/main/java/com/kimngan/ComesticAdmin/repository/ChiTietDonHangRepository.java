@@ -49,4 +49,10 @@ public interface ChiTietDonHangRepository extends JpaRepository<ChiTietDonHang, 
 		Integer getSoldQuantityFromCompletedInvoices(@Param("sanPhamId") Integer sanPhamId);
 
 	
+	
+	@Query("SELECT COALESCE(SUM(ctdh.soLuong), 0) FROM ChiTietDonHang ctdh " +
+		       "WHERE ctdh.sanPham.maSanPham = :maSanPham")
+		Integer getTotalQuantityBySanPhamId(@Param("maSanPham") Integer maSanPham);
+
+	
 }

@@ -121,6 +121,7 @@ public class NhaCungCap {
 		this.trangThai = trangThai;
 	}
 
+	
 	// Getters and Setters
 
 }

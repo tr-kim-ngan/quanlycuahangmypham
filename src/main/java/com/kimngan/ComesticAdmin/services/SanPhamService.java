@@ -71,5 +71,9 @@ public interface SanPhamService {
 	 List<SanPham> findByIdIn(List<Integer> maSanPhams);
 
 	 Page<SanPham> findAllActiveWithStock(Pageable pageable);
+	 void capNhatSoLuongTonKho(Integer maSanPham);
+	 Page<SanPham> findByTrangThai(Boolean trangThai, Pageable pageable);
+	 Integer getTotalImportedQuantity(Integer maSanPham);
+	 
 
 }

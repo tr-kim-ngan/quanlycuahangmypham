@@ -1,5 +1,6 @@
 package com.kimngan.ComesticAdmin.services;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHang;
@@ -41,4 +42,8 @@ public interface ChiTietDonNhapHangService {
 
 	Integer getTotalImportedQuantityBySanPhamId(Integer sanPhamId);
 
+	LocalDate findLastTimeStockEmpty(Integer maSanPham);
+	Integer getTotalImportedQuantityAfterStockEmpty(Integer maSanPham, LocalDate lastStockEmptyTime);
+	
+	
 }

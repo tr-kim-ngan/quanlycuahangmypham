@@ -23,6 +23,7 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 	Page<SanPham> findByTrangThaiTrue(Pageable pageable);
 	// Tìm tất cả sản phẩm có trạng thái active với phân trang
    // Page<SanPham> findByTrangThaiTrue(Pageable pageable);
+	Page<SanPham> findByTrangThai(Boolean trangThai, Pageable pageable);
 
 	//List<SanPham> findByTrangThai();
 	//List<SanPham> findByTrangThai(Boolean trangThai);

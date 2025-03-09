@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chỉnh sửa Nhà Cung Cấp</title>
+    <style>
+        /* Định dạng tổng thể */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        /* Thanh tiêu đề */
+        .header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Container chính */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px 20px;
+            background: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Form và input */
+        .form-group {
+			margin-right: 20px;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            display: block;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        /* Thông báo lỗi */
+        .alert {
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .alert-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Form bao quanh toàn bộ nội dung -->
+    <form action="#" th:action="@{/warehouse/import/nha-cung-cap/edit/{id}(id=${nhaCungCap.maNhaCungCap})}" 
+          method="post" th:object="${nhaCungCap}">
+
+        <!-- Thanh tiêu đề -->
+        <div class="header" style="padding-left: 300px;">
+            <h2>Chỉnh sửa Nhà Cung Cấp</h2>
+            <div class="header-buttons">
+                <a href="/warehouse/import/nha-cung-cap" class="btn btn-secondary">Hủy</a>
+                <button type="submit" class="btn btn-success">Cập Nhật</button>
+            </div>
+        </div>
+
+        <!-- Navbar -->
+        <div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+
+        <!-- Nội dung chính -->
+        <div class="container">
+            <div class="form-group">
+                <label for="tenNhaCungCap">Tên Nhà Cung Cấp:</label>
+                <input type="text" id="tenNhaCungCap" name="tenNhaCungCap" th:field="*{tenNhaCungCap}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="sdtNhaCungCap">Số Điện Thoại:</label>
+                <input type="text" id="sdtNhaCungCap" name="sdtNhaCungCap" th:field="*{sdtNhaCungCap}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="diaChiNhaCungCap">Địa Chỉ:</label>
+                <input type="text" id="diaChiNhaCungCap" name="diaChiNhaCungCap" th:field="*{diaChiNhaCungCap}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="emailNhaCungCap">Email:</label>
+                <input type="email" id="emailNhaCungCap" name="emailNhaCungCap" th:field="*{emailNhaCungCap}" required>
+            </div>
+        </div>
+
+    </form>
+
+    <!-- Hiển thị lỗi nếu có -->
+    <div th:if="${error}" class="alert alert-danger">
+        <p th:text="${error}"></p>
+    </div>
+
+</body>
+
+</html>
