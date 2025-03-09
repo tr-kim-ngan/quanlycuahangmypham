@@ -20,23 +20,24 @@ public class SanPham {
 	@Column(name = "TenSanPham", length = 200, nullable = false)
 	private String tenSanPham;
 
-	@Column(name = "MoTa", columnDefinition = "TEXT",nullable = false)
+	@Column(name = "MoTa", columnDefinition = "TEXT", nullable = false)
 	private String moTa;
 
-	@Column(name = "HinhAnh", length = 255,nullable = false)
+	@Column(name = "HinhAnh", length = 255, nullable = false)
 	private String hinhAnh;
 
-	@Column(name = "SoLuong",nullable = false)
+	@Column(name = "SoLuong", nullable = false)
 	private Integer soLuong;
 	
-	
+	@Column(name = "SoLuongTonKho", nullable = false)
+	private Integer soLuongTonKho;
+
 	@Column(name = "TrangThai", nullable = false)
-    private boolean trangThai = true; 
-	
-	
+	private boolean trangThai = true;
+
 	@Column(name = "DonGiaBan", precision = 20, scale = 2, nullable = false)
 	private BigDecimal donGiaBan;
-	
+
 	@OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL)
 	private List<DanhGia> danhGias;
 
@@ -44,25 +45,19 @@ public class SanPham {
 	@ManyToOne
 	@JoinColumn(name = "maDanhMuc", referencedColumnName = "maDanhMuc")
 	private DanhMuc danhMuc;
-	
+
 	@ManyToOne
-    @JoinColumn(name = "maThuongHieu", referencedColumnName = "maThuongHieu")
-    private ThuongHieu thuongHieu;
-	
+	@JoinColumn(name = "maThuongHieu", referencedColumnName = "maThuongHieu")
+	private ThuongHieu thuongHieu;
+
 	// quan hệ với Yêu thích
 
 	@OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<YeuThich> yeuThichs;
 
-	
 	// quan hệ với bảng Chi tiết đơn nhập hàng
-	@OneToMany(mappedBy = "sanPham",cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
+	@OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	private Set<ChiTietDonNhapHang> chiTietDonNhapHangs;
-
-	
-	
-	
-	
 
 	// Nhà cung cấp
 	@ManyToMany
@@ -74,35 +69,36 @@ public class SanPham {
 
 	@ManyToMany
 	@JoinTable(name = "SanPhamCoKhuyenMai", // Tên của bảng trung gian
-	        joinColumns = @JoinColumn(name = "maSanPham"), // Khóa ngoại từ bảng SanPham
-	        inverseJoinColumns = @JoinColumn(name = "maKhuyenMai") // Khóa ngoại từ bảng KhuyenMai
+			joinColumns = @JoinColumn(name = "maSanPham"), // Khóa ngoại từ bảng SanPham
+			inverseJoinColumns = @JoinColumn(name = "maKhuyenMai") // Khóa ngoại từ bảng KhuyenMai
 	)
 	private Set<KhuyenMai> khuyenMais;
 
-	
 	// quan hệ với bảng đơn vị tính
 	@ManyToOne
-    @JoinColumn(name = "MaDonVi", nullable = false)
-    private DonViTinh donViTinh;
- 
+	@JoinColumn(name = "MaDonVi", nullable = false)
+	private DonViTinh donViTinh;
+
 	@OneToMany(mappedBy = "sanPham")
 	private Set<ChiTietGioHang> chiTietGioHangs;
-
 
 	public SanPham() {
 
 	}
 
+	
 	public SanPham(Integer maSanPham, String tenSanPham, String moTa, String hinhAnh, Integer soLuong,
-			boolean trangThai, BigDecimal donGiaBan, List<DanhGia> danhGias, DanhMuc danhMuc, ThuongHieu thuongHieu,
-			Set<YeuThich> yeuThichs, Set<ChiTietDonNhapHang> chiTietDonNhapHangs, Set<NhaCungCap> nhaCungCaps,
-			Set<KhuyenMai> khuyenMais, DonViTinh donViTinh, Set<ChiTietGioHang> chiTietGioHangs) {
+			Integer soLuongTonKho, boolean trangThai, BigDecimal donGiaBan, List<DanhGia> danhGias, DanhMuc danhMuc,
+			ThuongHieu thuongHieu, Set<YeuThich> yeuThichs, Set<ChiTietDonNhapHang> chiTietDonNhapHangs,
+			Set<NhaCungCap> nhaCungCaps, Set<KhuyenMai> khuyenMais, DonViTinh donViTinh,
+			Set<ChiTietGioHang> chiTietGioHangs) {
 		super();
 		this.maSanPham = maSanPham;
 		this.tenSanPham = tenSanPham;
 		this.moTa = moTa;
 		this.hinhAnh = hinhAnh;
 		this.soLuong = soLuong;
+		this.soLuongTonKho = soLuongTonKho;
 		this.trangThai = trangThai;
 		this.donGiaBan = donGiaBan;
 		this.danhGias = danhGias;
@@ -117,12 +113,9 @@ public class SanPham {
 	}
 
 
-
-
 	public Integer getMaSanPham() {
 		return maSanPham;
 	}
-
 
 	public void setMaSanPham(Integer maSanPham) {
 		this.maSanPham = maSanPham;
@@ -168,19 +161,13 @@ public class SanPham {
 		this.danhMuc = danhMuc;
 	}
 
-
-
 	public BigDecimal getDonGiaBan() {
 		return donGiaBan;
 	}
 
-
-
 	public void setDonGiaBan(BigDecimal donGiaBan) {
 		this.donGiaBan = donGiaBan;
 	}
-
-
 
 	public Set<NhaCungCap> getNhaCungCaps() {
 		return nhaCungCaps;
@@ -214,8 +201,6 @@ public class SanPham {
 		this.trangThai = trangThai;
 	}
 
-
-
 	public Set<KhuyenMai> getKhuyenMais() {
 		return khuyenMais;
 	}
@@ -223,6 +208,7 @@ public class SanPham {
 	public void setKhuyenMais(Set<KhuyenMai> khuyenMais) {
 		this.khuyenMais = khuyenMais;
 	}
+
 	public Set<YeuThich> getYeuThichs() {
 		return yeuThichs;
 	}
@@ -254,6 +240,16 @@ public class SanPham {
 	public void setThuongHieu(ThuongHieu thuongHieu) {
 		this.thuongHieu = thuongHieu;
 	}
-	
 
+
+	public Integer getSoLuongTonKho() {
+		return soLuongTonKho;
+	}
+
+
+	public void setSoLuongTonKho(Integer soLuongTonKho) {
+		this.soLuongTonKho = soLuongTonKho;
+	}
+
+	
 }

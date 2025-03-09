@@ -73,27 +73,27 @@ public class ShipperAuthController {
 	// Trang chính của shipper, hiển thị thông tin cá nhân + danh sách đơn hàng
 	@GetMapping({ "", "/", "/index" })
 	public String shipperIndex(Model model, Principal principal) {
-		System.out.println("🔥🔥🔥 Controller ShipperController đã được gọi!");
+		System.out.println(" Controller ShipperController đã được gọi!");
 
 		if (principal == null) {
 			return "redirect:/shipper/login";
 		}
 
 		String username = principal.getName();
-		System.out.println("🚀 Username đang đăng nhập: " + username);
+		System.out.println(" Username đang đăng nhập: " + username);
 
 		NguoiDung currentShipper = nguoiDungService.findByTenNguoiDung(username);
 
 		if (currentShipper == null) {
-			System.out.println("❌ Không tìm thấy shipper!");
+			System.out.println(" Không tìm thấy shipper!");
 			model.addAttribute("errorMessage", "Không tìm thấy tài khoản shipper!");
 			return "shipper/index";
 		}
 
-		System.out.println("✅ Shipper ID: " + currentShipper.getMaNguoiDung());
+		System.out.println(" Shipper ID: " + currentShipper.getMaNguoiDung());
 
 		List<DonHang> danhSachDonHang = donHangService.findOrdersByShipper(currentShipper);
-		System.out.println("📦 Số đơn hàng tìm thấy: " + (danhSachDonHang != null ? danhSachDonHang.size() : "NULL"));
+		System.out.println(" Số đơn hàng tìm thấy: " + (danhSachDonHang != null ? danhSachDonHang.size() : "NULL"));
 
 		model.addAttribute("danhSachDonHang", danhSachDonHang);
 		model.addAttribute("shipper", currentShipper);
@@ -144,7 +144,7 @@ public class ShipperAuthController {
 		}
 
 		model.addAttribute("order", order);
-		model.addAttribute("shipper", currentShipper); // ✅ Thêm shipper vào model giống listAllOrders
+		model.addAttribute("shipper", currentShipper); //  Thêm shipper vào model giống listAllOrders
 
 		return "shipper/donhang/detail";
 	}
@@ -166,7 +166,7 @@ public class ShipperAuthController {
 			return "redirect:/shipper/orders";
 		}
 		if ("Đang chuẩn bị hàng".equals(order.getTrangThaiDonHang())) {
-			order.setTrangThaiChoXacNhan("Đang giao hàng"); // ✅ Lưu vào trạng thái chờ xác nhận
+			order.setTrangThaiChoXacNhan("Đang giao hàng"); //  Lưu vào trạng thái chờ xác nhận
 			donHangService.updateDonHang(order);
 			redirectAttributes.addFlashAttribute("successMessage", "Đã gửi yêu cầu xác nhận đang giao hàng.");
 			return "redirect:/shipper/order/" + orderId;
@@ -185,7 +185,7 @@ public class ShipperAuthController {
 		if (status.equals("Đã hoàn thành") && hinhAnh != null && !hinhAnh.isEmpty()) {
 			try {
 				String fileName = storageService.storeFile(hinhAnh);
-				order.setHinhAnhGiaoHang(fileName); // 🛑 Có chắc chỗ này đã chạy không?
+				order.setHinhAnhGiaoHang(fileName); //   Có chắc chỗ này đã chạy không?
 				System.out.println("📷 Ảnh đã lưu: " + fileName);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -194,13 +194,13 @@ public class ShipperAuthController {
 			}
 		}
 
-		// ✅ Kiểm tra nếu shipper đang đăng nhập có phải là shipper của đơn hàng không
+		//  Kiểm tra nếu shipper đang đăng nhập có phải là shipper của đơn hàng không
 		if (order.getShipper() == null || !order.getShipper().getTenNguoiDung().equals(principal.getName())) {
 			redirectAttributes.addFlashAttribute("errorMessage", "Bạn không phải shipper của đơn hàng này.");
 			return "redirect:/shipper/orders";
 		}
 
-		// ✅ Nếu shipper nhận đơn giao lại (Admin đã chọn giao lại)
+		//  Nếu shipper nhận đơn giao lại (Admin đã chọn giao lại)
 		if ("Chờ shipper xác nhận lại".equals(order.getTrangThaiChoXacNhan())) {
 			order.setTrangThaiDonHang("Đang chuẩn bị hàng"); // Quay về trạng thái chuẩn bị hàng
 			order.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận
@@ -208,7 +208,7 @@ public class ShipperAuthController {
 			redirectAttributes.addFlashAttribute("successMessage", "Bạn đã nhận đơn hàng để giao lại.");
 			return "redirect:/shipper/order/" + orderId;
 		}
-		// ✅ Chỉ cho phép shipper cập nhật trạng thái hợp lệ
+		//  Chỉ cho phép shipper cập nhật trạng thái hợp lệ
 		List<String> allowedStatuses = Arrays.asList("Đang giao hàng", "Đã hoàn thành", "Giao thất bại");
 
 		if (!allowedStatuses.contains(status)) {
@@ -216,7 +216,7 @@ public class ShipperAuthController {
 			return "redirect:/shipper/orders";
 		}
 
-		// ✅ Nếu trạng thái là "Giao thất bại", kiểm tra số lần giao thất bại
+		//  Nếu trạng thái là "Giao thất bại", kiểm tra số lần giao thất bại
 		if (status.equals("Giao thất bại")) {
 		    int soLanGiaoThatBai = order.getSoLanGiaoThatBai(); // Cần có trường này trong DonHang
 
@@ -225,38 +225,38 @@ public class ShipperAuthController {
 		        return "redirect:/shipper/orders";
 		    }
 
-		    // ✅ Cập nhật trạng thái thất bại theo số lần giao
+		    //  Cập nhật trạng thái thất bại theo số lần giao
 		    if (soLanGiaoThatBai == 0) {
 		        order.setTrangThaiChoXacNhan("Giao hàng thất bại (Lần 1)");
 		    } else if (soLanGiaoThatBai == 1) {
 		        order.setTrangThaiChoXacNhan("Giao hàng thất bại (Lần 2)");
 		    }
 
-		    // ✅ Lưu cả lịch sử lý do thất bại mà không ghi đè
-		 // ✅ Đảm bảo lưu cả lịch sử lý do thất bại mà không bị lỗi
+		    //  Lưu cả lịch sử lý do thất bại mà không ghi đè
+		 //  Đảm bảo lưu cả lịch sử lý do thất bại mà không bị lỗi
 		    if (lyDo != null && !lyDo.trim().isEmpty()) {
 		        String ghiChuCu = order.getGhiChu() == null ? "" : order.getGhiChu() ;
-		        order.setGhiChu(ghiChuCu + "🛑 Lần " + (soLanGiaoThatBai + 1) + ": " + lyDo.trim());
+		        order.setGhiChu(ghiChuCu + "  Lần " + (soLanGiaoThatBai + 1) + ": " + lyDo.trim());
 		    } else {
 		        String ghiChuCu = order.getGhiChu() == null ? "" : order.getGhiChu() + "\n";
-		        order.setGhiChu(ghiChuCu + "🛑 Lần " + (soLanGiaoThatBai + 1) + ": Không có lý do được cung cấp.");
+		        order.setGhiChu(ghiChuCu + "  Lần " + (soLanGiaoThatBai + 1) + ": Không có lý do được cung cấp.");
 		    }
 
-		    // ✅ Cập nhật số lần giao thất bại
+		    //  Cập nhật số lần giao thất bại
 		    order.setSoLanGiaoThatBai(soLanGiaoThatBai + 1);
 		    
 		    donHangService.updateDonHang(order);
 		    
-		    System.out.println("📌 Ghi chú sau khi shipper nhập: " + order.getGhiChu());
+		    System.out.println(" Ghi chú sau khi shipper nhập: " + order.getGhiChu());
 
 		    redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thất bại. Chờ admin xác nhận.");
 		    return "redirect:/shipper/order/" + orderId;
 		}
 
 
-		// ✅ Nếu trạng thái là "Đã hoàn thành", lưu ảnh giao hàng
+		//  Nếu trạng thái là "Đã hoàn thành", lưu ảnh giao hàng
 
-		System.out.println("🚀 Nhận yêu cầu cập nhật trạng thái:");
+		System.out.println(" Nhận yêu cầu cập nhật trạng thái:");
 		System.out.println("🔹 Order ID: " + orderId);
 		System.out.println("🔹 Trạng thái mới: " + status);
 		System.out.println("🔹 Lý do thất bại (lyDo): " + lyDo);
@@ -264,7 +264,7 @@ public class ShipperAuthController {
 
 		order.setTrangThaiChoXacNhan(status);
 		donHangService.updateDonHang(order);
-		System.out.println("✅ Cập nhật trạng thái thành công.");
+		System.out.println(" Cập nhật trạng thái thành công.");
 
 		redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công. Chờ admin xác nhận.");
 		return "redirect:/shipper/order/" + orderId;

@@ -1,6 +1,7 @@
 package com.kimngan.ComesticAdmin.services;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.kimngan.ComesticAdmin.entity.SanPham;
+import com.kimngan.ComesticAdmin.repository.ChiTietDonNhapHangRepository;
 import com.kimngan.ComesticAdmin.repository.DanhGiaRepository;
 import com.kimngan.ComesticAdmin.repository.SanPhamRepository;
 
@@ -24,7 +26,13 @@ public class SanPhamServiceImpl implements SanPhamService {
 	@Autowired
 	private DanhGiaRepository danhGiaRepository;
 	@Autowired
-    private ChiTietDonHangService chiTietDonHangService;
+	private ChiTietDonHangService chiTietDonHangService;
+	@Autowired
+	private ChiTietDonNhapHangService chiTietDonNhapHangService;
+
+	@Autowired
+	private ChiTietDonNhapHangRepository chiTietDonNhapHangRepository;
+
 	@Override
 	public List<SanPham> getAll() {
 		// TODO Auto-generated method stub
@@ -38,6 +46,11 @@ public class SanPhamServiceImpl implements SanPhamService {
 			return null; // Sản phẩm đã tồn tại và đang hoạt động
 		}
 		sanPham.setTrangThai(true); // Đảm bảo trạng thái là hoạt động khi tạo mới
+		// Kiểm tra nếu soLuongTonKho bị null thì đặt về 0
+		if (sanPham.getSoLuongTonKho() == null) {
+			sanPham.setSoLuongTonKho(0);
+		}
+
 		return sanPhamRepository.save(sanPham);
 	}
 
@@ -178,21 +191,22 @@ public class SanPhamServiceImpl implements SanPhamService {
 	public Page<SanPham> findByDanhMucAndTrangThaiWithPagination(Integer maDanhMuc, Boolean trangThai,
 			Pageable pageable) {
 		// TODO Auto-generated method stub
-		 // Sử dụng phương thức hiện tại để tìm sản phẩm theo danh mục và trạng thái
-        List<SanPham> sanPhams = sanPhamRepository.findByDanhMuc_MaDanhMucAndTrangThai(maDanhMuc, trangThai);
+		// Sử dụng phương thức hiện tại để tìm sản phẩm theo danh mục và trạng thái
+		List<SanPham> sanPhams = sanPhamRepository.findByDanhMuc_MaDanhMucAndTrangThai(maDanhMuc, trangThai);
 
-        // Chuyển đổi từ List sang Page bằng Pageable
-        int start = Math.min((int) pageable.getOffset(), sanPhams.size());
-        int end = Math.min((start + pageable.getPageSize()), sanPhams.size());
-        List<SanPham> subList = sanPhams.subList(start, end);
+		// Chuyển đổi từ List sang Page bằng Pageable
+		int start = Math.min((int) pageable.getOffset(), sanPhams.size());
+		int end = Math.min((start + pageable.getPageSize()), sanPhams.size());
+		List<SanPham> subList = sanPhams.subList(start, end);
 
-        return new PageImpl<>(subList, pageable, sanPhams.size());
+		return new PageImpl<>(subList, pageable, sanPhams.size());
 	}
 
 	@Override
 	public Page<SanPham> searchByCategoryAndName(Integer maDanhMuc, String keyword, Pageable pageable) {
 		// TODO Auto-generated method stub
-	    return sanPhamRepository.findByDanhMuc_MaDanhMucAndTenSanPhamContainingAndTrangThai(maDanhMuc, keyword, true, pageable);
+		return sanPhamRepository.findByDanhMuc_MaDanhMucAndTenSanPhamContainingAndTrangThai(maDanhMuc, keyword, true,
+				pageable);
 
 	}
 
@@ -215,25 +229,23 @@ public class SanPhamServiceImpl implements SanPhamService {
 		return sanPhamRepository.countByTrangThaiTrue();
 	}
 
-	
-
 	@Override
 	public Page<SanPham> findActiveProductsByBrand(Integer maThuongHieu, Pageable pageable) {
 		// TODO Auto-generated method stub
-	    return sanPhamRepository.findByThuongHieu_MaThuongHieuAndTrangThai(maThuongHieu, true, pageable);
+		return sanPhamRepository.findByThuongHieu_MaThuongHieuAndTrangThai(maThuongHieu, true, pageable);
 	}
 
 	@Override
 	public Page<SanPham> findAllActiveByPriceRange(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
 		// TODO Auto-generated method stub
-        return sanPhamRepository.findAllActiveByPriceRange(minPrice, maxPrice, pageable);
+		return sanPhamRepository.findAllActiveByPriceRange(minPrice, maxPrice, pageable);
 	}
 
 	@Override
 	public Page<SanPham> findActiveProductsByCategoryAndPrice(Integer maDanhMuc, BigDecimal minPrice,
 			BigDecimal maxPrice, Pageable pageable) {
 		// TODO Auto-generated method stub
-        return sanPhamRepository.findActiveProductsByCategoryAndPrice(maDanhMuc, minPrice, maxPrice, pageable);
+		return sanPhamRepository.findActiveProductsByCategoryAndPrice(maDanhMuc, minPrice, maxPrice, pageable);
 	}
 
 	@Override
@@ -244,15 +256,44 @@ public class SanPhamServiceImpl implements SanPhamService {
 
 	@Override
 	public Page<SanPham> findAllActiveWithStock(Pageable pageable) {
-	    return sanPhamRepository.findAllActiveWithStock(pageable);
+		return sanPhamRepository.findAllActiveWithStock(pageable);
 	}
 
+	@Override
+	public void capNhatSoLuongTonKho(Integer maSanPham) {
+		// Lấy tổng số lượng nhập từ chi tiết đơn nhập hàng
+		int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
 
+		// Lấy sản phẩm từ database
+		SanPham sanPham = sanPhamRepository.findById(maSanPham).orElse(null);
+		if (sanPham == null)
+			return; // Nếu sản phẩm không tồn tại, thoát
 
-	
-	
-	
+		// Tính số lượng tồn kho = Tổng số lượng nhập - Số lượng trên kệ
+		int soLuongTonKho = tongSoLuongNhap - sanPham.getSoLuong();
 
-	
+		// Cập nhật vào database
+		sanPham.setSoLuongTonKho(soLuongTonKho);
+		sanPhamRepository.save(sanPham);
+	}
+
+	@Override
+	public Page<SanPham> findByTrangThai(Boolean trangThai, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return sanPhamRepository.findByTrangThai(trangThai, pageable);
+	}
+
+	@Override
+	public Integer getTotalImportedQuantity(Integer maSanPham) {
+		LocalDate lastStockEmptyTime = chiTietDonNhapHangRepository.findLastTimeStockEmpty(maSanPham);
+
+		if (lastStockEmptyTime == null) {
+			// Nếu chưa từng hết hàng, lấy tổng tất cả các lần nhập
+			return chiTietDonNhapHangRepository.getTotalImportedQuantityAfterStockEmpty(maSanPham,
+					LocalDate.of(2023, 1, 1));
+		}
+
+		return chiTietDonNhapHangRepository.getTotalImportedQuantityAfterStockEmpty(maSanPham, lastStockEmptyTime);
+	}
 
 }

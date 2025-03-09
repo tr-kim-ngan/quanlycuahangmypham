@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Chi Tiết Đơn Nhập Hàng</title>
+    <style>
+        /* Định dạng tổng thể */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+           
+        }
+
+        /* Thanh tiêu đề */
+        .header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #dee2e6;
+            margin-left: 250px;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        /* Nút bấm */
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Container chính */
+        .container {
+            max-width: 1200px; /* Mở rộng khung chứa */
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Bảng sản phẩm */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: azure;
+            color: black;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Input */
+        input[type="number"] {
+            width: 120px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* Thông báo */
+        .alert {
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .alert-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .alert-success {
+            background-color: #28a745;
+            color: white;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let checkboxes = document.querySelectorAll("input[name='sanPhamIds']");
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", function() {
+                    let row = this.closest("tr");
+                    let quantityInput = row.querySelector("input[name='soLuongNhap']");
+                    let priceInput = row.querySelector("input[name='donGiaNhap']");
+
+                    if (this.checked) {
+                        quantityInput.required = true;
+                        priceInput.required = true;
+                        quantityInput.disabled = false;
+                        priceInput.disabled = false;
+                    } else {
+                        quantityInput.required = false;
+                        priceInput.required = false;
+                        quantityInput.disabled = true;
+                        priceInput.disabled = true;
+                        quantityInput.value = "";
+                        priceInput.value = "";
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+
+    <!-- Thanh Navbar -->
+    <div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+
+    <!-- Thanh tiêu đề -->
+    <div class="header">
+        <h2>Thêm Chi Tiết Đơn Nhập Hàng</h2>
+        <div class="btn-container">
+            <a href="/warehouse/import/purchaseorder" class="btn btn-secondary">Quay lại</a>
+            <button type="submit" form="purchaseDetailForm" class="btn btn-primary">Lưu Chi Tiết</button>
+        </div>
+    </div>
+
+    <!-- Container chính -->
+    <div class="container" style="padding-left: 300px;">
+        <!-- Thông báo lỗi -->
+        
+        <!-- Form nhập chi tiết đơn nhập hàng -->
+        <form id="purchaseDetailForm" th:action="@{/warehouse/import/save-purchase-order-details/{maDonNhapHang}(maDonNhapHang=${donNhapHang.maDonNhapHang})}" method="post">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">Chọn</th>
+                        <th style="width: 50%;">Sản phẩm</th>
+                        <th style="width: 20%;">Số lượng</th>
+                        <th style="width: 20%;">Đơn giá (VND)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="sanPham : ${sanPhams}">
+                        <td>
+                            <input type="checkbox" name="sanPhamIds" th:value="${sanPham.maSanPham}">
+                        </td>
+                        <td th:text="${sanPham.tenSanPham}"></td>
+                        <td><input type="number" name="soLuongNhap" min="1" disabled placeholder="nhập số lượng"></td>
+                        <td><input type="number" name="donGiaNhap" min="1000" disabled  placeholder="nhập đơn giá" ></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+</body>
+</html>
