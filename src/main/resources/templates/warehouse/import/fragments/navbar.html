@@ -4,6 +4,9 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Quản lý Kho</title>
+
+	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
+
 </head>
 
 <body style="margin: 0; padding: 0; display: flex; font-family: Arial, sans-serif; background-color: #f4f4f4;">
@@ -23,10 +26,27 @@
         justify-content: space-between;
         padding: 10px 0;
     ">
-			<div
-				style="text-align: center; font-size: 20px; font-weight: bold; padding: 20px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
-				Nhập Kho
+			<div style="
+    text-align: center; 
+    font-size: 20px; 
+    font-weight: bold; 
+    padding: 20px 0; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    gap: 10px;">
+
+				<!-- Bọc cả icon và chữ vào thẻ <a> -->
+				<a href="/warehouse/import/purchaseorder"
+					style="display: flex; align-items: center; text-decoration: none; color: white;">
+					<img src="/fe/images/warehouse.png" alt="Nhập Kho" style="width: 70px; height: 70px;">
+					<span style="margin-left: 10px;">Nhập Kho</span>
+				</a>
+
 			</div>
+
+
 
 			<div class="menu" style="flex-grow: 1; padding: 10px;">
 				<ul style="list-style: none; padding: 0; margin: 0;">
@@ -72,6 +92,22 @@
 							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
 							📜 Nhà Cung Cấp</a>
 					</li>
+					<li style="margin-bottom: 5px;">
+						<a href="/warehouse/import/thong-ke" style="
+				        display: flex;
+				        align-items: center;
+				        text-decoration: none;
+				        color: white;
+				        font-size: 16px;
+				        padding: 12px 20px;
+				        border-radius: 5px;
+				        transition: background 0.3s ease, transform 0.2s ease;
+				    " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+							📈 Thống kê
+						</a>
+					</li>
+
 				</ul>
 			</div>
 

@@ -134,6 +134,27 @@ public class ChiTietDonNhapHangServiceImpl implements ChiTietDonNhapHangService 
 	    return (total != null) ? total : 0;  // Nếu null thì trả về 0
 	}
 
+	@Override
+	public List<Object[]> getImportStatistics(LocalDate fromDate, LocalDate toDate) {
+		// TODO Auto-generated method stub
+		return chiTietDonNhapHangRepository.findImportStatistics(fromDate, toDate);
+	}
+
+	@Override
+	public List<Object[]> getBaoCaoChiTiet(LocalDate fromDate, LocalDate toDate) {
+		// TODO Auto-generated method stub
+	    return chiTietDonNhapHangRepository.getBaoCaoChiTiet(fromDate, toDate);
+
+	}
+
+	@Override
+	public List<Object[]> getTopSuppliers(LocalDate fromDate, LocalDate toDate) {
+		// TODO Auto-generated method stub
+	    return chiTietDonNhapHangRepository.findTopSuppliers(fromDate, toDate);
+
+	}
+
+
 
 
 

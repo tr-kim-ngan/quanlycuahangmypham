@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Thống kê Nhập Kho</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+	<style>
+		/* Định dạng tổng thể */
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+		}
+
+		/* Sidebar */
+		.sidebar {
+			width: 250px;
+			min-height: 100px;
+			/* Đảm bảo không bị co quá nhỏ */
+			max-height: 90vh;
+			/* Giới hạn chiều cao tối đa */
+			position: fixed;
+			top: 53px;
+			right: -250px;
+			/* Ẩn sidebar ban đầu */
+			background-color: white;
+			color: black;
+			padding: 5px 5px 0px 0px;
+			overflow-y: auto;
+			/* Cuộn nếu nội dung quá dài */
+			transition: right 0.3s ease-in-out;
+			box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
+			border-radius: 10px;
+			/* Bo góc nhìn gọn hơn */
+		}
+
+		/* Khi mở */
+		.sidebar.open {
+			right: 0;
+			top: 53px;
+		}
+
+		/* Căn chỉnh lại khoảng cách giữa các mục */
+		.sidebar ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		.sidebar ul li {
+			padding: 10px 20px;
+			transition: background 0.3s;
+		}
+
+		/* Link */
+		.sidebar ul li a {
+			text-decoration: none;
+			color: black;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			/* Khoảng cách giữa icon và text */
+		}
+
+		.sidebar ul li:hover {
+			background-color: #dee2e6;
+		}
+
+
+		/* Container chính */
+
+
+		/* Tiêu đề */
+		.header {
+			background-color: #f8f9fa;
+			padding: 15px;
+			text-align: center;
+			font-size: 18px;
+			font-weight: bold;
+			border-bottom: 2px solid #dee2e6;
+		}
+
+		/* Form chọn ngày */
+		.filter-form {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-bottom: 15px;
+		}
+
+		.filter-form input {
+			padding: 8px;
+			margin: 5px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+		}
+
+		.filter-form button {
+			background-color: #007bff;
+			color: white;
+			border: none;
+			padding: 8px 12px;
+			border-radius: 5px;
+			cursor: pointer;
+			margin-left: 5px;
+		}
+
+		.filter-form button:hover {
+			background-color: #0056b3;
+		}
+
+		/* Biểu đồ */
+		.chart-container {
+			width: 90%;
+			/* Chiếm khoảng 90% không gian thay vì 100% */
+			max-width: 1000px;
+			/* Giới hạn kích thước tối đa để tránh bị quá rộng */
+			margin: 0 auto;
+			padding: 20px;
+		}
+
+
+		.container {
+			width: calc(100% - 280px);
+			/* 100% trừ đi chiều rộng navbar */
+			margin-left: 250px;
+			/* Dịch phải để tránh bị che bởi navbar */
+			padding: 20px;
+			background: white;
+			max-width: 1300px;
+			/* Giới hạn chiều rộng tối đa */
+		}
+
+
+		.toggle-btn {
+			position: fixed;
+			top: 0;
+			right: 20px;
+			background: transparent;
+			color: black;
+			border: none;
+			padding: 10px 15px;
+			cursor: pointer;
+			font-size: 16px;
+
+			transition: background 0.3s;
+			right: 20px;
+		}
+
+		canvas {
+			width: 100% !important;
+			height: 450px !important;
+			max-width: 1000px;
+			/* Định giới hạn chiều rộng */
+		}
+
+		.report-container {
+			margin-top: 20px;
+			padding: 20px;
+			background: white;
+			border-radius: 8px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.report-container h3 {
+			margin-bottom: 15px;
+			font-size: 18px;
+			font-weight: bold;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			background: white;
+		}
+
+		th,
+		td {
+			padding: 10px;
+			text-align: center;
+			border: 1px solid #ddd;
+		}
+
+		th {
+			background-color: #f8f9fa;
+			font-weight: bold;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f2f2f2;
+		}
+
+		tr:hover {
+			background-color: #e6f7ff;
+		}
+	</style>
+</head>
+
+<body>
+	<button class="toggle-btn" onclick="toggleSidebar()">☰ Thống kê</button>
+
+	<!-- Sidebar bên phải -->
+	<div class="sidebar" id="sidebar">
+		<ul>
+			<li><a th:href="@{/warehouse/import/thong-ke}" th:classappend="${activeMenu == 'tong-quan'} ? 'active'">🏠
+					Tổng quan</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/so-luong}"
+					th:classappend="${activeMenu == 'so-luong'} ? 'active'">📊 Số lượng nhập kho</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/tong-gia-tri}"
+					th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">💰 Tổng giá trị nhập kho</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/nha-cung-cap}"
+					th:classappend="${activeMenu == 'nha-cung-cap'} ? 'active'">🚚 Theo nhà cung cấp</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/danh-muc}"
+					th:classappend="${activeMenu == 'danh-muc'} ? 'active'">🏷️ Theo danh mục sản phẩm</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/xu-huong}"
+					th:classappend="${activeMenu == 'xu-huong'} ? 'active'">📅 Xu hướng nhập kho</a></li>
+		</ul>
+	</div>
+	<!-- Thanh tiêu đề -->
+	<div class="header">Thống kê Nhập Kho</div>
+
+	<!-- Navbar -->
+	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+	<!-- Sidebar -->
+
+	<!-- Container chính -->
+	<div class="container">
+
+		<!-- Form chọn ngày -->
+		<form method="GET" action="/warehouse/import/thong-ke" class="filter-form">
+			<label>Ngày bắt đầu:</label>
+			<input type="date" name="fromDate" th:value="${fromDate}" required>
+
+			<label>Ngày kết thúc:</label>
+			<input type="date" name="toDate" th:value="${toDate}" required>
+
+			<button type="submit">Lọc</button>
+		</form>
+
+		<!-- Biểu đồ thống kê -->
+		<div class="chart-container">
+			<canvas id="importChart"></canvas>
+		</div>
+		<!-- Báo cáo chi tiết nhập kho -->
+		<div class="report-container">
+			<h3>📋 Báo cáo chi tiết nhập kho</h3>
+			<table>
+				<thead>
+					<tr>
+						<th>Sản phẩm</th>
+						<th>Số lượng nhập</th>
+						<th>Ngày nhập</th>
+						<th>Nhà cung cấp</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="row : ${danhSachBaoCao}">
+						<td th:text="${row[0]}"></td> <!-- Tên sản phẩm -->
+						<td th:text="${row[1]}" style="text-align: center;"></td> <!-- Số lượng nhập -->
+						<td th:text="${#temporals.format(row[2], 'dd/MM/yyyy')}"></td> <!-- Ngày nhập -->
+						<td th:text="${row[3]}" style="white-space: nowrap;"></td> <!-- Nhà cung cấp -->
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<!-- Bảng thống kê top nhà cung cấp nhập hàng nhiều nhất -->
+		<div class="report-container">
+			<h3>🏆 Top Nhà Cung Cấp Nhập Nhiều Nhất</h3>
+			<table class="report-table">
+				<thead>
+					<tr>
+						<th>STT</th>
+						<th>Nhà Cung Cấp</th>
+						<th>Tổng Số Lượng Nhập</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="supplier, index : ${topSuppliers}">
+						<td th:text="${index.index + 1}"></td>
+						<td th:text="${supplier[0]}"></td>
+						<td th:text="${supplier[1]}"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+
+	</div>
+
+	<script th:inline="javascript">
+		var labels = /*[[${labels}]]*/[];
+		var values = /*[[${values}]]*/[];
+
+		var ctx = document.getElementById('importChart').getContext('2d');
+		new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: labels,
+				datasets: [{
+					label: 'Số lượng nhập',
+					data: values,
+					backgroundColor: 'rgba(54, 162, 235, 0.6)',
+					borderColor: 'rgba(54, 162, 235, 1)',
+					borderWidth: 1
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					tooltip: {
+						enabled: true,
+						animation: {
+							duration: 100  // Giảm thời gian animation xuống 100ms
+						},
+						displayColors: true, // Hiển thị màu sắc của tooltip
+						callbacks: {
+							label: function (context) {
+								let label = context.dataset.label || '';
+								if (label) {
+									label += ': ';
+								}
+								label += context.raw + ' sản phẩm'; // Hiển thị số lượng rõ ràng hơn
+								return label;
+							}
+						}
+					}
+				},
+				hover: {
+					animationDuration: 0 // Loại bỏ delay khi rê chuột vào
+				},
+				scales: {
+					y: {
+						beginAtZero: true
+					}
+				}
+			}
+
+		});
+
+
+		function toggleSidebar() {
+			var sidebar = document.getElementById("sidebar");
+			var mainContent = document.getElementById("mainContent");
+
+			if (sidebar.classList.contains("open")) {
+				sidebar.classList.remove("open");
+				mainContent.classList.remove("shifted");
+			} else {
+				sidebar.classList.add("open");
+				mainContent.classList.add("shifted");
+			}
+		}
+	</script>
+
+</body>
+
+</html>

@@ -37,13 +37,11 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import java.io.InputStream;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.File;
 import java.io.IOException;
 
 @Controller
@@ -61,6 +59,9 @@ public class PurchaseOrderController {
 
 	@Autowired
 	private NhaCungCapService nhaCungCapService;
+
+	
+	
 
 	// Hiển thị danh sách đơn nhập hàng
 	@GetMapping("/purchaseorder")
@@ -272,65 +273,7 @@ public class PurchaseOrderController {
 		return "admin/purchaseorder/add-details"; // Trả về trang thêm chi tiết }
 	}
 
-//sửa chi tiết đơn 
-//	@GetMapping("/edit/{id}")
-//	public String viewPurchaseOrderDetails(@PathVariable("id") Integer maDonNhapHang,
-//			@RequestParam(value = "page", defaultValue = "0") int page,
-//
-//			Model model) {
-//		DonNhapHang donNhapHang = donNhapHangService.findById(maDonNhapHang);
-//		
-//		
-//		List<ChiTietDonNhapHang> chiTietList = chiTietDonNhapHangService.findByDonNhapHang(donNhapHang);
-//
-//		List<SanPham> activeSanPhams = sanPhamService.findByTrangThai(true);
-//		// Định dạng ngày nhập hàng
-//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//		String formattedNgayNhap = donNhapHang.getNgayNhapHang().format(formatter);
-//
-//		// Định dạng đơn giá nhập từng chi tiết đơn nhập hàng
-//		Map<Integer, String> formattedChiTietValues = new HashMap<>();
-//		// Định dạng tổng giá tiền cho từng chi tiết đơn nhập hàng
-//		Map<Integer, String> formattedTotalPrices = new HashMap<>();
-//
-//		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
-//		BigDecimal totalOrderPrice = BigDecimal.ZERO;
-//		for (ChiTietDonNhapHang chiTiet : chiTietList) {
-//			BigDecimal donGiaNhap = chiTiet.getDonGiaNhap();
-//			int soLuongNhap = chiTiet.getSoLuongNhap();
-//			BigDecimal totalPrice = donGiaNhap.multiply(new BigDecimal(soLuongNhap));
-//
-//			// Định dạng giá trị
-//			String formattedValue = decimalFormat.format(donGiaNhap) + " VND";
-//			String formattedTotalPrice = decimalFormat.format(totalPrice) + " VND";
-//
-//			// Sử dụng mã sản phẩm làm key
-//			formattedChiTietValues.put(chiTiet.getSanPham().getMaSanPham(), formattedValue);
-//			formattedTotalPrices.put(chiTiet.getSanPham().getMaSanPham(), formattedTotalPrice);
-//			totalOrderPrice = totalOrderPrice.add(totalPrice);
-//
-//		}
-//
-//		String formattedTotalOrderPrice = decimalFormat.format(totalOrderPrice) + " VND";
-//
-//		// Gửi dữ liệu xuống view
-//		model.addAttribute("formattedChiTietValues", formattedChiTietValues);
-//		model.addAttribute("formattedTotalPrices", formattedTotalPrices);
-//		model.addAttribute("formattedTotalOrderPrice", formattedTotalOrderPrice);
-//		model.addAttribute("formattedNgayNhap", formattedNgayNhap);
-//		model.addAttribute("donNhapHang", donNhapHang);
-//		model.addAttribute("chiTietList", chiTietList);
-//		model.addAttribute("sanPhams", activeSanPhams);
-//
-//		boolean isFirstEdit = chiTietList.isEmpty();
-//		model.addAttribute("isFirstEdit", isFirstEdit);
-//
-//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
-//		model.addAttribute("user", userDetails);
-//
-//		return "admin/purchaseorder/edit";
-//	}
+
 
 	@GetMapping("/edit/{id}")
 	public String viewPurchaseOrderDetails(@PathVariable("id") Integer maDonNhapHang,
@@ -576,6 +519,24 @@ public class PurchaseOrderController {
 		return "redirect:/admin/purchaseorder"; // Quay lại trang danh sách đơn nhập hàng
 	}
 
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	@GetMapping("/purchaseorder/export/{id}")
 	public void exportToPDF(@PathVariable("id") Integer id, HttpServletResponse response) throws IOException {
 		response.setContentType("application/pdf");

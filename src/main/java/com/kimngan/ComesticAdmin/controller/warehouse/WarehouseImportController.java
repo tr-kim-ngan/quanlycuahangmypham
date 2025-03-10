@@ -1,5 +1,11 @@
 package com.kimngan.ComesticAdmin.controller.warehouse;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,14 +30,19 @@ import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.NhaCungCapService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.security.Principal;
 import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import org.springframework.data.domain.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Controller
@@ -474,6 +485,214 @@ public class WarehouseImportController {
 		System.out.println("=== Hoàn tất lưu chi tiết đơn nhập hàng ===");
 		redirectAttributes.addFlashAttribute("successMessage", "Chi tiết đơn nhập hàng đã được lưu.");
 		return "redirect:/warehouse/import/purchaseorder";
+	}
+
+	@GetMapping("/purchaseorder/export/{id}")
+	public void exportToPDF(@PathVariable("id") Integer id, HttpServletResponse response) throws IOException {
+		response.setContentType("application/pdf");
+		DonNhapHang donNhapHang = donNhapHangService.findById(id);
+		// Định dạng ngày
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+		String fileName = "DonNhap_" + donNhapHang.getMaDonNhapHang() + "_"
+				+ donNhapHang.getNgayNhapHang().format(formatter) + ".pdf";
+		response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+		// Tạo tài liệu PDF
+		PDDocument document = new PDDocument();
+		PDPage page = new PDPage();
+		document.addPage(page);
+
+		// Tải font Unicode
+		InputStream fontStream = getClass().getResourceAsStream("/fonts/TIMES.TTF");
+		PDFont font = PDType0Font.load(document, fontStream);
+
+		PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+		// Tiêu đề chính giữa
+		contentStream.beginText();
+		contentStream.setFont(font, 16); // Font lớn hơn cho tiêu đề
+		contentStream.newLineAtOffset(220, 750); // Căn giữa
+		contentStream.showText("ĐƠN NHẬP HÀNG");
+		contentStream.endText();
+
+		// Hiển thị thông tin chi tiết bên trái
+		float infoStartY = 700; // Điều chỉnh khoảng cách xuống dưới
+		contentStream.beginText();
+		contentStream.setFont(font, 12);
+		contentStream.newLineAtOffset(50, infoStartY);
+		contentStream.setLeading(14.5f);
+
+		// DonNhapHang donNhapHang = donNhapHangService.findById(id);
+		// Định dạng ngày
+		// DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		contentStream.showText("Mã đơn nhập: " + donNhapHang.getMaDonNhapHang());
+		contentStream.newLine();
+		contentStream.showText("Ngày nhập: " + donNhapHang.getNgayNhapHang().format(formatter));
+		contentStream.newLine();
+		contentStream.endText();
+
+		// Hiển thị thông tin nhà cung cấp bên phải
+		contentStream.beginText();
+		contentStream.setFont(font, 12);
+		contentStream.newLineAtOffset(270, infoStartY); // Căn lề phải
+		contentStream.setLeading(14.5f);
+
+		contentStream.showText("Nhà cung cấp: " + donNhapHang.getNhaCungCap().getTenNhaCungCap());
+		contentStream.newLine();
+		contentStream.showText("Email: " + donNhapHang.getNhaCungCap().getEmailNhaCungCap());
+		contentStream.newLine();
+		contentStream.endText();
+
+		// Bắt đầu vẽ bảng
+		float startX = 50; // Vị trí bắt đầu của bảng
+		float startY = infoStartY - 30; // Vị trí dòng đầu tiên
+		float[] columnWidths = { 100, 190, 65, 90, 100 }; // Điều chỉnh cột cho cân đối
+		float cellHeight = 60; // Tăng chiều cao để hình ảnh không bị méo
+		float headerCellHeight = 40;
+
+		// Tiêu đề bảng
+		String[] headers = { "HÌNH ẢNH", "SẢN PHẨM", "SỐ LƯỢNG NHẬP", "ĐƠN GIÁ NHẬP", "TỔNG GIÁ TIỀN" };
+		drawRow(contentStream, font, startX, startY, headerCellHeight, columnWidths, headers, null, document);
+		startY -= headerCellHeight; // Di chuyển xuống dòng tiếp theo
+
+		// Lấy danh sách chi tiết đơn nhập hàng
+		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+		List<ChiTietDonNhapHang> chiTietList = chiTietDonNhapHangService.findByDonNhapHang(donNhapHang);
+		// Tính tổng giá trị đơn nhập hàng
+		BigDecimal tongGiaTriNhap = chiTietList.stream()
+				.map(chiTiet -> chiTiet.getDonGiaNhap().multiply(new BigDecimal(chiTiet.getSoLuongNhap())))
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		for (ChiTietDonNhapHang chiTiet : chiTietList) {
+			String imagePath = "src/main/resources/static/upload/" + chiTiet.getSanPham().getHinhAnh();
+			String[] data = { "", // Placeholder cho hình ảnh
+					chiTiet.getSanPham().getTenSanPham(), String.valueOf(chiTiet.getSoLuongNhap()),
+					decimalFormat.format(chiTiet.getDonGiaNhap()) + " VND",
+					decimalFormat.format(chiTiet.getDonGiaNhap().multiply(new BigDecimal(chiTiet.getSoLuongNhap())))
+							+ " VND" };
+			drawRow(contentStream, font, startX, startY, cellHeight, columnWidths, data, imagePath, document);
+			startY -= cellHeight;
+		}
+
+		// Hiển thị tổng tiền sau bảng, cách bảng 10px
+		contentStream.beginText();
+		contentStream.setFont(font, 12);
+
+		// Tính toán vị trí hiển thị tổng tiền ở bên phải
+		float totalTextX = startX + columnWidths[0] + columnWidths[1] + 10; // Tổng độ rộng cột
+		contentStream.newLineAtOffset(totalTextX, startY - 20); // Vị trí ngoài bảng, bên phải
+		contentStream.showText("Tổng tiền phải trả: " + decimalFormat.format(tongGiaTriNhap) + " VND");
+		contentStream.endText();
+
+		contentStream.close();
+
+		// Lưu tài liệu
+		document.save(response.getOutputStream());
+		document.close();
+	}
+
+	private void drawRow(PDPageContentStream contentStream, PDFont font, float startX, float startY, float cellHeight,
+			float[] columnWidths, String[] content, String imagePath, PDDocument document) throws IOException {
+		float currentX = startX;
+
+// Vẽ khung của dòng
+		contentStream.setLineWidth(0.75f); // Đường viền rõ hơn
+		for (float width : columnWidths) {
+			contentStream.addRect(currentX, startY - cellHeight, width, cellHeight);
+			currentX += width;
+		}
+		contentStream.stroke();
+
+		currentX = startX;
+
+		for (int i = 0; i < content.length; i++) {
+			if (i == 0 && imagePath != null) {
+				// Nếu là cột hình ảnh, vẽ hình
+				PDImageXObject image = PDImageXObject.createFromFile(imagePath, document);
+				float imageWidth = columnWidths[i] - 10;
+				float aspectRatio = (float) image.getHeight() / image.getWidth();
+				float imageHeight = imageWidth * aspectRatio;
+				if (imageHeight > cellHeight - 10) {
+					imageHeight = cellHeight - 10;
+					imageWidth = imageHeight / aspectRatio;
+				}
+				float imageX = currentX + (columnWidths[i] - imageWidth) / 2;
+				float imageY = startY - cellHeight + (cellHeight - imageHeight) / 2;
+				contentStream.drawImage(image, imageX, imageY, imageWidth, imageHeight);
+			} else {
+				// Nếu là nội dung văn bản
+				float textX = currentX + 5; // Padding
+				float textY = startY - 15; // Vị trí bắt đầu text
+				contentStream.beginText();
+				contentStream.setFont(font, 10);
+				contentStream.newLineAtOffset(textX, textY);
+
+				// Xử lý nội dung dài
+				List<String> lines = splitTextIntoLines(content[i], columnWidths[i] - 10, font, 10);
+				for (String line : lines) {
+					contentStream.showText(line);
+					contentStream.newLineAtOffset(0, -12); // Xuống dòng
+				}
+				contentStream.endText();
+			}
+			currentX += columnWidths[i];
+		}
+	}
+
+	private List<String> splitTextIntoLines(String text, float maxWidth, PDFont font, int fontSize) throws IOException {
+		List<String> lines = new ArrayList<>();
+		StringBuilder currentLine = new StringBuilder();
+		for (String word : text.split(" ")) {
+			String testLine = currentLine.length() > 0 ? currentLine + " " + word : word;
+			float textWidth = font.getStringWidth(testLine) / 1000 * fontSize;
+			if (textWidth > maxWidth) {
+				lines.add(currentLine.toString());
+				currentLine = new StringBuilder(word);
+			} else {
+				currentLine.append(word).append(" ");
+			}
+		}
+		lines.add(currentLine.toString());
+		return lines;
+	}
+
+	@GetMapping("/thong-ke")
+	public String getImportStatistics(
+	        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+	        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+	        Model model) {
+
+	    // Nếu fromDate và toDate không có, thì mặc định là 30 ngày gần nhất
+	    if (fromDate == null) {
+	        fromDate = LocalDate.now().minusDays(30); // 30 ngày trước
+	    }
+	    if (toDate == null) {
+	        toDate = LocalDate.now(); // Ngày hiện tại
+	    }
+
+	    List<Object[]> results = chiTietDonNhapHangService.getImportStatistics(fromDate, toDate);
+	    
+	    List<String> labels = new ArrayList<>();
+	    List<Integer> values = new ArrayList<>();
+	    
+	    for (Object[] row : results) {
+	        if (row[0] != null && row[1] != null) {
+	            labels.add(row[0].toString());
+	            values.add(((Number) row[1]).intValue());
+	        }
+	    }
+
+	    List<Object[]> danhSachBaoCao = chiTietDonNhapHangService.getBaoCaoChiTiet(fromDate, toDate);
+	    List<Object[]> topSuppliers = chiTietDonNhapHangService.getTopSuppliers(fromDate, toDate);
+
+	    model.addAttribute("labels", labels);
+	    model.addAttribute("values", values);
+	    model.addAttribute("fromDate", fromDate);
+	    model.addAttribute("toDate", toDate);
+	    model.addAttribute("danhSachBaoCao", danhSachBaoCao);
+	    model.addAttribute("topSuppliers", topSuppliers);
+
+	    return "warehouse/import/thong-ke"; // Trả về file thong-ke.html
 	}
 
 }

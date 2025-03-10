@@ -44,6 +44,10 @@ public interface ChiTietDonNhapHangService {
 
 	LocalDate findLastTimeStockEmpty(Integer maSanPham);
 	Integer getTotalImportedQuantityAfterStockEmpty(Integer maSanPham, LocalDate lastStockEmptyTime);
-	
-	
+	 List<Object[]> getImportStatistics(LocalDate fromDate, LocalDate toDate);
+	 List<Object[]> getBaoCaoChiTiet(LocalDate fromDate, LocalDate toDate);
+	 List<Object[]> getTopSuppliers(LocalDate fromDate, LocalDate toDate);
+	 
+	 
+	 
 }

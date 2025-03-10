@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="op-7 mb-2">Danh sách sản phẩm trong kho</h6>
+						</div>
+						<!-- Ô tìm kiếm -->
+						<form th:action="@{/admin/inventory}" method="get" class="d-flex">
+							<input type="text" name="keyword" class="form-control me-2" placeholder="Nhập tên sản phẩm..." th:value="${keyword}">
+							<button type="submit" class="btn btn-primary">Tìm kiếm</button>
+						</form>
+					</div>
+
+					<!-- Bảng hiển thị sản phẩm tồn kho -->
+					<div class="table-responsive mt-3">
+						<table class="table table-bordered text-center">
+							<thead class="table-dark">
+								<tr>
+									<th>STT</th>
+									<th>Hình ảnh</th>
+									<th>Tên sản phẩm</th>
+									<th>Số lượng trên kệ</th>
+									<th>Số lượng tồn kho</th>
+									
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="sanPham, stat : ${danhSachSanPham}">
+									<td th:text="${stat.count}"></td>
+									<td>
+										<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+											style="width: 60px; height: auto; border-radius: 5px;">
+									</td>
+									<td>
+										<span th:text="${sanPham.tenSanPham}"></span>
+										<span th:if="${soLuongTonKhoMap[sanPham.maSanPham] == 0 and sanPham.soLuong == 0}"
+											style="color: red; font-size: 12px; font-weight: bold;">(Hết hàng)</span>
+									</td>
+									<td>
+										<form th:action="@{/admin/inventory/update-stock}" method="post" class="d-flex justify-content-center">
+											<input type="hidden" name="maSanPham" th:value="${sanPham.maSanPham}">
+											<input type="number" name="soLuongMoi" th:value="${sanPham.soLuong}" min="0"
+												th:max="${tongSoLuongNhapMap[sanPham.maSanPham]}" required class="form-control text-center"
+												style="width: 70px;">
+											<button type="submit" class="btn btn-primary ms-2">Lưu</button>
+										</form>
+									</td>
+									<td th:text="${soLuongTonKhoMap[sanPham.maSanPham]}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Điều hướng phân trang -->
+					<div class="pagination mt-3">
+						<ul class="pagination justify-content-center">
+							<li th:if="${currentPage > 0}" class="page-item">
+								<a class="page-link" th:href="@{/admin/inventory(page=0, size=${size})}">«</a>
+							</li>
+							<li th:if="${currentPage > 0}" class="page-item">
+								<a class="page-link" th:href="@{/admin/inventory(page=${currentPage - 1}, size=${size})}">‹</a>
+							</li>
+
+							<li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item">
+								<a class="page-link" th:href="@{/admin/inventory(page=${i}, size=${size})}"
+									th:classappend="${currentPage == i} ? 'active' : ''" th:text="${i + 1}"></a>
+							</li>
+
+							<li th:if="${currentPage < totalPages - 1}" class="page-item">
+								<a class="page-link" th:href="@{/admin/inventory(page=${currentPage + 1}, size=${size})}">›</a>
+							</li>
+							<li th:if="${currentPage < totalPages - 1}" class="page-item">
+								<a class="page-link" th:href="@{/admin/inventory(page=${totalPages - 1}, size=${size})}">»</a>
+							</li>
+						</ul>
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>
