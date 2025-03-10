@@ -2,135 +2,138 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Thêm Nhà Cung Cấp</title>
-    <style>
-        /* Định dạng tổng thể */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-        }
+	<meta charset="UTF-8">
+	<title>Thêm Nhà Cung Cấp</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 
-        /* Thanh tiêu đề */
-        .header {
-            background-color: #f8f9fa;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #dee2e6;
-        }
+	<style>
+		/* Định dạng tổng thể */
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: Arial, sans-serif;
+			background-color: #f4f4f4;
+		}
 
-        .header h2 {
-            margin: 0;
-            font-size: 20px;
-            color: #333;
-        }
+		/* Thanh tiêu đề */
+		.header {
+			background-color: #f8f9fa;
+			padding: 15px 20px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 2px solid #dee2e6;
+		}
 
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-        }
+		.header h2 {
+			margin: 0;
+			font-size: 20px;
+			color: #333;
+		}
 
-        .btn {
-            display: inline-block;
-            text-decoration: none;
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-        }
+		.header-buttons {
+			display: flex;
+			gap: 10px;
+		}
 
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
+		.btn {
+			display: inline-block;
+			text-decoration: none;
+			padding: 10px 15px;
+			font-size: 16px;
+			cursor: pointer;
+			border: none;
+			border-radius: 5px;
+		}
 
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
+		.btn-primary {
+			background-color: #007bff;
+			color: white;
+		}
 
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
+		.btn-primary:hover {
+			background-color: #0056b3;
+		}
 
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
+		.btn-secondary {
+			background-color: #6c757d;
+			color: white;
+		}
 
-        /* Container chính */
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
+		.btn-secondary:hover {
+			background-color: #5a6268;
+		}
 
-        /* Form và input */
-        .form-group {
-            margin-bottom: 15px;
-        }
+		/* Container chính */
+		.container {
+			max-width: 800px;
+			margin: 20px auto;
+			padding: 20px;
+			background: white;
+			box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+		}
 
-        .form-group label {
-            font-weight: bold;
-            display: block;
-        }
+		/* Form và input */
+		.form-group {
+			margin-bottom: 15px;
+		}
 
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-    </style>
+		.form-group label {
+			font-weight: bold;
+			display: block;
+		}
+
+		.form-group input {
+			width: 100%;
+			padding: 10px;
+			border: 1px solid #ccc;
+		}
+	</style>
 </head>
 
 <body>
 
-    <!-- Form bao quanh toàn bộ nội dung -->
-    <form id="supplierForm" action="/warehouse/import/them-nha-cung-cap" method="post" th:object="${nhaCungCap}">
+	<!-- Form bao quanh toàn bộ nội dung -->
+	<form id="supplierForm" action="/warehouse/import/them-nha-cung-cap" method="post" th:object="${nhaCungCap}">
 
-        <!-- Thanh tiêu đề -->
-        <div class="header" style="padding-left: 300px;">
-            <h2>Thêm Nhà Cung Cấp</h2>
-            <div class="header-buttons">
-                <a href="/warehouse/import/nha-cung-cap" class="btn btn-secondary">Thoát</a>
-                <button type="submit" class="btn btn-primary">Lưu</button>
-            </div>
-        </div>
+		<!-- Thanh tiêu đề -->
+		<div class="header" style="padding-left: 300px;">
+			<h2>Thêm Nhà Cung Cấp</h2>
+			<div class="header-buttons">
+				<a href="/warehouse/import/nha-cung-cap" class="btn btn-secondary">Thoát</a>
+				<button type="submit" class="btn btn-primary">Lưu</button>
+			</div>
+		</div>
 
-        <!-- Navbar -->
-        <div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+		<!-- Navbar -->
+		<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
 
-        <!-- Nội dung chính -->
-        <div class="container">
-            <div class="form-group">
-                <label for="tenNhaCungCap">Tên nhà cung cấp</label>
-                <input type="text" id="tenNhaCungCap" name="tenNhaCungCap" th:field="*{tenNhaCungCap}" required>
-            </div>
+		<!-- Nội dung chính -->
+		<div class="container">
+			<div class="form-group">
+				<label for="tenNhaCungCap">Tên nhà cung cấp</label>
+				<input type="text" id="tenNhaCungCap" name="tenNhaCungCap" th:field="*{tenNhaCungCap}" required>
+			</div>
 
-            <div class="form-group">
-                <label for="sdtNhaCungCap">Số điện thoại</label>
-                <input type="text" id="sdtNhaCungCap" name="sdtNhaCungCap" pattern="\d{10}"
-                    title="Số điện thoại phải có 10 chữ số" th:field="*{sdtNhaCungCap}" required>
-            </div>
+			<div class="form-group">
+				<label for="sdtNhaCungCap">Số điện thoại</label>
+				<input type="text" id="sdtNhaCungCap" name="sdtNhaCungCap" pattern="\d{10}"
+					title="Số điện thoại phải có 10 chữ số" th:field="*{sdtNhaCungCap}" required>
+			</div>
 
-            <div class="form-group">
-                <label for="diaChiNhaCungCap">Địa chỉ</label>
-                <input type="text" id="diaChiNhaCungCap" name="diaChiNhaCungCap" th:field="*{diaChiNhaCungCap}" required>
-            </div>
+			<div class="form-group">
+				<label for="diaChiNhaCungCap">Địa chỉ</label>
+				<input type="text" id="diaChiNhaCungCap" name="diaChiNhaCungCap" th:field="*{diaChiNhaCungCap}"
+					required>
+			</div>
 
-            <div class="form-group">
-                <label for="emailNhaCungCap">Email</label>
-                <input type="email" id="emailNhaCungCap" name="emailNhaCungCap" th:field="*{emailNhaCungCap}" required>
-            </div>
-        </div>
+			<div class="form-group">
+				<label for="emailNhaCungCap">Email</label>
+				<input type="email" id="emailNhaCungCap" name="emailNhaCungCap" th:field="*{emailNhaCungCap}" required>
+			</div>
+		</div>
 
-    </form>
+	</form>
 
 </body>
 

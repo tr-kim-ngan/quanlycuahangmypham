@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Quản Lý Tồn Kho</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 
 	<style>
 		body {
@@ -197,6 +198,7 @@
 				<tr>
 
 					<th>Mã sản phẩm</th>
+					<th>Hình ảnh</th>
 					<th>Tên sản phẩm</th>
 					<!--<th>Số lượng nhập</th>-->
 					<th>Số lượng trên kệ</th>
@@ -206,6 +208,10 @@
 			<tbody>
 				<tr th:each="sanPham : ${danhSachSanPham}">
 					<td th:text="${sanPham.maSanPham}"></td>
+					<td>
+						<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+							style="width: 80px; height: auto; border-radius: 5px;" />
+					</td>
 					<td>
 						<span th:text="${sanPham.tenSanPham}"></span>
 						<span th:if="${soLuongTonKhoMap[sanPham.maSanPham] == 0 and sanPham.soLuong == 0}"
