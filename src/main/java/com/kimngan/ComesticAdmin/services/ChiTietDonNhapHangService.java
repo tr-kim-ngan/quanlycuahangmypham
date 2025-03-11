@@ -50,6 +50,7 @@ public interface ChiTietDonNhapHangService {
 	 List<Object[]> getTotalImportValue(LocalDate fromDate, LocalDate toDate);
 	 List<Object[]> getTotalImportReport(LocalDate fromDate, LocalDate toDate);
 	 List<Object[]> getImportTrend(LocalDate fromDate, LocalDate toDate);
-
+	 List<Object[]> getImportTrendDetail(LocalDate fromDate, LocalDate toDate);
+	 List<Object[]> getTopImportedProducts(LocalDate fromDate, LocalDate toDate);
 	 
 }

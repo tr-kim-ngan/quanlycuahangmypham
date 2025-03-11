@@ -672,6 +672,10 @@ public class WarehouseImportController {
 
 	    List<Object[]> results = chiTietDonNhapHangService.getImportStatistics(fromDate, toDate);
 	    
+	    List<Object[]> topProducts = chiTietDonNhapHangService.getTopImportedProducts(fromDate, toDate);
+
+	    
+	    
 	    List<String> labels = new ArrayList<>();
 	    List<Integer> values = new ArrayList<>();
 	    
@@ -691,7 +695,8 @@ public class WarehouseImportController {
 	    model.addAttribute("toDate", toDate);
 	    model.addAttribute("danhSachBaoCao", danhSachBaoCao);
 	    model.addAttribute("topSuppliers", topSuppliers);
-
+	    model.addAttribute("topProducts", topProducts);
+	    
 	    return "warehouse/import/thong-ke"; // Trả về file thong-ke.html
 	}
 	
@@ -734,24 +739,40 @@ public class WarehouseImportController {
 	    if (fromDate == null) fromDate = LocalDate.now().minusDays(30);
 	    if (toDate == null) toDate = LocalDate.now();
 
-	    // Lấy dữ liệu số lượng nhập theo thời gian
-	    List<Object[]> results = chiTietDonNhapHangService.getImportTrend(fromDate, toDate);
+	    // Lấy dữ liệu số lượng nhập và tổng giá trị nhập
+	    List<Object[]> results = chiTietDonNhapHangService.getImportTrendDetail(fromDate, toDate);
 
 	    List<String> labels = new ArrayList<>();
 	    List<Integer> values = new ArrayList<>();
+	    List<Double> totalValues = new ArrayList<>();
 
 	    for (Object[] row : results) {
 	        labels.add(row[0].toString()); // Ngày nhập
 	        values.add(((Number) row[1]).intValue()); // Tổng số lượng nhập
+	        totalValues.add(((Number) row[2]).doubleValue()); // Tổng giá trị nhập
+	    }
+
+	    // Dữ liệu báo cáo chi tiết
+	    List<Map<String, Object>> reportData = new ArrayList<>();
+	    for (Object[] row : results) {
+	        Map<String, Object> reportRow = new HashMap<>();
+	        reportRow.put("ngayNhap", row[0]); // Ngày nhập
+	        reportRow.put("soLuongNhap", row[1]); // Tổng số lượng nhập
+	        reportRow.put("tongGiaTriNhap", row[2]); // Tổng giá trị nhập
+	        reportData.add(reportRow);
 	    }
 
 	    model.addAttribute("labels", labels);
 	    model.addAttribute("values", values);
+	    model.addAttribute("totalValues", totalValues);
 	    model.addAttribute("fromDate", fromDate);
 	    model.addAttribute("toDate", toDate);
+	    model.addAttribute("reportData", reportData);
 
-	    return "warehouse/import/xu-huong-nhap"; // Trả về file HTML mới
+	    return "warehouse/import/xu-huong-nhap"; 
 	}
+
+
 
 
 }

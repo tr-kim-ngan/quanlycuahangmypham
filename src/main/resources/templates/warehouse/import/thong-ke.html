@@ -114,12 +114,12 @@
 
 		/* Biểu đồ */
 		.chart-container {
-			width: 90%;
+			width: 100%;
 			/* Chiếm khoảng 90% không gian thay vì 100% */
-			max-width: 1000px;
+			max-width: 100%;
 			/* Giới hạn kích thước tối đa để tránh bị quá rộng */
-			margin: 0 auto;
-			padding: 20px;
+			margin-left: 50px;
+			padding: 10px;
 		}
 
 
@@ -205,20 +205,17 @@
 	<!-- Sidebar bên phải -->
 	<div class="sidebar" id="sidebar">
 		<ul>
-			<li><a th:href="@{/warehouse/import/thong-ke}" th:classappend="${activeMenu == 'tong-quan'} ? 'active'">🏠
-					Tổng quan</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke}" th:classappend="${activeMenu == 'tong-quan'} ? 'active'">
+					Nhập theo sản phẩm
+				</a></li>
 			<li><a th:href="@{/warehouse/import/thong-ke/tong-gia-tri}"
-					th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">💰 Tổng giá trị nhập kho</a></li>
-			<li><a th:href="@{/warehouse/import/thong-ke/nha-cung-cap}"
-					th:classappend="${activeMenu == 'nha-cung-cap'} ? 'active'">🚚 Theo nhà cung cấp</a></li>
-			<li><a th:href="@{/warehouse/import/thong-ke/danh-muc}"
-					th:classappend="${activeMenu == 'danh-muc'} ? 'active'">🏷️ Theo danh mục sản phẩm</a></li>
+					th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Tổng giá trị nhập kho</a></li>
 			<li><a th:href="@{/warehouse/import/thong-ke/xu-huong}"
-					th:classappend="${activeMenu == 'xu-huong'} ? 'active'">📅 Xu hướng nhập kho</a></li>
+					th:classappend="${activeMenu == 'xu-huong'} ? 'active'">Xu hướng nhập kho</a></li>
 		</ul>
 	</div>
 	<!-- Thanh tiêu đề -->
-	<div class="header">Thống kê Nhập Kho</div>
+	<div class="header">Thống kê nhập kho từng sản phẩm</div>
 
 	<!-- Navbar -->
 	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
@@ -242,6 +239,45 @@
 		<div class="chart-container">
 			<canvas id="importChart"></canvas>
 		</div>
+		<div class="report-container">
+			<h3>🏆 Top Nhà Cung Cấp Nhập Nhiều Nhất</h3>
+			<table class="report-table">
+				<thead>
+					<tr>
+						<th>STT</th>
+						<th>Nhà Cung Cấp</th>
+						<th>Tổng Số Lượng Nhập</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="supplier, index : ${topSuppliers}">
+						<td th:text="${index.index + 1}"></td>
+						<td th:text="${supplier[0]}"></td>
+						<td th:text="${supplier[1]}"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="report-container">
+			<h3>📌 Top Sản Phẩm Được Nhập Nhiều Nhất</h3>
+			<table class="report-table">
+				<thead>
+					<tr>
+						<th>STT</th>
+						<th>Sản Phẩm</th>
+						<th>Tổng Số Lượng Nhập</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="product, iterStat : ${topProducts}">
+						<td th:text="${iterStat.count}"></td>
+						<td th:text="${product[0]}"></td>
+						<td th:text="${product[1]}"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
 		<!-- Báo cáo chi tiết nhập kho -->
 		<div class="report-container">
 			<h3>📋 Báo cáo chi tiết nhập kho</h3>
@@ -265,25 +301,7 @@
 			</table>
 		</div>
 		<!-- Bảng thống kê top nhà cung cấp nhập hàng nhiều nhất -->
-		<div class="report-container">
-			<h3>🏆 Top Nhà Cung Cấp Nhập Nhiều Nhất</h3>
-			<table class="report-table">
-				<thead>
-					<tr>
-						<th>STT</th>
-						<th>Nhà Cung Cấp</th>
-						<th>Tổng Số Lượng Nhập</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr th:each="supplier, index : ${topSuppliers}">
-						<td th:text="${index.index + 1}"></td>
-						<td th:text="${supplier[0]}"></td>
-						<td th:text="${supplier[1]}"></td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+
 
 
 	</div>
