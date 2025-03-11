@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Xu hướng nhập kho</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<style>
+	
+	</style>
+</head>
+
+<body>
+	<button class="toggle-btn" onclick="toggleSidebar()">☰ Thống kê</button>
+
+	<!-- Sidebar bên phải -->
+	<div class="sidebar" id="sidebar">
+		<ul>
+			<li><a th:href="@{/warehouse/import/thong-ke}" th:classappend="${activeMenu == 'tong-quan'} ? 'active'">🏠
+					Tổng quan</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/tong-gia-tri}"
+					th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">💰 Tổng giá trị nhập kho</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/nha-cung-cap}"
+					th:classappend="${activeMenu == 'nha-cung-cap'} ? 'active'">🚚 Theo nhà cung cấp</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/danh-muc}"
+					th:classappend="${activeMenu == 'danh-muc'} ? 'active'">🏷️ Theo danh mục sản phẩm</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/xu-huong}"
+					th:classappend="${activeMenu == 'xu-huong'} ? 'active'">📅 Xu hướng nhập kho</a></li>
+		</ul>
+	</div>
+	<div class="header">📅 Xu hướng nhập kho</div>
+	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+
+	<form method="GET" action="/warehouse/import/thong-ke/xu-huong">
+		<label>Ngày bắt đầu:</label>
+		<input type="date" name="fromDate" th:value="${fromDate}" required>
+		<label>Ngày kết thúc:</label>
+		<input type="date" name="toDate" th:value="${toDate}" required>
+		<button type="submit">Lọc</button>
+	</form>
+
+	<div id="chart-container">
+		<canvas id="trendChart" style="max-height: 300px;"></canvas>
+
+	</div>
+
+	<script th:inline="javascript">
+		var labels = /*[[${labels}]]*/[];
+		var values = /*[[${values}]]*/[];
+
+		if (labels.length === 0 || values.length === 0) {
+			document.getElementById('chart-container').innerHTML =
+				"<p style='text-align: center; font-size: 18px; color: red; font-weight: bold;'>Không có dữ liệu để hiển thị biểu đồ.</p>";
+		} else {
+			var ctx = document.getElementById('trendChart').getContext('2d');
+			new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Số lượng nhập kho theo thời gian',
+						data: values,
+						backgroundColor: 'rgba(75, 192, 192, 0.2)',
+						borderColor: 'rgba(75, 192, 192, 1)',
+						borderWidth: 2
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: true, // Đảm bảo tỉ lệ không bị kéo dài
+					aspectRatio: 2, // Giảm chiều dài của biểu đồ
+					plugins: {
+						legend: {position: 'top'}
+					},
+					scales: {
+						x: {title: {display: true, text: 'Ngày nhập kho'}},
+						y: {title: {display: true, text: 'Số lượng nhập'}, beginAtZero: true}
+					}
+				}
+			});
+		}
+		function toggleSidebar() {
+			var sidebar = document.getElementById("sidebar");
+			var mainContent = document.getElementById("mainContent");
+
+			if (sidebar.classList.contains("open")) {
+				sidebar.classList.remove("open");
+				mainContent.classList.remove("shifted");
+			} else {
+				sidebar.classList.add("open");
+				mainContent.classList.add("shifted");
+			}
+		}
+	</script>
+</body>
+
+</html>

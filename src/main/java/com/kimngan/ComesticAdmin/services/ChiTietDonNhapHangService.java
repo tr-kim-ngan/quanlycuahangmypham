@@ -47,7 +47,9 @@ public interface ChiTietDonNhapHangService {
 	 List<Object[]> getImportStatistics(LocalDate fromDate, LocalDate toDate);
 	 List<Object[]> getBaoCaoChiTiet(LocalDate fromDate, LocalDate toDate);
 	 List<Object[]> getTopSuppliers(LocalDate fromDate, LocalDate toDate);
-	 
-	 
+	 List<Object[]> getTotalImportValue(LocalDate fromDate, LocalDate toDate);
+	 List<Object[]> getTotalImportReport(LocalDate fromDate, LocalDate toDate);
+	 List<Object[]> getImportTrend(LocalDate fromDate, LocalDate toDate);
+
 	 
 }

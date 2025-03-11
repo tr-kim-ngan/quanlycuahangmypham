@@ -154,6 +154,25 @@ public class ChiTietDonNhapHangServiceImpl implements ChiTietDonNhapHangService 
 
 	}
 
+	@Override
+	public List<Object[]> getTotalImportValue(LocalDate fromDate, LocalDate toDate) {
+		// TODO Auto-generated method stub
+		 return chiTietDonNhapHangRepository.getTotalImportValue(fromDate, toDate);
+	}
+
+	@Override
+	public List<Object[]> getTotalImportReport(LocalDate fromDate, LocalDate toDate) {
+		// TODO Auto-generated method stub
+	    return chiTietDonNhapHangRepository.findTotalImportReport(fromDate, toDate);
+
+	}
+
+	@Override
+	public List<Object[]> getImportTrend(LocalDate fromDate, LocalDate toDate) {
+		// TODO Auto-generated method stub
+		  return chiTietDonNhapHangRepository.getImportTrend(fromDate, toDate);
+	}
+
 
 
 

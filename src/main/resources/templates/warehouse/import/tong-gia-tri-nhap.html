@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Thống kê tổng giá trị nhập kho</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+		}
+
+		.container {
+			max-width: 900px;
+			margin: 20px auto;
+			padding: 20px;
+			background: white;
+			border-radius: 8px;
+		}
+
+		.chart-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 450px;
+			padding-left: 100px;
+
+		}
+
+		.filter-form {
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+
+		.sidebar {
+			width: 250px;
+			min-height: 100px;
+			max-height: 90vh;
+			position: fixed;
+			top: 53px;
+			right: -250px;
+			background-color: white;
+			color: black;
+			padding: 5px 5px 0px 0px;
+			overflow-y: auto;
+			transition: right 0.3s ease-in-out;
+			box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
+			border-radius: 10px;
+		}
+
+		.sidebar.open {
+			right: 0;
+			top: 53px;
+		}
+
+		.sidebar ul {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		.sidebar ul li {
+			padding: 10px 20px;
+			transition: background 0.3s;
+		}
+
+		.sidebar ul li a {
+			text-decoration: none;
+			color: black;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.sidebar ul li:hover {
+			background-color: #dee2e6;
+		}
+
+		.toggle-btn {
+			position: fixed;
+			top: 0;
+			right: 20px;
+			background: transparent;
+			color: black;
+			border: none;
+			padding: 10px 15px;
+			cursor: pointer;
+			font-size: 16px;
+
+			transition: background 0.3s;
+			right: 20px;
+		}
+
+		.header {
+			background-color: #f8f9fa;
+			padding: 15px;
+			text-align: center;
+			font-size: 18px;
+			font-weight: bold;
+			border-bottom: 2px solid #dee2e6;
+		}
+
+		.table-container {
+			width: 100%;
+			overflow-x: auto;
+		}
+
+		table {
+			width: 100%;
+			min-width: 1200px;
+			border-collapse: collapse;
+			margin-top: 20px;
+
+		}
+
+		th,
+		td {
+			padding: 12px;
+			text-align: left;
+			border-bottom: 1px solid #ddd;
+			white-space: nowrap;
+		}
+
+		th {
+			background-color: #f8f9fa;
+			font-weight: bold;
+			text-transform: uppercase;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f9f9f9;
+		}
+
+		tr:hover {
+			background-color: #f1f1f1;
+		}
+
+		th:nth-child(1),
+		td:nth-child(1) {
+			min-width: 250px;
+		}
+
+		th:nth-child(2),
+		td:nth-child(2) {
+			min-width: 120px;
+			text-align: center;
+		}
+
+		th:nth-child(3),
+		td:nth-child(3) {
+			min-width: 180px;
+			text-align: right;
+		}
+
+		th:nth-child(4),
+		td:nth-child(4) {
+			min-width: 140px;
+			text-align: center;
+		}
+
+		th:nth-child(5),
+		td:nth-child(5) {
+			min-width: 300px;
+		}
+	</style>
+</head>
+
+<body>
+	<button class="toggle-btn" onclick="toggleSidebar()">☰ Thống kê</button>
+
+	<!-- Sidebar bên phải -->
+	<div class="sidebar" id="sidebar">
+		<ul>
+			<li><a th:href="@{/warehouse/import/thong-ke}" th:classappend="${activeMenu == 'tong-quan'} ? 'active'">🏠
+					Tổng quan</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/tong-gia-tri}"
+					th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">💰 Tổng giá trị nhập kho</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/nha-cung-cap}"
+					th:classappend="${activeMenu == 'nha-cung-cap'} ? 'active'">🚚 Theo nhà cung cấp</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/danh-muc}"
+					th:classappend="${activeMenu == 'danh-muc'} ? 'active'">🏷️ Theo danh mục sản phẩm</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke/xu-huong}"
+					th:classappend="${activeMenu == 'xu-huong'} ? 'active'">📅 Xu hướng nhập kho</a></li>
+		</ul>
+	</div>
+	<!-- Thanh tiêu đề -->
+	<div class="header">Tổng giá trị nhập kho</div>
+	<div class="container">
+		<h2 style="text-align: center;">📊 Thống kê tổng giá trị nhập kho</h2>
+		<!-- Navbar -->
+		<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+
+		<!-- Bộ lọc thời gian -->
+		<form method="GET" action="/warehouse/import/thong-ke/tong-gia-tri" class="filter-form">
+			<label>Ngày bắt đầu:</label>
+			<input type="date" name="fromDate" th:value="${fromDate}" required>
+
+			<label>Ngày kết thúc:</label>
+			<input type="date" name="toDate" th:value="${toDate}" required>
+
+			<button type="submit">Lọc</button>
+		</form>
+
+		<!-- Biểu đồ tròn -->
+		<div class="chart-container">
+			<canvas id="importValueChart"></canvas>
+		</div>
+		<!-- Bảng báo cáo -->
+		<table>
+			<thead>
+				<tr>
+					<th>Sản phẩm</th>
+					<th>Số lượng nhập</th>
+					<th>Tổng giá trị nhập</th>
+					<th>Ngày nhập</th>
+					<th>Nhà cung cấp</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:if="${#lists.isEmpty(reportData)}">
+					<td colspan="5" style="text-align: center; font-weight: bold; padding: 15px; color: red;">
+						Không có dữ liệu trong khoảng thời gian này.
+					</td>
+				</tr>
+				<tr th:each="record : ${reportData}">
+					<td th:text="${record[0]}"></td>
+					<td th:text="${record[1]}"></td>
+					<td th:text="${#numbers.formatDecimal(record[2], 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+					<!-- Tổng giá trị nhập -->
+					<td th:text="${#temporals.format(record[3], 'dd/MM/yyyy')}"></td>
+					<!-- Ngày nhập với định dạng chuẩn -->
+					<td th:text="${record[4]}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<script th:inline="javascript">
+		var labels = /*[[${labels}]]*/[];
+		var values = /*[[${values}]]*/[];
+
+		var ctx = document.getElementById('importValueChart').getContext('2d');
+
+		// Kiểm tra nếu không có dữ liệu
+		if (labels.length === 0 || values.length === 0) {
+			document.getElementById('chart-container').innerHTML =
+				"<p style='text-align: center; font-size: 18px; color: red; font-weight: bold;'>Không có dữ liệu để hiển thị biểu đồ.</p>";
+		} else {
+			// Tính tổng giá trị nhập kho
+			var totalValue = values.reduce((acc, val) => acc + val, 0);
+
+			// Nếu có dữ liệu thì vẽ biểu đồ
+			new Chart(ctx, {
+				type: 'pie',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Tổng giá trị nhập (VND)',
+						data: values,
+						backgroundColor: [
+							'rgba(255, 99, 132, 0.6)',
+							'rgba(54, 162, 235, 0.6)',
+							'rgba(255, 206, 86, 0.6)',
+							'rgba(75, 192, 192, 0.6)',
+							'rgba(153, 102, 255, 0.6)',
+							'rgba(255, 159, 64, 0.6)'
+						],
+						borderColor: [
+							'rgba(255, 99, 132, 1)',
+							'rgba(54, 162, 235, 1)',
+							'rgba(255, 206, 86, 1)',
+							'rgba(75, 192, 192, 1)',
+							'rgba(153, 102, 255, 1)',
+							'rgba(255, 159, 64, 1)'
+						],
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {position: 'top'},
+						tooltip: {
+							callbacks: {
+								label: function (tooltipItem) {
+									var value = tooltipItem.raw;
+									var percentage = ((value / totalValue) * 100).toFixed(2); // Tính %
+									return `${tooltipItem.label}: ${value.toLocaleString()} VND (${percentage}%)`;
+								}
+							}
+						}
+					}
+				}
+			});
+		}
+
+
+		function toggleSidebar() {
+			var sidebar = document.getElementById("sidebar");
+			var mainContent = document.getElementById("mainContent");
+
+			if (sidebar.classList.contains("open")) {
+				sidebar.classList.remove("open");
+				mainContent.classList.remove("shifted");
+			} else {
+				sidebar.classList.add("open");
+				mainContent.classList.add("shifted");
+			}
+		}
+	</script>
+
+</body>
+
+</html>
