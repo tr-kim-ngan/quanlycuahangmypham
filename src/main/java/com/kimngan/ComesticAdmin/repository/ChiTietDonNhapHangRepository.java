@@ -53,16 +53,26 @@ public interface ChiTietDonNhapHangRepository extends JpaRepository<ChiTietDonNh
 			+ "FROM ChiTietDonNhapHang c JOIN c.donNhapHang d " + "WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate")
 	List<Object[]> getBaoCaoChiTiet(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
+	@Query("SELECT d.nhaCungCap.tenNhaCungCap, SUM(c.soLuongNhap) " + "FROM ChiTietDonNhapHang c "
+			+ "JOIN c.donNhapHang d " + "WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate "
+			+ "GROUP BY d.nhaCungCap.tenNhaCungCap " + "ORDER BY SUM(c.soLuongNhap) DESC")
+	List<Object[]> findTopSuppliers(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
-	@Query("SELECT d.nhaCungCap.tenNhaCungCap, SUM(c.soLuongNhap) " +
-		       "FROM ChiTietDonNhapHang c " +
-		       "JOIN c.donNhapHang d " +
-		       "WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate " +
-		       "GROUP BY d.nhaCungCap.tenNhaCungCap " +
-		       "ORDER BY SUM(c.soLuongNhap) DESC")
-		List<Object[]> findTopSuppliers(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+	@Query("SELECT c.donNhapHang.nhaCungCap.tenNhaCungCap, SUM(c.donGiaNhap * c.soLuongNhap) "
+			+ "FROM ChiTietDonNhapHang c " + "WHERE c.donNhapHang.ngayNhapHang BETWEEN :fromDate AND :toDate "
+			+ "GROUP BY c.donNhapHang.nhaCungCap.tenNhaCungCap " + "ORDER BY SUM(c.donGiaNhap * c.soLuongNhap) DESC")
+	List<Object[]> getTotalImportValue(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
-	
-	
-	
+	@Query("SELECT c.sanPham.tenSanPham, SUM(c.soLuongNhap), SUM(c.donGiaNhap * c.soLuongNhap), d.ngayNhapHang, d.nhaCungCap.tenNhaCungCap "
+			+ "FROM ChiTietDonNhapHang c " + "JOIN c.donNhapHang d "
+			+ "WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate "
+			+ "GROUP BY c.sanPham.tenSanPham, d.ngayNhapHang, d.nhaCungCap.tenNhaCungCap "
+			+ "ORDER BY d.ngayNhapHang DESC")
+	List<Object[]> findTotalImportReport(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
+	@Query("SELECT d.ngayNhapHang, SUM(c.soLuongNhap) " + "FROM ChiTietDonNhapHang c " + "JOIN c.donNhapHang d "
+			+ "WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate " + "GROUP BY d.ngayNhapHang "
+			+ "ORDER BY d.ngayNhapHang ASC")
+	List<Object[]> getImportTrend(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
 }

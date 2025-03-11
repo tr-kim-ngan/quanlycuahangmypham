@@ -694,5 +694,64 @@ public class WarehouseImportController {
 
 	    return "warehouse/import/thong-ke"; // Trả về file thong-ke.html
 	}
+	
+	@GetMapping("/thong-ke/tong-gia-tri")
+	public String getTotalImportValue(
+	    @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+	    @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+	    Model model) {
+
+	    if (fromDate == null) fromDate = LocalDate.now().minusDays(30);
+	    if (toDate == null) toDate = LocalDate.now();
+
+	    // Gọi service để lấy dữ liệu tổng giá trị nhập kho theo thời gian
+	    List<Object[]> results = chiTietDonNhapHangService.getTotalImportValue(fromDate, toDate);
+
+	    List<String> labels = new ArrayList<>();
+	    List<BigDecimal> values = new ArrayList<>();
+
+	    for (Object[] row : results) {
+	        labels.add(row[0].toString()); // Tên sản phẩm
+	        values.add((BigDecimal) row[1]); // Tổng giá trị nhập
+	    }
+	    List<Object[]> reportData = chiTietDonNhapHangService.getTotalImportReport(fromDate, toDate);
+
+	    model.addAttribute("labels", labels);
+	    model.addAttribute("values", values);
+	    model.addAttribute("fromDate", fromDate);
+	    model.addAttribute("toDate", toDate);
+	    model.addAttribute("reportData", reportData);
+
+	    return "warehouse/import/tong-gia-tri-nhap"; // Trả về file mới
+	}
+
+	@GetMapping("/thong-ke/xu-huong")
+	public String getImportTrend(
+	    @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+	    @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+	    Model model) {
+
+	    if (fromDate == null) fromDate = LocalDate.now().minusDays(30);
+	    if (toDate == null) toDate = LocalDate.now();
+
+	    // Lấy dữ liệu số lượng nhập theo thời gian
+	    List<Object[]> results = chiTietDonNhapHangService.getImportTrend(fromDate, toDate);
+
+	    List<String> labels = new ArrayList<>();
+	    List<Integer> values = new ArrayList<>();
+
+	    for (Object[] row : results) {
+	        labels.add(row[0].toString()); // Ngày nhập
+	        values.add(((Number) row[1]).intValue()); // Tổng số lượng nhập
+	    }
+
+	    model.addAttribute("labels", labels);
+	    model.addAttribute("values", values);
+	    model.addAttribute("fromDate", fromDate);
+	    model.addAttribute("toDate", toDate);
+
+	    return "warehouse/import/xu-huong-nhap"; // Trả về file HTML mới
+	}
+
 
 }
