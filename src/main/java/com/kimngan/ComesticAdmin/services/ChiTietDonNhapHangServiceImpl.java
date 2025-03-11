@@ -173,6 +173,19 @@ public class ChiTietDonNhapHangServiceImpl implements ChiTietDonNhapHangService 
 		  return chiTietDonNhapHangRepository.getImportTrend(fromDate, toDate);
 	}
 
+	@Override
+	public List<Object[]> getImportTrendDetail(LocalDate fromDate, LocalDate toDate) {
+		// TODO Auto-generated method stub
+		 return chiTietDonNhapHangRepository.getImportTrendDetail(fromDate, toDate);
+	}
+
+	@Override
+	public List<Object[]> getTopImportedProducts(LocalDate fromDate, LocalDate toDate) {
+		// TODO Auto-generated method stub
+		  return chiTietDonNhapHangRepository.getTopImportedProducts(fromDate, toDate);
+	}
+
+
 
 
 

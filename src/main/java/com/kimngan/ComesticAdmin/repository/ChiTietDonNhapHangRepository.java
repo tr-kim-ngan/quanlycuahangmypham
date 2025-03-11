@@ -75,4 +75,15 @@ public interface ChiTietDonNhapHangRepository extends JpaRepository<ChiTietDonNh
 			+ "ORDER BY d.ngayNhapHang ASC")
 	List<Object[]> getImportTrend(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
+	@Query("SELECT d.ngayNhapHang, SUM(c.soLuongNhap), SUM(c.soLuongNhap * c.donGiaNhap) "
+			+ "FROM ChiTietDonNhapHang c " + "JOIN c.donNhapHang d "
+			+ "WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate " + "GROUP BY d.ngayNhapHang "
+			+ "ORDER BY d.ngayNhapHang ASC")
+	List<Object[]> getImportTrendDetail(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
+	@Query("SELECT c.sanPham.tenSanPham, SUM(c.soLuongNhap) " + "FROM ChiTietDonNhapHang c " + "JOIN c.donNhapHang d "
+			+ "WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate " + "GROUP BY c.sanPham.tenSanPham "
+			+ "ORDER BY SUM(c.soLuongNhap) DESC")
+	List<Object[]> getTopImportedProducts(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
 }

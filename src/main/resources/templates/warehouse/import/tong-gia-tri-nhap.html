@@ -30,8 +30,31 @@
 		}
 
 		.filter-form {
-			text-align: center;
+
 			margin-bottom: 20px;
+			text-align: center;
+
+		}
+
+		.filter-form input {
+			padding: 8px;
+			margin: 5px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+		}
+
+		.filter-form button {
+			background-color: #007bff;
+			color: white;
+			border: none;
+			padding: 8px 12px;
+			border-radius: 5px;
+			cursor: pointer;
+			margin-left: 5px;
+		}
+
+		.filter-form button:hover {
+			background-color: #0056b3;
 		}
 
 
@@ -174,22 +197,17 @@
 	<!-- Sidebar bên phải -->
 	<div class="sidebar" id="sidebar">
 		<ul>
-			<li><a th:href="@{/warehouse/import/thong-ke}" th:classappend="${activeMenu == 'tong-quan'} ? 'active'">🏠
-					Tổng quan</a></li>
+			<li><a th:href="@{/warehouse/import/thong-ke}" th:classappend="${activeMenu == 'tong-quan'} ? 'active'">
+					Nhập theo sản phẩm</a></li>
 			<li><a th:href="@{/warehouse/import/thong-ke/tong-gia-tri}"
-					th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">💰 Tổng giá trị nhập kho</a></li>
-			<li><a th:href="@{/warehouse/import/thong-ke/nha-cung-cap}"
-					th:classappend="${activeMenu == 'nha-cung-cap'} ? 'active'">🚚 Theo nhà cung cấp</a></li>
-			<li><a th:href="@{/warehouse/import/thong-ke/danh-muc}"
-					th:classappend="${activeMenu == 'danh-muc'} ? 'active'">🏷️ Theo danh mục sản phẩm</a></li>
+					th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Tổng giá trị nhập kho</a></li>
 			<li><a th:href="@{/warehouse/import/thong-ke/xu-huong}"
-					th:classappend="${activeMenu == 'xu-huong'} ? 'active'">📅 Xu hướng nhập kho</a></li>
+					th:classappend="${activeMenu == 'xu-huong'} ? 'active'">Xu hướng nhập kho</a></li>
 		</ul>
 	</div>
 	<!-- Thanh tiêu đề -->
-	<div class="header">Tổng giá trị nhập kho</div>
+	<div class="header">Thống kê nhập kho theo nhà cung cấp</div>
 	<div class="container">
-		<h2 style="text-align: center;">📊 Thống kê tổng giá trị nhập kho</h2>
 		<!-- Navbar -->
 		<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
 
