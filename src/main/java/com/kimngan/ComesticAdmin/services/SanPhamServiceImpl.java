@@ -296,4 +296,16 @@ public class SanPhamServiceImpl implements SanPhamService {
 		return chiTietDonNhapHangRepository.getTotalImportedQuantityAfterStockEmpty(maSanPham, lastStockEmptyTime);
 	}
 
+	@Override
+	public Integer getSoLuongTrenKe(Integer maSanPham) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Integer getSoLuongTonKho(Integer maSanPham) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -18,7 +18,8 @@ import com.kimngan.ComesticAdmin.entity.NguoiDung;
 @Repository
 public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 
-	 List<DonHang> findByShipper(NguoiDung shipper);
+	List<DonHang> findByShipper(NguoiDung shipper);
+
 	List<DonHang> findByNguoiDung(NguoiDung nguoiDung);
 
 	// Nếu cần thêm các query tùy chỉnh, có thể thêm ở đây
@@ -38,7 +39,9 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 	long countByTrangThaiDonHang(String trangThaiDonHang);
 
 	Page<DonHang> findByNguoiDungTenNguoiDung(String username, Pageable pageable);
+
 	Page<DonHang> findByNguoiDungTenNguoiDungAndTrangThaiDonHang(String username, String status, Pageable pageable);
+
 	Page<DonHang> findTopByNguoiDungTenNguoiDungOrderByNgayDatDesc(String username, Pageable pageable);
 
 	List<DonHang> findByNguoiDungAndTrangThaiDonHang(NguoiDung nguoiDung, String trangThaiDonHang);
@@ -46,7 +49,12 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 	@Query("SELECT d FROM DonHang d WHERE d.shipper = :shipper")
 	List<DonHang> findOrdersByShipper(@Param("shipper") NguoiDung shipper);
 
-	
-	
-	
+	@Query("SELECT d FROM DonHang d WHERE d.trangThaiDonHang = :trangThai AND d.nhanVienXuatKho.maNguoiDung = :maNhanVien")
+	List<DonHang> findByTrangThaiAndNhanVienXuatKho(@Param("trangThai") String trangThai,
+			@Param("maNhanVien") Integer maNhanVien);
+
+	@Query("SELECT d FROM DonHang d WHERE d.trangThaiDonHang IN :trangThaiList AND d.nhanVienXuatKho.maNguoiDung = :maNhanVien")
+	List<DonHang> findByTrangThaiDonHangInAndNhanVienXuatKho(@Param("trangThaiList") List<String> trangThaiList,
+			@Param("maNhanVien") Integer maNhanVien);
+
 }

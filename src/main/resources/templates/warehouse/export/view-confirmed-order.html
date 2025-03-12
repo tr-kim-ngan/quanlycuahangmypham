@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Quản lý Xuất Kho</title>
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+	<style>
+		body {
+			background-color: #f8f9fa;
+		}
+
+		.wrapper {
+			display: flex;
+			height: 100vh;
+		}
+
+		.sidebar {
+			width: 250px;
+			background-color: #343a40;
+			color: #fff;
+		}
+
+		.sidebar .nav-link {
+			color: #fff;
+		}
+
+		.sidebar .nav-link:hover {
+			background-color: #495057;
+		}
+
+		.main-panel {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.content {
+			flex: 1;
+			overflow-y: auto;
+		}
+
+		footer {
+			background-color: #343a40;
+			color: #fff;
+			padding: 10px;
+		}
+
+		.product-img {
+			width: 50px;
+			height: auto;
+			border-radius: 5px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<nav class="sidebar p-3">
+			<h4 class="text-center">Kho Hàng</h4>
+			<ul class="nav flex-column">
+				<li class="nav-item">
+					<a class="nav-link" href="/warehouse/export/orders"> Đơn Hàng Chờ Xuất Kho</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/warehouse/export/orders-confirmed">Đơn Hàng Đã Xuất Kho</a>
+				</li>
+
+				<li class="nav-item">
+					<a class="nav-link" href="/warehouse/export/logout"> Đăng Xuất</a>
+				</li>
+			</ul>
+		</nav>
+
+		<!-- Main Content -->
+		<div class="main-panel">
+			<!-- Header -->
+			<header class="navbar navbar-expand navbar-light bg-light border-bottom">
+				<span class="navbar-brand mb-0 h1">Danh sách đơn hàng đã xuất kho</span>
+				<div class="ml-auto">
+					<span class="navbar-text mr-3"><span th:text="${user.tenNguoiDung}"></span></span>
+					<a href="/warehouse/export/logout" class="btn btn-outline-danger btn-sm">Đăng Xuất</a>
+				</div>
+			</header>
+
+			<!-- Content -->
+			<div class="card-body">
+				<table class="table table-bordered">
+					<thead class="thead-light">
+						<tr class="text-center">
+							<th>Mã SP</th>
+							<th>Ảnh</th>
+							<th>Sản Phẩm</th>
+							<th>Số Lượng Xuất Kho</th>
+
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="ctdh : ${donHang.chiTietDonHangs}" class="text-center">
+							<td th:text="${ctdh.sanPham.maSanPham}"></td>
+							<td>
+								<img th:src="@{'/upload/' + ${ctdh.sanPham.hinhAnh}}" class="product-img"
+									alt="Ảnh sản phẩm">
+							</td>
+							<td th:text="${ctdh.sanPham.tenSanPham}"></td>
+							<td th:text="${ctdh.soLuong}"></td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="text-center mt-4">
+					<a href="/warehouse/export/orders-confirmed" class="btn btn-secondary">🔙 Quay lại</a>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<footer class="text-center">
+				© 2025 Quản lý Kho - KN Cosmetic
+			</footer>
+		</div>
+	</div>
+
+
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			console.log("📦 Trang quản lý xuất kho đã tải xong.");
+		});
+	</script>
+</body>
+
+</html>

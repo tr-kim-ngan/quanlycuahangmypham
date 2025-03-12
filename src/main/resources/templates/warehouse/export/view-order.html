@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Xác nhận xuất kho</title>
+</head>
+
+<body>
+	<div class="container mt-4">
+		<h3 class="mb-4 text-center">📦 Xác nhận xuất kho</h3>
+
+		<div class="card mb-4">
+			<div class="card-body">
+				<h5>Thông tin đơn hàng</h5>
+				<p><strong>Mã Đơn Hàng:</strong> <span th:text="${donHang.maDonHang}"></span></p>
+				<p><strong>Khách hàng:</strong> <span th:text="${donHang.nguoiDung.tenNguoiDung}"></span></p>
+				<p><strong>Ngày đặt:</strong> <span
+						th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></span></p>
+				<p><strong>Trạng thái:</strong> <span class="badge bg-warning text-dark"
+						th:text="${donHang.trangThaiDonHang}"></span></p>
+			</div>
+		</div>
+
+		<form th:action="@{/warehouse/export/orders/{maDonHang}/confirm-export(maDonHang=${donHang.maDonHang})}"
+			method="post">
+			<table class="table table-bordered table-striped">
+				<thead class="table-dark">
+					<tr>
+						<th>STT</th>
+						<th>Sản phẩm</th>
+						<th>Số lượng đặt</th>
+						<th>Trên kệ</th>
+						<th>Trong kho</th>
+						<th>Loại xuất</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="chiTiet, iterStat : ${donHang.chiTietDonHangs}">
+						<td th:text="${iterStat.count}"></td>
+						<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
+						<td th:text="${chiTiet.soLuong}"></td>
+						<td th:text="${soLuongTrenKeMap[chiTiet.sanPham.maSanPham]}"></td>
+						<td th:text="${soLuongTonKhoMap[chiTiet.sanPham.maSanPham]}"></td>
+						<td>
+							<span th:if="${chiTiet.soLuong >= 10}" class="badge badge-warning">📦 Xuất từ kho</span>
+							<span th:if="${chiTiet.soLuong < 10}" class="badge badge-success">🛒 Lấy từ kệ</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div class="text-center mt-4">
+				<button type="submit" class="btn btn-primary">
+					✔ Xác nhận đã xuất hàng
+				</button>
+				<a href="/warehouse/export/orders" class="btn btn-secondary ms-2">Quay lại</a>
+			</div>
+		</form>
+	</div>
+
+
+</body>
+
+</html>

@@ -693,6 +693,19 @@ public class DonHangServiceImpl implements DonHangService {
 			throw new RuntimeException("Không tìm thấy đơn hàng với mã: " + maDonHang);
 		}
 	}
+
+	@Override
+	public List<DonHang> getOrdersByStatusAndExportStaff(String trangThai, Integer maNhanVien) {
+		// TODO Auto-generated method stub
+	    return donHangRepository.findByTrangThaiAndNhanVienXuatKho(trangThai, maNhanVien);
+
+	}
+
+	@Override
+	public List<DonHang> getOrdersByStatusesAndExportStaff(List<String> trangThaiList, Integer maNhanVien) {
+		// TODO Auto-generated method stub
+        return donHangRepository.findByTrangThaiDonHangInAndNhanVienXuatKho(trangThaiList, maNhanVien);
+	}
 	
 
 
