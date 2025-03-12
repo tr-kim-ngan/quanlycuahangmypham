@@ -139,28 +139,42 @@
 												<th style="text-align: center;">Ảnh</th>
 												<th style="text-align: center;">Tên Sản Phẩm</th>
 												<th style="text-align: center;">Số Lượng</th>
+												<th style="text-align: center;">Số Lượng Trên Kệ</th>
+												<th style="text-align: center;">Số Lượng Trong Kho</th>
 												<th style="text-align: center;">Đơn Giá</th>
 												<th style="text-align: center;">Thành Tiền</th>
 											</tr>
 										</thead>
 										<tbody>
-											<tr th:each="chiTiet, iterStat : ${formattedChiTietDonHang}"
+											<tr th:each="chiTiet, iterStat : ${donHang.chiTietDonHangs}"
 												style="text-align: center;">
 												<td th:text="${iterStat.index + 1}"></td>
 												<td>
-													<img th:src="@{'/upload/' + ${chiTiet['hinhAnh']}}"
+													<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}"
 														style="width: 50px; height: auto;" alt="Ảnh sản phẩm" />
 												</td>
-												<td>
-													<span th:text="${chiTiet['tenSanPham']}"></span><br>
-													<small th:text="${chiTiet['maSanPham']}"></small>
+												<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
+												<td th:text="${chiTiet.soLuong}" class="soLuong"></td>
+
+												<!-- Hiển thị số lượng trên kệ -->
+												<td
+													th:text="${soLuongTrenKeMap[chiTiet.sanPham.maSanPham] != null ? soLuongTrenKeMap[chiTiet.sanPham.maSanPham] : 0}">
 												</td>
-												<td th:text="${chiTiet['soLuong']}" class="soLuong"></td>
-												<td th:text="${chiTiet['giaTaiThoiDiemDat']} + ' VND'"></td>
-												<td th:text="${chiTiet['thanhTien']} + ' VND'" class="thanhTien"></td>
+
+												<!-- Hiển thị số lượng tồn kho -->
+												<td
+													th:text="${soLuongTonKhoMap[chiTiet.sanPham.maSanPham] != null ? soLuongTonKhoMap[chiTiet.sanPham.maSanPham] : 0}">
+												</td>
+
+												<td
+													th:text="${#numbers.formatDecimal(chiTiet.giaTaiThoiDiemDat, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+												</td>
+												<td th:text="${#numbers.formatDecimal(chiTiet.giaTaiThoiDiemDat * chiTiet.soLuong, 0, 'COMMA', 0, 'POINT')} + ' VND'"
+													class="thanhTien"></td>
 											</tr>
 										</tbody>
 									</table>
+
 
 									<!-- Tổng tiền và phí vận chuyển -->
 									<div class="mt-4">

@@ -28,6 +28,12 @@
 								</div>
 								<div class="card-body">
 
+
+
+
+
+
+
 									<!-- Hiển thị trạng thái chờ xác nhận -->
 									<th:block th:if="${donHang.trangThaiChoXacNhan != null}">
 										<p class=" text-center mt-3">
@@ -43,15 +49,30 @@
 										<p><strong>Trạng thái:</strong>
 											<span th:text="${donHang.trangThaiDonHang}">
 											</span>
-											
+
 
 										</p>
 
 										<th:block th:if="${donHang.trangThaiDonHang == 'Đã hủy'}">
 											<p class="text-danger">Đơn hàng này đã bị hủy.</p>
-											
+
 										</th:block>
 									</th:block>
+
+									<th:block th:if="${donHang.trangThaiDonHang == 'Chờ xác nhận'}">
+										<form
+											th:action="@{/admin/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
+											method="post">
+											<button type="submit" class="btn" style="background-color: transparent; 
+               color: green; 
+               border: 2px solid green; 
+               border-radius: 5px;">
+												Xác nhận đã xuất kho
+											</button>
+
+										</form>
+									</th:block>
+
 									<th:block
 										th:if="${donHang != null and donHang.ghiChu != null and not #strings.isEmpty(donHang.ghiChu)}">
 										<p class="mt-2">Lý Do Giao Hàng Thất Bại</p>
@@ -66,10 +87,58 @@
 										</div>
 									</th:block>
 
+									<th:block
+										th:if="${donHang.trangThaiDonHang == 'Đang xử lý' and donHang.nhanVienXuatKho == null}">
+										<form
+											th:action="@{/admin/orders/{maDonHang}/assign-export-staff(maDonHang=${donHang.maDonHang})}"
+											method="post">
+											<label for="handlingOption">Chọn cách xử lý:</label>
+											<select id="handlingOption" name="handlingOption" class="form-control"
+												required>
+												<option value="export">🏭 Giao từ kho (cần nhân viên xuất kho)</option>
+												<option value="shelf">🛒 Lấy hàng từ kệ</option>
+											</select>
 
+											<!-- Chọn nhân viên xuất kho -->
+											<div id="warehouseStaffSelection" style="display: none; margin-top: 10px;">
+												<label for="maNhanVienXuatKho">Chọn nhân viên xuất kho:</label>
+												<select id="maNhanVienXuatKho" name="maNhanVienXuatKho"
+													class="form-control">
+													<option value="">-- Chọn nhân viên xuất kho --</option>
+													<option th:each="nhanVien : ${danhSachNhanVienXuatKho}"
+														th:value="${nhanVien.maNguoiDung}"
+														th:text="${nhanVien.tenNguoiDung}">
+													</option>
+												</select>
+											</div>
+
+											<button type="submit" class="btn btn-warning mt-3">✔ Xác nhận</button>
+										</form>
+									</th:block>
+
+									<script>
+										document.addEventListener("DOMContentLoaded", function () {
+											let handlingOption = document.getElementById("handlingOption");
+											let warehouseStaffSelection = document.getElementById("warehouseStaffSelection");
+
+											// ✅ Kiểm tra nếu đã chọn "export" trước đó thì hiển thị luôn
+											if (handlingOption.value === "export") {
+												warehouseStaffSelection.style.display = "block";
+											}
+
+											handlingOption.addEventListener("change", function () {
+												if (this.value === "export") {
+													warehouseStaffSelection.style.display = "block";
+												} else {
+													warehouseStaffSelection.style.display = "none";
+												}
+											});
+										});
+									</script>
 									<!-- Trạng thái Đang xử lý -> Xác nhận đơn hàng -->
 									<!-- Nếu đơn hàng đang xử lý, admin có thể xác nhận hoặc hủy -->
-									<th:block th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}">
+									<th:block
+										th:if="${donHang.trangThaiDonHang == 'Đang xử lý' and donHang.nhanVienXuatKho != null}">
 										<form id="orderActionForm"
 											th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
 											method="post"
@@ -82,8 +151,8 @@
 												<option value="cancel">Hủy đơn hàng</option>
 											</select>
 
-											<button type="submit" id="confirmButton" class="btn btn-primary mt-3">✔ Thực
-												hiện</button>
+											<button type="submit" id="confirmButton" class="btn btn-primary mt-3">
+												Xác nhận</button>
 										</form>
 									</th:block>
 
@@ -98,8 +167,7 @@
 											<select id="shipper" name="shipperId" class="form-control" required>
 												<option value="">-- Chọn Shipper --</option>
 												<option th:each="shipper : ${danhSachShipper}"
-													th:value="${shipper.maNguoiDung}"
-													th:text="${shipper.tenNguoiDung}">
+													th:value="${shipper.maNguoiDung}" th:text="${shipper.tenNguoiDung}">
 												</option>
 											</select>
 											<button type="submit" class="btn btn-primary mt-3">Gán Shipper</button>
@@ -135,9 +203,8 @@
 
 									<!-- Nếu shipper đã được gán, hiển thị trạng thái -->
 									<div th:if="${donHang.shipper != null}">
-										<p > <strong>Đơn hàng đã được giao cho shipper: </strong>
-											<span
-												th:text="${donHang.shipper.tenNguoiDung}"
+										<p> <strong>Đơn hàng đã được giao cho shipper: </strong>
+											<span th:text="${donHang.shipper.tenNguoiDung}"
 												class="text-success fw-bold"></span>
 										</p>
 										<p> <strong>Số điện thoại shipper:</strong>

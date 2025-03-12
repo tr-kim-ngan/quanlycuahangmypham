@@ -74,6 +74,6 @@ public interface SanPhamService {
 	 void capNhatSoLuongTonKho(Integer maSanPham);
 	 Page<SanPham> findByTrangThai(Boolean trangThai, Pageable pageable);
 	 Integer getTotalImportedQuantity(Integer maSanPham);
-	 
-
+	 Integer getSoLuongTrenKe(Integer maSanPham) ;
+	 Integer getSoLuongTonKho(Integer maSanPham) ;
 }
