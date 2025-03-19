@@ -55,19 +55,20 @@ public class DonHang {
 	private String sdtNhanHang;
 	@Column(name = "lich_su_trang_thai", columnDefinition = "TEXT")
 	private String lichSuTrangThai;
+	
+	@Column(name = "ngay_xac_nhan_xuat_kho")
+	private LocalDateTime ngayXacNhanXuatKho;
 
 	// Quan hệ với bảng NguoiDung
 	@ManyToOne
 	@JoinColumn(name = "MaNguoiDung", nullable = false)
 	private NguoiDung nguoiDung;
 
-	// ✅ Quan hệ với shipper (mới thêm)
+	
 	@ManyToOne
 	@JoinColumn(name = "ShipperId", referencedColumnName = "maNguoiDung", nullable = true)
-	private NguoiDung shipper; // Thêm shipper vào đơn hàng
-	@ManyToOne
-	@JoinColumn(name = "ma_nhan_vien_xuat_kho", referencedColumnName = "maNguoiDung", nullable = true)
-	private NguoiDung nhanVienXuatKho;
+	private NguoiDung shipper; 
+
 
 	// Quan hệ với ChiTietDonHang
 	@OneToMany(mappedBy = "donHang", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -77,10 +78,17 @@ public class DonHang {
 	public DonHang() {
 	}
 
+	
+
+
+
+
+
 	public DonHang(Integer maDonHang, LocalDateTime ngayDat, String diaChiGiaoHang, String trangThaiDonHang,
 			String trangThaiChoXacNhan, BigDecimal tongGiaTriDonHang, BigDecimal phiVanChuyen, Integer soLanGiaoThatBai,
-			String ghiChu, String hinhAnhGiaoHang, String sdtNhanHang, String lichSuTrangThai, NguoiDung nguoiDung,
-			NguoiDung shipper, NguoiDung nhanVienXuatKho, List<ChiTietDonHang> chiTietDonHangs) {
+			String ghiChu, String hinhAnhGiaoHang, String sdtNhanHang, String lichSuTrangThai,
+			LocalDateTime ngayXacNhanXuatKho, NguoiDung nguoiDung, NguoiDung shipper,
+			List<ChiTietDonHang> chiTietDonHangs) {
 		super();
 		this.maDonHang = maDonHang;
 		this.ngayDat = ngayDat;
@@ -94,11 +102,17 @@ public class DonHang {
 		this.hinhAnhGiaoHang = hinhAnhGiaoHang;
 		this.sdtNhanHang = sdtNhanHang;
 		this.lichSuTrangThai = lichSuTrangThai;
+		this.ngayXacNhanXuatKho = ngayXacNhanXuatKho;
 		this.nguoiDung = nguoiDung;
 		this.shipper = shipper;
-		this.nhanVienXuatKho = nhanVienXuatKho;
 		this.chiTietDonHangs = chiTietDonHangs;
 	}
+
+
+
+
+
+
 
 	// Getters và Setters
 	public Integer getMaDonHang() {
@@ -221,12 +235,16 @@ public class DonHang {
 		this.lichSuTrangThai = lichSuTrangThai;
 	}
 
-	public NguoiDung getNhanVienXuatKho() {
-		return nhanVienXuatKho;
+
+
+	public LocalDateTime getNgayXacNhanXuatKho() {
+		return ngayXacNhanXuatKho;
 	}
 
-	public void setNhanVienXuatKho(NguoiDung nhanVienXuatKho) {
-		this.nhanVienXuatKho = nhanVienXuatKho;
+	public void setNgayXacNhanXuatKho(LocalDateTime ngayXacNhanXuatKho) {
+		this.ngayXacNhanXuatKho = ngayXacNhanXuatKho;
 	}
+	
+	
 
 }

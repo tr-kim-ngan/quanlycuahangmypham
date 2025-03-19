@@ -35,6 +35,16 @@ public class GioHangServiceImpl implements GioHangService {
 	@Autowired
 	private ChiTietGioHangService chiTietGioHangService;
 
+	@Autowired
+	private SanPhamService sanPhamService;
+	
+	@Autowired
+	private ChiTietDonHangService chiTietDonHangService;
+	@Autowired
+	private KiemKeKhoService kiemKeKhoService;
+	
+	@Autowired
+	private ChiTietDonNhapHangService chiTietDonNhapHangService;
 
 	@Override
 	public GioHang getOrCreateGioHang(NguoiDung nguoiDung) {
@@ -51,14 +61,27 @@ public class GioHangServiceImpl implements GioHangService {
 	@Override
 	public void addToCart(NguoiDung nguoiDung, SanPham sanPham, Integer quantity) {
 		GioHang gioHang = getOrCreateGioHang(nguoiDung);
+		// Lấy số lượng tồn kho chính xác từ service
+		
+		 // Lấy dữ liệu để tính số lượng tồn kho thực tế
+	    int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sanPham.getMaSanPham());
+	    int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(sanPham.getMaSanPham());
+	    int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(sanPham.getMaSanPham());
+	    int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(sanPham.getMaSanPham());
 
-		// In ra thông tin người dùng, sản phẩm, và số lượng nhập vào
-		System.out.println("Người dùng: " + nguoiDung.getTenNguoiDung());
-		System.out.println("Sản phẩm: " + sanPham.getTenSanPham() + " (ID: " + sanPham.getMaSanPham() + ")");
-		System.out.println("Số lượng nhập vào: " + quantity);
+	    // Tính số lượng tồn kho chính xác
+	    int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
 
-		// Gọi phương thức addOrUpdateChiTietGioHang từ ChiTietGioHangService để thêm
-		// hoặc cập nhật sản phẩm trong giỏ hàng
+	//	int soLuongTonKho = sanPhamService.getSoLuongTonKho(sanPham.getMaSanPham());
+		System.out.println("📦 DEBUG - Số lượng tồn kho: " + soLuongTonKho);
+
+		// Kiểm tra số lượng đặt hàng có vượt quá số lượng tồn kho không
+		if (quantity > soLuongTonKho) {
+		    System.out.println("⚠️ Không thể thêm vào giỏ hàng! Số lượng tồn kho không đủ.");
+		    quantity = soLuongTonKho; // Giới hạn số lượng đặt hàng theo số lượng tồn kho
+		}
+
+		
 		chiTietGioHangService.addOrUpdateChiTietGioHang(gioHang, sanPham, quantity);
 	}
 
@@ -93,6 +116,24 @@ public class GioHangServiceImpl implements GioHangService {
 
 		if (optionalChiTietGioHang.isPresent()) {
 			ChiTietGioHang chiTietGioHang = optionalChiTietGioHang.get();
+
+	        // Lấy số lượng tồn kho theo công thức mới (không dùng cột soLuongTonKho)
+	        int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sanPham.getMaSanPham());
+	        int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(sanPham.getMaSanPham());
+	        int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(sanPham.getMaSanPham());
+	        int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(sanPham.getMaSanPham());
+
+	        int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
+			//int soLuongTonKho = sanPhamService.getSoLuongTonKho(sanPham.getMaSanPham());
+			System.out.println("🔍 DEBUG - Sản phẩm ID: " + sanPham.getMaSanPham());
+			System.out.println("📦 Số lượng tồn kho thực tế: " + soLuongTonKho);
+			System.out.println("🛒 Số lượng cần cập nhật: " + newQuantity);
+			// Nếu số lượng cập nhật vượt quá số lượng tồn kho, ngăn chặn
+	        if (newQuantity > soLuongTonKho) {
+	            throw new RuntimeException("Không thể cập nhật số lượng vượt quá số lượng tồn kho!");
+	        }
+
+	        
 			// Thay đổi số lượng thành giá trị mới, không cộng thêm
 			chiTietGioHang.setSoLuong(newQuantity);
 			System.out.println("Cập nhật sản phẩm của updateCartItemQuantity: " + sanPham.getMaSanPham()
@@ -115,27 +156,24 @@ public class GioHangServiceImpl implements GioHangService {
 	@Override
 	public void clearCart(NguoiDung nguoiDung) {
 		GioHang gioHang = nguoiDung.getGioHang();
-	    if (gioHang != null) {
-	        List<ChiTietGioHang> cartItems = chiTietGioHangRepository.findByGioHang(gioHang);
-	        if (!cartItems.isEmpty()) {
-	            chiTietGioHangRepository.deleteAll(cartItems);
-	        }
-	    }
+		if (gioHang != null) {
+			List<ChiTietGioHang> cartItems = chiTietGioHangRepository.findByGioHang(gioHang);
+			if (!cartItems.isEmpty()) {
+				chiTietGioHangRepository.deleteAll(cartItems);
+			}
+		}
 
 	}
 
 	@Override
 	public List<ChiTietGioHang> getSelectedItems(NguoiDung nguoiDung, List<Integer> productIds) {
 		// TODO Auto-generated method stub
-		 GioHang gioHang = getOrCreateGioHang(nguoiDung);
-		    List<ChiTietGioHang> allItems = chiTietGioHangRepository.findByGioHang(gioHang);
+		GioHang gioHang = getOrCreateGioHang(nguoiDung);
+		List<ChiTietGioHang> allItems = chiTietGioHangRepository.findByGioHang(gioHang);
 
-		    // Lọc các sản phẩm theo danh sách productIds được chọn
-		    return allItems.stream()
-		            .filter(item -> productIds.contains(item.getSanPham().getMaSanPham()))
-		            .collect(Collectors.toList());
+		// Lọc các sản phẩm theo danh sách productIds được chọn
+		return allItems.stream().filter(item -> productIds.contains(item.getSanPham().getMaSanPham()))
+				.collect(Collectors.toList());
 	}
-
-	
 
 }

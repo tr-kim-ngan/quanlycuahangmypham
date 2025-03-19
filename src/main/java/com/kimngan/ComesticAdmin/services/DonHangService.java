@@ -55,12 +55,14 @@ public interface DonHangService {
     Collection<ChiTietDonHang> getOfflineOrder();
     boolean processAndGenerateInvoiceForOfflineOrder(String soDienThoaiKhach);
 
-    List<DonHang> getOrdersByStatusAndExportStaff(String trangThai, Integer maNhanVien);
+//    List<DonHang> getOrdersByStatusAndExportStaff(String trangThai, Integer maNhanVien);
+//
+//    List<DonHang> getOrdersByStatusesAndExportStaff(List<String> trangThaiList, Integer maNhanVien);
+//    
+    List<DonHang> getDonHangsByStatus(String status);
+    List<DonHang> findDonHangsDaXuatKho();
 
-    List<DonHang> getOrdersByStatusesAndExportStaff(List<String> trangThaiList, Integer maNhanVien);
-    
-    
-    
+    int getSoLuongTraHang(Integer maSanPham) ;
     
     
     }

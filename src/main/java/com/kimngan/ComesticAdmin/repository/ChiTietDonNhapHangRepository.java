@@ -26,6 +26,12 @@ public interface ChiTietDonNhapHangRepository extends JpaRepository<ChiTietDonNh
 
 	Page<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang, Pageable pageable);
 
+	@Query("DELETE FROM ChiTietDonNhapHang c WHERE c.donNhapHang.maDonNhapHang = :maDonNhapHang")
+	void deleteByDonNhapHangId(@Param("maDonNhapHang") Integer maDonNhapHang);
+
+	@Query("SELECT DISTINCT c.sanPham.maSanPham FROM ChiTietDonNhapHang c WHERE c.donNhapHang.maDonNhapHang = :maDonNhapHang")
+	List<Integer> findDistinctSanPhamIdsByDonNhapHang(@Param("maDonNhapHang") Integer maDonNhapHang);
+
 	// Tìm thời điểm gần nhất kho hết hàng
 	@Query("SELECT MAX(dn.ngayNhapHang) FROM DonNhapHang dn "
 			+ "JOIN ChiTietDonNhapHang ct ON dn.maDonNhapHang = ct.donNhapHang.maDonNhapHang "
@@ -86,4 +92,9 @@ public interface ChiTietDonNhapHangRepository extends JpaRepository<ChiTietDonNh
 			+ "ORDER BY SUM(c.soLuongNhap) DESC")
 	List<Object[]> getTopImportedProducts(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
+	
+	
+
+
+	
 }

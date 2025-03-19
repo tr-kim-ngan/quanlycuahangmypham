@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Kiểm kê kho</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
+
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			background-color: #f4f4f4;
+		}
+
+		.header {
+			background-color: #f8f9fa;
+			padding: 15px 20px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 2px solid #dee2e6;
+		}
+
+		.header-buttons {
+			display: flex;
+			gap: 10px;
+			margin-right: 20px;
+		}
+
+		.header h2 {
+			margin: 0;
+			font-size: 20px;
+			color: #333;
+		}
+
+		.container {
+			max-width: 1100px;
+			margin: 20px auto;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		th,
+		td {
+			padding: 12px;
+			text-align: center;
+			border: 1px solid #dee2e6;
+		}
+
+		th {
+			background-color: azure;
+			color: black;
+			text-transform: uppercase;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f9f9f9;
+		}
+
+		tr:hover {
+			background-color: #f1f1f1;
+		}
+
+		.btn-primary {
+			background-color: black;
+			color: white;
+			border: none;
+			display: block;
+			text-align: center;
+			padding: 10px;
+			font-size: 16px;
+			border-radius: 5px;
+			text-decoration: none;
+
+			transition: 0.3s;
+		}
+
+		.btn-primary:hover {
+			background-color: #333;
+		}
+
+		.status-success {
+			color: green;
+			font-weight: bold;
+		}
+
+		.status-pending {
+			color: red;
+			font-weight: bold;
+		}
+
+		.message {
+			font-size: 18px;
+			font-weight: bold;
+			color: #28a745;
+			margin-top: 20px;
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+	<form th:action="@{/warehouse/import/kiemke/save}" method="post">
+		<!-- Thanh điều hướng -->
+		<div class="header" style="padding-left: 300px;">
+			<h2>Kiểm Tra Tồn Kho</h2>
+			<div class="header-buttons">
+				<button class="btn btn-primary" type="submit">Gửi kiểm kê</button>
+			</div>
+		</div>
+
+		<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+
+		<div class="container" style="padding-left: 300px;">
+			<input type="hidden" name="caLamViecId" th:value="${caLamViecId}">
+
+			<table>
+				<thead>
+					<tr>
+						<th>STT</th>
+						<th>Hình ảnh</th>
+						<th>Sản phẩm</th>
+						<th>Tồn kho</th>
+						<th>Số lượng thực tế</th>
+						<th>Chênh lệch</th>
+						<th>Chọn</th>
+						<th>Lý do kiểm kê</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="sp, iterStat : ${danhSachSanPham}">
+						<td th:text="${iterStat.count}"></td>
+						<td>
+							<img th:src="@{'/upload/' + ${sp.hinhAnh}}" alt="Hình ảnh sản phẩm"
+								style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd; padding: 3px;">
+						</td>
+						<td th:text="${sp.tenSanPham}"></td>
+						<td th:text="${sanPhamSoLuongTonKhoMap[sp.maSanPham]}" class="tonKho"></td>
+						<td>
+							<input type="hidden" name="maSanPham" th:value="${sp.maSanPham}">
+							<input type="number" name="soLuongThucTe" class="soLuongThucTe"
+								th:value="${soLuongThucTeMap[sp.maSanPham] != null ? soLuongThucTeMap[sp.maSanPham] : 0}"
+								required>
+						</td>
+						<td class="chenhLech">0</td>
+						<td>
+							<input type="checkbox" class="kiemKeCheckbox">
+						</td>
+						<td>
+							<select name="lyDoDieuChinh" class="lyDoDropdown" disabled required>
+								<option value="">Chọn lý do</option>
+								<option value="Hàng bị lỗi">Hàng bị lỗi</option>
+								<option value="Nhập hàng thiếu">Nhập hàng thiếu</option>
+								<option value="Nhập hàng dư">Nhập hàng dư</option>
+								<option value="Sai sót trong kiểm kê trước">Sai sót trong kiểm kê trước</option>
+								<option value="Khác">Khác (Nhập tay)</option>
+							</select>
+							<input type="text" name="lyDoNhapTay" class="lyDoNhapTay" placeholder="Nhập lý do"
+								style="display: none;">
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</form>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			const soLuongInputs = document.querySelectorAll(".soLuongThucTe");
+			const checkboxes = document.querySelectorAll(".kiemKeCheckbox");
+			const lyDoDropdowns = document.querySelectorAll(".lyDoDropdown");
+			const lyDoInputs = document.querySelectorAll(".lyDoNhapTay");
+
+			soLuongInputs.forEach(input => {
+				input.addEventListener("input", function () {
+					let row = this.closest("tr"); // Lấy dòng chứa input hiện tại
+					let tonKho = parseInt(row.querySelector(".tonKho").innerText.trim());
+					let soLuongMoi = parseInt(this.value);
+					let checkbox = row.querySelector(".kiemKeCheckbox");
+					let chenhLechText = row.querySelector(".chenhLech");
+
+					let chenhLech = soLuongMoi - tonKho;
+					chenhLechText.innerText = chenhLech;
+
+					if (chenhLech !== 0) {
+						checkbox.checked = true;
+						checkbox.dispatchEvent(new Event("change"));
+					} else {
+						checkbox.checked = false;
+						checkbox.dispatchEvent(new Event("change"));
+					}
+				});
+			});
+
+			checkboxes.forEach(checkbox => {
+				checkbox.addEventListener("change", function () {
+					let row = this.closest("tr");
+					let dropdown = row.querySelector(".lyDoDropdown");
+					let inputLyDo = row.querySelector(".lyDoNhapTay");
+
+					if (this.checked) {
+						dropdown.disabled = false;
+						dropdown.required = true;
+					} else {
+						dropdown.disabled = true;
+						dropdown.required = false;
+						dropdown.value = "";
+						inputLyDo.style.display = "none";
+						inputLyDo.value = "";
+					}
+				});
+			});
+
+			lyDoDropdowns.forEach(dropdown => {
+				dropdown.addEventListener("change", function () {
+					let row = this.closest("tr");
+					let inputLyDo = row.querySelector(".lyDoNhapTay");
+
+					if (this.value === "Khác") {
+						inputLyDo.style.display = "block";
+						inputLyDo.required = true;
+					} else {
+						inputLyDo.style.display = "none";
+						inputLyDo.required = false;
+						inputLyDo.value = "";
+					}
+				});
+			});
+		});
+	</script>
+
+</body>
+
+
+</html>

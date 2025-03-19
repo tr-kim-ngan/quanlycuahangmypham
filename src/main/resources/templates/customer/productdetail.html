@@ -78,13 +78,11 @@
 
 
 					<div class="flash-deal-container"
-						style="background: linear-gradient(90deg, #ff7b00, #ff5a00); padding: 8px; border-radius: 4px; color: white; font-weight: bold; display: flex; align-items: center; justify-content: space-between; font-size: 14px;"
-						
-						>
+						style="background: linear-gradient(90deg, #ff7b00, #ff5a00); padding: 8px; border-radius: 4px; color: white; font-weight: bold; display: flex; align-items: center; justify-content: space-between; font-size: 14px;">
 
 						<!-- FLASH DEAL -->
 						<div style="display: flex; align-items: center; gap: 5px;">
-							
+
 
 							<strong style="font-size: 14px;">FLASH DEAL</strong>
 						</div>
@@ -142,9 +140,11 @@
 							th:text="${#numbers.formatDecimal(sanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' VND'">
 						</span>
 					</div>
+					<span style="color: #555;">Số lượng còn lại:<span th:text="${soLuongTonKho}"></span></span>
 
-
+					<!--
 					<span style="color: #555;">Số lượng còn lại: <span th:text="${sanPham.soLuong}"></span></span>
+					-->
 					<span class="qty" th:text="${sanPham.donViTinh.tenDonVi}">Đơn vị tính</span>
 
 
@@ -154,12 +154,11 @@
 						<div class="product-quantity-container d-flex align-items-center">
 							<form th:action="@{/customer/cart/add}" method="post" class="d-flex align-items-center">
 								<!-- Ô nhập số lượng -->
-								<input type="number" name="quantity" value="1" min="1" th:max="${sanPham.soLuong}"
+								<input type="number" name="quantity" value="1" min="1" th:max="${soLuongTonKho}"
 									class="form-control quantity-input text-center"
 									style="width: 80px; border: 2px solid #000; margin-right: 10px;"
 									th:id="'quantity_' + ${sanPham.maSanPham}" th:data-product-id="${sanPham.maSanPham}"
 									data-type="detail">
-
 								<input type="hidden" name="productId" th:value="${sanPham.maSanPham}" />
 								<button
 									class="btn btn-warning add-to-cart d-flex align-items-center justify-content-center"

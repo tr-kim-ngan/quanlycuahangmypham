@@ -138,9 +138,9 @@
 												<th style="text-align: center;">STT</th>
 												<th style="text-align: center;">Ảnh</th>
 												<th style="text-align: center;">Tên Sản Phẩm</th>
-												<th style="text-align: center;">Số Lượng</th>
-												<th style="text-align: center;">Số Lượng Trên Kệ</th>
-												<th style="text-align: center;">Số Lượng Trong Kho</th>
+												<th style="text-align: center;">Số Lượng Đặt</th>
+												<!--<th style="text-align: center;">Số Lượng Trên Kệ</th>
+												<th style="text-align: center;">Số Lượng Trong Kho</th>-->
 												<th style="text-align: center;">Đơn Giá</th>
 												<th style="text-align: center;">Thành Tiền</th>
 											</tr>
@@ -156,15 +156,15 @@
 												<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
 												<td th:text="${chiTiet.soLuong}" class="soLuong"></td>
 
-												<!-- Hiển thị số lượng trên kệ -->
+												<!-- Hiển thị số lượng trên kệ 
 												<td
 													th:text="${soLuongTrenKeMap[chiTiet.sanPham.maSanPham] != null ? soLuongTrenKeMap[chiTiet.sanPham.maSanPham] : 0}">
-												</td>
+												</td>-->
 
-												<!-- Hiển thị số lượng tồn kho -->
+												<!-- Hiển thị số lượng tồn kho 
 												<td
 													th:text="${soLuongTonKhoMap[chiTiet.sanPham.maSanPham] != null ? soLuongTonKhoMap[chiTiet.sanPham.maSanPham] : 0}">
-												</td>
+												</td>-->
 
 												<td
 													th:text="${#numbers.formatDecimal(chiTiet.giaTaiThoiDiemDat, 0, 'COMMA', 0, 'POINT')} + ' VND'">

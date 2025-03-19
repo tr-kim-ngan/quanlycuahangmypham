@@ -1,5 +1,6 @@
 package com.kimngan.ComesticAdmin.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -35,24 +36,44 @@ public interface ChiTietDonHangRepository extends JpaRepository<ChiTietDonHang, 
 	@Query("SELECT c FROM ChiTietDonHang c JOIN FETCH c.sanPham s LEFT JOIN FETCH s.khuyenMais WHERE c.donHang IS NULL")
 	List<ChiTietDonHang> findOfflineOrderWithKhuyenMai();
 
-	@Query("SELECT SUM(ctdh.soLuong) FROM ChiTietDonHang ctdh " +
-		       "JOIN ctdh.donHang dh " +
-		       "JOIN HoaDon hd ON hd.donHang = dh " +
-		       "WHERE ctdh.sanPham.maSanPham = :sanPhamId " +
-		       "AND hd.trangThaiThanhToan = 'Đã hoàn thành'")
-		Integer getSoldQuantityFromOfflineOrders(@Param("sanPhamId") Integer sanPhamId);
-	@Query("SELECT SUM(ctdh.soLuong) FROM ChiTietDonHang ctdh " +
-		       "JOIN ctdh.donHang dh " +
-		       "JOIN HoaDon hd ON hd.donHang = dh " +
-		       "WHERE ctdh.sanPham.maSanPham = :sanPhamId " +
-		       "AND hd.trangThaiThanhToan = 'Đã xác nhận'")
-		Integer getSoldQuantityFromCompletedInvoices(@Param("sanPhamId") Integer sanPhamId);
+	@Query("SELECT SUM(ctdh.soLuong) FROM ChiTietDonHang ctdh " + "JOIN ctdh.donHang dh "
+			+ "JOIN HoaDon hd ON hd.donHang = dh " + "WHERE ctdh.sanPham.maSanPham = :sanPhamId "
+			+ "AND hd.trangThaiThanhToan = 'Đã hoàn thành'")
+	Integer getSoldQuantityFromOfflineOrders(@Param("sanPhamId") Integer sanPhamId);
 
-	
-	
-	@Query("SELECT COALESCE(SUM(ctdh.soLuong), 0) FROM ChiTietDonHang ctdh " +
-		       "WHERE ctdh.sanPham.maSanPham = :maSanPham")
-		Integer getTotalQuantityBySanPhamId(@Param("maSanPham") Integer maSanPham);
+	@Query("SELECT SUM(ctdh.soLuong) FROM ChiTietDonHang ctdh " + "JOIN ctdh.donHang dh "
+			+ "JOIN HoaDon hd ON hd.donHang = dh " + "WHERE ctdh.sanPham.maSanPham = :sanPhamId "
+			+ "AND hd.trangThaiThanhToan = 'Đã xác nhận'")
+	Integer getSoldQuantityFromCompletedInvoices(@Param("sanPhamId") Integer sanPhamId);
+
+	@Query("SELECT COALESCE(SUM(ctdh.soLuong), 0) FROM ChiTietDonHang ctdh "
+			+ "WHERE ctdh.sanPham.maSanPham = :maSanPham")
+	Integer getTotalQuantityBySanPhamId(@Param("maSanPham") Integer maSanPham);
+
+	@Query("SELECT c.sanPham.tenSanPham, SUM(c.soLuong) " + "FROM ChiTietDonHang c "
+			+ "WHERE c.donHang.ngayDat BETWEEN :fromDate AND :toDate " + "GROUP BY c.sanPham.tenSanPham "
+			+ "ORDER BY SUM(c.soLuong) DESC")
+	List<Object[]> getExportStatistics(@Param("fromDate") LocalDateTime fromDate,
+			@Param("toDate") LocalDateTime toDate);
+
+	@Query("SELECT c.sanPham.tenSanPham, SUM(c.soLuong) " + "FROM ChiTietDonHang c "
+			+ "WHERE c.donHang.ngayDat BETWEEN :fromDate AND :toDate " + "GROUP BY c.sanPham.tenSanPham "
+			+ "ORDER BY SUM(c.soLuong) DESC")
+	List<Object[]> getTopExportedProducts(@Param("fromDate") LocalDateTime fromDate,
+			@Param("toDate") LocalDateTime toDate);
+
+	@Query("SELECT dh.sanPham.tenSanPham, SUM(dh.soLuong), dh.donHang.ngayDat, dh.donHang.nguoiDung.tenNguoiDung "
+			+ "FROM ChiTietDonHang dh " + "WHERE dh.donHang.ngayDat BETWEEN :fromDate AND :toDate "
+			+ "GROUP BY dh.sanPham.tenSanPham, dh.donHang.ngayDat, dh.donHang.nguoiDung.tenNguoiDung "
+			+ "ORDER BY dh.donHang.ngayDat DESC")
+	List<Object[]> getBaoCaoXuatKhoChiTiet(@Param("fromDate") LocalDateTime fromDate,
+			@Param("toDate") LocalDateTime toDate);
+
+	@Query("SELECT dh.donHang.nguoiDung.tenNguoiDung, COUNT(dh.donHang) " + "FROM ChiTietDonHang dh "
+			+ "WHERE dh.donHang.ngayDat BETWEEN :fromDate AND :toDate " + "GROUP BY dh.donHang.nguoiDung.tenNguoiDung "
+			+ "ORDER BY COUNT(dh.donHang) DESC")
+	List<Object[]> getTopCustomers(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
+
 
 	
 }

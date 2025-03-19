@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Chi tiết đơn hàng</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
+
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+		}
+
+		.container {
+			max-width: 1100px;
+			margin: 0px auto 20px;
+			padding-top: 20px;
+			background: white;
+			border-radius: 8px;
+		}
+
+		h2 {
+			text-align: center;
+			color: #333;
+			margin-bottom: 20px;
+		}
+
+		.btn {
+			display: inline-block;
+			padding: 10px 15px;
+			text-decoration: none;
+			font-weight: bold;
+			border-radius: 5px;
+			transition: 0.3s;
+			text-align: center;
+		}
+
+		.btn-primary {
+			background-color: black;
+			color: white;
+			border: none;
+			display: block;
+			width: 200px;
+			margin: 20px auto;
+			text-align: center;
+		}
+
+		.header {
+			background-color: #f8f9fa;
+			padding: 10px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 2px solid #dee2e6;
+		}
+
+		.header-buttons {
+			display: flex;
+			gap: 10px;
+			margin-right: 20px;
+		}
+
+		.header h2 {
+			margin: 0;
+			font-size: 20px;
+			color: #333;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			background: white;
+		}
+
+		th,
+		td {
+			padding: 12px;
+			text-align: center;
+		}
+
+		th {
+			background-color: azure;
+			color: black;
+			text-transform: uppercase;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f9f9f9;
+		}
+
+		tr:hover {
+			background-color: #f1f1f1;
+		}
+	</style>
+</head>
+
+<body>
+	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+	<div class="header" style="padding-left: 300px;">
+		<h2>Chi tiết đơn hàng</h2>
+	</div>
+
+	<div class="container" style="padding-left: 300px;">
+		<table>
+			<tr>
+				<td><b>Mã đơn hàng:</b></td>
+				<td th:text="${donHang.maDonHang}"></td>
+			</tr>
+			<tr>
+				<td><b>Khách hàng:</b></td>
+				<td th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}"></td>
+
+			</tr>
+			<tr>
+				<td><b>Ngày đặt:</b></td>
+				<td th:text="${#temporals.format(donHang.ngayDat, 'dd-MM-yyyy HH:mm')}"></td>
+			</tr>
+			<tr>
+				<td><b>Trạng thái:</b></td>
+				<td th:text="${donHang.trangThaiDonHang}"></td>
+			</tr>
+		</table>
+
+		<h3>Danh sách sản phẩm</h3>
+		<table>
+			<thead>
+				<tr>
+					<th>Tên sản phẩm</th>
+					<th>Số lượng đặt</th>
+
+
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="chiTiet : ${donHang.chiTietDonHangs}">
+					<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
+					<td th:text="${chiTiet.soLuong}"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<form th:action="@{/warehouse/import/confirm-export/{id}(id=${donHang.maDonHang})}" method="post"
+			onsubmit="return confirm('Xác nhận xuất kho cho đơn hàng này?')">
+			<button type="submit" class="btn btn-success">Xác nhận xuất kho</button>
+		</form>
+
+		<br>
+		<a href="/warehouse/import/pending-orders" class="btn btn-secondary">Quay lại</a>
+	</div>
+</body>
+
+
+</html>

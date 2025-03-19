@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -694,17 +693,35 @@ public class DonHangServiceImpl implements DonHangService {
 		}
 	}
 
-	@Override
-	public List<DonHang> getOrdersByStatusAndExportStaff(String trangThai, Integer maNhanVien) {
-		// TODO Auto-generated method stub
-	    return donHangRepository.findByTrangThaiAndNhanVienXuatKho(trangThai, maNhanVien);
+//	@Override
+//	public List<DonHang> getOrdersByStatusAndExportStaff(String trangThai, Integer maNhanVien) {
+//		// TODO Auto-generated method stub
+//	    return donHangRepository.findByTrangThaiAndNhanVienXuatKho(trangThai, maNhanVien);
+//
+//	}
+//
+//	@Override
+//	public List<DonHang> getOrdersByStatusesAndExportStaff(List<String> trangThaiList, Integer maNhanVien) {
+//		// TODO Auto-generated method stub
+//        return donHangRepository.findByTrangThaiDonHangInAndNhanVienXuatKho(trangThaiList, maNhanVien);
+//	}
 
+	@Override
+	public List<DonHang> getDonHangsByStatus(String status) {
+		// TODO Auto-generated method stub
+		return donHangRepository.findByTrangThaiDonHang(status);
 	}
 
 	@Override
-	public List<DonHang> getOrdersByStatusesAndExportStaff(List<String> trangThaiList, Integer maNhanVien) {
+	public List<DonHang> findDonHangsDaXuatKho() {
 		// TODO Auto-generated method stub
-        return donHangRepository.findByTrangThaiDonHangInAndNhanVienXuatKho(trangThaiList, maNhanVien);
+		 return donHangRepository.findDonHangsDaXuatKho();
+	}
+
+	@Override
+	public int getSoLuongTraHang(Integer maSanPham) {
+		// TODO Auto-generated method stub
+		 return donHangRepository.tinhTongSoLuongTraHang(maSanPham);
 	}
 	
 

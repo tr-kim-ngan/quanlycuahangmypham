@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Lịch sử kiểm kê</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
+
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			background-color: #f4f4f4;
+		}
+
+		.header {
+			background-color: #f8f9fa;
+			padding: 15px 20px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 2px solid #dee2e6;
+		}
+
+		.header h2 {
+			margin: 0;
+			font-size: 20px;
+			color: #333;
+		}
+
+		.container {
+			max-width: 1100px;
+			margin: 20px auto;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		th,
+		td {
+			padding: 12px;
+			text-align: center;
+			border: 1px solid #dee2e6;
+		}
+
+		th {
+			background-color: azure;
+			color: black;
+			text-transform: uppercase;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f9f9f9;
+		}
+
+		tr:hover {
+			background-color: #f1f1f1;
+		}
+
+		.btn-primary {
+			background-color: black;
+			color: white;
+			border: none;
+			display: block;
+			text-align: center;
+			padding: 10px;
+			font-size: 16px;
+			border-radius: 5px;
+			text-decoration: none;
+
+			transition: 0.3s;
+		}
+
+		.btn-primary:hover {
+			background-color: #333;
+		}
+
+		.status-success {
+			color: green;
+			font-weight: bold;
+		}
+
+		.status-pending {
+			color: red;
+			font-weight: bold;
+		}
+
+		.message-box {
+			background-color: #d4edda;
+			border-left: 6px solid #28a745;
+			border-radius: 12px;
+			padding: 20px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 15px;
+			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+			font-size: 24px;
+			font-weight: bold;
+			color: #155724;
+			width: 100%;
+			max-width: 700px;
+			margin: 30px auto;
+			text-align: center;
+		}
+
+		.message-box i {
+			font-size: 32px;
+			color: #28a745;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- Thanh điều hướng -->
+	<div class="header" style="padding-left: 300px;">
+		<h2> Lịch sử kiểm kê - Ca làm việc <span th:text="${caLamViecId}"></span></h2>
+
+		<a th:href="@{/warehouse/import/shifts}" class="btn btn-primary">Quay lại kiểm kê</a>
+
+	</div>
+	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+
+	<div class="container" style="padding-left: 300px;">
+		<!-- Nếu không có sai số, hiển thị thông báo -->
+		<div th:if="${danhSachKiemKe.isEmpty()}">
+			<div class="message-box">
+				<i class="fas fa-check-circle"></i>
+				<span>✅ Kiểm kê không có sai số.</span>
+			</div>
+		</div>
+
+		<!-- Nếu có sai số, hiển thị bảng -->
+		<div th:unless="${danhSachKiemKe.isEmpty()}">
+			<table>
+				<thead>
+					<tr>
+						<th>STT</th>
+						<th>Hình ảnh</th>
+						<th>Tên sản phẩm</th>
+						<th>Số lượng trước</th>
+						<th>Số lượng sau</th>
+						<th>Lý do kiểm kê</th>
+						<th>Trạng thái</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="kk, iterStat : ${danhSachKiemKe}">
+						<td th:text="${iterStat.count}"></td>
+						<td>
+							<img th:src="@{'/upload/' + ${kk.sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+								style="width: 80px; height: auto; border-radius: 5px;" />
+						</td>
+						<td th:text="${kk.sanPham.tenSanPham}"></td>
+						<td th:text="${kk.soLuongTruocKiemKe}"></td>
+						<td th:text="${kk.soLuongSauKiemKe}"></td>
+						<td
+							th:text="${kk.lyDoDieuChinh != null and !kk.lyDoDieuChinh.isEmpty()} ? ${kk.lyDoDieuChinh} : 'Không có lý do'">
+						</td>
+						<td>
+							<span th:if="${kk.daXetDuyet}" style="color: green; font-weight: bold;">
+								Đã duyệt
+							</span>
+							<span th:if="${!kk.daXetDuyet and kk.soLuongTruocKiemKe != kk.soLuongSauKiemKe}"
+								style="color: orange; font-weight: bold;">
+								Chờ xét duyệt
+							</span>
+							<span th:if="${!kk.daXetDuyet and kk.soLuongTruocKiemKe == kk.soLuongSauKiemKe}"
+								style="color: gray; font-weight: bold;">
+								Không có thay đổi
+							</span>
+						</td>
+
+
+
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Nút quay lại -->
+	</div>
+
+</body>
+
+</html>

@@ -66,23 +66,28 @@ public class ChiTietGioHangServiceImpl implements ChiTietGioHangService {
 //	}
 	@Override
 	public void addOrUpdateChiTietGioHang(GioHang gioHang, SanPham sanPham, int soLuong) {
-        // Kiểm tra sản phẩm có trong giỏ hàng chưa
-        ChiTietGioHang chiTiet = chiTietGioHangRepository.findByGioHangAndSanPham(gioHang, sanPham).orElse(null);
+		// Kiểm tra sản phẩm có trong giỏ hàng chưa
+		int soLuongTonKho = sanPham.getSoLuongTonKho();
 
-        if (chiTiet != null) {
-            // Sản phẩm đã có trong giỏ hàng, cộng thêm số lượng mới vào số lượng hiện tại
-            int soLuongMoi = chiTiet.getSoLuong() + soLuong;
-            System.out.println("Sản phẩm (ID: " + sanPham.getMaSanPham() + ") đã có trong giỏ. Số lượng hiện tại: "
-                    + chiTiet.getSoLuong() + ", Số lượng mới thêm: " + soLuong + ", Tổng cộng: " + soLuongMoi);
-            chiTiet.setSoLuong(soLuongMoi);
-        } else {
-            // Sản phẩm chưa có trong giỏ hàng, tạo mới
-            chiTiet = new ChiTietGioHang(gioHang, sanPham, soLuong);
-            System.out.println("Sản phẩm mới (ID: " + sanPham.getMaSanPham() + ") được thêm vào giỏ với số lượng: " + soLuong);
-        }
+		ChiTietGioHang chiTiet = chiTietGioHangRepository.findByGioHangAndSanPham(gioHang, sanPham).orElse(null);
 
-        // Lưu thông tin cập nhật vào cơ sở dữ liệu
-        chiTietGioHangRepository.save(chiTiet);
-    }
+		if (chiTiet != null) {
+			// Sản phẩm đã có trong giỏ hàng, cộng thêm số lượng mới vào số lượng hiện tại
+			int soLuongMoi = chiTiet.getSoLuong() + soLuong;
+			if (soLuongMoi > soLuongTonKho) {
+				soLuongMoi = soLuongTonKho; // Không cho phép vượt quá số lượng tồn kho
+			}
+
+			chiTiet.setSoLuong(soLuongMoi);
+		} else {
+			// Sản phẩm chưa có trong giỏ hàng, tạo mới
+			chiTiet = new ChiTietGioHang(gioHang, sanPham, soLuong);
+			System.out.println(
+					"Sản phẩm mới (ID: " + sanPham.getMaSanPham() + ") được thêm vào giỏ với số lượng: " + soLuong);
+		}
+
+		// Lưu thông tin cập nhật vào cơ sở dữ liệu
+		chiTietGioHangRepository.save(chiTiet);
+	}
 
 }

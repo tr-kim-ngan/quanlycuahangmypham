@@ -87,7 +87,7 @@
 										</div>
 									</th:block>
 
-									<th:block
+								<!--	<th:block
 										th:if="${donHang.trangThaiDonHang == 'Đang xử lý' and donHang.nhanVienXuatKho == null}">
 										<form
 											th:action="@{/admin/orders/{maDonHang}/assign-export-staff(maDonHang=${donHang.maDonHang})}"
@@ -99,7 +99,7 @@
 												<option value="shelf">🛒 Lấy hàng từ kệ</option>
 											</select>
 
-											<!-- Chọn nhân viên xuất kho -->
+									
 											<div id="warehouseStaffSelection" style="display: none; margin-top: 10px;">
 												<label for="maNhanVienXuatKho">Chọn nhân viên xuất kho:</label>
 												<select id="maNhanVienXuatKho" name="maNhanVienXuatKho"
@@ -114,9 +114,9 @@
 
 											<button type="submit" class="btn btn-warning mt-3">✔ Xác nhận</button>
 										</form>
-									</th:block>
+									</th:block>-->
 
-									<script>
+									<!--<script>
 										document.addEventListener("DOMContentLoaded", function () {
 											let handlingOption = document.getElementById("handlingOption");
 											let warehouseStaffSelection = document.getElementById("warehouseStaffSelection");
@@ -134,11 +134,11 @@
 												}
 											});
 										});
-									</script>
+									</script>-->
 									<!-- Trạng thái Đang xử lý -> Xác nhận đơn hàng -->
 									<!-- Nếu đơn hàng đang xử lý, admin có thể xác nhận hoặc hủy -->
 									<th:block
-										th:if="${donHang.trangThaiDonHang == 'Đang xử lý' and donHang.nhanVienXuatKho != null}">
+										th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}">
 										<form id="orderActionForm"
 											th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
 											method="post"

@@ -1,6 +1,5 @@
 package com.kimngan.ComesticAdmin.controller.admin;
 
-import org.springframework.data.domain.Pageable;
 
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.DonHang;
@@ -17,7 +16,6 @@ import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,10 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -625,6 +620,14 @@ public class OrderController {
 		List<String> nextStatuses = getNextStatuses(donHang.getTrangThaiDonHang(), false,
 				donHang.getSoLanGiaoThatBai());
 		model.addAttribute("nextStatuses", nextStatuses);
+		// Chuẩn bị dữ liệu cho giao diện
+		Map<Integer, Boolean> sanPhamCanXuatKhoMap = new HashMap<>();
+		for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+		    sanPhamCanXuatKhoMap.put(chiTiet.getSanPham().getMaSanPham(), chiTiet.getSoLuong() >= 10);
+		}
+
+		// Truyền vào Model
+		model.addAttribute("sanPhamCanXuatKhoMap", sanPhamCanXuatKhoMap);
 
 		model.addAttribute("danhSachShipper", danhSachShipper);
 		model.addAttribute("donHang", donHang);
@@ -670,7 +673,7 @@ public class OrderController {
 			}).collect(Collectors.toList());
 		}
 
-		Pageable pageable = PageRequest.of(page, size);
+		//Pageable pageable = PageRequest.of(page, size);
 		Page<SanPham> sanPhamPage;
 		if (keyword != null && !keyword.isEmpty()) {
 			sanPhamPage = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
@@ -882,51 +885,113 @@ public class OrderController {
 
 // Cập nhật phương thức giao đơn hàng cho nhân viên xuất kho
 
-	@PostMapping("/orders/{maDonHang}/assign-export-staff")
-	public String assignExportStaff(@PathVariable("maDonHang") Integer maDonHang,
-	                                @RequestParam("handlingOption") String handlingOption,
-	                                @RequestParam(value = "maNhanVienXuatKho", required = false) Integer maNhanVienXuatKho,
-	                                RedirectAttributes redirectAttributes) {
-	    DonHang donHang = donHangService.getDonHangById(maDonHang);
-	    if (donHang == null) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
-	        return "redirect:/admin/orders";
-	    }
-	    
-	   
-	    
-	    // Trường hợp 2: Giao từ kho (Nhân viên xuất kho xử lý)
-
-	    if ("export".equals(handlingOption)) { // Giao từ kho
-	        if (maNhanVienXuatKho == null) {
-	            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn nhân viên xuất kho.");
-	            return "redirect:/admin/orders/" + maDonHang;
-	        }
-
-	        NguoiDung nhanVienXuatKho = nguoiDungService.findById(maNhanVienXuatKho);
-	        if (nhanVienXuatKho == null || !"XUAT_KHO".equals(nhanVienXuatKho.getQuyenTruyCap().getTenQuyen())) {
-	            redirectAttributes.addFlashAttribute("errorMessage", "Nhân viên xuất kho không hợp lệ.");
-	            return "redirect:/admin/orders/" + maDonHang;
-	        }
-
-	        //  Gán nhân viên xuất kho vào đơn hàng và cập nhật trạng thái
-	        donHang.setTrangThaiDonHang("Chờ xuất kho");
-	        donHang.setNhanVienXuatKho(nhanVienXuatKho);
-	        donHangService.updateDonHang(donHang);
-
-	        redirectAttributes.addFlashAttribute("successMessage",
-	                "Đơn hàng đã được giao cho nhân viên xuất kho: " + nhanVienXuatKho.getTenNguoiDung());
-
-	    } else if ("shelf".equals(handlingOption)) { //  Lấy từ kệ
-	        donHang.setTrangThaiDonHang("Đã xác nhận");
-	        donHangService.updateDonHang(donHang);
-
-	        redirectAttributes.addFlashAttribute("successMessage",
-	                "Đơn hàng đã được xác nhận và lấy hàng trực tiếp từ kệ.");
-	    }
-
-	    return "redirect:/admin/orders";
-	}
+//	@PostMapping("/orders/{maDonHang}/assign-export-staff")
+//	public String assignExportStaff(@PathVariable("maDonHang") Integer maDonHang,
+//	                                @RequestParam("handlingOption") String handlingOption,
+//	                                @RequestParam(value = "maNhanVienXuatKho", required = false) Integer maNhanVienXuatKho,
+//	                                RedirectAttributes redirectAttributes) {
+//	    DonHang donHang = donHangService.getDonHangById(maDonHang);
+//	    if (donHang == null) {
+//	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+//	        return "redirect:/admin/orders";
+//	    }
+//	    
+//	   
+//	    
+//	    // Trường hợp 2: Giao từ kho (Nhân viên xuất kho xử lý)
+//
+//	    if ("export".equals(handlingOption)) { // Giao từ kho
+//	        if (maNhanVienXuatKho == null) {
+//	            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn nhân viên xuất kho.");
+//	            return "redirect:/admin/orders/" + maDonHang;
+//	        }
+//
+//	        NguoiDung nhanVienXuatKho = nguoiDungService.findById(maNhanVienXuatKho);
+//	        if (nhanVienXuatKho == null || !"XUAT_KHO".equals(nhanVienXuatKho.getQuyenTruyCap().getTenQuyen())) {
+//	            redirectAttributes.addFlashAttribute("errorMessage", "Nhân viên xuất kho không hợp lệ.");
+//	            return "redirect:/admin/orders/" + maDonHang;
+//	        }
+//
+//	        //  Gán nhân viên xuất kho vào đơn hàng và cập nhật trạng thái
+//	        donHang.setTrangThaiDonHang("Chờ xuất kho");
+//	        donHang.setNhanVienXuatKho(nhanVienXuatKho);
+//	        donHangService.updateDonHang(donHang);
+//
+//	        redirectAttributes.addFlashAttribute("successMessage",
+//	                "Đơn hàng đã được giao cho nhân viên xuất kho: " + nhanVienXuatKho.getTenNguoiDung());
+//
+//	    } else if ("shelf".equals(handlingOption)) { //  Lấy từ kệ
+//	        donHang.setTrangThaiDonHang("Đã xác nhận");
+//	        donHangService.updateDonHang(donHang);
+//
+//	        redirectAttributes.addFlashAttribute("successMessage",
+//	                "Đơn hàng đã được xác nhận và lấy hàng trực tiếp từ kệ.");
+//	    }
+//
+//	    return "redirect:/admin/orders";
+//	}
+//	@PostMapping("/orders/{maDonHang}/assign-export-staff")
+//	public String assignExportStaff(@PathVariable("maDonHang") Integer maDonHang,
+//	                                @RequestParam(value = "maNhanVienXuatKho", required = false) Integer maNhanVienXuatKho,
+//	                                RedirectAttributes redirectAttributes) {
+//	    DonHang donHang = donHangService.getDonHangById(maDonHang);
+//	    if (donHang == null) {
+//	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+//	        return "redirect:/admin/orders";
+//	    }
+//
+//	    boolean requiresWarehouseExport = false;
+//
+//	    for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+//	        if (chiTiet.getSoLuong() >= 10) {
+//	            requiresWarehouseExport = true;
+//	            break;
+//	        }
+//	    }
+//
+//	    if (requiresWarehouseExport) {
+//	        if (maNhanVienXuatKho == null) {
+//	            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng chọn nhân viên xuất kho.");
+//	            return "redirect:/admin/orders/" + maDonHang;
+//	        }
+//
+//	        NguoiDung nhanVienXuatKho = nguoiDungService.findById(maNhanVienXuatKho);
+//	        if (nhanVienXuatKho == null || !"XUAT_KHO".equals(nhanVienXuatKho.getQuyenTruyCap().getTenQuyen())) {
+//	            redirectAttributes.addFlashAttribute("errorMessage", "Nhân viên xuất kho không hợp lệ.");
+//	            return "redirect:/admin/orders/" + maDonHang;
+//	        }
+//
+//	        //  Giao nhân viên xuất kho xử lý phần từ kho
+//	        donHang.setTrangThaiDonHang("Chờ xuất kho");
+//	        donHang.setNhanVienXuatKho(nhanVienXuatKho);
+//	        donHangService.updateDonHang(donHang);
+//
+//	        redirectAttributes.addFlashAttribute("successMessage",
+//	                "Đơn hàng có sản phẩm số lượng lớn đã giao cho nhân viên xuất kho: " + nhanVienXuatKho.getTenNguoiDung());
+//
+//	    } else {
+//	        //  Nếu tất cả sản phẩm < 10, trừ trực tiếp từ kệ
+//	        for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+//	            SanPham sanPham = chiTiet.getSanPham();
+//	            if (sanPham.getSoLuong() < chiTiet.getSoLuong()) {
+//	                redirectAttributes.addFlashAttribute("errorMessage",
+//	                        "Không đủ hàng trên kệ cho sản phẩm: " + sanPham.getTenSanPham());
+//	                return "redirect:/admin/orders/" + maDonHang;
+//	            }
+//
+//	            //  Trừ hàng trực tiếp từ kệ
+//	            sanPham.setSoLuong(sanPham.getSoLuong() - chiTiet.getSoLuong());
+//	            sanPhamService.update(sanPham);
+//	        }
+//
+//	        donHang.setTrangThaiDonHang("Đã xác nhận");
+//	        donHangService.updateDonHang(donHang);
+//	        redirectAttributes.addFlashAttribute("successMessage",
+//	                "Đơn hàng đã được xác nhận và lấy hàng trực tiếp từ kệ.");
+//	    }
+//
+//	    return "redirect:/admin/orders";
+//	}
 
 
 

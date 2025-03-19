@@ -2,7 +2,6 @@ package com.kimngan.ComesticAdmin.controller.admin;
 
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.entity.ThuongHieu;
-import com.kimngan.ComesticAdmin.repository.ChiTietDonHangRepository;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHangId;
 import com.kimngan.ComesticAdmin.entity.DanhMuc;
@@ -79,8 +78,7 @@ public class ProductController {
 	@Autowired
 	private ThuongHieuService thuongHieuService;
 	
-	@Autowired
-	private ChiTietDonHangRepository chiTietDonHangRepository;
+
 
 	// Hiển thị danh sách sản phẩm
 	@GetMapping("/product")

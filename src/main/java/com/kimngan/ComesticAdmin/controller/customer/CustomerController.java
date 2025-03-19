@@ -1,6 +1,5 @@
 package com.kimngan.ComesticAdmin.controller.customer;
 
-import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -20,6 +19,7 @@ import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DanhGiaService;
 import com.kimngan.ComesticAdmin.services.DanhMucService;
 import com.kimngan.ComesticAdmin.services.HoaDonService;
+import com.kimngan.ComesticAdmin.services.KiemKeKhoService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.ShippingFeeConfigService;
 import com.kimngan.ComesticAdmin.services.ThuongHieuService;
@@ -34,7 +34,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -46,8 +45,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 @Controller
 public class CustomerController {
@@ -74,6 +71,12 @@ public class CustomerController {
 	private HoaDonService hoaDonService;
 	@Autowired
 	private ShippingFeeConfigService shippingFeeConfigService;
+
+	@Autowired
+	private ChiTietDonHangService chiTietDonHangService;
+
+	@Autowired
+	private KiemKeKhoService kiemKeKhoService;
 
 	@GetMapping({ "/", "/index" })
 	public String homeOrIndex(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
@@ -108,11 +111,30 @@ public class CustomerController {
 		Pageable pageable = PageRequest.of(page, size);
 		// Page<SanPham> sanPhamPage =
 		// sanPhamService.getProductsInOrderDetails(pageable);
-		Page<SanPham> sanPhamPage = sanPhamService.findAllActiveWithStock(pageable);
+		// Page<SanPham> sanPhamPage = sanPhamService.findAllActiveWithStock(pageable);
 		// Lọc sản phẩm có số lượng > 0
 //		List<SanPham> filteredSanPhams = sanPhamPage.getContent().stream().filter(sanPham -> sanPham.getSoLuong() > 0)
 //				.collect(Collectors.toList());
-		List<SanPham> filteredSanPhams = sanPhamPage.getContent();
+
+		// List<SanPham> filteredSanPhams = sanPhamPage.getContent();
+		Page<SanPham> sanPhamPage = sanPhamService.findAllActive(pageable);
+		List<SanPham> filteredSanPhams = sanPhamPage.getContent().stream().filter(sp -> {
+			Integer maSanPham = sp.getMaSanPham();
+			int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+			int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+			int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+			int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+
+			// int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe +
+			// deltaKiemKe;
+			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+
+			int soLuongTonKho = (tonKhoDaDuyet != null) ? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe)
+
+					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe);
+
+			return soLuongTonKho > 0; // Chỉ lấy sản phẩm còn tồn kho
+		}).collect(Collectors.toList());
 
 		// Nếu không có sản phẩm nào sau khi lọc
 		if (filteredSanPhams.isEmpty()) {
@@ -129,8 +151,31 @@ public class CustomerController {
 		Map<Integer, Double> sanPhamAverageRatingMap = new HashMap<>();
 		Map<Integer, String> sanPhamThuongHieuMap = new HashMap<>();
 		LocalDate today = LocalDate.now();
+		Map<Integer, Integer> sanPhamSoLuongTonKhoMap = new HashMap<>();
 
 		for (SanPham sanPham : filteredSanPhams) {
+			Integer maSanPham = sanPham.getMaSanPham();
+			// Lấy dữ liệu từ các bảng liên quan
+			int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+			int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+			int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+			int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+			System.out.println("Sản phẩm ID: " + maSanPham);
+			System.out.println("Tổng số lượng nhập: " + tongSoLuongNhap);
+			System.out.println("Số lượng đã bán: " + soLuongBan);
+			System.out.println("Số lượng trên kệ: " + soLuongTrenKe);
+			System.out.println("Delta kiểm kê: " + deltaKiemKe);
+			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+
+			int soLuongTonKho = (tonKhoDaDuyet != null)
+					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe)
+
+					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe);
+
+//			int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
+			// int soLuongTonKho = sanPhamService.getSoLuongTonKho(sanPham.getMaSanPham());
+			System.out.println("Số lượng tồn kho sau khi tính: " + soLuongTonKho);
+
 			// Tính khuyến mãi
 			Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
 					.filter(km -> km.getTrangThai())
@@ -161,6 +206,7 @@ public class CustomerController {
 			} else {
 				sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), "Không xác định");
 			}
+			sanPhamSoLuongTonKhoMap.put(sanPham.getMaSanPham(), soLuongTonKho);
 		}
 
 		// Lấy danh mục và thêm vào model
@@ -199,6 +245,8 @@ public class CustomerController {
 		model.addAttribute("brandGroups", brandGroups);
 
 		// Thêm dữ liệu vào model
+		model.addAttribute("sanPhamSoLuongTonKhoMap", sanPhamSoLuongTonKhoMap);
+
 		model.addAttribute("sanPhams", filteredSanPhams);
 		model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap);
 		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
@@ -223,26 +271,21 @@ public class CustomerController {
 
 	@GetMapping("/product/{id}")
 	public String viewProductDetail(@PathVariable("id") Integer productId, Model model, Authentication authentication) {
-		// Lấy thông tin người dùng hiện tại nếu đăng nhập
-		
+
 		BigDecimal minFreeShipping = shippingFeeConfigService.getAllShippingConfigs().stream()
-			    .filter(fee -> fee.getMaxOrderValue() != null && fee.getMaxOrderValue().compareTo(BigDecimal.valueOf(400000)) == 0)
-			    .map(ShippingFeeConfig::getMaxOrderValue)
-			    .findFirst()
-			    .orElse(null); // Nếu không có, trả về null
+				.filter(fee -> fee.getMaxOrderValue() != null
+						&& fee.getMaxOrderValue().compareTo(BigDecimal.valueOf(400000)) == 0)
+				.map(ShippingFeeConfig::getMaxOrderValue).findFirst().orElse(null); // Nếu không có, trả về null
 
-			// 🛠️ Debug kiểm tra giá trị
-			System.out.println("🔍 DEBUG - minFreeShipping trong ProductController: " + minFreeShipping);
+		System.out.println("🔍 DEBUG - minFreeShipping trong ProductController: " + minFreeShipping);
 
-			model.addAttribute("minFreeShipping", minFreeShipping);
+		model.addAttribute("minFreeShipping", minFreeShipping);
 
-		
-		
 		NguoiDung currentUser = null;
 		if (authentication != null && authentication.isAuthenticated()) {
 			Object principal = authentication.getPrincipal();
 			if (principal instanceof NguoiDungDetails) {
-				// Ép kiểu principal thành NguoiDungDetails và lấy NguoiDung
+
 				NguoiDungDetails userDetails = (NguoiDungDetails) principal;
 				currentUser = userDetails.getNguoiDung();
 				System.out.println("Current user: " + currentUser.getTenNguoiDung());
@@ -252,7 +295,6 @@ public class CustomerController {
 			model.addAttribute("currentUser", currentUser);
 		}
 		model.addAttribute("timestamp", System.currentTimeMillis()); // Thêm timestamp vào Model
-		
 
 		// Nếu người dùng đã đăng nhập, lấy danh sách sản phẩm yêu thích
 		Set<Integer> favoriteProductIds = new HashSet<>();
@@ -327,73 +369,64 @@ public class CustomerController {
 					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
 
 			if (highestCurrentKhuyenMai.isPresent()) {
-			    BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
-			    giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-			    sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
+				BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
+				giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
+				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
 
-			    // ✅ Lấy thời gian kết thúc khuyến mãi
-			    Date ngayKetThuc = highestCurrentKhuyenMai.get().getNgayKetThuc();
-			 
-			    Calendar calendar = Calendar.getInstance();
-			    calendar.setTime(ngayKetThuc);
-			    calendar.set(Calendar.HOUR_OF_DAY, 23);
-			    calendar.set(Calendar.MINUTE, 59);
-			    calendar.set(Calendar.SECOND, 59);
-			    calendar.set(Calendar.MILLISECOND, 999);
-			    
-			    
-			  //  long thoiGianKetThuc = ngayKetThuc.getTime(); // Timestamp chính xác
-			    long thoiGianKetThuc = calendar.getTimeInMillis(); // Timestamp chính xác đến cuối ngày
+				// Lấy thời gian kết thúc khuyến mãi
+				Date ngayKetThuc = highestCurrentKhuyenMai.get().getNgayKetThuc();
 
-			    // ✅ Lấy thời gian hiện tại
-			    long thoiGianHienTai = System.currentTimeMillis();
-			    long timeLeft = thoiGianKetThuc - thoiGianHienTai;
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(ngayKetThuc);
+				calendar.set(Calendar.HOUR_OF_DAY, 23);
+				calendar.set(Calendar.MINUTE, 59);
+				calendar.set(Calendar.SECOND, 59);
+				calendar.set(Calendar.MILLISECOND, 999);
 
-			    // 🛠️ Debug: In ra giá trị thời gian
-			    System.out.println("🕒 Thời gian hiện tại: " + thoiGianHienTai);
-			    System.out.println("⏳ Thời gian kết thúc khuyến mãi: " + thoiGianKetThuc);
-			    System.out.println("📉 Thời gian còn lại (milliseconds): " + timeLeft);
+				long thoiGianKetThuc = calendar.getTimeInMillis(); // Timestamp chính xác đến cuối ngày
 
-			    // ✅ Thay đổi điều kiện kiểm tra: Vẫn hiển thị khi còn dưới 1 ngày
-			    if (timeLeft > 0 || (timeLeft / (1000 * 60 * 60 * 24)) == 0) {
-			        long days = timeLeft / (1000 * 60 * 60 * 24);
-			        long hours = (timeLeft / (1000 * 60 * 60)) % 24;
-			        long minutes = (timeLeft / (1000 * 60)) % 60;
-			        long seconds = (timeLeft / 1000) % 60;
+				// Lấy thời gian hiện tại
+				long thoiGianHienTai = System.currentTimeMillis();
+				long timeLeft = thoiGianKetThuc - thoiGianHienTai;
 
-			        // ✅ Đảm bảo rằng giá trị không bị âm
-			        days = Math.max(0, days);
-			        hours = Math.max(0, hours);
-			        minutes = Math.max(0, minutes);
-			        seconds = Math.max(0, seconds);
+				System.out.println(" Thời gian hiện tại: " + thoiGianHienTai);
+				System.out.println(" Thời gian kết thúc khuyến mãi: " + thoiGianKetThuc);
+				System.out.println(" Thời gian còn lại (milliseconds): " + timeLeft);
 
-			        // ✅ Tạo Map chứa thời gian còn lại
-			        Map<String, Long> countdown = new HashMap<>();
-			        countdown.put("days", days);
-			        countdown.put("hours", hours);
-			        countdown.put("minutes", minutes);
-			        countdown.put("seconds", seconds);
+				// Thay đổi điều kiện kiểm tra: Vẫn hiển thị khi còn dưới 1 ngày
+				if (timeLeft > 0 || (timeLeft / (1000 * 60 * 60 * 24)) == 0) {
+					long days = timeLeft / (1000 * 60 * 60 * 24);
+					long hours = (timeLeft / (1000 * 60 * 60)) % 24;
+					long minutes = (timeLeft / (1000 * 60)) % 60;
+					long seconds = (timeLeft / 1000) % 60;
 
-			        // 🛠️ Debug: Kiểm tra giá trị gửi sang Thymeleaf
-			        System.out.println("📊 Dữ liệu gửi sang Thymeleaf: " + countdown);
+					days = Math.max(0, days);
+					hours = Math.max(0, hours);
+					minutes = Math.max(0, minutes);
+					seconds = Math.max(0, seconds);
 
-			        model.addAttribute("countdown", countdown);
-			    } else {
-			        System.out.println("❌ Khuyến mãi đã hết hạn hoặc thời gian còn lại bị lỗi.");
-			        model.addAttribute("countdown", null);
-			    }
+					Map<String, Long> countdown = new HashMap<>();
+					countdown.put("days", days);
+					countdown.put("hours", hours);
+					countdown.put("minutes", minutes);
+					countdown.put("seconds", seconds);
+
+					System.out.println(" Dữ liệu gửi sang Thymeleaf: " + countdown);
+
+					model.addAttribute("countdown", countdown);
+				} else {
+					System.out.println(" Khuyến mãi đã hết hạn hoặc thời gian còn lại bị lỗi.");
+					model.addAttribute("countdown", null);
+				}
 			} else {
-			   // sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), null);
-				 Map<String, Long> countdown = new HashMap<>();
-				    countdown.put("days", 0L);
-				    countdown.put("hours", 0L);
-				    countdown.put("minutes", 0L);
-				    countdown.put("seconds", 0L);
-				    model.addAttribute("countdown", countdown);
+
+				Map<String, Long> countdown = new HashMap<>();
+				countdown.put("days", 0L);
+				countdown.put("hours", 0L);
+				countdown.put("minutes", 0L);
+				countdown.put("seconds", 0L);
+				model.addAttribute("countdown", countdown);
 			}
-
-
-
 
 			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
 
@@ -490,10 +523,6 @@ public class CustomerController {
 			for (SanPham topSoldSanPham : topSoldProducts) {
 				List<DanhGia> danhGias1 = danhGiaService.findBySanPham(topSoldSanPham);
 				double averageRating1 = danhGias1.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0); // Nếu
-																												// không
-																												// có
-																												// đánh
-																												// giá,
 																												// trả
 																												// về 0
 				topSoldSanPhamAverageRatingMap.put(topSoldSanPham.getMaSanPham(), averageRating1);
@@ -506,7 +535,39 @@ public class CustomerController {
 				topSoldSanPhamSoLuongBanMap.put(topSoldSanPham.getMaSanPham(), soLuongBan);
 			}
 			model.addAttribute("topSoldSanPhamSoLuongBanMap", topSoldSanPhamSoLuongBanMap);
-			
+			// Lấy số lượng tồn kho từ SanPhamService
+
+			if (sanPham != null) {
+				// Tính số lượng tồn kho chính xác
+				Integer maSanPham = sanPham.getMaSanPham();
+				// Lấy dữ liệu từ các bảng liên quan
+				int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+				int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+				int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+				int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+
+//				int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
+				Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+
+				int soLuongTonKho = (tonKhoDaDuyet != null)
+						? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe)
+
+						: (tongSoLuongNhap - soLuongBan - soLuongTrenKe);
+
+				// int soLuongTonKho = sanPhamService.getSoLuongTonKho(productId);
+
+				// Debug kiểm tra số lượng tồn kho
+				System.out.println("📦 DEBUG - Sản phẩm ID: " + productId);
+				System.out.println(
+						"📥 Tổng nhập: " + chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(productId));
+				System.out.println("📤 Đã bán: " + chiTietDonHangService.getTotalQuantityBySanPhamId(productId));
+				System.out.println("📌 Số lượng trên kệ: " + sanPhamService.getSoLuongTrenKe(productId));
+				System.out.println("🔍 Số lượng tồn kho thực tế: " + soLuongTonKho);
+
+				// Truyền số lượng tồn kho vào Model
+				model.addAttribute("soLuongTonKho", soLuongTonKho);
+			}
+
 			return "customer/productdetail";
 		} else {
 			return "redirect:/"; // Nếu không tìm thấy sản phẩm, quay lại trang chủ

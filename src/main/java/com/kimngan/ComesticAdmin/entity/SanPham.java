@@ -2,9 +2,7 @@ package com.kimngan.ComesticAdmin.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import java.util.Set;
 

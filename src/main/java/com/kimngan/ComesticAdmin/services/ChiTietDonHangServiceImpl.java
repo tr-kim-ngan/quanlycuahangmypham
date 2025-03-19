@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -85,10 +87,6 @@ public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
 
 
 
-
-
-
-
 	@Override
 	public List<Object[]> getTop3BestSellingProducts() {
 		// TODO Auto-generated method stub
@@ -106,6 +104,29 @@ public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
 		Integer totalQuantity = chiTietDonHangRepository.getTotalQuantityBySanPhamId(maSanPham);
 	    return (totalQuantity != null) ? totalQuantity : 0;
 	}
+
+	@Override
+	public List<Object[]> getExportStatistics(LocalDateTime fromDate, LocalDateTime toDate) {
+	    return chiTietDonHangRepository.getExportStatistics(fromDate, toDate);
+	}
+
+	@Override
+	public List<Object[]> getTopExportedProducts(LocalDateTime fromDate, LocalDateTime toDate) {
+	    return chiTietDonHangRepository.getTopExportedProducts(fromDate, toDate);
+	}
+
+	@Override
+	public List<Object[]> getBaoCaoXuatKhoChiTiet(LocalDateTime fromDate, LocalDateTime toDate) {
+	    return chiTietDonHangRepository.getBaoCaoXuatKhoChiTiet(fromDate, toDate);
+	}
+
+	@Override
+	public List<Object[]> getTopCustomers(LocalDateTime fromDate, LocalDateTime toDate) {
+	    return chiTietDonHangRepository.getTopCustomers(fromDate, toDate);
+	}
+
+
+
 
 
 

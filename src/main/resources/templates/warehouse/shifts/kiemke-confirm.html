@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Xác nhận Kiểm Kê Kho</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			background-color: #f4f4f4;
+		}
+
+		.header {
+			background-color: #f8f9fa;
+			padding: 15px 20px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 2px solid #dee2e6;
+		}
+
+		.header h2 {
+			margin: 0;
+			font-size: 20px;
+			color: #333;
+		}
+
+		.container {
+			max-width: 1100px;
+			margin: 20px auto;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		th,
+		td {
+			padding: 12px;
+			text-align: center;
+			border: 1px solid #dee2e6;
+		}
+
+		th {
+			background-color: azure;
+			color: black;
+			text-transform: uppercase;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f9f9f9;
+		}
+
+		tr:hover {
+			background-color: #f1f1f1;
+		}
+
+		.btn-primary {
+			background-color: black;
+			color: white;
+			border: none;
+			display: block;
+			text-align: center;
+			padding: 10px;
+			font-size: 16px;
+			border-radius: 5px;
+			text-decoration: none;
+
+			transition: 0.3s;
+		}
+
+		.btn-primary:hover {
+			background-color: #333;
+		}
+
+		.status-success {
+			color: green;
+			font-weight: bold;
+		}
+
+		.status-pending {
+			color: red;
+			font-weight: bold;
+		}
+
+		.message {
+			font-size: 18px;
+			font-weight: bold;
+			color: #28a745;
+			margin-top: 20px;
+			text-align: center;
+		}
+
+		.notification-card {
+			background-color: #d4edda;
+			border-left: 6px solid #28a745;
+			border-radius: 12px;
+			padding: 20px 25px;
+			display: flex;
+			align-items: center;
+			gap: 15px;
+			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+			font-size: 20px;
+			font-weight: bold;
+			color: #155724;
+			width: 100%;
+			max-width: 600px;
+			margin: 20px auto;
+			text-align: center;
+		}
+
+		.notification-card i {
+			font-size: 32px;
+			color: #28a745;
+		}
+
+		.notification-card span {
+			flex: 1;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- Thanh điều hướng -->
+	<div class="header" style="padding-left: 300px;">
+		<h2>
+			Xác nhận kiểm kê kho
+		</h2>
+		<a th:href="@{/warehouse/import/shifts}" class="btn btn-primary">Quay lại danh sách ca làm việc</a>
+
+
+
+	</div>
+	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+
+	<div class="container" style="padding-left: 300px;">
+		<div th:if="${danhSachSanPhamThayDoi.isEmpty()}">
+			<div class="notification-card">
+				<i class="fas fa-check-circle"></i>
+				<span>Ca làm việc chính xác, không sai số.</span>
+			</div>
+
+		</div>
+
+		<div th:unless="${danhSachSanPhamThayDoi.isEmpty()}">
+			<table>
+				<thead>
+					<tr>
+						<th>STT</th>
+						<th>Hình ảnh</th>
+						<th>Sản phẩm</th>
+						<th>Số lượng trước kiểm kê</th>
+						<th>Số lượng sau kiểm kê</th>
+						<th>Lý do điều chỉnh</th>
+						<th>Trạng thái</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="kiemKe,iterStat  : ${danhSachSanPhamThayDoi}">
+						<td th:text="${iterStat.count}"></td>
+						<td>
+							<img th:src="@{'/upload/' + ${kiemKe.sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+								style="width: 80px; height: auto; border-radius: 5px;" />
+						</td>
+						<td th:text="${kiemKe.sanPham.tenSanPham}"></td>
+						<td th:text="${kiemKe.soLuongTruocKiemKe}"></td>
+						<td th:text="${kiemKe.soLuongSauKiemKe}"></td>
+						<td th:text="${kiemKe.lyDoDieuChinh}"></td>
+						<td>
+							<span th:if="${kiemKe.daXetDuyet}" class="badge badge-success">Đã duyệt</span>
+							<span th:unless="${kiemKe.daXetDuyet}" class="badge badge-warning" style="color: red;">Chờ
+								xét duyệt</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+
+</body>
+
+</html>

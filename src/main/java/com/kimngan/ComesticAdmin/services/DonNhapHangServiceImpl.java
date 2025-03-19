@@ -2,7 +2,6 @@ package com.kimngan.ComesticAdmin.services;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,12 +11,27 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.kimngan.ComesticAdmin.entity.DonNhapHang;
+import com.kimngan.ComesticAdmin.repository.ChiTietDonNhapHangRepository;
 import com.kimngan.ComesticAdmin.repository.DonNhapHangRepository;
 
 @Service
 public class DonNhapHangServiceImpl implements DonNhapHangService {
 	@Autowired
 	private DonNhapHangRepository donNhapHangRepository;
+	
+	@Autowired
+	private ChiTietDonNhapHangRepository chiTietDonNhapHangRepository;
+	
+	@Autowired
+	private SanPhamService sanPhamService;
+	
+	@Autowired
+	private ChiTietDonHangService chiTietDonHangService;
+	@Autowired
+	private KiemKeKhoService kiemKeKhoService;
+	
+	@Autowired
+	private ChiTietDonNhapHangService chiTietDonNhapHangService;
 
 	@Override
 	public List<DonNhapHang> getAll() {
@@ -109,5 +123,33 @@ public class DonNhapHangServiceImpl implements DonNhapHangService {
 		return donNhapHangRepository.findByNhaCungCap_TenNhaCungCapContainingIgnoreCaseAndTrangThaiTrue(tenNhaCungCap,
 				pageable);
 	}
+
+	@Override
+	public void deleteDonNhapHang(Integer maDonNhapHang) {
+		 // Lấy danh sách các sản phẩm trong chi tiết đơn nhập hàng trước khi xóa
+	    List<Integer> affectedSanPhamIds = chiTietDonNhapHangRepository.findDistinctSanPhamIdsByDonNhapHang(maDonNhapHang);
+
+	    // Xóa chi tiết đơn nhập hàng
+	    chiTietDonNhapHangRepository.deleteByDonNhapHangId(maDonNhapHang);
+
+	    // Xóa đơn nhập hàng
+	    donNhapHangRepository.deleteById(maDonNhapHang);
+
+	    // Cập nhật lại số lượng tồn kho cho tất cả sản phẩm bị ảnh hưởng
+	    for (Integer maSanPham : affectedSanPhamIds) {
+	        // Tính toán lại số lượng tồn kho
+	        int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+	        int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+	        int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+	        int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+
+	        // Công thức tính số lượng tồn kho mới
+	        int soLuongTonKhoMoi = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
+
+	        // Lưu số lượng mới vào biến model của sản phẩm (không cần lưu vào DB nếu chỉ hiển thị)
+	        sanPhamService.capNhatSoLuongTonKhoHienThi(maSanPham, soLuongTonKhoMoi);
+	    }
+	}
+
 
 }

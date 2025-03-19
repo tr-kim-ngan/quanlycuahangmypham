@@ -6,7 +6,7 @@
 	<title>Quản lý Kho</title>
 
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
-
+	
 </head>
 
 <body style="margin: 0; padding: 0; display: flex; font-family: Arial, sans-serif; background-color: #f4f4f4;">
@@ -14,34 +14,34 @@
 
 		<!-- Thanh điều hướng dọc -->
 		<div class="navbar" style="
-        width: 250px;
-        height: 100vh;
-        background-color: #1f2a40;
-        color: white;
-        position: fixed;
-        top: 0;
-        left: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 10px 0;
-    ">
+			        width: 250px;
+			        height: 100vh;
+			        background-color: #1f2a40;
+			        color: white;
+			        position: fixed;
+			        top: 0;
+			        left: 0;
+			        display: flex;
+			        flex-direction: column;
+			        justify-content: space-between;
+			        padding: 10px 0;
+			    ">
 			<div style="
-    text-align: center; 
-    font-size: 20px; 
-    font-weight: bold; 
-    padding: 20px 0; 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex; 
-    justify-content: center; 
-    align-items: center;
-    gap: 10px;">
+			    text-align: center; 
+			    font-size: 20px; 
+			    font-weight: bold; 
+			    padding: 20px 0; 
+			    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+			    display: flex; 
+			    justify-content: center; 
+			    align-items: center;
+			    gap: 10px;">
 
 				<!-- Bọc cả icon và chữ vào thẻ <a> -->
 				<a href="/warehouse/import/purchaseorder"
 					style="display: flex; align-items: center; text-decoration: none; color: white;">
 					<img src="/fe/images/warehouse.png" alt="Nhập Kho" style="width: 70px; height: 70px;">
-					<span style="margin-left: 10px;">Nhập Kho</span>
+					<span style="margin-left: 10px;">Nhập Xuất Kho</span>
 				</a>
 
 			</div>
@@ -51,7 +51,57 @@
 			<div class="menu" style="flex-grow: 1; padding: 10px;">
 				<ul style="list-style: none; padding: 0; margin: 0;">
 					<li style="margin-bottom: 5px;">
-						<a href="/warehouse/import/purchaseorder" style="
+						<a href="/warehouse/import/purchaseorder" class="nav-link" style="
+                            display: flex;
+                            align-items: center;
+                            text-decoration: none;
+                            color: white;
+                            font-size: 16px;
+                            padding: 12px 20px;
+                            border-radius: 5px;
+                            transition: background 0.3s ease, transform 0.2s ease;
+                        " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';
+							
+							
+							">
+							Quản lý đơn nhập hàng</a>
+					</li>
+					<li style="margin-bottom: 5px;">
+						<a href="/warehouse/import/pending-orders" class="nav-link" style="
+			        display: flex;
+			        align-items: center;
+			        text-decoration: none;
+			        color: white;
+			        font-size: 16px;
+			        padding: 12px 20px;
+			        border-radius: 5px;
+			        transition: background 0.3s ease, transform 0.2s ease;
+			    " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+							Đơn hàng chờ xuất kho
+						</a>
+					</li>
+
+					<li style="margin-bottom: 5px;">
+						<a href="/warehouse/import/exported-orders" class="nav-link" style="
+	        display: flex;
+	        align-items: center;
+	        text-decoration: none;
+	        color: white;
+	        font-size: 16px;
+	        padding: 12px 20px;
+	        border-radius: 5px;
+	        transition: background 0.3s ease, transform 0.2s ease;
+	    " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+							Đơn hàng đã xuất kho
+						</a>
+					</li>
+
+
+					<li style="margin-bottom: 5px;">
+						<a href="/warehouse/import/ton-kho" class="nav-link" style="
                             display: flex;
                             align-items: center;
                             text-decoration: none;
@@ -62,10 +112,10 @@
                             transition: background 0.3s ease, transform 0.2s ease;
                         " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
 							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
-							📊 Tổng quan</a>
+							Quản lý kho</a>
 					</li>
 					<li style="margin-bottom: 5px;">
-						<a href="/warehouse/import/ton-kho" style="
+						<a href="/warehouse/import/nha-cung-cap" class="nav-link" style="
                             display: flex;
                             align-items: center;
                             text-decoration: none;
@@ -76,24 +126,10 @@
                             transition: background 0.3s ease, transform 0.2s ease;
                         " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
 							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
-							📦 Quản lý kho</a>
+							Nhà cung cấp</a>
 					</li>
 					<li style="margin-bottom: 5px;">
-						<a href="/warehouse/import/nha-cung-cap" style="
-                            display: flex;
-                            align-items: center;
-                            text-decoration: none;
-                            color: white;
-                            font-size: 16px;
-                            padding: 12px 20px;
-                            border-radius: 5px;
-                            transition: background 0.3s ease, transform 0.2s ease;
-                        " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
-							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
-							📜 Nhà Cung Cấp</a>
-					</li>
-					<li style="margin-bottom: 5px;">
-						<a href="/warehouse/import/thong-ke" style="
+						<a href="/warehouse/import/thong-ke" class="nav-link" style="
 				        display: flex;
 				        align-items: center;
 				        text-decoration: none;
@@ -104,9 +140,28 @@
 				        transition: background 0.3s ease, transform 0.2s ease;
 				    " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
 							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
-							📈 Thống kê
+							Thống kê
 						</a>
 					</li>
+					
+					<li style="margin-bottom: 5px;">
+					    <a href="/warehouse/import/shifts" class="nav-link" style="
+					        display: flex;
+					        align-items: center;
+					        text-decoration: none;
+					        color: white;
+					        font-size: 16px;
+					        padding: 12px 20px;
+					        border-radius: 5px;
+					        transition: background 0.3s ease, transform 0.2s ease;
+					    " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
+					       onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+					        Quản lý ca làm việc
+					    </a>
+					</li>
+					
+					
+					
 
 				</ul>
 			</div>
@@ -129,7 +184,7 @@
 		</div>
 
 
-
+		
 </body>
 
 </html>
