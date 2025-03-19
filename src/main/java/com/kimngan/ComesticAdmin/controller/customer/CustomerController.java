@@ -18,6 +18,7 @@ import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
 import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DanhGiaService;
 import com.kimngan.ComesticAdmin.services.DanhMucService;
+import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.HoaDonService;
 import com.kimngan.ComesticAdmin.services.KiemKeKhoService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
@@ -77,6 +78,8 @@ public class CustomerController {
 
 	@Autowired
 	private KiemKeKhoService kiemKeKhoService;
+	@Autowired
+	private DonHangService donHangService;
 
 	@GetMapping({ "/", "/index" })
 	public String homeOrIndex(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
@@ -124,14 +127,16 @@ public class CustomerController {
 			int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
 			int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
 			int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+			int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
 
 			// int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe +
 			// deltaKiemKe;
 			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
 
-			int soLuongTonKho = (tonKhoDaDuyet != null) ? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe)
+			int soLuongTonKho = (tonKhoDaDuyet != null) ? 
+					(tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe +soLuongTraHang)
 
-					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe);
+					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe +soLuongTraHang);
 
 			return soLuongTonKho > 0; // Chỉ lấy sản phẩm còn tồn kho
 		}).collect(Collectors.toList());
@@ -160,6 +165,8 @@ public class CustomerController {
 			int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
 			int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
 			int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+			int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+
 			System.out.println("Sản phẩm ID: " + maSanPham);
 			System.out.println("Tổng số lượng nhập: " + tongSoLuongNhap);
 			System.out.println("Số lượng đã bán: " + soLuongBan);
@@ -168,9 +175,9 @@ public class CustomerController {
 			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
 
 			int soLuongTonKho = (tonKhoDaDuyet != null)
-					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe)
+					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe +soLuongTraHang)
 
-					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe);
+					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
 
 //			int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
 			// int soLuongTonKho = sanPhamService.getSoLuongTonKho(sanPham.getMaSanPham());
@@ -545,14 +552,15 @@ public class CustomerController {
 				int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
 				int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
 				int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+				int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
 
 //				int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
 				Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
 
 				int soLuongTonKho = (tonKhoDaDuyet != null)
-						? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe)
+						? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
 
-						: (tongSoLuongNhap - soLuongBan - soLuongTrenKe);
+						: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
 
 				// int soLuongTonKho = sanPhamService.getSoLuongTonKho(productId);
 
