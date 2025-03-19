@@ -4,14 +4,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.DonHang;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 
@@ -49,12 +47,25 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 	@Query("SELECT d FROM DonHang d WHERE d.shipper = :shipper")
 	List<DonHang> findOrdersByShipper(@Param("shipper") NguoiDung shipper);
 
-	@Query("SELECT d FROM DonHang d WHERE d.trangThaiDonHang = :trangThai AND d.nhanVienXuatKho.maNguoiDung = :maNhanVien")
-	List<DonHang> findByTrangThaiAndNhanVienXuatKho(@Param("trangThai") String trangThai,
-			@Param("maNhanVien") Integer maNhanVien);
+//	@Query("SELECT d FROM DonHang d WHERE d.trangThaiDonHang = :trangThai AND d.nhanVienXuatKho.maNguoiDung = :maNhanVien")
+//	List<DonHang> findByTrangThaiAndNhanVienXuatKho(@Param("trangThai") String trangThai,
+//			@Param("maNhanVien") Integer maNhanVien);
+//
+//	@Query("SELECT d FROM DonHang d WHERE d.trangThaiDonHang IN :trangThaiList AND d.nhanVienXuatKho.maNguoiDung = :maNhanVien")
+//	List<DonHang> findByTrangThaiDonHangInAndNhanVienXuatKho(@Param("trangThaiList") List<String> trangThaiList,
+//			@Param("maNhanVien") Integer maNhanVien);
+	
+	@Query("SELECT d FROM DonHang d WHERE d.trangThaiDonHang = :status")
+	List<DonHang> findByTrangThaiDonHang(@Param("status") String status);
+	
+	
+	@Query("SELECT d FROM DonHang d WHERE d.ngayXacNhanXuatKho IS NOT NULL")
+	List<DonHang> findDonHangsDaXuatKho();
 
-	@Query("SELECT d FROM DonHang d WHERE d.trangThaiDonHang IN :trangThaiList AND d.nhanVienXuatKho.maNguoiDung = :maNhanVien")
-	List<DonHang> findByTrangThaiDonHangInAndNhanVienXuatKho(@Param("trangThaiList") List<String> trangThaiList,
-			@Param("maNhanVien") Integer maNhanVien);
+	@Query("SELECT COALESCE(SUM(c.soLuong), 0) FROM ChiTietDonHang c " +
+		       "JOIN c.donHang d WHERE d.trangThaiDonHang = 'Đã hủy' " +
+		       "AND c.sanPham.maSanPham = :maSanPham")
+		int tinhTongSoLuongTraHang(@Param("maSanPham") Integer maSanPham);
+
 
 }

@@ -112,9 +112,11 @@ public class ChiTietDonNhapHangServiceImpl implements ChiTietDonNhapHangService 
 	}
 
 	@Override
-	 public Integer getTotalImportedQuantityBySanPhamId(Integer maSanPham) {
-        return chiTietDonNhapHangRepository.getTotalImportedQuantityBySanPhamId(maSanPham);
-    }
+	public Integer getTotalImportedQuantityBySanPhamId(Integer maSanPham) {
+	    Integer total = chiTietDonNhapHangRepository.getTotalImportedQuantityBySanPhamId(maSanPham);
+	    return (total != null) ? total : 0;  // Trả về 0 nếu null, tránh NullPointerException
+	}
+
 
 	@Override
 	public LocalDate findLastTimeStockEmpty(Integer maSanPham) {
@@ -184,6 +186,8 @@ public class ChiTietDonNhapHangServiceImpl implements ChiTietDonNhapHangService 
 		// TODO Auto-generated method stub
 		  return chiTietDonNhapHangRepository.getTopImportedProducts(fromDate, toDate);
 	}
+
+	
 
 
 

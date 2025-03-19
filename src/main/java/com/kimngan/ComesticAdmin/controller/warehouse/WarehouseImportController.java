@@ -17,15 +17,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHangId;
+import com.kimngan.ComesticAdmin.entity.DonHang;
 import com.kimngan.ComesticAdmin.entity.DonNhapHang;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.NhaCungCap;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
 import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
+import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.DonNhapHangService;
+import com.kimngan.ComesticAdmin.services.KiemKeKhoService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.NhaCungCapService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
@@ -39,11 +43,10 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.data.domain.*;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.format.annotation.DateTimeFormat;;
 
 @Controller
 @RequestMapping("/warehouse/import")
@@ -66,6 +69,11 @@ public class WarehouseImportController {
 
 	@Autowired
 	private ChiTietDonHangService chiTietDonHangService;
+	@Autowired
+	private DonHangService donHangService;
+
+	@Autowired
+	private KiemKeKhoService kiemKeKhoService;
 
 	// Lấy thông tin nhân viên nhập kho hiện tại
 	@ModelAttribute("user")
@@ -160,6 +168,7 @@ public class WarehouseImportController {
 		BigDecimal totalOrderPrice = BigDecimal.ZERO;
 
 		for (ChiTietDonNhapHang chiTiet : allChiTietList) {
+
 			BigDecimal donGiaNhap = chiTiet.getDonGiaNhap();
 			int soLuongNhap = chiTiet.getSoLuongNhap();
 			BigDecimal totalPrice = donGiaNhap.multiply(new BigDecimal(soLuongNhap));
@@ -206,16 +215,29 @@ public class WarehouseImportController {
 		Map<Integer, Integer> soLuongTonKhoMap = new HashMap<>();
 
 		for (SanPham sanPham : pageSanPham.getContent()) {
+			Integer maSanPham = sanPham.getMaSanPham();
+
 			int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sanPham.getMaSanPham());
 			int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(sanPham.getMaSanPham());
+			int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+			int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+			int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+			// Tính số lượng tồn kho đúng
+			// int soLuongTonKho = tongSoLuongNhap - soLuongBan - sanPham.getSoLuong();
+			// int soLuongTonKho = tongSoLuongNhap - soLuongBan - sanPham.getSoLuong();
+			// int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe ;
+//	        Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+// 
+//			int soLuongTonKho = (tonKhoDaDuyet != null) 
+//			            ? (tonKhoDaDuyet - soLuongTrenKe ) 
+//			            : (tongSoLuongNhap - soLuongBan - soLuongTrenKe); 
+			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
 
-			// Tính lại tổng số lượng nhập: nhập - số lượng có trong chi tiết đơn hàng
-			int soLuongNhapThucTe = tongSoLuongNhap - soLuongBan;
+			int soLuongTonKho = (tonKhoDaDuyet != null) ? 
+					(tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe +soLuongTraHang ) 
+					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang); 
 
-			// Tính số lượng tồn kho
-			int soLuongTonKho = soLuongNhapThucTe - sanPham.getSoLuong();
-
-			tongSoLuongNhapMap.put(sanPham.getMaSanPham(), soLuongNhapThucTe);
+			tongSoLuongNhapMap.put(sanPham.getMaSanPham(), tongSoLuongNhap);
 			soLuongTonKhoMap.put(sanPham.getMaSanPham(), soLuongTonKho);
 		}
 
@@ -244,11 +266,36 @@ public class WarehouseImportController {
 		}
 
 		// Tính tổng số lượng nhập từ chi tiết đơn nhập hàng
+		// Tính tổng số lượng nhập từ chi tiết đơn nhập hàng
 		int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
-		int soLuongTonKho = tongSoLuongNhap - sanPham.getSoLuong(); // Số lượng tồn kho thực tế
+		int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+		int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+		int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+		int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+		// Kiểm tra xem có tồn kho đã được admin xét duyệt không
+		Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+		// int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+		// Tính số lượng tồn kho thực tế
+		// int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongMoi;
+		int soLuongTonKho;
+		if (tonKhoDaDuyet != null) {
+			// Nếu đã duyệt, dùng số lượng tồn kho sau khi duyệt
+			soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + + deltaKiemKe +soLuongTraHang;
+		} else {
+			// Nếu chưa duyệt, tính tồn kho như cũ
+			soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe +soLuongTraHang;
+		}
 
+		System.out.println("🔎 [DEBUG] Tính toán tồn kho:");
+		System.out.println("   - Tổng nhập: " + tongSoLuongNhap);
+		System.out.println("   - Tổng bán: " + soLuongBan);
+		System.out.println("   - Trên kệ: " + soLuongTrenKe);
+		System.out.println("   - Tồn kho thực tế: " + soLuongTonKho);
+		System.out.println("   - Số lượng mới nhập: " + soLuongMoi);
+		// int soLuongTonKho = tongSoLuongNhap - soLuongBan ;
 		// Ràng buộc: không cho nhập số lượng trên kệ vượt quá tổng số lượng nhập
 		if (soLuongMoi > tongSoLuongNhap) {
+			System.out.println("❌ [ERROR] Số lượng trên kệ vượt quá tổng nhập!");
 			redirectAttributes.addFlashAttribute("errorMessage",
 					"Số lượng trên kệ không thể lớn hơn tổng số lượng nhập (" + tongSoLuongNhap + ").");
 			return "redirect:/warehouse/import/ton-kho";
@@ -256,15 +303,24 @@ public class WarehouseImportController {
 
 		// Ràng buộc: không cho nhập số lượng âm hoặc vượt quá số lượng tồn kho
 		if (soLuongMoi < 0 || soLuongMoi > soLuongTonKho + sanPham.getSoLuong()) {
+			System.out.println("❌ [ERROR] Số lượng trên kệ không hợp lệ!");
 			redirectAttributes.addFlashAttribute("errorMessage",
 					"Số lượng trên kệ phải nằm trong khoảng từ 0 đến " + (soLuongTonKho + sanPham.getSoLuong()) + ".");
 			return "redirect:/warehouse/import/ton-kho";
 		}
 
 		// Cập nhật số lượng trên kệ
+		int soLuongTruocCapNhat = sanPham.getSoLuong();
+
 		sanPham.setSoLuong(soLuongMoi);
 		sanPhamService.update(sanPham);
 
+		// sanPhamService.updateSoLuongTonKho(maSanPham, soLuongTonKho);
+
+		System.out.println("✅ [SUCCESS] Cập nhật số lượng trên kệ thành công!");
+		System.out.println("   - Sản phẩm ID: " + maSanPham);
+		System.out.println("   - Trước cập nhật: " + soLuongTruocCapNhat);
+		System.out.println("   - Sau cập nhật: " + soLuongMoi);
 		// Thông báo thành công
 		redirectAttributes.addFlashAttribute("successMessage", "Cập nhật số lượng trên kệ thành công.");
 		return "redirect:/warehouse/import/ton-kho";
@@ -482,6 +538,10 @@ public class WarehouseImportController {
 		donNhapHang.setTongGiaTriNhapHang(tongGiaTriNhap);
 		donNhapHangService.update(donNhapHang);
 
+		for (Integer maSanPham : sanPhamIds) {
+			sanPhamService.capNhatSoLuongTonKho(maSanPham);
+		}
+
 		System.out.println("=== Hoàn tất lưu chi tiết đơn nhập hàng ===");
 		redirectAttributes.addFlashAttribute("successMessage", "Chi tiết đơn nhập hàng đã được lưu.");
 		return "redirect:/warehouse/import/purchaseorder";
@@ -658,121 +718,249 @@ public class WarehouseImportController {
 
 	@GetMapping("/thong-ke")
 	public String getImportStatistics(
-	        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-	        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-	        Model model) {
+			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+			Model model) {
 
-	    // Nếu fromDate và toDate không có, thì mặc định là 30 ngày gần nhất
-	    if (fromDate == null) {
-	        fromDate = LocalDate.now().minusDays(30); // 30 ngày trước
-	    }
-	    if (toDate == null) {
-	        toDate = LocalDate.now(); // Ngày hiện tại
-	    }
+		// Nếu fromDate và toDate không có, thì mặc định là 30 ngày gần nhất
+		if (fromDate == null) {
+			fromDate = LocalDate.now().minusDays(30); // 30 ngày trước
+		}
+		if (toDate == null) {
+			toDate = LocalDate.now(); // Ngày hiện tại
+		}
 
-	    List<Object[]> results = chiTietDonNhapHangService.getImportStatistics(fromDate, toDate);
-	    
-	    List<Object[]> topProducts = chiTietDonNhapHangService.getTopImportedProducts(fromDate, toDate);
+		List<Object[]> results = chiTietDonNhapHangService.getImportStatistics(fromDate, toDate);
 
-	    
-	    
-	    List<String> labels = new ArrayList<>();
-	    List<Integer> values = new ArrayList<>();
-	    
-	    for (Object[] row : results) {
-	        if (row[0] != null && row[1] != null) {
-	            labels.add(row[0].toString());
-	            values.add(((Number) row[1]).intValue());
-	        }
-	    }
+		List<Object[]> topProducts = chiTietDonNhapHangService.getTopImportedProducts(fromDate, toDate);
 
-	    List<Object[]> danhSachBaoCao = chiTietDonNhapHangService.getBaoCaoChiTiet(fromDate, toDate);
-	    List<Object[]> topSuppliers = chiTietDonNhapHangService.getTopSuppliers(fromDate, toDate);
+		List<String> labels = new ArrayList<>();
+		List<Integer> values = new ArrayList<>();
 
-	    model.addAttribute("labels", labels);
-	    model.addAttribute("values", values);
-	    model.addAttribute("fromDate", fromDate);
-	    model.addAttribute("toDate", toDate);
-	    model.addAttribute("danhSachBaoCao", danhSachBaoCao);
-	    model.addAttribute("topSuppliers", topSuppliers);
-	    model.addAttribute("topProducts", topProducts);
-	    
-	    return "warehouse/import/thong-ke"; // Trả về file thong-ke.html
+		for (Object[] row : results) {
+			if (row[0] != null && row[1] != null) {
+				labels.add(row[0].toString());
+				values.add(((Number) row[1]).intValue());
+			}
+		}
+
+		List<Object[]> danhSachBaoCao = chiTietDonNhapHangService.getBaoCaoChiTiet(fromDate, toDate);
+		List<Object[]> topSuppliers = chiTietDonNhapHangService.getTopSuppliers(fromDate, toDate);
+
+		model.addAttribute("labels", labels);
+		model.addAttribute("values", values);
+		model.addAttribute("fromDate", fromDate);
+		model.addAttribute("toDate", toDate);
+		model.addAttribute("danhSachBaoCao", danhSachBaoCao);
+		model.addAttribute("topSuppliers", topSuppliers);
+		model.addAttribute("topProducts", topProducts);
+
+		return "warehouse/import/thong-ke"; // Trả về file thong-ke.html
 	}
-	
+
 	@GetMapping("/thong-ke/tong-gia-tri")
 	public String getTotalImportValue(
-	    @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-	    @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-	    Model model) {
+			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+			Model model) {
 
-	    if (fromDate == null) fromDate = LocalDate.now().minusDays(30);
-	    if (toDate == null) toDate = LocalDate.now();
+		if (fromDate == null)
+			fromDate = LocalDate.now().minusDays(30);
+		if (toDate == null)
+			toDate = LocalDate.now();
 
-	    // Gọi service để lấy dữ liệu tổng giá trị nhập kho theo thời gian
-	    List<Object[]> results = chiTietDonNhapHangService.getTotalImportValue(fromDate, toDate);
+		// Gọi service để lấy dữ liệu tổng giá trị nhập kho theo thời gian
+		List<Object[]> results = chiTietDonNhapHangService.getTotalImportValue(fromDate, toDate);
 
-	    List<String> labels = new ArrayList<>();
-	    List<BigDecimal> values = new ArrayList<>();
+		List<String> labels = new ArrayList<>();
+		List<BigDecimal> values = new ArrayList<>();
 
-	    for (Object[] row : results) {
-	        labels.add(row[0].toString()); // Tên sản phẩm
-	        values.add((BigDecimal) row[1]); // Tổng giá trị nhập
-	    }
-	    List<Object[]> reportData = chiTietDonNhapHangService.getTotalImportReport(fromDate, toDate);
+		for (Object[] row : results) {
+			labels.add(row[0].toString()); // Tên sản phẩm
+			values.add((BigDecimal) row[1]); // Tổng giá trị nhập
+		}
+		List<Object[]> reportData = chiTietDonNhapHangService.getTotalImportReport(fromDate, toDate);
 
-	    model.addAttribute("labels", labels);
-	    model.addAttribute("values", values);
-	    model.addAttribute("fromDate", fromDate);
-	    model.addAttribute("toDate", toDate);
-	    model.addAttribute("reportData", reportData);
+		model.addAttribute("labels", labels);
+		model.addAttribute("values", values);
+		model.addAttribute("fromDate", fromDate);
+		model.addAttribute("toDate", toDate);
+		model.addAttribute("reportData", reportData);
 
-	    return "warehouse/import/tong-gia-tri-nhap"; // Trả về file mới
+		return "warehouse/import/tong-gia-tri-nhap"; // Trả về file mới
 	}
 
 	@GetMapping("/thong-ke/xu-huong")
 	public String getImportTrend(
-	    @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-	    @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
-	    Model model) {
+			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+			Model model) {
 
-	    if (fromDate == null) fromDate = LocalDate.now().minusDays(30);
-	    if (toDate == null) toDate = LocalDate.now();
+		if (fromDate == null)
+			fromDate = LocalDate.now().minusDays(30);
+		if (toDate == null)
+			toDate = LocalDate.now();
 
-	    // Lấy dữ liệu số lượng nhập và tổng giá trị nhập
-	    List<Object[]> results = chiTietDonNhapHangService.getImportTrendDetail(fromDate, toDate);
+		// Lấy dữ liệu số lượng nhập và tổng giá trị nhập
+		List<Object[]> results = chiTietDonNhapHangService.getImportTrendDetail(fromDate, toDate);
 
-	    List<String> labels = new ArrayList<>();
-	    List<Integer> values = new ArrayList<>();
-	    List<Double> totalValues = new ArrayList<>();
+		List<String> labels = new ArrayList<>();
+		List<Integer> values = new ArrayList<>();
+		List<Double> totalValues = new ArrayList<>();
 
-	    for (Object[] row : results) {
-	        labels.add(row[0].toString()); // Ngày nhập
-	        values.add(((Number) row[1]).intValue()); // Tổng số lượng nhập
-	        totalValues.add(((Number) row[2]).doubleValue()); // Tổng giá trị nhập
-	    }
+		for (Object[] row : results) {
+			labels.add(row[0].toString()); // Ngày nhập
+			values.add(((Number) row[1]).intValue()); // Tổng số lượng nhập
+			totalValues.add(((Number) row[2]).doubleValue()); // Tổng giá trị nhập
+		}
 
-	    // Dữ liệu báo cáo chi tiết
-	    List<Map<String, Object>> reportData = new ArrayList<>();
-	    for (Object[] row : results) {
-	        Map<String, Object> reportRow = new HashMap<>();
-	        reportRow.put("ngayNhap", row[0]); // Ngày nhập
-	        reportRow.put("soLuongNhap", row[1]); // Tổng số lượng nhập
-	        reportRow.put("tongGiaTriNhap", row[2]); // Tổng giá trị nhập
-	        reportData.add(reportRow);
-	    }
+		// Dữ liệu báo cáo chi tiết
+		List<Map<String, Object>> reportData = new ArrayList<>();
+		for (Object[] row : results) {
+			Map<String, Object> reportRow = new HashMap<>();
+			reportRow.put("ngayNhap", row[0]); // Ngày nhập
+			reportRow.put("soLuongNhap", row[1]); // Tổng số lượng nhập
+			reportRow.put("tongGiaTriNhap", row[2]); // Tổng giá trị nhập
+			reportData.add(reportRow);
+		}
 
-	    model.addAttribute("labels", labels);
-	    model.addAttribute("values", values);
-	    model.addAttribute("totalValues", totalValues);
-	    model.addAttribute("fromDate", fromDate);
-	    model.addAttribute("toDate", toDate);
-	    model.addAttribute("reportData", reportData);
+		model.addAttribute("labels", labels);
+		model.addAttribute("values", values);
+		model.addAttribute("totalValues", totalValues);
+		model.addAttribute("fromDate", fromDate);
+		model.addAttribute("toDate", toDate);
+		model.addAttribute("reportData", reportData);
 
-	    return "warehouse/import/xu-huong-nhap"; 
+		return "warehouse/import/xu-huong-nhap";
 	}
 
+	@GetMapping("/thong-ke-xuat")
+	public String getExportStatistics(
+			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+			Model model) {
 
+		// Nếu fromDate và toDate không có, mặc định lấy 30 ngày gần nhất
+		if (fromDate == null) {
+			fromDate = LocalDate.now().minusDays(30);
+		}
+		if (toDate == null) {
+			toDate = LocalDate.now();
+		}
 
+		// Chuyển đổi sang LocalDateTime (từ 00:00:00 đến 23:59:59)
+		LocalDateTime fromDateTime = fromDate.atStartOfDay();
+		LocalDateTime toDateTime = toDate.atTime(23, 59, 59);
+
+		// Gọi service với LocalDateTime
+		List<Object[]> results = chiTietDonHangService.getExportStatistics(fromDateTime, toDateTime);
+		List<Object[]> topProducts = chiTietDonHangService.getTopExportedProducts(fromDateTime, toDateTime);
+		List<Object[]> danhSachBaoCao = chiTietDonHangService.getBaoCaoXuatKhoChiTiet(fromDateTime, toDateTime);
+		List<Object[]> topCustomers = chiTietDonHangService.getTopCustomers(fromDateTime, toDateTime);
+		List<Object[]> stockStatistics = sanPhamService.getStockStatistics();
+		model.addAttribute("labels", results.stream().map(row -> row[0].toString()).toList());
+		model.addAttribute("values", results.stream().map(row -> ((Number) row[1]).intValue()).toList());
+		model.addAttribute("fromDate", fromDate);
+		model.addAttribute("toDate", toDate);
+		model.addAttribute("danhSachBaoCao", danhSachBaoCao);
+		model.addAttribute("topCustomers", topCustomers);
+		model.addAttribute("topProducts", topProducts);
+		model.addAttribute("stockLabels", stockStatistics.stream().map(row -> row[0].toString()).toList());
+		model.addAttribute("stockValues", stockStatistics.stream().map(row -> ((Number) row[1]).intValue()).toList());
+
+		return "warehouse/import/thong-ke-xuat";
+	}
+
+	// Hiển thị danh sách đơn hàng cần xuất kho
+	@GetMapping("/pending-orders")
+	public String getPendingOrders(Model model) {
+		List<DonHang> donHangs = donHangService.getDonHangsByStatus("Đang xử lý");
+
+		for (DonHang order : donHangs) {
+			if (order.getNguoiDung() != null) {
+				System.out.println("📌 Mã đơn: " + order.getMaDonHang() + " - Khách hàng: "
+						+ order.getNguoiDung().getTenNguoiDung());
+			} else {
+				System.out.println("⚠ LỖI: Đơn hàng " + order.getMaDonHang() + " không có khách hàng!");
+			}
+		}
+
+		model.addAttribute("donHangs", donHangs);
+		return "warehouse/export/pending-orders";
+	}
+
+	// Xem chi tiết đơn hàng chờ xuất kho
+	@GetMapping("/pending-orders/{maDonHang}")
+	public String viewPendingOrderDetails(@PathVariable("maDonHang") Integer maDonHang, Model model) {
+		System.out.println("📌 [Debug] Bắt đầu xem chi tiết đơn hàng chờ xuất kho - Mã đơn hàng: " + maDonHang);
+
+		DonHang donHang = donHangService.getDonHangById(maDonHang);
+		if (donHang == null) {
+			model.addAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+			return "redirect:/warehouse/import/pending-orders";
+		}
+		System.out.println("✅ [Success] Tìm thấy đơn hàng - Mã đơn hàng: " + donHang.getMaDonHang());
+		System.out.println("👤 [Khách hàng] " + donHang.getNguoiDung().getTenNguoiDung());
+		System.out.println("📅 [Ngày đặt hàng] " + donHang.getNgayDat());
+		System.out.println("📦 [Trạng thái] " + donHang.getTrangThaiDonHang());
+
+		for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
+			System.out.println(
+					"🛒 [Sản phẩm] " + chiTiet.getSanPham().getTenSanPham() + " | Số lượng: " + chiTiet.getSoLuong());
+		}
+		model.addAttribute("donHang", donHang);
+		return "warehouse/export/order-details";
+	}
+
+	// Xác nhận xuất kho
+	@PostMapping("/confirm-export/{maDonHang}")
+	public String xacNhanXuatKho(@PathVariable("maDonHang") Integer maDonHang, RedirectAttributes redirectAttributes) {
+
+		System.out.println("📌 [Debug] Bắt đầu xác nhận xuất kho - Mã đơn hàng: " + maDonHang);
+
+		DonHang donHang = donHangService.getDonHangById(maDonHang);
+		if (donHang == null) {
+			System.out.println("❌ [Error] Không tìm thấy đơn hàng - Mã đơn hàng: " + maDonHang);
+
+			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+			return "redirect:/warehouse/import/pending-orders";
+		}
+
+		// Cập nhật trạng thái đơn hàng thành "Đã xác nhận"
+		donHang.setTrangThaiDonHang("Đã xác nhận");
+		donHang.setNgayXacNhanXuatKho(LocalDateTime.now());
+		donHangService.save(donHang);
+
+		System.out.println("✅ [Success] Đơn hàng đã được xác nhận xuất kho - Mã đơn hàng: " + donHang.getMaDonHang());
+		System.out.println("🚚 [Xuất kho] Trạng thái đơn hàng cập nhật: " + donHang.getTrangThaiDonHang());
+
+		redirectAttributes.addFlashAttribute("successMessage",
+				"Xuất kho thành công! Đơn hàng đã chuyển sang trạng thái 'Đang giao hàng'.");
+		return "redirect:/warehouse/import/pending-orders";
+	}
+
+	// Hiển thị danh sách hàng đã xuất kho
+	@GetMapping("/exported-orders")
+	public String listExportedOrders(Model model, Principal principal) {
+		List<DonHang> donHangs = donHangService.findDonHangsDaXuatKho();
+		model.addAttribute("donHangs", donHangs);
+		return "warehouse/export/confirmed-orders";
+	}
+
+	@GetMapping("/exported-order-details/{maDonHang}")
+	public String viewExportedOrderDetails(@PathVariable("maDonHang") Integer maDonHang, Model model) {
+		System.out.println("📌 [Debug] Xem chi tiết đơn hàng đã xuất - Mã đơn hàng: " + maDonHang);
+
+		DonHang donHang = donHangService.getDonHangById(maDonHang);
+		if (donHang == null) {
+			model.addAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+			return "redirect:/warehouse/export/exported-orders";
+		}
+
+		System.out.println("✅ [Success] Đã tìm thấy đơn hàng đã xuất - Mã đơn hàng: " + donHang.getMaDonHang());
+
+		model.addAttribute("donHang", donHang);
+		return "warehouse/export/exported-order-details";
+	}
 
 }

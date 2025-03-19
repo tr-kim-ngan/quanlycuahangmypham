@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -221,7 +220,7 @@ public class HoaDonController {
 			chiTietMap.put("soLuong", String.valueOf(chiTiet.getSoLuong()));
 
 			// Định dạng giá trị tiền
-			String giaTaiThoiDiemDat = currencyFormat.format(chiTiet.getGiaTaiThoiDiemDat());
+//			String giaTaiThoiDiemDat = currencyFormat.format(chiTiet.getGiaTaiThoiDiemDat());
 //			String thanhTien = currencyFormat
 //					.format(chiTiet.getGiaTaiThoiDiemDat().multiply(new BigDecimal(chiTiet.getSoLuong())));
 

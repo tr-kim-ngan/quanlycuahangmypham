@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #f8f9fa;">
+				<div class="page-inner" style="padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+					<div class="d-flex justify-content-between align-items-center mb-3">
+						<h4 class="fw-bold text-primary">Chi tiết kiểm kê - Ca làm việc</h4>
+						<a th:href="@{/admin/inventory/kiem-ke-chenh-lech}" class="btn btn-outline-dark btn-lg"
+							style="border-radius: 8px; padding: 10px 16px; font-size: 16px;">
+							<i class="fas fa-arrow-left"></i> Quay lại danh sách kiểm kê
+						</a>
+					</div>
+
+					<!-- Thông tin ca làm việc -->
+					<div class="card p-4 shadow-sm"
+						style="background-color: #ffffff; border-radius: 8px; border: 1px solid #dee2e6; padding: 15px;">
+						<h5 class="fw-bold text-secondary">Thông tin kiểm kê</h5>
+						<p><strong><i class="fas fa-user-check"></i> Nhân viên kiểm kê:</strong>
+							<span th:text="${nhanVienThucHien}"></span>
+						</p>
+						<p><strong><i class="fas fa-clock"></i> Thời gian bắt đầu:</strong>
+							<span th:text="${#temporals.format(thoiGianBatDau, 'dd/MM/yyyy HH:mm')}"></span>
+						</p>
+						<p><strong><i class="fas fa-clock"></i> Thời gian kết thúc:</strong>
+							<span th:text="${#temporals.format(thoiGianKetThuc, 'dd/MM/yyyy HH:mm')}"></span>
+						</p>
+					</div>
+
+					<!-- Bảng hiển thị sản phẩm tồn kho -->
+					<div class="table-responsive mt-4">
+						<table class="table table-hover align-middle">
+							<thead class="table-success">
+								<tr>
+									<th>Hình Ảnh</th>
+									<th>Tên Sản Phẩm</th>
+									<th>Tồn Kho Trên Hệ Thống</th>
+									<th>Tồn Kho Sau Kiểm</th>
+									<th>Lý Do Kiểm Kê</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="kiemKe : ${danhSachKiemKe}">
+									<td>
+										<img th:src="@{'/upload/' + ${kiemKe.sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+											style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd; padding: 3px;">
+									</td>
+									<td th:text="${kiemKe.sanPham.tenSanPham}" class="fw-bold"></td>
+									<!--<td th:text="${tonKhoHeThongMap[kiemKe.sanPham.maSanPham]}" class="text-primary">
+									</td>-->
+									<td th:text="${kiemKe.soLuongTruocKiemKe}" class="text-primary"></td>
+
+									<td th:text="${tonKhoSauKiemKeMap[kiemKe.sanPham.maSanPham]}" class="text-danger">
+									</td>
+									<td th:text="${kiemKe.lyDoDieuChinh}" class="text-secondary"></td>
+
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Xác nhận kiểm kê -->
+					<th:block th:if="${daXetDuyet != null and !daXetDuyet}">
+						<div class="text-center mt-4">
+							<form method="post" th:action="@{/admin/inventory/xac-nhan-kiem-ke}">
+								<input type="hidden" name="maLichSu" th:value="${maCa}">
+								<button type="submit" class="btn btn-success btn-lg"
+									style="border-radius: 8px; padding: 12px 20px; font-size: 18px;">
+									<i class="fas fa-check-circle"></i> Xác nhận toàn bộ ca kiểm kê
+								</button>
+							</form>
+						</div>
+					</th:block>
+
+					<!-- Điều hướng phân trang -->
+					<div class="pagination mt-4">
+						<!-- Thêm phân trang nếu cần -->
+					</div>
+				</div>
+
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>

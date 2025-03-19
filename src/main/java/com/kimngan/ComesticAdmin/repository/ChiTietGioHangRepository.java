@@ -3,7 +3,6 @@ package com.kimngan.ComesticAdmin.repository;
 import com.kimngan.ComesticAdmin.entity.ChiTietGioHang;
 import com.kimngan.ComesticAdmin.entity.ChiTietGioHangId;
 import com.kimngan.ComesticAdmin.entity.GioHang;
-import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 
 import org.springframework.data.jpa.repository.JpaRepository;

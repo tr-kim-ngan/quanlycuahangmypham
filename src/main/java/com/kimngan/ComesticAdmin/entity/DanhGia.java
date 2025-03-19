@@ -4,7 +4,6 @@ package com.kimngan.ComesticAdmin.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Entity
 public class DanhGia {

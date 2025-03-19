@@ -8,7 +8,6 @@
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 
 	<style>
-		/* Căn chỉnh toàn bộ trang */
 		body {
 			font-family: Arial, sans-serif;
 			margin: 0;
@@ -16,7 +15,6 @@
 
 		}
 
-		/* Container chính */
 		.container {
 			max-width: 1100px;
 			margin: 0px auto 20px;
@@ -25,14 +23,12 @@
 			border-radius: 8px;
 		}
 
-		/* Tiêu đề */
 		h2 {
 			text-align: center;
 			color: #333;
 			margin-bottom: 20px;
 		}
 
-		/* Nút bấm */
 		.btn {
 			display: inline-block;
 			padding: 10px 15px;
@@ -66,7 +62,6 @@
 			display: flex;
 			gap: 10px;
 			margin-right: 20px;
-			/* Dời nút ra xa bên phải */
 		}
 
 		.header h2 {
@@ -82,15 +77,11 @@
 			text-decoration: none;
 			font-weight: bold;
 			padding: 10px 10px;
-			/* Giảm padding */
 			font-size: 14px;
-			/* Giảm kích thước chữ */
 			border-radius: 5px;
 			transition: 0.3s;
 			min-width: auto;
-			/* Để kích thước tự động theo nội dung */
 			width: fit-content;
-			/* Tự động vừa với nội dung */
 		}
 
 
@@ -101,21 +92,16 @@
 			background-color: #333;
 		}
 
-		/* Bảng dữ liệu */
 		table {
 			width: 100%;
 			border-collapse: collapse;
-
-			background: white;
-
-			overflow: hidden;
 		}
 
 		th,
 		td {
 			padding: 12px;
 			text-align: center;
-
+			border: 1px solid #dee2e6;
 		}
 
 		th {
@@ -131,8 +117,6 @@
 		tr:hover {
 			background-color: #f1f1f1;
 		}
-
-		/* Thao tác */
 		.action a {
 			text-decoration: none;
 			font-weight: bold;

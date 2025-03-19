@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Quản lý Xuất Kho</title>
+	<title>Chi Tiết Đơn Hàng Đã Xuất Kho</title>
 	<!-- Bootstrap CSS -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 	<style>
@@ -40,6 +40,7 @@
 		.content {
 			flex: 1;
 			overflow-y: auto;
+			padding: 20px;
 		}
 
 		footer {
@@ -63,14 +64,13 @@
 			<h4 class="text-center">Kho Hàng</h4>
 			<ul class="nav flex-column">
 				<li class="nav-item">
-					<a class="nav-link" href="/warehouse/export/orders"> Đơn Hàng Chờ Xuất Kho</a>
+					<a class="nav-link" href="/warehouse/export/orders">Đơn Hàng Chờ Xuất Kho</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="/warehouse/export/orders-confirmed">Đơn Hàng Đã Xuất Kho</a>
 				</li>
-
 				<li class="nav-item">
-					<a class="nav-link" href="/warehouse/export/logout"> Đăng Xuất</a>
+					<a class="nav-link" href="/warehouse/export/logout">Đăng Xuất</a>
 				</li>
 			</ul>
 		</nav>
@@ -79,7 +79,7 @@
 		<div class="main-panel">
 			<!-- Header -->
 			<header class="navbar navbar-expand navbar-light bg-light border-bottom">
-				<span class="navbar-brand mb-0 h1">Danh sách đơn hàng đã xuất kho</span>
+				<span class="navbar-brand mb-0 h1">📦 Chi Tiết Đơn Hàng Đã Xuất Kho</span>
 				<div class="ml-auto">
 					<span class="navbar-text mr-3"><span th:text="${user.tenNguoiDung}"></span></span>
 					<a href="/warehouse/export/logout" class="btn btn-outline-danger btn-sm">Đăng Xuất</a>
@@ -87,48 +87,84 @@
 			</header>
 
 			<!-- Content -->
-			<div class="card-body">
-				<table class="table table-bordered">
-					<thead class="thead-light">
-						<tr class="text-center">
-							<th>Mã SP</th>
-							<th>Ảnh</th>
-							<th>Sản Phẩm</th>
-							<th>Số Lượng Xuất Kho</th>
+			<div class="content">
+				<div class="card p-3">
+					<h5 class="text-center font-weight-bold">Thông Tin Đơn Hàng</h5>
+					<div class="row">
+						<div class="col-md-6">
+							<p><strong>📌 Mã đơn hàng:</strong> <span th:text="${donHang.maDonHang}"></span></p>
+							<p><strong>📅 Ngày đặt:</strong> <span
+									th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></span></p>
+							<p><strong>📦 Trạng thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span></p>
+						</div>
+						<div class="col-md-6">
+							<p><strong>👤 Nhân viên xuất kho:</strong>
+								<span th:if="${donHang.nhanVienXuatKho != null}"
+									th:text="${donHang.nhanVienXuatKho.tenNguoiDung}"></span>
+								<span th:if="${donHang.nhanVienXuatKho == null}" class="text-danger">Chưa phân
+									công</span>
+							</p>
+							<p><strong>📞 Số điện thoại nhân viên:</strong>
+								<span th:if="${donHang.nhanVienXuatKho != null}"
+									th:text="${donHang.nhanVienXuatKho.soDienThoai}"></span>
+								<span th:if="${donHang.nhanVienXuatKho == null}" class="text-danger">Không có</span>
+							</p>
+						</div>
+					</div>
+				</div>
 
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="ctdh : ${donHang.chiTietDonHangs}" class="text-center">
-							<td th:text="${ctdh.sanPham.maSanPham}"></td>
-							<td>
-								<img th:src="@{'/upload/' + ${ctdh.sanPham.hinhAnh}}" class="product-img"
-									alt="Ảnh sản phẩm">
-							</td>
-							<td th:text="${ctdh.sanPham.tenSanPham}"></td>
-							<td th:text="${ctdh.soLuong}"></td>
-						</tr>
-					</tbody>
-				</table>
+				<!-- Danh sách sản phẩm -->
+				<div class="card mt-4">
+					<div class="card-header text-dark ">
+						<h5>Danh Sách Sản Phẩm</h5>
+					</div>
+					<div class="card-body">
+						<table class="table table-bordered">
+							<thead class="thead-light">
+								<tr class="text-center">
+									<th>Mã SP</th>
+									<th>Ảnh</th>
+									<th>Sản Phẩm</th>
+									<th>Số Lượng Xuất Kho</th>
+									<th>Số Lượng Trên Kệ</th>
+									<th>Số Lượng Tồn Kho</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="ctdh : ${donHang.chiTietDonHangs}" class="text-center">
+									<td th:text="${ctdh.sanPham.maSanPham}"></td>
+									<td>
+										<img th:src="@{'/upload/' + ${ctdh.sanPham.hinhAnh}}" class="product-img"
+											alt="Ảnh sản phẩm">
+									</td>
+									<td th:text="${ctdh.sanPham.tenSanPham}"></td>
+									<td th:text="${ctdh.soLuong}"></td>
+									<td th:text="${soLuongTrenKeMap[ctdh.sanPham.maSanPham]}"></td>
+									<td th:text="${soLuongTonKhoMap[ctdh.sanPham.maSanPham]}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 
+				<!-- Nút quay lại -->
 				<div class="text-center mt-4">
 					<a href="/warehouse/export/orders-confirmed" class="btn btn-secondary">🔙 Quay lại</a>
 				</div>
 			</div>
 
 			<!-- Footer -->
-			<footer class="text-center">
+			<footer class="text-center mt-4">
 				© 2025 Quản lý Kho - KN Cosmetic
 			</footer>
 		</div>
 	</div>
 
-
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 	<script>
 		document.addEventListener("DOMContentLoaded", function () {
-			console.log("📦 Trang quản lý xuất kho đã tải xong.");
+			console.log("📦 Trang chi tiết đơn hàng đã xuất kho đã tải xong.");
 		});
 	</script>
 </body>

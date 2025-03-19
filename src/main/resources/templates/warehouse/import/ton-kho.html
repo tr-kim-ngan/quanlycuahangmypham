@@ -96,20 +96,13 @@
 		table {
 			width: 100%;
 			border-collapse: collapse;
-			margin-top: 20px;
-			background: white;
 		}
 
 		th,
 		td {
 			padding: 12px;
 			text-align: center;
-			border-bottom: 1px solid #ddd;
-		}
-
-		td:nth-child(2) {
-			text-align: left;
-			padding-left: 10px;
+			border: 1px solid #dee2e6;
 		}
 
 		th {
@@ -117,7 +110,6 @@
 			color: black;
 			text-transform: uppercase;
 		}
-
 
 		tr:nth-child(even) {
 			background-color: #f9f9f9;
@@ -226,7 +218,7 @@
 						<form th:action="@{/warehouse/import/cap-nhat-so-luong}" method="post">
 							<input type="hidden" name="maSanPham" th:value="${sanPham.maSanPham}">
 							<input type="number" name="soLuongMoi" th:value="${sanPham.soLuong}" min="0"
-								th:max="${tongSoLuongNhapMap[sanPham.maSanPham]}" required>
+								th:max="${soLuongTonKhoMap[sanPham.maSanPham] + sanPham.soLuong}" required>
 							<button type="submit" class="btn btn-primary"
 								style="color: #007bff; background-color: transparent;">Lưu</button>
 						</form>

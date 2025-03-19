@@ -1,11 +1,9 @@
 package com.kimngan.ComesticAdmin.services;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.kimngan.ComesticAdmin.entity.DonNhapHang;
-import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +31,7 @@ public interface DonNhapHangService {
     Page<DonNhapHang> findAllActive(Pageable pageable);
     Page<DonNhapHang> findByNhaCungCap_Ten(String tenNhaCungCap, Pageable pageable);
 
-
+    void deleteDonNhapHang(Integer maDonNhapHang) ;
 	
 	
 }

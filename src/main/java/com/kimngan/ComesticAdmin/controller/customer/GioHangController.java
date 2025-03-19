@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import java.util.Comparator;
@@ -32,7 +33,12 @@ import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.entity.ShippingFeeConfig;
+import com.kimngan.ComesticAdmin.repository.SanPhamRepository;
+import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
+import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
+import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.GioHangService;
+import com.kimngan.ComesticAdmin.services.KiemKeKhoService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.ShippingFeeConfigService;
@@ -54,6 +60,19 @@ public class GioHangController {
 
 	@Autowired
 	private ShippingFeeConfigService shippingFeeConfigService;
+	
+	@Autowired
+	private ChiTietDonHangService chiTietDonHangService;
+	@Autowired
+	private ChiTietDonNhapHangService chiTietDonNhapHangService;
+
+	@Autowired
+	private KiemKeKhoService kiemKeKhoService;
+	
+	@Autowired
+	private SanPhamRepository sanPhamRepository;
+	@Autowired
+	private DonHangService donHangService;
 
 	@ModelAttribute
 	public void addAttributes(Model model, Principal principal) {
@@ -85,16 +104,18 @@ public class GioHangController {
 		// Lấy thông tin người dùng hiện tại
 		NguoiDung nguoiDung = getCurrentUser(principal);
 
-		// Lấy danh sách sản phẩm trong giỏ hàng
-		// Lấy danh sách sản phẩm trong giỏ hàng và lọc chỉ những sản phẩm còn hàng
-		List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(nguoiDung).stream()
-				.filter(item -> item.getSanPham().getSoLuong() > 0).collect(Collectors.toList());
-
+//		List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(nguoiDung).stream()
+//		        .filter(item -> sanPhamService.getSoLuongTonKho(item.getSanPham().getMaSanPham()) > 0)
+//		        .collect(Collectors.toList());
+		 List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(nguoiDung).stream()
+		            .filter(item -> tinhSoLuongTonKho(item.getSanPham().getMaSanPham()) > 0)
+		            .collect(Collectors.toList());
 		// Tính tổng giá trị và phần trăm giảm giá
 		BigDecimal totalPrice = BigDecimal.ZERO;
 		Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
 		Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
 		Map<Integer, BigDecimal> phanTramGiamMap = new HashMap<>(); // Map để lưu % giảm giá
+		Map<Integer, Integer> sanPhamSoLuongTonKhoMap = new HashMap<>();
 
 		LocalDate today = LocalDate.now();
 		for (ChiTietGioHang item : cartItems) {
@@ -117,6 +138,11 @@ public class GioHangController {
 				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), null);
 			}
 
+			//int soLuongTonKho = sanPhamService.getSoLuongTonKho(item.getSanPham().getMaSanPham());
+	        int soLuongTonKho = tinhSoLuongTonKho(item.getSanPham().getMaSanPham());  
+
+			sanPhamSoLuongTonKhoMap.put(item.getSanPham().getMaSanPham(), soLuongTonKho);
+
 			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
 			totalPrice = totalPrice.add(giaSauGiam.multiply(BigDecimal.valueOf(item.getSoLuong())));
 		}
@@ -128,6 +154,7 @@ public class GioHangController {
 		model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap);
 		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
 		model.addAttribute("phanTramGiamMap", phanTramGiamMap); // Thêm % giảm giá vào model
+		model.addAttribute("sanPhamSoLuongTonKhoMap", sanPhamSoLuongTonKhoMap);
 
 		return "customer/cart";
 	}
@@ -161,6 +188,19 @@ public class GioHangController {
 			}
 
 			SanPham sanPham = optionalSanPham.get();
+			 // Lấy số lượng tồn kho thực tế
+	      // int soLuongTonKho = sanPhamService.getSoLuongTonKho(sanPham.getMaSanPham());
+	        int soLuongTonKho = tinhSoLuongTonKho(sanPham.getMaSanPham());
+
+			System.out.println("📦 DEBUG - Số lượng tồn kho thực tế: " + soLuongTonKho);
+
+	        // Kiểm tra số lượng đặt hàng có vượt quá số lượng tồn kho không
+	        if (quantity > soLuongTonKho) {
+	            System.out.println("⚠️ Không thể thêm vào giỏ hàng! Số lượng tồn kho không đủ.");
+	            quantity = soLuongTonKho; // Giới hạn số lượng đặt hàng theo số lượng tồn kho
+	        }
+
+			
 			gioHangService.addToCart(currentUser, sanPham, quantity);
 
 			redirectAttributes.addFlashAttribute("success", "Sản phẩm đã được thêm vào giỏ hàng!");
@@ -233,6 +273,7 @@ public class GioHangController {
 
 		// Lấy giỏ hàng
 		List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(currentUser);
+		System.out.println("🛒 [Debug] Số lượng sản phẩm trong giỏ: " + cartItems.size());
 
 		if (cartItems.isEmpty()) {
 			redirectAttributes.addFlashAttribute("errorMessage", "Giỏ hàng của bạn đang trống.");
@@ -249,9 +290,36 @@ public class GioHangController {
 		LocalDate today = LocalDate.now();
 		for (ChiTietGioHang item : cartItems) {
 			SanPham sanPham = item.getSanPham();
+			Integer maSanPham = sanPham.getMaSanPham();
+
+	        // ✅ Tính số lượng tồn kho trực tiếp
+	        int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+	        int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+	        int soLuongTrenKe = sanPhamRepository.getSoLuongTrenKe(maSanPham);
+	        int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+			int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+
+//	        int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
+	    	Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+
+			int soLuongTonKho = (tonKhoDaDuyet != null)
+					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+
+					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe +soLuongTraHang);
+
+			//int soLuongTonKho = sanPhamService.getSoLuongTonKho(sanPham.getMaSanPham());
+
+			
+			// Kiểm tra số lượng tồn kho
+			System.out.println("📦 [Debug] Kiểm tra sản phẩm: " + sanPham.getTenSanPham());
+			System.out.println("🔢 [Debug] Số lượng tồn kho: " + soLuongTonKho);
+			System.out.println("🛒 [Debug] Số lượng cần đặt: " + item.getSoLuong());
+			System.out.println("🛒 [Debug] KHÁCH HÀNG CHECKOUT - Thời gian: " + LocalDateTime.now());
+			System.out.println("📦 [Debug] Sản phẩm: " + sanPham.getTenSanPham());
+			System.out.println("🔢 [Debug] Tồn kho tại thời điểm checkout: " + soLuongTonKho);
 
 			// Kiểm tra số lượng tồn kho
-			if (item.getSoLuong() > sanPham.getSoLuong()) {
+			if (item.getSoLuong() > soLuongTonKho) {
 				redirectAttributes.addFlashAttribute("errorMessage", "Sản phẩm '" + sanPham.getTenSanPham()
 						+ "' không đủ số lượng tồn kho. Vui lòng điều chỉnh lại số lượng trong giỏ hàng.");
 				return "redirect:/customer/cart";
@@ -308,7 +376,7 @@ public class GioHangController {
 		model.addAttribute("phanTramGiamMap", phanTramGiamMap); // Thêm map phần trăm giảm giá vào model
 		model.addAttribute("finalTotal", finalTotal);
 		model.addAttribute("shippingFee", shippingFee);
-		
+
 		System.out.println("✅ [Debug] Hoàn tất checkout. Chuyển đến confirmOrder.html");
 
 		return "customer/confirmOrder"; // Chuyển đến trang confirmOrder
@@ -369,11 +437,16 @@ public class GioHangController {
 
 		NguoiDung currentUser = getCurrentUser(principal);
 		List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(currentUser);
-		// Đếm số loại sản phẩm trong giỏ hàng có số lượng lớn hơn 0
-		long totalItems = cartItems.stream().filter(item -> item.getSanPham().getSoLuong() > 0).count();
-		// Trả về số loại sản phẩm trong giỏ hàng
-		// return cartItems.size();
-		return (int) totalItems;
+		//  Tính tổng số lượng tất cả sản phẩm trong giỏ hàng
+		 // Đếm số loại sản phẩm trong giỏ hàng (không tính tổng số lượng)
+	    int totalItems = cartItems.size();
+
+	    // Debug kiểm tra
+	    System.out.println("🛒 Số loại sản phẩm trong giỏ hàng: " + totalItems);
+
+
+		return totalItems; // ✅ Trả về tổng số lượng
+
 	}
 
 	@ModelAttribute("cartItems")
@@ -387,8 +460,20 @@ public class GioHangController {
 		return new ArrayList<>();
 	}
 
-	// Phương thức tiện ích để lấy người dùng hiện tại
+	
 	private NguoiDung getCurrentUser(Principal principal) {
 		return nguoiDungService.findByTenNguoiDung(principal.getName());
 	}
+	
+	
+	private int tinhSoLuongTonKho(Integer maSanPham) {
+	    int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+	    int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+	    int soLuongTrenKe = sanPhamRepository.getSoLuongTrenKe(maSanPham); 
+	    int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+
+	    return tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
+	}
+
+	
 }

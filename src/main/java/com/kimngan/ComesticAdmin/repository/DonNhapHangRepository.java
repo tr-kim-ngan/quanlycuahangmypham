@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.kimngan.ComesticAdmin.entity.DonNhapHang;
-import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 
 public interface DonNhapHangRepository extends JpaRepository<DonNhapHang, Integer> {
 	@Query("SELECT d FROM DonNhapHang d WHERE d.trangThai = true")

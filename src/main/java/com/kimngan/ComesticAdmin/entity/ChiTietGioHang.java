@@ -2,7 +2,6 @@ package com.kimngan.ComesticAdmin.entity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
-import java.io.Serializable;
 import java.util.Objects;
 @Entity
 @Table(name = "ChiTietGioHang")

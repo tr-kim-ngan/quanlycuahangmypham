@@ -88,8 +88,10 @@
 										class="d-flex align-items-center">
 										<input type="hidden" name="sanPhamId" th:value="${item.sanPham.maSanPham}">
 										<input type="number" name="quantity" th:value="${item.soLuong}" min="1"
-											th:max="${item.sanPham.soLuong}" class="form-control text-center me-2"
+											th:max="${sanPhamSoLuongTonKhoMap[item.sanPham.maSanPham]}"
+											class="form-control text-center me-2"
 											style="width: 60px; display: inline-block; border: 2px solid #000; ">
+
 										<button type="submit" class="btn btn-info fw-bold"
 											style="background-color: #000; color: white; padding: 1px 2px; font-size: 13.5px;">
 											Tính tiền

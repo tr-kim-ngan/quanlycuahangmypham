@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="op-7 mb-2">Danh sách kiểm kê sản phẩm</h6>
+						</div>
+
+
+					</div>
+
+					<!-- Bảng hiển thị sản phẩm tồn kho -->
+					<div class="table-responsive mt-3">
+						<table class="table table-bordered text-center">
+							<thead class="table-dark">
+								<tr>
+									<th>Nhân Viên</th>
+									<th>Thời Gian Bắt Đầu</th>
+									<th>Thời Gian Kết Thúc</th>
+									<th>Trạng Thái</th>
+									<th>Hành Động</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:if="${danhSachCaLam == null or danhSachCaLam.isEmpty()}">
+									<td colspan="5" class="text-center text-muted">Chưa có dữ liệu kiểm kê cần xét duyệt
+									</td>
+								</tr>
+								<tr th:each="ca : ${danhSachCaLam}">
+									<td th:text="${nhanVienThucHien[ca.maLichSu]}"></td>
+
+									<td th:if="${thoiGianBatDauMap[ca.maLichSu] != null}"
+										th:text="${#temporals.format(thoiGianBatDauMap[ca.maLichSu], 'dd/MM/yyyy HH:mm')}">
+									</td>
+
+									<td th:if="${thoiGianKetThucMap[ca.maLichSu] != null}"
+										th:text="${#temporals.format(thoiGianKetThucMap[ca.maLichSu], 'dd/MM/yyyy HH:mm')}">
+									</td>
+									<td th:if="${thoiGianKetThucMap[ca.maLichSu] == null}" class="text-warning">Đang
+										hoạt động</td>
+
+									<td>
+										<span
+											th:if="${daXetDuyetMap[ca.maLichSu] != null and daXetDuyetMap[ca.maLichSu]}"
+											class="text-success">
+											Đã xét duyệt
+										</span>
+										<span
+											th:if="${daXetDuyetMap[ca.maLichSu] == null or !daXetDuyetMap[ca.maLichSu]}"
+											class="text-danger">
+											Chưa xét duyệt
+										</span>
+									</td>
+
+									<td>
+										<a th:if="${ca.maLichSu != null}"
+											th:href="@{/admin/inventory/kiem-ke-chi-tiet(maCa=${ca.maLichSu})}"
+											class="btn btn-info">
+											Xem chi tiết
+										</a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Điều hướng phân trang -->
+					<div class="pagination mt-3">
+
+						<a th:if="${currentPage > 0}"
+							th:href="@{/admin/inventory/kiem-ke-chenh-lech(page=${currentPage - 1})}">Trước</a>
+						<span>Trang <span th:text="${currentPage + 1}"></span> / <span
+								th:text="${totalPages}"></span></span>
+						<a th:if="${currentPage + 1 < totalPages}"
+							th:href="@{/admin/inventory/kiem-ke-chenh-lech(page=${currentPage + 1})}">Tiếp</a>
+
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>
