@@ -131,6 +131,10 @@
 					<td><b>Trạng thái:</b></td>
 					<td th:text="${donHang.trangThaiDonHang}"></td>
 				</tr>
+				<tr th:if="${donHang.trangThaiDonHang == 'Đã hủy'}">
+					<td><i class="fas fa-sticky-note icon"></i> Lý Do:</td>
+					<td th:text="${donHang.ghiChu != null ? donHang.ghiChu : 'Không có ghi chú'}"></td>
+				</tr>
 			</tbody>
 		</table>
 
@@ -155,7 +159,7 @@
 			</tbody>
 		</table>
 
-		
+
 	</div>
 </body>
 

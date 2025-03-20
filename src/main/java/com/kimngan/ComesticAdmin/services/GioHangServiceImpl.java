@@ -1,22 +1,22 @@
 package com.kimngan.ComesticAdmin.services;
 
-import java.math.BigDecimal;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Comparator;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
+
 import com.kimngan.ComesticAdmin.entity.ChiTietGioHang;
-import com.kimngan.ComesticAdmin.entity.ChiTietGioHangId;
-import com.kimngan.ComesticAdmin.entity.DonHang;
+
+
 import com.kimngan.ComesticAdmin.entity.GioHang;
-import com.kimngan.ComesticAdmin.entity.KhuyenMai;
+
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.repository.ChiTietGioHangRepository;
@@ -30,8 +30,7 @@ public class GioHangServiceImpl implements GioHangService {
 	@Autowired
 	private ChiTietGioHangRepository chiTietGioHangRepository;
 
-	@Autowired
-	private NguoiDungService nguoiDungService;
+	
 	@Autowired
 	private ChiTietGioHangService chiTietGioHangService;
 
@@ -45,6 +44,10 @@ public class GioHangServiceImpl implements GioHangService {
 	
 	@Autowired
 	private ChiTietDonNhapHangService chiTietDonNhapHangService;
+	
+	@Autowired
+	@Lazy
+	private DonHangService donHangService;
 
 	@Override
 	public GioHang getOrCreateGioHang(NguoiDung nguoiDung) {
@@ -62,24 +65,17 @@ public class GioHangServiceImpl implements GioHangService {
 	public void addToCart(NguoiDung nguoiDung, SanPham sanPham, Integer quantity) {
 		GioHang gioHang = getOrCreateGioHang(nguoiDung);
 		// Lấy số lượng tồn kho chính xác từ service
-		
-		 // Lấy dữ liệu để tính số lượng tồn kho thực tế
-	    int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sanPham.getMaSanPham());
-	    int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(sanPham.getMaSanPham());
-	    int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(sanPham.getMaSanPham());
-	    int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(sanPham.getMaSanPham());
-
-	    // Tính số lượng tồn kho chính xác
-	    int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
+	       // Tính số lượng tồn kho chính xác
+	   // int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
 
 	//	int soLuongTonKho = sanPhamService.getSoLuongTonKho(sanPham.getMaSanPham());
-		System.out.println("📦 DEBUG - Số lượng tồn kho: " + soLuongTonKho);
+		//System.out.println("📦 DEBUG - Số lượng tồn kho: " + soLuongTonKho);
 
-		// Kiểm tra số lượng đặt hàng có vượt quá số lượng tồn kho không
-		if (quantity > soLuongTonKho) {
-		    System.out.println("⚠️ Không thể thêm vào giỏ hàng! Số lượng tồn kho không đủ.");
-		    quantity = soLuongTonKho; // Giới hạn số lượng đặt hàng theo số lượng tồn kho
-		}
+//		// Kiểm tra số lượng đặt hàng có vượt quá số lượng tồn kho không
+//		if (quantity > soLuongTonKho) {
+//		    System.out.println("⚠️ Không thể thêm vào giỏ hàng! Số lượng tồn kho không đủ.");
+//		    quantity = soLuongTonKho; // Giới hạn số lượng đặt hàng theo số lượng tồn kho
+//		}
 
 		
 		chiTietGioHangService.addOrUpdateChiTietGioHang(gioHang, sanPham, quantity);
@@ -122,8 +118,15 @@ public class GioHangServiceImpl implements GioHangService {
 	        int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(sanPham.getMaSanPham());
 	        int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(sanPham.getMaSanPham());
 	        int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(sanPham.getMaSanPham());
+	        int soLuongTraHang = donHangService.getSoLuongTraHang(sanPham.getMaSanPham());
+	    	Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(sanPham.getMaSanPham());
 
-	        int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
+			int soLuongTonKho = (tonKhoDaDuyet != null) ? 
+					(tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe +soLuongTraHang)
+
+					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe +soLuongTraHang);
+
+	     //   int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
 			//int soLuongTonKho = sanPhamService.getSoLuongTonKho(sanPham.getMaSanPham());
 			System.out.println("🔍 DEBUG - Sản phẩm ID: " + sanPham.getMaSanPham());
 			System.out.println("📦 Số lượng tồn kho thực tế: " + soLuongTonKho);

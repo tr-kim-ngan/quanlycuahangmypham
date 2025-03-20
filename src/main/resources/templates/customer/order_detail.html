@@ -56,6 +56,11 @@
 						<p class="text-dark"><span>Trạng thái:</span>
 							<span style="color: blue;" th:text="${donHang.trangThaiDonHang}"></span>
 						</p>
+						<p class="text-dark"
+							th:if="${donHang.trangThaiDonHang == 'Đã hủy' and not #strings.isEmpty(donHang.ghiChu)}">
+							<span style="color: red; font-weight: bold;">Lý do hủy đơn:</span>
+							<span style="color: red;" th:text="${donHang.ghiChu}"></span>
+						</p>
 					</div>
 				</div>
 			</div>

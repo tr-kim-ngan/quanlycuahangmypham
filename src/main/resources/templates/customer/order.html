@@ -135,17 +135,56 @@
 					</a>
 
 					<!-- Nút Hủy đơn hàng (Chỉ hiển thị khi trạng thái là 'Đang xử lý') -->
-					<form th:action="@{/customer/order/cancel}" method="POST"
-						th:if="${order.trangThaiDonHang == 'Đang xử lý'}" style="display: inline;">
+					<form id="cancelForm" th:action="@{/customer/order/cancel}" method="POST"
+						onsubmit="return validateCancelReason();" th:if="${order.trangThaiDonHang == 'Đang xử lý'}"
+						style="display: inline;">
 						<input type="hidden" name="maDonHang" th:value="${order.maDonHang}" />
-						<button type="submit" style="background-color: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; 
+						<!-- Dropdown chọn lý do hủy -->
+
+						<button id="cancelButton" type="button" style="background-color: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; 
                     border: none; cursor: pointer; transition: 0.3s; font-size: 14px;"
 							onmouseover="this.style.backgroundColor='#c82333'"
 							onmouseout="this.style.backgroundColor='#dc3545'"
 							onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?');">
 							Hủy Đơn Hàng
 						</button>
+						<!-- Nút Xác nhận Hủy (Ẩn lúc đầu) -->
+						<button type="submit" id="confirmCancelButton" style="display: none; background-color: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; 
+     				   border: none; cursor: pointer; transition: 0.3s; font-size: 14px;"
+							onclick="return validateCancelReason();">
+							Xác nhận hủy
+						</button>
+						<select id="cancelReasonDropdown" name="lyDoHuy"
+							style="padding: 6px; border-radius: 5px; margin-right: 10px; border: 1px solid #ccc;">
+							<option value="">-- Chọn lý do hủy --</option>
+							<option value="Đổi ý, không muốn mua nữa">Đổi ý, không muốn mua nữa</option>
+							<option value="Muốn thay đổi sản phẩm khác">Muốn thay đổi sản phẩm khác</option>
+							<option value="Thời gian giao hàng quá lâu">Thời gian giao hàng quá lâu</option>
+							<option value="Phí vận chuyển quá cao">Phí vận chuyển quá cao</option>
+							<option value="Lý do khác">Lý do khác</option>
+						</select>
 					</form>
+
+
+					<script>
+						document.getElementById("cancelButton").addEventListener("click", function () {
+							let reasonDropdown = document.getElementById("cancelReasonDropdown");
+							let confirmButton = document.getElementById("confirmCancelButton");
+
+							reasonDropdown.style.display = "inline-block"; // Hiện dropdown
+							confirmButton.style.display = "inline-block"; // Hiện nút xác nhận hủy
+							this.style.display = "none"; // Ẩn nút Hủy Đơn Hàng ban đầu
+						});
+
+						function validateCancelReason() {
+							let reason = document.getElementById("cancelReasonDropdown").value;
+							if (reason === "") {
+								alert("Vui lòng chọn lý do hủy đơn hàng.");
+								return false;
+							}
+							return confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?");
+						}
+					</script>
 				</div>
 			</div>
 
