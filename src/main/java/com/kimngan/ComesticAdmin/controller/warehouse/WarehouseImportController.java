@@ -25,6 +25,7 @@ import com.kimngan.ComesticAdmin.entity.DonNhapHang;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.NhaCungCap;
 import com.kimngan.ComesticAdmin.entity.SanPham;
+import com.kimngan.ComesticAdmin.repository.SanPhamRepository;
 import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
 import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DonHangService;
@@ -75,6 +76,9 @@ public class WarehouseImportController {
 	@Autowired
 	private KiemKeKhoService kiemKeKhoService;
 
+	@Autowired
+	private SanPhamRepository sanPhamRepository;
+	
 	// Lấy thông tin nhân viên nhập kho hiện tại
 	@ModelAttribute("user")
 	public NguoiDung getCurrentUser(Principal principal) {
@@ -233,9 +237,9 @@ public class WarehouseImportController {
 //			            : (tongSoLuongNhap - soLuongBan - soLuongTrenKe); 
 			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
 
-			int soLuongTonKho = (tonKhoDaDuyet != null) ? 
-					(tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe +soLuongTraHang ) 
-					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang); 
+			int soLuongTonKho = (tonKhoDaDuyet != null)
+					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
 
 			tongSoLuongNhapMap.put(sanPham.getMaSanPham(), tongSoLuongNhap);
 			soLuongTonKhoMap.put(sanPham.getMaSanPham(), soLuongTonKho);
@@ -280,10 +284,10 @@ public class WarehouseImportController {
 		int soLuongTonKho;
 		if (tonKhoDaDuyet != null) {
 			// Nếu đã duyệt, dùng số lượng tồn kho sau khi duyệt
-			soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + + deltaKiemKe +soLuongTraHang;
+			soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + +deltaKiemKe + soLuongTraHang;
 		} else {
 			// Nếu chưa duyệt, tính tồn kho như cũ
-			soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe +soLuongTraHang;
+			soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang;
 		}
 
 		System.out.println("🔎 [DEBUG] Tính toán tồn kho:");
@@ -851,13 +855,46 @@ public class WarehouseImportController {
 		// Chuyển đổi sang LocalDateTime (từ 00:00:00 đến 23:59:59)
 		LocalDateTime fromDateTime = fromDate.atStartOfDay();
 		LocalDateTime toDateTime = toDate.atTime(23, 59, 59);
+		List<Object[]> stockStatistics = chiTietDonNhapHangService.getImportStatistics(fromDate, toDate);
+
+		List<String> stockLabels = new ArrayList<>();
+		List<Integer> stockValuesBefore = new ArrayList<>(); // Trước kiểm kê
+		List<Integer> stockValuesAfter = new ArrayList<>(); // Sau kiểm kê
 
 		// Gọi service với LocalDateTime
 		List<Object[]> results = chiTietDonHangService.getExportStatistics(fromDateTime, toDateTime);
 		List<Object[]> topProducts = chiTietDonHangService.getTopExportedProducts(fromDateTime, toDateTime);
 		List<Object[]> danhSachBaoCao = chiTietDonHangService.getBaoCaoXuatKhoChiTiet(fromDateTime, toDateTime);
 		List<Object[]> topCustomers = chiTietDonHangService.getTopCustomers(fromDateTime, toDateTime);
-		List<Object[]> stockStatistics = sanPhamService.getStockStatistics();
+		// List<Object[]> stockStatistics = sanPhamService.getStockStatistics();
+		for (Object[] row : stockStatistics) {
+		    if (row.length >= 2) {
+		        String tenSanPham = row[0].toString(); // Tên sản phẩm
+		        int tongSoLuongNhap = ((Number) row[1]).intValue();
+
+		        List<SanPham> sanPhams = sanPhamRepository.findByTenSanPhamContainingIgnoreCase(tenSanPham);
+		        SanPham sanPham = sanPhams.isEmpty() ? null : sanPhams.get(0); // Lấy sản phẩm đầu tiên nếu có
+
+		        if (sanPham != null) {
+		            int maSanPham = sanPham.getMaSanPham();
+		            int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+		            int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+
+		            // 🔹 Tính số lượng tồn kho
+		            int soLuongTonKhoBefore = tongSoLuongNhap - soLuongTrenKe;
+		            int soLuongTonKhoAfter = soLuongTonKhoBefore + deltaKiemKe;
+
+		            // Thêm dữ liệu vào danh sách
+		            stockLabels.add(tenSanPham);
+		            stockValuesBefore.add(soLuongTonKhoBefore);
+		            stockValuesAfter.add(soLuongTonKhoAfter);
+		        }
+		    }
+		}
+
+		model.addAttribute("stockLabels", stockLabels);
+		model.addAttribute("stockValuesBefore", stockValuesBefore);
+		model.addAttribute("stockValuesAfter", stockValuesAfter);
 		model.addAttribute("labels", results.stream().map(row -> row[0].toString()).toList());
 		model.addAttribute("values", results.stream().map(row -> ((Number) row[1]).intValue()).toList());
 		model.addAttribute("fromDate", fromDate);
@@ -865,9 +902,7 @@ public class WarehouseImportController {
 		model.addAttribute("danhSachBaoCao", danhSachBaoCao);
 		model.addAttribute("topCustomers", topCustomers);
 		model.addAttribute("topProducts", topProducts);
-		model.addAttribute("stockLabels", stockStatistics.stream().map(row -> row[0].toString()).toList());
-		model.addAttribute("stockValues", stockStatistics.stream().map(row -> ((Number) row[1]).intValue()).toList());
-
+	
 		return "warehouse/import/thong-ke-xuat";
 	}
 

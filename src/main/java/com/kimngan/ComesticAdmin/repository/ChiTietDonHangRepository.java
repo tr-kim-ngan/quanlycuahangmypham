@@ -51,29 +51,34 @@ public interface ChiTietDonHangRepository extends JpaRepository<ChiTietDonHang, 
 	Integer getTotalQuantityBySanPhamId(@Param("maSanPham") Integer maSanPham);
 
 	@Query("SELECT c.sanPham.tenSanPham, SUM(c.soLuong) " + "FROM ChiTietDonHang c "
-			+ "WHERE c.donHang.ngayDat BETWEEN :fromDate AND :toDate " + "GROUP BY c.sanPham.tenSanPham "
-			+ "ORDER BY SUM(c.soLuong) DESC")
+			+ "WHERE c.donHang.trangThaiDonHang <> 'Đã hủy' " + "AND c.donHang.ngayDat BETWEEN :fromDate AND :toDate "
+			+ "GROUP BY c.sanPham.tenSanPham " + "ORDER BY SUM(c.soLuong) DESC")
 	List<Object[]> getExportStatistics(@Param("fromDate") LocalDateTime fromDate,
 			@Param("toDate") LocalDateTime toDate);
 
+//	@Query("SELECT c.sanPham.tenSanPham, SUM(c.soLuong) " + "FROM ChiTietDonHang c "
+//			+ "WHERE c.donHang.ngayDat BETWEEN :fromDate AND :toDate " + "GROUP BY c.sanPham.tenSanPham "
+//			+ "ORDER BY SUM(c.soLuong) DESC")
+//	List<Object[]> getTopExportedProducts(@Param("fromDate") LocalDateTime fromDate,
+//			@Param("toDate") LocalDateTime toDate);
 	@Query("SELECT c.sanPham.tenSanPham, SUM(c.soLuong) " + "FROM ChiTietDonHang c "
-			+ "WHERE c.donHang.ngayDat BETWEEN :fromDate AND :toDate " + "GROUP BY c.sanPham.tenSanPham "
+			+ "WHERE c.donHang.trangThaiDonHang <> 'Đã hủy' " + // ❌ Loại bỏ đơn hàng bị hủy
+			"AND c.donHang.ngayDat BETWEEN :fromDate AND :toDate " + "GROUP BY c.sanPham.tenSanPham "
 			+ "ORDER BY SUM(c.soLuong) DESC")
 	List<Object[]> getTopExportedProducts(@Param("fromDate") LocalDateTime fromDate,
 			@Param("toDate") LocalDateTime toDate);
 
 	@Query("SELECT dh.sanPham.tenSanPham, SUM(dh.soLuong), dh.donHang.ngayDat, dh.donHang.nguoiDung.tenNguoiDung "
-			+ "FROM ChiTietDonHang dh " + "WHERE dh.donHang.ngayDat BETWEEN :fromDate AND :toDate "
+			+ "FROM ChiTietDonHang dh " + "WHERE dh.donHang.trangThaiDonHang <> 'Đã hủy' "
+			+ "AND dh.donHang.ngayDat BETWEEN :fromDate AND :toDate "
 			+ "GROUP BY dh.sanPham.tenSanPham, dh.donHang.ngayDat, dh.donHang.nguoiDung.tenNguoiDung "
 			+ "ORDER BY dh.donHang.ngayDat DESC")
 	List<Object[]> getBaoCaoXuatKhoChiTiet(@Param("fromDate") LocalDateTime fromDate,
 			@Param("toDate") LocalDateTime toDate);
 
 	@Query("SELECT dh.donHang.nguoiDung.tenNguoiDung, COUNT(dh.donHang) " + "FROM ChiTietDonHang dh "
-			+ "WHERE dh.donHang.ngayDat BETWEEN :fromDate AND :toDate " + "GROUP BY dh.donHang.nguoiDung.tenNguoiDung "
-			+ "ORDER BY COUNT(dh.donHang) DESC")
+			+ "WHERE dh.donHang.trangThaiDonHang <> 'Đã hủy' " + "AND dh.donHang.ngayDat BETWEEN :fromDate AND :toDate "
+			+ "GROUP BY dh.donHang.nguoiDung.tenNguoiDung " + "ORDER BY COUNT(dh.donHang) DESC")
 	List<Object[]> getTopCustomers(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
 
-
-	
 }
