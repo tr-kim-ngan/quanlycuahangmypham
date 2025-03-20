@@ -8,6 +8,7 @@ import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.repository.ChiTietGioHangRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,22 @@ public class ChiTietGioHangServiceImpl implements ChiTietGioHangService {
 
 	@Autowired
 	private ChiTietGioHangRepository chiTietGioHangRepository;
+	@Autowired
+	private ChiTietDonNhapHangService chiTietDonNhapHangService;
+
+	@Autowired
+	private SanPhamService sanPhamService;
+
+	@Autowired
+	private ChiTietDonHangService chiTietDonHangService;
+
+	@Autowired
+	private KiemKeKhoService kiemKeKhoService;
+	
+	@Autowired
+	@Lazy
+	private DonHangService donHangService;
+
 
 	@Override
 	public void updateQuantity(GioHang gioHang, SanPham sanPham, int soLuong) {
@@ -67,7 +84,23 @@ public class ChiTietGioHangServiceImpl implements ChiTietGioHangService {
 	@Override
 	public void addOrUpdateChiTietGioHang(GioHang gioHang, SanPham sanPham, int soLuong) {
 		// Kiểm tra sản phẩm có trong giỏ hàng chưa
-		int soLuongTonKho = sanPham.getSoLuongTonKho();
+		
+		Integer sanPhamId = sanPham.getMaSanPham();
+	    int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sanPhamId);
+	    int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(sanPhamId);
+	    int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(sanPhamId);
+	    int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(sanPhamId);
+	    int soLuongTraHang = donHangService.getSoLuongTraHang(sanPhamId);
+	    Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(sanPhamId);
+
+	    int soLuongTonKho = (tonKhoDaDuyet != null)
+	            ? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+	            : (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
+	    System.out.println("📦 DEBUG - Số lượng tồn kho thực tế: " + soLuongTonKho);
+
+		
+		
+	//	int soLuongTonKho = sanPham.getSoLuongTonKho();
 
 		ChiTietGioHang chiTiet = chiTietGioHangRepository.findByGioHangAndSanPham(gioHang, sanPham).orElse(null);
 

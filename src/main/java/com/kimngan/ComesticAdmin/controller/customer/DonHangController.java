@@ -7,10 +7,12 @@ import com.kimngan.ComesticAdmin.entity.ChiTietDonHangId;
 import com.kimngan.ComesticAdmin.entity.ChiTietGioHang;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.SanPham;
+import com.kimngan.ComesticAdmin.repository.SanPhamRepository;
 import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
 import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.GioHangService;
+import com.kimngan.ComesticAdmin.services.KiemKeKhoService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.ShippingFeeConfigService;
@@ -40,7 +42,6 @@ import java.util.Map;
 @Controller
 @RequestMapping("/customer/order")
 public class DonHangController {
-	
 
 	@Autowired
 	private DonHangService donHangService;
@@ -64,6 +65,10 @@ public class DonHangController {
 
 	@Autowired
 	private ChiTietDonNhapHangService chiTietDonNhapHangService;
+	@Autowired
+	private SanPhamRepository sanPhamRepository;
+	@Autowired
+	private KiemKeKhoService kiemKeKhoService;
 
 	@ModelAttribute
 	public void addAttributes(Model model, Principal principal) {
@@ -359,114 +364,125 @@ public class DonHangController {
 //		}
 //	}
 
-	
 	@PostMapping("/create")
 	public String createOrder(Principal principal, @RequestParam("address") String address,
-	        @RequestParam("phone") String phone, @RequestParam("phuongThucThanhToan") String phuongThucThanhToan,
-	        HttpServletRequest request, RedirectAttributes redirectAttributes, Model model) {
+			@RequestParam("phone") String phone, @RequestParam("phuongThucThanhToan") String phuongThucThanhToan,
+			HttpServletRequest request, RedirectAttributes redirectAttributes, Model model) {
 
-	    System.out.println("🔹 [Debug] BẮT ĐẦU XỬ LÝ TẠO ĐƠN HÀNG");
-	    if (principal == null) {
-	        return "redirect:/customer/login";
-	    }
+		System.out.println("🔹 [Debug] BẮT ĐẦU XỬ LÝ TẠO ĐƠN HÀNG");
+		if (principal == null) {
+			return "redirect:/customer/login";
+		}
 
-	    try {
-	        String username = principal.getName();
-	        NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
-	        List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(currentUser);
-	        LocalDate today = LocalDate.now();
+		try {
+			String username = principal.getName();
+			NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
+			List<ChiTietGioHang> cartItems = gioHangService.viewCartItems(currentUser);
+			LocalDate today = LocalDate.now();
 
-	        // Kiểm tra giỏ hàng có trống không
-	        if (cartItems.isEmpty()) {
-	            model.addAttribute("errorMessage", "Giỏ hàng của bạn đang trống.");
-	            return "redirect:/customer/cart";
-	        }
+			// Kiểm tra giỏ hàng có trống không
+			if (cartItems.isEmpty()) {
+				model.addAttribute("errorMessage", "Giỏ hàng của bạn đang trống.");
+				return "redirect:/customer/cart";
+			}
 
-	        System.out.println("🔹 [Debug] Bắt đầu tạo đơn hàng");
+			System.out.println("🔹 [Debug] Bắt đầu tạo đơn hàng");
 
-	        // 🔹 Tạo đối tượng DonHang
-	        DonHang donHang = new DonHang();
-	        donHang.setNguoiDung(currentUser);
-	        donHang.setDiaChiGiaoHang(address);
-	        donHang.setSdtNhanHang(phone);
-	        donHang.setNgayDat(LocalDateTime.now());
+			// 🔹 Tạo đối tượng DonHang
+			DonHang donHang = new DonHang();
+			donHang.setNguoiDung(currentUser);
+			donHang.setDiaChiGiaoHang(address);
+			donHang.setSdtNhanHang(phone);
+			donHang.setNgayDat(LocalDateTime.now());
 
-	        // Kiểm tra phương thức thanh toán
-	        if ("COD".equals(phuongThucThanhToan)) {
-	            donHang.setTrangThaiDonHang("Đang xử lý");
-	        } else if ("VNPay".equals(phuongThucThanhToan)) {
-	            donHang.setTrangThaiDonHang("Chờ thanh toán");
-	        } else {
-	            redirectAttributes.addFlashAttribute("errorMessage", "Phương thức thanh toán không hợp lệ.");
-	            return "redirect:/customer/order";
-	        }
+			// Kiểm tra phương thức thanh toán
+			if ("COD".equals(phuongThucThanhToan)) {
+				donHang.setTrangThaiDonHang("Đang xử lý");
+			} else if ("VNPay".equals(phuongThucThanhToan)) {
+				donHang.setTrangThaiDonHang("Chờ thanh toán");
+			} else {
+				redirectAttributes.addFlashAttribute("errorMessage", "Phương thức thanh toán không hợp lệ.");
+				return "redirect:/customer/order";
+			}
 
-	        BigDecimal tongGiaTriDonHang = BigDecimal.ZERO;
+			BigDecimal tongGiaTriDonHang = BigDecimal.ZERO;
 
-	        // 🔹 Duyệt qua giỏ hàng để tính tổng giá trị đơn hàng
-	        for (ChiTietGioHang cartItem : cartItems) {
-	            BigDecimal giaTaiThoiDiemDat = cartItem.getSanPham().getDonGiaBan();
-	            Optional<KhuyenMai> highestCurrentKhuyenMai = cartItem.getSanPham().getKhuyenMais().stream()
-	                    .filter(KhuyenMai::getTrangThai)
-	                    .filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
-	                            && !km.getNgayKetThuc().toLocalDate().isBefore(today))
-	                    .max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+			// 🔹 Duyệt qua giỏ hàng để tính tổng giá trị đơn hàng
+			for (ChiTietGioHang cartItem : cartItems) {
+				BigDecimal giaTaiThoiDiemDat = cartItem.getSanPham().getDonGiaBan();
+				Optional<KhuyenMai> highestCurrentKhuyenMai = cartItem.getSanPham().getKhuyenMais().stream()
+						.filter(KhuyenMai::getTrangThai)
+						.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
+								&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
+						.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
 
-	            if (highestCurrentKhuyenMai.isPresent()) {
-	                BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
-	                giaTaiThoiDiemDat = giaTaiThoiDiemDat
-	                        .subtract(giaTaiThoiDiemDat.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-	            }
+				if (highestCurrentKhuyenMai.isPresent()) {
+					BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
+					giaTaiThoiDiemDat = giaTaiThoiDiemDat
+							.subtract(giaTaiThoiDiemDat.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
+				}
 
-	            BigDecimal thanhTien = giaTaiThoiDiemDat.multiply(BigDecimal.valueOf(cartItem.getSoLuong()));
-	            tongGiaTriDonHang = tongGiaTriDonHang.add(thanhTien);
-	        }
+				BigDecimal thanhTien = giaTaiThoiDiemDat.multiply(BigDecimal.valueOf(cartItem.getSoLuong()));
+				tongGiaTriDonHang = tongGiaTriDonHang.add(thanhTien);
+			}
 
-	        // 🔹 Tính phí vận chuyển
-	        BigDecimal phiVanChuyen = shippingFeeConfigService.getShippingFeeForOrder(tongGiaTriDonHang);
-	        tongGiaTriDonHang = tongGiaTriDonHang.add(phiVanChuyen);
-	        donHang.setTongGiaTriDonHang(tongGiaTriDonHang);
-	        donHang.setPhiVanChuyen(phiVanChuyen);
+			// 🔹 Tính phí vận chuyển
+			BigDecimal phiVanChuyen = shippingFeeConfigService.getShippingFeeForOrder(tongGiaTriDonHang);
+			tongGiaTriDonHang = tongGiaTriDonHang.add(phiVanChuyen);
+			donHang.setTongGiaTriDonHang(tongGiaTriDonHang);
+			donHang.setPhiVanChuyen(phiVanChuyen);
 
-	        // 🔹 Lưu đơn hàng vào database
-	        donHangService.save(donHang);
+			// 🔹 Lưu đơn hàng vào database
+			donHangService.save(donHang);
 
-	        // 🔹 Duyệt qua từng sản phẩm trong giỏ hàng để tạo chi tiết đơn hàng
-	        for (ChiTietGioHang cartItem : cartItems) {
-	            SanPham sanPham = cartItem.getSanPham();
+			// 🔹 Duyệt qua từng sản phẩm trong giỏ hàng để tạo chi tiết đơn hàng
+			for (ChiTietGioHang cartItem : cartItems) {
+				SanPham sanPham = cartItem.getSanPham();
+				Integer maSanPham = sanPham.getMaSanPham();
+//	            // 🔹 Lấy tổng số lượng nhập kho
+//	            int soLuongNhap = Optional.ofNullable(
+//	                    chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sanPham.getMaSanPham()))
+//	                    .orElse(0);
+//
+//	            // 🔹 Lấy tổng số lượng đã bán trước khi lưu đơn hàng mới
+//	            int soLuongBanTruoc = Optional.ofNullable(
+//	                    chiTietDonHangService.getTotalQuantityBySanPhamId(sanPham.getMaSanPham()))
+//	                    .orElse(0);
+//
+//	            // 🔹 Lấy tổng số lượng trên kệ
+//	            int soLuongTrenKe = Optional.ofNullable(sanPham.getSoLuong()).orElse(0);
+//
+//	            // 🔹 Tính tồn kho thực tế trước khi đặt hàng
+//	            int soLuongTonKho = soLuongNhap - soLuongBanTruoc - soLuongTrenKe;
+				int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+				int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+				int soLuongTrenKe = sanPhamRepository.getSoLuongTrenKe(maSanPham);
+				int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+				int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
 
-	            // 🔹 Lấy tổng số lượng nhập kho
-	            int soLuongNhap = Optional.ofNullable(
-	                    chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sanPham.getMaSanPham()))
-	                    .orElse(0);
+				Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+				int soLuongTonKho = (tonKhoDaDuyet != null)
+						? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+						: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
 
-	            // 🔹 Lấy tổng số lượng đã bán trước khi lưu đơn hàng mới
-	            int soLuongBanTruoc = Optional.ofNullable(
-	                    chiTietDonHangService.getTotalQuantityBySanPhamId(sanPham.getMaSanPham()))
-	                    .orElse(0);
+				// 🔹 Debug kiểm tra tồn kho trước khi tạo đơn hàng
+				System.out.println("📦 [Debug] Kiểm tra lại tồn kho trước khi tạo đơn hàng");
+				System.out.println("🔢 [Debug] Nhập kho: " + tongSoLuongNhap);
+				System.out.println("📤 [Debug] Đã bán: " + soLuongBan);
+				System.out.println("🛒 [Debug] Trên kệ: " + soLuongTrenKe);
+				System.out.println("📦 [Debug] Điều chỉnh kiểm kê: " + deltaKiemKe);
+				System.out.println("🔄 [Debug] Hàng trả lại: " + soLuongTraHang);
+				System.out.println("📦 [Debug] Tồn kho thực tế: " + soLuongTonKho);
 
-	            // 🔹 Lấy tổng số lượng trên kệ
-	            int soLuongTrenKe = Optional.ofNullable(sanPham.getSoLuong()).orElse(0);
+				// 🔹 Kiểm tra tồn kho trước khi trừ
+				if (cartItem.getSoLuong() > soLuongTonKho) {
+					throw new IllegalStateException(
+							"Sản phẩm '" + sanPham.getTenSanPham() + "' không đủ số lượng tồn kho.");
+				}
 
-	            // 🔹 Tính tồn kho thực tế trước khi đặt hàng
-	            int soLuongTonKho = soLuongNhap - soLuongBanTruoc - soLuongTrenKe;
-
-	            // 🔹 Debug kiểm tra tồn kho trước khi tạo đơn hàng
-	            System.out.println("📦 [Debug] Kiểm tra lại tồn kho trước khi tạo đơn hàng");
-	            System.out.println("🔢 [Debug] Nhập kho: " + soLuongNhap);
-	            System.out.println("📤 [Debug] Đã bán (trước khi lưu đơn hàng): " + soLuongBanTruoc);
-	            System.out.println("🛒 [Debug] Trên kệ: " + soLuongTrenKe);
-	            System.out.println("📦 [Debug] Tồn kho thực tế trước khi đặt hàng: " + soLuongTonKho);
-
-	            // 🔹 Kiểm tra tồn kho trước khi trừ
-	            if (cartItem.getSoLuong() > soLuongTonKho) {
-	                throw new IllegalStateException(
-	                        "Sản phẩm '" + sanPham.getTenSanPham() + "' không đủ số lượng tồn kho.");
-	            }
-
-	            // 🔹 Tạo chi tiết đơn hàng
-	            ChiTietDonHangId chiTietDonHangId = new ChiTietDonHangId(donHang.getMaDonHang(),
-	                    cartItem.getSanPham().getMaSanPham());
+				// 🔹 Tạo chi tiết đơn hàng
+				ChiTietDonHangId chiTietDonHangId = new ChiTietDonHangId(donHang.getMaDonHang(),
+						cartItem.getSanPham().getMaSanPham());
 
 				// Tính giá tại thời điểm đặt (bao gồm khuyến mãi nếu có)
 				BigDecimal giaTaiThoiDiemDat = cartItem.getSanPham().getDonGiaBan();
@@ -482,31 +498,28 @@ public class DonHangController {
 					giaTaiThoiDiemDat = giaTaiThoiDiemDat
 							.subtract(giaTaiThoiDiemDat.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
 				}
-	            
-	            
-	            
-	            ChiTietDonHang chiTietDonHang = new ChiTietDonHang(chiTietDonHangId, donHang, cartItem.getSanPham(),
-	                    cartItem.getSoLuong(), giaTaiThoiDiemDat, highestCurrentKhuyenMai.map(KhuyenMai::getPhanTramGiamGia).orElse(BigDecimal.ZERO));
 
-	            
-				    
-	            // 🔹 Lưu chi tiết đơn hàng vào database
-	            chiTietDonHangService.save(chiTietDonHang);
+				ChiTietDonHang chiTietDonHang = new ChiTietDonHang(chiTietDonHangId, donHang, cartItem.getSanPham(),
+						cartItem.getSoLuong(), giaTaiThoiDiemDat,
+						highestCurrentKhuyenMai.map(KhuyenMai::getPhanTramGiamGia).orElse(BigDecimal.ZERO));
 
-	            // 🔹 Trừ số lượng tồn kho thực tế
-	            soLuongTonKho -= cartItem.getSoLuong();
+				// 🔹 Lưu chi tiết đơn hàng vào database
+				chiTietDonHangService.save(chiTietDonHang);
 
-	            // 🔹 Cập nhật số lượng tồn kho vào database
-	           // sanPhamService.updateSoLuongTonKho(sanPham.getMaSanPham(), soLuongTonKho);
+				// 🔹 Trừ số lượng tồn kho thực tế
+				soLuongTonKho -= cartItem.getSoLuong();
 
-	            System.out.println("✅ [Debug] Đã cập nhật tồn kho: Sản phẩm " + sanPham.getMaSanPham()
-	                    + " - Còn lại: " + soLuongTonKho);
-	        }
+				// 🔹 Cập nhật số lượng tồn kho vào database
+				// sanPhamService.updateSoLuongTonKho(sanPham.getMaSanPham(), soLuongTonKho);
 
-	        // 🔹 Xóa giỏ hàng sau khi tạo đơn hàng
-	        gioHangService.clearCart(currentUser);
+				System.out.println("✅ [Debug] Đã cập nhật tồn kho: Sản phẩm " + sanPham.getMaSanPham() + " - Còn lại: "
+						+ soLuongTonKho);
+			}
 
-	        System.out.println("✅ Đơn hàng đã tạo! Mã đơn hàng: " + donHang.getMaDonHang());
+			// 🔹 Xóa giỏ hàng sau khi tạo đơn hàng
+			gioHangService.clearCart(currentUser);
+
+			System.out.println("✅ Đơn hàng đã tạo! Mã đơn hàng: " + donHang.getMaDonHang());
 			// 🔹 Nếu chọn COD, xử lý bình thường
 			if ("COD".equals(phuongThucThanhToan)) {
 				redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã được tạo thành công!");
@@ -526,20 +539,19 @@ public class DonHangController {
 
 				return "redirect:" + vnpayUrl;
 			}
-			
-	        return "redirect:/customer/order";
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        model.addAttribute("errorMessage", "Không thể tạo đơn hàng: " + e.getMessage());
-	        return "redirect:/customer/cart";
-	    }
+
+			return "redirect:/customer/order";
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("errorMessage", "Không thể tạo đơn hàng: " + e.getMessage());
+			return "redirect:/customer/cart";
+		}
 	}
 
-	
-	
 	// Hủy đơn hàng
 	@PostMapping("/cancel")
-	public String cancelOrder(@RequestParam("maDonHang") Integer maDonHang, RedirectAttributes redirectAttributes) {
+	public String cancelOrder(@RequestParam("maDonHang") Integer maDonHang, @RequestParam("lyDoHuy") String lyDoHuy,
+			RedirectAttributes redirectAttributes) {
 		DonHang donHang = donHangService.getDonHangById(maDonHang);
 
 		if (donHang == null || !"Đang xử lý".equals(donHang.getTrangThaiDonHang())) {
@@ -549,14 +561,18 @@ public class DonHangController {
 
 		// Cập nhật trạng thái đơn hàng thành "Đã hủy"
 		donHang.setTrangThaiDonHang("Đã hủy");
+		donHang.setGhiChu(lyDoHuy);
 		donHangService.updateDonHang(donHang);
 
 		// Cộng lại số lượng sản phẩm
 		for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
-			SanPham sanPham = chiTiet.getSanPham();
-			int soLuongConLai = sanPham.getSoLuong() + chiTiet.getSoLuong();
-			sanPham.setSoLuong(soLuongConLai);
-			sanPhamService.update(sanPham);
+//			SanPham sanPham = chiTiet.getSanPham();
+//			int soLuongConLai = sanPham.getSoLuong() + chiTiet.getSoLuong();
+//			sanPham.setSoLuong(soLuongConLai);
+//			sanPhamService.update(sanPham);
+			System.out.println("📦 [DEBUG] Đơn hủy - Hiển thị số lượng đúng:");
+			System.out.println("🛒 Sản phẩm ID: " + chiTiet.getSanPham().getMaSanPham());
+			System.out.println("📦 Số lượng của đơn bị hủy: " + chiTiet.getSoLuong());
 		}
 
 		redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã được hủy thành công.");

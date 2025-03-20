@@ -5,6 +5,7 @@
 	<meta charset="UTF-8">
 	<title>Chi tiết đơn hàng</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 	<style>
 		body {
@@ -28,23 +29,37 @@
 		}
 
 		.btn {
-			display: inline-block;
 			padding: 10px 15px;
-			text-decoration: none;
-			font-weight: bold;
+			font-size: 16px;
+			border: none;
 			border-radius: 5px;
-			transition: 0.3s;
+			cursor: pointer;
+			text-decoration: none;
 			text-align: center;
 		}
 
-		.btn-primary {
-			background-color: black;
+		.btn-group {
+			display: flex;
+			justify-content: flex-end;
+			/* Đẩy nút về bên phải */
+			gap: 10px;
+			/* Khoảng cách giữa hai nút */
+			margin-top: 10px;
+			/* Tạo khoảng cách với nội dung phía trên */
+		}
+
+		.btn-success {
+			background-color: #28a745;
 			color: white;
 			border: none;
 			display: block;
-			width: 200px;
-			margin: 20px auto;
+
 			text-align: center;
+		}
+
+		.btn-secondary {
+			background-color: #007bff;
+			color: white;
 		}
 
 		.header {
@@ -71,13 +86,13 @@
 		table {
 			width: 100%;
 			border-collapse: collapse;
-			background: white;
 		}
 
 		th,
 		td {
 			padding: 12px;
 			text-align: center;
+			border: 1px solid #dee2e6;
 		}
 
 		th {
@@ -93,6 +108,13 @@
 		tr:hover {
 			background-color: #f1f1f1;
 		}
+
+		.action a {
+			text-decoration: none;
+			font-weight: bold;
+			padding: 5px 10px;
+			transition: 0.3s;
+		}
 	</style>
 </head>
 
@@ -100,54 +122,64 @@
 	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
 	<div class="header" style="padding-left: 300px;">
 		<h2>Chi tiết đơn hàng</h2>
+
+		<!-- Wrapper để căn 2 nút bên phải -->
+		<div class="btn-group">
+			<form th:action="@{/warehouse/import/confirm-export/{id}(id=${donHang.maDonHang})}" method="post"
+				onsubmit="return confirm('Xác nhận xuất kho cho đơn hàng này?')">
+				<button type="submit" class="btn btn-success"> <i class="fas fa-check-circle"></i> Xác nhận xuất
+					kho</button>
+			</form>
+			<a href="/warehouse/import/pending-orders" class="btn btn-secondary"> <i class="fas fa-arrow-left"></i> Quay
+				lại</a>
+		</div>
 	</div>
 
 	<div class="container" style="padding-left: 300px;">
 		<table>
 			<tr>
-				<td><b>Mã đơn hàng:</b></td>
+				<td><i class="fas fa-receipt icon"></i> Mã đơn hàng:</td>
 				<td th:text="${donHang.maDonHang}"></td>
 			</tr>
 			<tr>
-				<td><b>Khách hàng:</b></td>
+				<td><i class="fas fa-user icon"></i> Khách hàng:</td>
 				<td th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}"></td>
 
 			</tr>
 			<tr>
-				<td><b>Ngày đặt:</b></td>
+				<td><i class="fas fa-calendar-alt icon"></i> Ngày đặt:</td>
 				<td th:text="${#temporals.format(donHang.ngayDat, 'dd-MM-yyyy HH:mm')}"></td>
 			</tr>
 			<tr>
-				<td><b>Trạng thái:</b></td>
+				<td><i class="fas fa-info-circle icon"></i> Trạng thái:</td>
 				<td th:text="${donHang.trangThaiDonHang}"></td>
 			</tr>
+
 		</table>
 
 		<h3>Danh sách sản phẩm</h3>
 		<table>
 			<thead>
 				<tr>
+					<th>STT</th>
+					<th>Hình ảnh</th>
 					<th>Tên sản phẩm</th>
 					<th>Số lượng đặt</th>
-
-
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="chiTiet : ${donHang.chiTietDonHangs}">
+				<tr th:each="chiTiet, iterStat : ${donHang.chiTietDonHangs}">
+					<td th:text="${iterStat.count}"></td> <!-- Số thứ tự bắt đầu từ 1 -->
+					<td>
+						<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+							class="product-img" style="width: 50px; height: 50px; object-fit: cover;">
+					</td>
 					<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
 					<td th:text="${chiTiet.soLuong}"></td>
 				</tr>
 			</tbody>
 		</table>
 
-		<form th:action="@{/warehouse/import/confirm-export/{id}(id=${donHang.maDonHang})}" method="post"
-			onsubmit="return confirm('Xác nhận xuất kho cho đơn hàng này?')">
-			<button type="submit" class="btn btn-success">Xác nhận xuất kho</button>
-		</form>
-
-		<br>
-		<a href="/warehouse/import/pending-orders" class="btn btn-secondary">Quay lại</a>
 	</div>
 </body>
 

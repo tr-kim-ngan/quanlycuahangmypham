@@ -236,7 +236,10 @@ public class OrderController {
 
 //Xác nhận, hủy, giao lại, xử lý thất bại đơn hàng
 	@PostMapping("/orders/{maDonHang}/update-status")
-	public String updateOrderStatus(@PathVariable("maDonHang") Integer maDonHang, @RequestParam("status") String action,
+	public String updateOrderStatus(
+			@PathVariable("maDonHang") Integer maDonHang, 
+			 @RequestParam(value = "cancelReason", required = false) String cancelReason,
+			@RequestParam("status") String action,
 			@RequestParam(value = "shipperId", required = false) Integer shipperId,
 			RedirectAttributes redirectAttributes) {
 
@@ -258,7 +261,13 @@ public class OrderController {
 
 		// Hủy đơn hàng
 		else if ("cancel".equals(action)) {
+			
+			if (cancelReason == null || cancelReason.trim().isEmpty()) {
+	            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng nhập lý do hủy đơn hàng.");
+	            return "redirect:/admin/orders/" + maDonHang;
+	        }
 			donHang.setTrangThaiDonHang("Đã hủy");
+			 donHang.setGhiChu(cancelReason);
 			donHangService.updateDonHang(donHang);
 			redirectAttributes.addFlashAttribute("errorMessage", "Đơn hàng đã bị hủy.");
 		}

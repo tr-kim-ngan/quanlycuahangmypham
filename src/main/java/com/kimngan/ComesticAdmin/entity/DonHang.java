@@ -58,6 +58,10 @@ public class DonHang {
 	
 	@Column(name = "ngay_xac_nhan_xuat_kho")
 	private LocalDateTime ngayXacNhanXuatKho;
+	
+//	@Column(name = "LyDoHuy", length = 500)
+//	private String lyDoHuy;
+
 
 	// Quan hệ với bảng NguoiDung
 	@ManyToOne
@@ -77,9 +81,6 @@ public class DonHang {
 	// Constructor
 	public DonHang() {
 	}
-
-	
-
 
 
 
@@ -107,9 +108,6 @@ public class DonHang {
 		this.shipper = shipper;
 		this.chiTietDonHangs = chiTietDonHangs;
 	}
-
-
-
 
 
 
@@ -244,6 +242,7 @@ public class DonHang {
 	public void setNgayXacNhanXuatKho(LocalDateTime ngayXacNhanXuatKho) {
 		this.ngayXacNhanXuatKho = ngayXacNhanXuatKho;
 	}
+
 	
 	
 

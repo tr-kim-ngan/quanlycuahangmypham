@@ -87,7 +87,7 @@
 										</div>
 									</th:block>
 
-								<!--	<th:block
+									<!--	<th:block
 										th:if="${donHang.trangThaiDonHang == 'Đang xử lý' and donHang.nhanVienXuatKho == null}">
 										<form
 											th:action="@{/admin/orders/{maDonHang}/assign-export-staff(maDonHang=${donHang.maDonHang})}"
@@ -136,7 +136,7 @@
 										});
 									</script>-->
 									<!-- Trạng thái Đang xử lý -> Xác nhận đơn hàng -->
-									<!-- Nếu đơn hàng đang xử lý, admin có thể xác nhận hoặc hủy -->
+									<!-- Nếu đơn hàng đang xử lý, admin có thể xác nhận hoặc hủy 
 									<th:block
 										th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}">
 										<form id="orderActionForm"
@@ -154,7 +154,93 @@
 											<button type="submit" id="confirmButton" class="btn btn-primary mt-3">
 												Xác nhận</button>
 										</form>
+									</th:block>-->
+									<th:block th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}">
+										<form id="orderActionForm"
+											th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
+											method="post" onsubmit="return validateCancelReason();">
+
+											<label for="orderAction">Chọn hành động:</label>
+											<select id="orderAction" name="status" class="form-control" required
+												onchange="toggleCancelReason()">
+												<option value="">-- Chọn trạng thái --</option>
+												<option value="confirm">Xác nhận đơn hàng</option>
+												<option value="cancel">Hủy đơn hàng</option>
+											</select>
+
+											<!-- Dropdown chọn lý do hủy -->
+											<div id="cancelReasonDiv" style="display: none; margin-top: 10px;">
+												<label for="cancelReasonDropdown">Lý do hủy đơn hàng:</label>
+												<select id="cancelReasonDropdown" class="form-control"
+													name="cancelReason" onchange="handleCancelReason()">
+													<option value="">-- Chọn lý do --</option>
+													<option value="Khách hàng thay đổi ý định">Khách hàng thay đổi ý
+														định</option>
+													<option value="Sản phẩm hết hàng">Sản phẩm hết hàng</option>
+													<option value="Không liên hệ được khách hàng">Không liên hệ được
+														khách hàng</option>
+													<option value="Khách hàng yêu cầu hủy">Khách hàng yêu cầu hủy
+													</option>
+													<option value="Khác">Khác (Nhập tay)</option>
+												</select>
+
+												<!-- Ô nhập lý do khi chọn 'Khác' -->
+												<textarea id="customCancelReason" name="cancelReason"
+													class="form-control mt-2" placeholder="Nhập lý do hủy đơn..."
+													style="display: none;"></textarea>
+											</div>
+
+											<button type="submit" id="confirmButton" class="btn btn-primary mt-3">
+												Xác nhận
+											</button>
+										</form>
 									</th:block>
+
+									<script>
+										function toggleCancelReason() {
+											var actionSelect = document.getElementById("orderAction");
+											var cancelReasonDiv = document.getElementById("cancelReasonDiv");
+											var cancelReasonDropdown = document.getElementById("cancelReasonDropdown");
+											var customCancelReason = document.getElementById("customCancelReason");
+
+											if (actionSelect.value === "cancel") {
+												cancelReasonDiv.style.display = "block";
+												cancelReasonDropdown.required = true;
+											} else {
+												cancelReasonDiv.style.display = "none";
+												cancelReasonDropdown.required = false;
+												customCancelReason.required = false;
+											}
+										}
+
+										function handleCancelReason() {
+											var cancelReasonDropdown = document.getElementById("cancelReasonDropdown");
+											var customCancelReason = document.getElementById("customCancelReason");
+
+											if (cancelReasonDropdown.value === "Khác") {
+												customCancelReason.style.display = "block";
+												customCancelReason.required = true;
+											} else {
+												customCancelReason.style.display = "none";
+												customCancelReason.required = false;
+											}
+										}
+
+										function validateCancelReason() {
+											var actionSelect = document.getElementById("orderAction");
+											var cancelReasonDropdown = document.getElementById("cancelReasonDropdown");
+											var customCancelReason = document.getElementById("customCancelReason");
+
+											if (actionSelect.value === "cancel") {
+												if (cancelReasonDropdown.value === "" || (cancelReasonDropdown.value === "Khác" && customCancelReason.value.trim() === "")) {
+													alert("Vui lòng chọn hoặc nhập lý do hủy đơn hàng!");
+													return false;
+												}
+											}
+											return true;
+										}
+									</script>
+
 
 
 									<!-- Trạng thái Đã xác nhận -> Chọn shipper -->
@@ -321,8 +407,8 @@
 			</div>
 
 
-			<!-- Footer -->
-			<div th:replace="admin/fragments/footer :: footer"></div>
+			<!-- Footer 
+			<div th:replace="admin/fragments/footer :: footer"></div>-->
 			<!-- End Footer -->
 		</div>
 	</div>

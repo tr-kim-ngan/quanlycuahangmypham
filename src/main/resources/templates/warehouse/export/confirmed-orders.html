@@ -134,6 +134,13 @@
 						</a>
 					</td>
 				</tr>
+
+				<tr th:if="${#lists.isEmpty(donHangs)}">
+					<td colspan="5"
+						style="text-align: center; padding: 15px; font-size: 16px; color: #dc3545; font-weight: bold;">
+						Không có đơn hàng nào cần xuất kho.
+					</td>
+				</tr>
 			</tbody>
 		</table>
 	</div>
