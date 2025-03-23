@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Chi tiết đơn hàng</title>
+</head>
+
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+
+	<!-- Sidebar bên trái -->
+	<div th:replace="seller/fragment/sidebar :: sidebar"></div>
+
+	<!-- Nội dung chính -->
+	<div style="margin-left: 250px; padding: 30px;">
+		<h2>Chi tiết đơn hàng</h2>
+
+		<!-- Thông tin đơn hàng -->
+		<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; margin-bottom: 20px;">
+			<div><strong> Mã đơn hàng:</strong> <span th:text="${donHang.maDonHang}"></span></div>
+			<div><strong> Khách hàng:</strong>
+				<span th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}"></span>
+			</div>
+			<div><strong> Địa chỉ giao hàng:</strong> <span th:text="${donHang.diaChiGiaoHang}"></span></div>
+			<div><strong> Trạng thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span></div>
+			<div><strong>📅 Ngày đặt:</strong>
+				<span th:text="${#temporals.format(donHang.ngayDat, 'dd-MM-yyyy HH:mm')}"></span>
+			</div>
+		</div>
+
+		<!-- Form gán shipper nếu trạng thái là 'Đã xác nhận' 
+		<div th:if="${donHang.trangThaiDonHang == 'Đã xác nhận'}" style="margin-bottom: 20px;">
+			<form th:action="@{/seller/orders/{id}/assign-shipper(id=${donHang.maDonHang})}" method="post"
+				style="background-color: #fff; padding: 15px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); width: fit-content;">
+				<label for="shipper"><strong>🚚 Gán shipper:</strong></label>
+				<select name="shipperId" id="shipper" required style="margin-left: 10px; padding: 5px;">
+					<option value="">-- Chọn shipper --</option>
+					<option th:each="shipper : ${danhSachShipper}" th:value="${shipper.maNguoiDung}"
+						th:text="${shipper.tenNguoiDung}"></option>
+				</select>
+				<button type="submit"
+					style="margin-left: 10px; padding: 5px 10px; background-color: #1f2a40; color: white; border: none; border-radius: 3px; cursor: pointer;">Xác
+					nhận</button>
+			</form>
+		</div>-->
+
+		<!-- Form cập nhật trạng thái nếu có trạng thái tiếp theo -->
+		<div th:if="${nextStatuses != null}" style="margin-bottom: 20px;">
+			<form th:action="@{/seller/orders/update-status}" method="post"
+				style="background-color: #fff; padding: 15px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); width: fit-content;">
+				<input type="hidden" name="maDonHang" th:value="${donHang.maDonHang}" />
+				<label for="trangThai"><strong>⚙️ Chọn trạng thái tiếp theo:</strong></label>
+				<select name="trangThai" id="trangThai" required style="margin-left: 10px; padding: 5px;">
+					<option th:each="status : ${nextStatuses}" th:value="${status}" th:text="${status}"></option>
+				</select>
+				<button type="submit"
+					style="margin-left: 10px; padding: 5px 10px; background-color: #1f2a40; color: white; border: none; border-radius: 3px; cursor: pointer;">Xác
+					nhận trạng thái</button>
+			</form>
+		</div>
+
+		<!-- Bảng sản phẩm -->
+		<table border="1" cellspacing="0" cellpadding="10"
+			style="width: 100%; margin-top: 20px; background-color: white;">
+			<thead style="background-color: #1f2a40; color: white;">
+				<tr>
+					<th>STT</th>
+					<th>Hình ảnh</th>
+					<th>Tên sản phẩm</th>
+					<th>Số lượng</th>
+					<th>Đơn giá</th>
+					<th>Thành tiền</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="chiTiet, iterStat : ${donHang.chiTietDonHangs}">
+					<td th:text="${iterStat.count}"></td>
+					<td><img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}" alt="ảnh"
+							style="width: 60px; height: 60px;"></td>
+					<td th:text="${chiTiet.sanPham.tenSanPham}"></td>
+					<td th:text="${chiTiet.soLuong}"></td>
+					<td th:text="${#numbers.formatDecimal(chiTiet.giaTaiThoiDiemDat, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+					</td>
+					<td class="thanhTien"
+						th:text="${#numbers.formatDecimal(chiTiet.soLuong * chiTiet.giaTaiThoiDiemDat, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+					</td>
+
+				</tr>
+				<tr th:if="${donHang.chiTietDonHangs.size() == 0}">
+					<td colspan="6" style="text-align: center;">Không có sản phẩm nào trong đơn hàng.</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!-- Tổng tiền -->
+		<!-- Tổng tiền và phí vận chuyển -->
+		<div class="mt-4">
+			<div class="card-body">
+				<p><strong>Tổng Tiền (<span id="soSanPham"></span> sản phẩm):</strong>
+					<span id="tongTien"></span> VND
+				</p>
+				<p><strong>Phí Giao Hàng:</strong>
+					<span th:text="${#numbers.formatDecimal(donHang.phiVanChuyen, 0, 'COMMA', 0, 'POINT')}"></span> VND
+				</p>
+				<p><strong>Mã Giảm Giá:</strong> 0 VND</p>
+				<!-- Nếu đơn hàng đã thanh toán -->
+				<div th:if="${donHang.tongGiaTriDonHang == 0}">
+					<h5 style="color: green;">
+						<strong>Đơn hàng đã thanh toán</strong>
+					</h5>
+				</div>
+				<h4><strong>Khách Phải Trả:</strong>
+					<span th:text="${#numbers.formatDecimal(donHang.tongGiaTriDonHang, 0, 'COMMA', 0, 'POINT')}"></span>
+					VND
+					</h3>
+			</div>
+		</div>
+
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				let totalAmount = 0;
+				let productCount = 0;
+
+				// Tính tổng thành tiền và số sản phẩm
+				document.querySelectorAll("tbody tr").forEach(row => {
+					const thanhTienEl = row.querySelector(".thanhTien");
+
+					if (thanhTienEl) {
+						const value = parseInt(thanhTienEl.innerText.replace(/[^\d]/g, ""));
+						if (!isNaN(value)) {
+							totalAmount += value;
+							productCount++;
+						}
+					}
+				});
+
+				// Gán vào HTML
+				document.getElementById("tongTien").innerText = totalAmount.toLocaleString("vi-VN");
+				document.getElementById("soSanPham").innerText = productCount;
+			});
+		</script>
+
+
+		<!-- Nếu có trạng thái chờ xác nhận -->
+		<!-- Bọc chung toàn khối -->
+		<div style="display: flex; gap: 40px; margin-top: 30px; align-items: flex-start;">
+
+			<!-- BÊN TRÁI: Thông tin giao hàng -->
+			<div style="flex: 1;">
+				<!-- Hình ảnh giao hàng -->
+				<div th:if="${!#strings.isEmpty(donHang.hinhAnhGiaoHang)}">
+					<h4 style="color: #1f2a40;">📷 Hình ảnh giao hàng:</h4>
+					<img th:src="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}" alt="Hình ảnh giao hàng"
+						style="max-width: 250px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2);">
+				</div>
+
+				<!-- Shipper -->
+				<div th:if="${donHang.shipper != null}" style="margin-top: 20px;">
+					<p>Đơn hàng đã được giao cho: <span th:text="${donHang.shipper.tenNguoiDung}"
+							style="color: green;"></span></p>
+					<p>Điện thoại: <span th:text="${donHang.shipper.soDienThoai}" style="color: #007bff;"></span></p>
+				</div>
+
+				<!-- Ghi chú -->
+				<div th:if="${donHang.ghiChu != null and !#strings.isEmpty(donHang.ghiChu)}" style="margin-top: 20px;">
+					<h4 style="color: #dc3545;">Lý do thất bại:</h4>
+					<div style="background-color: #f8f9fa; border-radius: 5px;">
+						<span th:utext="${#strings.replace(donHang.ghiChu, '\n', '<br/>')}"></span>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- BÊN PHẢI: Xử lý trạng thái -->
+			<div style="flex: 1; background-color: #f4f4f4; padding: 20px; border-radius: 8px; ">
+
+				<th:block th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}">
+					<form id="orderActionForm"
+						th:action="@{/seller/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
+						method="post" onsubmit="return validateCancelReason();">
+
+						<label for="orderAction">Chọn hành động:</label>
+						<select id="orderAction" name="status" class="form-control" required
+							onchange="toggleCancelReason()" style="font-size:16px;padding:10px;">
+							<option value="">-- Chọn trạng thái --</option>
+							<option value="confirm">Xác nhận đơn hàng</option>
+							<option value="cancel">Hủy đơn hàng</option>
+						</select>
+
+						<!-- Dropdown chọn lý do hủy -->
+						<div id="cancelReasonDiv" style="display: none; margin-top: 10px;">
+							<label for="cancelReasonDropdown">Lý do hủy đơn hàng:</label>
+							<select id="cancelReasonDropdown" class="form-control" onchange="handleCancelReason()"
+								style="font-size:16px;padding:10px;">
+								<option value="">-- Chọn lý do --</option>
+								<option value="Khách hàng thay đổi ý định">Khách hàng thay đổi ý định</option>
+								<option value="Sản phẩm hết hàng">Sản phẩm hết hàng</option>
+								<option value="Không liên hệ được khách hàng">Không liên hệ được khách hàng</option>
+								<option value="Khách hàng yêu cầu hủy">Khách hàng yêu cầu hủy</option>
+								<option value="Khác">Khác (Nhập tay)</option>
+							</select>
+
+							<!-- Ô nhập lý do khi chọn 'Khác' -->
+							<textarea id="customCancelReason" class="form-control mt-2"
+								placeholder="Nhập lý do hủy đơn..."
+								style="display:none;font-size:16px;padding:10px;"></textarea>
+							<input type="hidden" name="cancelReason" id="finalCancelReason" />
+
+						</div>
+
+						<button type="submit" id="confirmButton" class="btn btn-primary mt-3"
+							style="font-size:16px;padding:10px 20px;">
+							✅ Xác nhận
+						</button>
+					</form>
+				</th:block>
+
+				<!-- JavaScript xử lý lý do hủy đơn hàng -->
+				<script>
+					function toggleCancelReason() {
+						let actionSelect = document.getElementById("orderAction");
+						let cancelReasonDiv = document.getElementById("cancelReasonDiv");
+
+						cancelReasonDiv.style.display = actionSelect.value === "cancel" ? "block" : "none";
+					}
+
+					function handleCancelReason() {
+						let cancelReasonDropdown = document.getElementById("cancelReasonDropdown");
+						let customCancelReason = document.getElementById("customCancelReason");
+						let finalCancelReason = document.getElementById("finalCancelReason");
+
+						if (cancelReasonDropdown.value === "Khác") {
+							customCancelReason.style.display = "block";
+							finalCancelReason.value = ""; // reset giá trị
+						} else {
+							customCancelReason.style.display = "none";
+							customCancelReason.value = "";
+							finalCancelReason.value = cancelReasonDropdown.value;
+						}
+					}
+
+					function validateCancelReason() {
+						let actionSelect = document.getElementById("orderAction");
+						let cancelReasonDropdown = document.getElementById("cancelReasonDropdown");
+						let customCancelReason = document.getElementById("customCancelReason");
+						let finalCancelReason = document.getElementById("finalCancelReason");
+
+						if (actionSelect.value === "cancel") {
+							if (cancelReasonDropdown.value === "") {
+								alert("Vui lòng chọn lý do hủy đơn hàng!");
+								return false;
+							}
+
+							if (cancelReasonDropdown.value === "Khác") {
+								if (customCancelReason.value.trim() === "") {
+									alert("Vui lòng nhập lý do hủy đơn hàng!");
+									return false;
+								} else {
+									finalCancelReason.value = customCancelReason.value.trim();
+								}
+							}
+						}
+
+						return true;
+					}
+
+				</script>
+
+				<!-- Gán shipper nếu đơn đã xác nhận (hiển thị sau cùng trong khối) -->
+				<div th:if="${donHang.trangThaiDonHang == 'Đã xác nhận'}">
+					<form th:action="@{/seller/orders/{id}/assign-shipper(id=${donHang.maDonHang})}" method="post"
+						style="  border-radius: 5px;  width: fit-content;">
+						<label style="font-weight: bold; font-size: 18px; display: block; margin-bottom: 10px;"
+							for="shipper"><strong>🚚 Gán shipper:</strong></label>
+						<select name="shipperId" id="shipper" required style="margin-left: 10px; padding: 10px;">
+							<option style="font-size: 16px;" value="">-- Chọn shipper --</option>
+							<option style="font-size: 16px;" th:each="shipper : ${danhSachShipper}"
+								th:value="${shipper.maNguoiDung}" th:text="${shipper.tenNguoiDung}"></option>
+						</select>
+						<button type="submit" style="font-size: 16px; padding: 10px 20px; color: green;">
+							Xác nhận</button>
+					</form>
+				</div>
+
+				<!-- Trạng thái chờ xác nhận -->
+				<div style="margin-top: 20px;" th:if="${donHang.trangThaiChoXacNhan == 'Đang giao hàng' 
+             or donHang.trangThaiChoXacNhan == 'Giao lại đơn hàng'
+             or donHang.trangThaiChoXacNhan == 'Đã hoàn thành'}">
+					<p style="font-size: 18px; color: #1f2a40;"><strong>🔄 Đang chờ xác nhận:</strong> <span
+							th:text="${donHang.trangThaiChoXacNhan}"></span></p>
+					<form th:action="@{/seller/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
+						method="post">
+						<button style="font-size: 16px; padding: 10px 20px; color: green;" type="submit"
+							class="btn btn-success mt-2">Xác nhận trạng thái</button>
+					</form>
+				</div>
+
+				<!-- Giao hàng thất bại lần 1 -->
+				<div th:if="${donHang.trangThaiChoXacNhan != null and #strings.contains(donHang.trangThaiChoXacNhan, 'Giao hàng thất bại (Lần 1)')}"
+					style="margin-top: 20px;">
+					<p class="text-danger fw-bold">🚨 Giao hàng thất bại lần 1. Chọn hành động tiếp theo:</p>
+					<form th:action="@{/seller/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
+						method="post">
+						<label for="adminDecision" style="font-size: 18px;">📌 Hành động:</label>
+						<select style="font-size: 16px; padding: 10px;" id="adminDecision" name="status"
+							class="form-control" required>
+							<option value="">-- Chọn trạng thái --</option>
+							<option value="retry">Giao lại</option>
+							<option value="cancel">Hủy đơn hàng</option>
+						</select>
+						<button style="font-size: 16px; padding: 10px" type="submit" id="confirmButton"
+							class="btn btn-primary mt-3">✅ Xác nhận</button>
+					</form>
+
+					<!-- Nếu chọn giao lại thì chọn shipper -->
+					<div id="selectShipper" style="display: none; margin-top: 20px;">
+						<form th:action="@{/seller/orders/{maDonHang}/assign-shipper(maDonHang=${donHang.maDonHang})}"
+							method="post">
+							<label style="font-size: 18px;" for="shipper">🚚 Chọn shipper:</label>
+							<select style="font-size: 16px; padding: 10px;" id="shipper" name="shipperId"
+								class="form-control" required>
+								<option value="">-- Chọn Shipper --</option>
+								<option th:each="shipper : ${danhSachShipper}" th:value="${shipper.maNguoiDung}"
+									th:text="${shipper.tenNguoiDung}"></option>
+							</select>
+							<button style="font-size: 16px; padding: 10px 20px;" type="submit"
+								class="btn btn-warning mt-2">📦 Xác nhận giao lại</button>
+						</form>
+					</div>
+				</div>
+
+				<!-- Giao thất bại lần 2 -->
+				<div th:if="${donHang.trangThaiChoXacNhan == 'Giao hàng thất bại (Lần 2)'}" class="mt-4">
+					<p class="text-danger fw-bold">🚫 Giao hàng thất bại lần 2. Không thể giao lại!</p>
+					<form th:action="@{/seller/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
+						method="post">
+						<button style=" font-size:  16px; padding: 10px ; color: #dc3545;" type="submit" name="status"
+							value="cancel" class="btn btn-danger"> Xác nhận hủy đơn
+							hàng</button>
+					</form>
+				</div>
+
+			</div>
+		</div>
+
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				let adminDecision = document.getElementById("adminDecision");
+				let selectShipper = document.getElementById("selectShipper");
+				let confirmButton = document.getElementById("confirmButton");
+
+				if (adminDecision) {
+					adminDecision.addEventListener("change", function () {
+						if (this.value === "retry") {
+							selectShipper.style.display = "block";
+							confirmButton.style.display = "none";
+
+							setTimeout(() => {
+								const select = document.getElementById("shipper");
+								select.focus();
+							}, 100);
+						} else {
+							selectShipper.style.display = "none";
+							confirmButton.style.display = "block";
+						}
+					});
+				}
+			});
+		</script>
+
+</body>
+
+
+</html>

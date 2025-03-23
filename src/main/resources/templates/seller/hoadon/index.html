@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Quản lý hóa đơn</title>
+</head>
+
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+
+	<!-- Sidebar nhân viên bán hàng -->
+	<div th:replace="seller/fragment/sidebar :: sidebar"></div>
+
+	<!-- Nội dung quản lý hóa đơn -->
+	<div style="margin-left: 240px; padding: 30px;">
+		<h2 style="margin-bottom: 20px;">Danh sách hóa đơn</h2>
+
+		<table border="1" cellspacing="0" cellpadding="10" style="width: 100%; background-color: white;">
+			<thead style="background-color: #1f2a40; color: white;">
+				<tr>
+					<th>Mã hóa đơn</th>
+					<th>Khách hàng</th>
+					<th>Ngày xuất</th>
+					<th>Trạng thái</th>
+					<th>Tổng tiền</th>
+					<th>Hành động</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="hoaDon : ${hoaDons}">
+					<td style="text-align: center;" th:text="${hoaDon.maHoaDon}"></td>
+					<td style="text-align: center;" th:text="${hoaDon.donHang.nguoiDung != null ? hoaDon.donHang.nguoiDung.tenNguoiDung : 'Không xác định'}"></td>
+					<td style="text-align: center;" th:text="${#temporals.format(hoaDon.ngayXuat, 'dd-MM-yyyy HH:mm')}"></td>
+					<td style="text-align: center;" th:text="${hoaDon.trangThai}"></td>
+					<td style="text-align: center;" th:text="${#numbers.formatDecimal(hoaDon.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+					<td style="text-align: center;">
+						<a th:href="@{'/seller/hoadon/' + ${hoaDon.maHoaDon}}" style="
+                            background-color: #0099cc;
+                            color: white;
+                            padding: 6px 12px;
+                            text-decoration: none;">
+							Xem
+						</a>
+					</td>
+				</tr>
+
+				<!-- Trường hợp không có hóa đơn nào -->
+				<tr th:if="${hoaDons.isEmpty()}">
+					<td colspan="6" style="text-align: center;">Không có hóa đơn nào.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+</body>
+
+</html>

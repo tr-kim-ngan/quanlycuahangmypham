@@ -203,6 +203,11 @@
 					th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Tổng giá trị nhập kho</a></li>
 			<li><a th:href="@{/warehouse/import/thong-ke/xu-huong}"
 					th:classappend="${activeMenu == 'xu-huong'} ? 'active'">Xu hướng nhập kho</a></li>
+			<li>
+				<a th:href="@{/warehouse/import/thong-ke-xuat}" th:classappend="${activeMenu == 'xuat-kho'} ? 'active'">
+					Thống kê xuất kho
+				</a>
+			</li>
 		</ul>
 	</div>
 	<!-- Thanh tiêu đề -->
