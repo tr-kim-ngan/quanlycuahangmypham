@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Đơn hàng</title>
+</head>
+
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+
+	<!-- Gọi sidebar bên trái -->
+	<div th:replace="seller/fragment/sidebar :: sidebar"></div>
+
+	<!-- Nội dung chính bên phải -->
+	<div style="margin-left: 240px; padding: 30px;">
+		<h2 style="margin-bottom: 20px;">Danh sách đơn hàng</h2>
+
+		<table border="1" cellspacing="0" cellpadding="10" style="width: 100%; background-color: white;">
+			<thead style="background-color: #1f2a40; color: white;">
+				<tr>
+					<th>Mã đơn</th>
+					<th>Khách hàng</th>
+					<th>Ngày tạo</th>
+					<th>Trạng thái</th>
+					<th>Tổng giá trị</th>
+					<th>Hành động</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="donHang : ${donHangs}">
+					<td style="text-align: center;" th:text="${donHang.maDonHang}"></td>
+					<td style="text-align: center;" th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}"></td>
+					<td style="text-align: center;" th:text="${#temporals.format(donHang.ngayDat, 'dd-MM-yyyy HH:mm')}"></td>
+					<td style="text-align: center;" th:text="${donHang.trangThaiDonHang}"></td>
+
+					<!-- Định dạng tiền -->
+					<td style="text-align: center;" th:text="${#numbers.formatDecimal(donHang.tongGiaTriDonHang, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+					</td>
+
+					<td style="text-align: center;">
+						<a th:href="@{'/seller/orders/' + ${donHang.maDonHang}}" style="
+                        background-color: #0099cc;
+                        color: white;
+                        padding: 6px 12px;
+                        
+                        text-decoration: none;
+                    ">Xem</a>
+					</td>
+				</tr>
+
+				<!-- Nếu không có đơn hàng -->
+				<tr th:if="${donHangs.isEmpty()}">
+					<td colspan="6" style="text-align: center;">Không có đơn hàng nào.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+</body>
+
+</html>

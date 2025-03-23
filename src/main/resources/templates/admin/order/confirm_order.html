@@ -54,7 +54,7 @@
 										</p>
 
 										<th:block th:if="${donHang.trangThaiDonHang == 'Đã hủy'}">
-											<p class="text-danger">Đơn hàng này đã bị hủy.</p>
+											<p class="text-danger"></p>
 
 										</th:block>
 									</th:block>
@@ -80,7 +80,7 @@
 											<ul style="list-style: none; padding-left: 0;">
 												<li th:each="reason, iterStat : ${#strings.arraySplit(donHang.ghiChu, '🛑')}"
 													th:style="'display: flex; align-items: center; margin-bottom: 2px;'">
-													<span style=" font-size: 13px; margin-right: 1px;">🛑</span>
+													<span style=" font-size: 13px; margin-right: 1px;"></span>
 													<span th:text="${reason}"></span>
 												</li>
 											</ul>
@@ -172,7 +172,7 @@
 											<div id="cancelReasonDiv" style="display: none; margin-top: 10px;">
 												<label for="cancelReasonDropdown">Lý do hủy đơn hàng:</label>
 												<select id="cancelReasonDropdown" class="form-control"
-													name="cancelReason" onchange="handleCancelReason()">
+													 onchange="handleCancelReason()">
 													<option value="">-- Chọn lý do --</option>
 													<option value="Khách hàng thay đổi ý định">Khách hàng thay đổi ý
 														định</option>
@@ -185,9 +185,11 @@
 												</select>
 
 												<!-- Ô nhập lý do khi chọn 'Khác' -->
-												<textarea id="customCancelReason" name="cancelReason"
-													class="form-control mt-2" placeholder="Nhập lý do hủy đơn..."
+												<textarea id="customCancelReason" class="form-control mt-2"
+													placeholder="Nhập lý do hủy đơn..."
 													style="display: none;"></textarea>
+												<input type="hidden" name="cancelReason" id="finalCancelReason" />
+
 											</div>
 
 											<button type="submit" id="confirmButton" class="btn btn-primary mt-3">
@@ -198,47 +200,53 @@
 
 									<script>
 										function toggleCancelReason() {
-											var actionSelect = document.getElementById("orderAction");
-											var cancelReasonDiv = document.getElementById("cancelReasonDiv");
-											var cancelReasonDropdown = document.getElementById("cancelReasonDropdown");
-											var customCancelReason = document.getElementById("customCancelReason");
+											let actionSelect = document.getElementById("orderAction");
+											let cancelReasonDiv = document.getElementById("cancelReasonDiv");
 
-											if (actionSelect.value === "cancel") {
-												cancelReasonDiv.style.display = "block";
-												cancelReasonDropdown.required = true;
-											} else {
-												cancelReasonDiv.style.display = "none";
-												cancelReasonDropdown.required = false;
-												customCancelReason.required = false;
-											}
+											cancelReasonDiv.style.display = actionSelect.value === "cancel" ? "block" : "none";
 										}
 
+
 										function handleCancelReason() {
-											var cancelReasonDropdown = document.getElementById("cancelReasonDropdown");
-											var customCancelReason = document.getElementById("customCancelReason");
+											let cancelReasonDropdown = document.getElementById("cancelReasonDropdown");
+											let customCancelReason = document.getElementById("customCancelReason");
+											let finalCancelReason = document.getElementById("finalCancelReason");
 
 											if (cancelReasonDropdown.value === "Khác") {
 												customCancelReason.style.display = "block";
-												customCancelReason.required = true;
+												finalCancelReason.value = "";
 											} else {
 												customCancelReason.style.display = "none";
-												customCancelReason.required = false;
+												customCancelReason.value = "";
+												finalCancelReason.value = cancelReasonDropdown.value;
 											}
 										}
 
 										function validateCancelReason() {
-											var actionSelect = document.getElementById("orderAction");
-											var cancelReasonDropdown = document.getElementById("cancelReasonDropdown");
-											var customCancelReason = document.getElementById("customCancelReason");
+											let actionSelect = document.getElementById("orderAction");
+											let cancelReasonDropdown = document.getElementById("cancelReasonDropdown");
+											let customCancelReason = document.getElementById("customCancelReason");
+											let finalCancelReason = document.getElementById("finalCancelReason");
 
 											if (actionSelect.value === "cancel") {
-												if (cancelReasonDropdown.value === "" || (cancelReasonDropdown.value === "Khác" && customCancelReason.value.trim() === "")) {
-													alert("Vui lòng chọn hoặc nhập lý do hủy đơn hàng!");
+												if (cancelReasonDropdown.value === "") {
+													alert("Vui lòng chọn lý do hủy đơn hàng!");
 													return false;
 												}
+
+												if (cancelReasonDropdown.value === "Khác") {
+													if (customCancelReason.value.trim() === "") {
+														alert("Vui lòng nhập lý do hủy đơn hàng!");
+														return false;
+													} else {
+														finalCancelReason.value = customCancelReason.value.trim();
+													}
+												}
 											}
+
 											return true;
 										}
+
 									</script>
 
 
@@ -352,6 +360,8 @@
 											<form
 												th:action="@{/admin/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
 												method="post">
+
+
 												<button type="submit" name="status" value="cancel"
 													class="btn btn-danger mt-3" ;>
 													Xác nhận hủy đơn hàng
