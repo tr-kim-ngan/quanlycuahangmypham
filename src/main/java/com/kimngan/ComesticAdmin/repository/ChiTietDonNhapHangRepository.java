@@ -92,7 +92,9 @@ public interface ChiTietDonNhapHangRepository extends JpaRepository<ChiTietDonNh
 			+ "ORDER BY SUM(c.soLuongNhap) DESC")
 	List<Object[]> getTopImportedProducts(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
-	
+	@Query("SELECT DISTINCT ctdnh.sanPham FROM ChiTietDonNhapHang ctdnh WHERE ctdnh.sanPham.trangThai = true")
+	List<SanPham> findDistinctActiveProductsInChiTietDonNhapHang();
+
 	
 
 

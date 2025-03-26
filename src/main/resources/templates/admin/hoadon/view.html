@@ -66,7 +66,10 @@
 					<!-- Hiển thị thông tin hóa đơn -->
 					<div class="details-header">
 						<div class="column">
-							<p><strong>Người Nhận:</strong> <span th:text="${hoaDon.tenNguoiNhan}"></span></p>
+							<p><strong>Người Nhận:</strong>
+								<span
+									th:text="${hoaDon.soDienThoaiNhanHang != '0000000000' ? hoaDon.donHang.nguoiDung.hoTen : 'Khách vãng lai'}"></span>
+							</p>
 							<!-- 🚀 Nếu có địa chỉ giao hàng thì hiển thị "Địa Chỉ:", nếu không thì chỉ hiển thị "Mua tại quầy KN" -->
 							<p th:if="${hoaDon.diaChiGiaoHang != null}">
 								<strong>Địa Chỉ:</strong> <span th:text="${hoaDon.diaChiGiaoHang}"></span>

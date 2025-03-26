@@ -63,7 +63,9 @@
 											</tr>
 											<tr>
 												<th>Khách Hàng</th>
-												<td th:text="${donHang.nguoiDung.tenNguoiDung}"></td>
+												<td
+													th:text="${donHang.nguoiDung != null and donHang.nguoiDung.soDienThoai != '0000000000' ? donHang.nguoiDung.hoTen : 'Khách vãng lai'}">
+												</td>
 												<th>Số Điện Thoại Nhận Hàng</th>
 												<td th:if="${donHang.nguoiDung.tenNguoiDung != 'Khách vãng lai'}"
 													th:text="${donHang.sdtNhanHang}"></td>

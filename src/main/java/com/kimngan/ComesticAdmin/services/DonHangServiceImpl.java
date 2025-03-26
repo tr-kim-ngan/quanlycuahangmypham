@@ -723,6 +723,53 @@ public class DonHangServiceImpl implements DonHangService {
 		// TODO Auto-generated method stub
 		 return donHangRepository.tinhTongSoLuongTraHang(maSanPham);
 	}
+
+	@Override
+	public void clearOfflineOrder() {
+		// TODO Auto-generated method stub
+		offlineOrder.clear();	
+	}
+
+	@Override
+	public void updateOfflineOrderQuantity(Integer sanPhamId, int quantity) {
+		 if (offlineOrder.containsKey(sanPhamId)) {
+		        ChiTietDonHang chiTiet = offlineOrder.get(sanPhamId);
+		        chiTiet.setSoLuong(quantity); // Cập nhật số lượng mới
+		    }
+		
+	}
+
+	@Override
+	public void saveOfflineOrder(String soDienThoai) {
+	    List<ChiTietDonHang> orderItems = getCurrentOfflineOrder();
+	    if (orderItems.isEmpty()) return;
+
+	    DonHang donHang = new DonHang();
+	    donHang.setNgayDat(LocalDateTime.now());
+	    donHang.setDiaChiGiaoHang("Mua tại quầy KN");
+	    donHang.setTrangThaiDonHang("Đã hoàn thành");
+	    donHang.setPhiVanChuyen(BigDecimal.ZERO);
+	    donHang.setSdtNhanHang(soDienThoai);
+
+	    BigDecimal tongTien = BigDecimal.ZERO;
+	    for (ChiTietDonHang chiTiet : orderItems) {
+	        chiTiet.setDonHang(donHang);
+	        tongTien = tongTien.add(chiTiet.getGiaTaiThoiDiemDat().multiply(BigDecimal.valueOf(chiTiet.getSoLuong())));
+	    }
+
+	    donHang.setTongGiaTriDonHang(tongTien);
+
+	    NguoiDung nguoiDung = nguoiDungRepository.findBySoDienThoai(soDienThoai).orElse(null);
+	    if (nguoiDung != null) {
+	        donHang.setNguoiDung(nguoiDung);
+	    } else {
+	        // Gán user mặc định nếu không tìm thấy
+	        donHang.setNguoiDung(null); // bạn cần có user mặc định
+	    }
+
+	    donHangRepository.save(donHang);
+	    offlineOrder.clear();
+	}
 	
 
 

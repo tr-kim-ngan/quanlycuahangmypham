@@ -40,6 +40,7 @@ public interface HoaDonService {
     List<Map<String, Object>> getRevenueByWeek();
     List<Map<String, Object>> getRevenueByMonth();
     void updateHoaDon(HoaDon hoaDon);
+    Page<HoaDon> searchByMultipleStatuses(List<String> statuses, Pageable pageable);
 
 }
 

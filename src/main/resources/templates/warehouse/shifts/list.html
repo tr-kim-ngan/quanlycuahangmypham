@@ -182,7 +182,7 @@
 			</thead>
 			<tbody>
 				<tr th:each="ca : ${danhSachCa}">
-					<td th:text="${ca.nhanVien.tenNguoiDung}"></td>
+					<td th:text="${ca.nhanVien.hoTen}"></td>
 					<td th:text="${#temporals.format(ca.thoiGianBatDau, 'dd-MM-yyyy HH:mm')}"></td>
 					<td>
 						<span th:if="${ca.thoiGianKetThuc == null}" class="status active">Đang hoạt động</span>

@@ -2,15 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Bán Hàng</title>
+	<meta charset="UTF-8">
+	<title>Bán Hàng</title>
 </head>
 
 <body style="margin: 0; padding: 0; display: flex; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-    <div th:fragment="sidebar" class="navbar">
+	<div th:fragment="sidebar" class="navbar">
 
-        <!-- Thanh điều hướng dọc -->
-        <div class="navbar" style="
+		<!-- Thanh điều hướng dọc -->
+		<div class="navbar" style="
             width: 240px;
             height: 100vh;
             background-color: #1f2a40;
@@ -24,8 +24,8 @@
             padding: 10px 0;
         ">
 
-            <!-- Logo + Tiêu đề -->
-            <div style="
+			<!-- Logo + Tiêu đề -->
+			<div style="
                 text-align: center; 
                 font-size: 20px; 
                 font-weight: bold; 
@@ -35,17 +35,18 @@
                 justify-content: center; 
                 align-items: center;
                 gap: 10px;">
-                <a th:href="@{/seller}" style="text-decoration: none; color: white; display: flex; align-items: center;">
-                    <img src="/fe/images/sale.png" alt="Bán hàng" style="width: 60px; height: 60px;">
-                    <span style="margin-left: 10px;">Bán Hàng</span>
-                </a>
-            </div>
+				<a th:href="@{/seller}"
+					style="text-decoration: none; color: white; display: flex; align-items: center;">
+					<img src="/fe/images/sale.png" alt="Bán hàng" style="width: 60px; height: 60px;">
+					<span style="margin-left: 10px;">Bán Hàng</span>
+				</a>
+			</div>
 
-            <!-- Menu -->
-            <div class="menu" style="flex-grow: 1; padding: 10px;">
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    <li style="margin-bottom: 5px;">
-                        <a th:href="@{/seller/orders}" style="
+			<!-- Menu -->
+			<div class="menu" style="flex-grow: 1; padding: 10px;">
+				<ul style="list-style: none; padding: 0; margin: 0;">
+					<li style="margin-bottom: 5px;">
+						<a th:href="@{/seller/orders}" style="
                             display: flex;
                             align-items: center;
                             text-decoration: none;
@@ -55,13 +56,13 @@
                             border-radius: 5px;
                             transition: background 0.3s ease, transform 0.2s ease;
                         " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
-                           onmouseout="this.style.backgroundColor=''; this.style.transform='';">
-                            Trang chủ
-                        </a>
-                    </li>
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+							Trang chủ
+						</a>
+					</li>
 
-                    <li style="margin-bottom: 5px;">
-                        <a th:href="@{/seller/orders}" style="
+					<li style="margin-bottom: 5px;">
+						<a th:href="@{/seller/orders}" style="
                             display: flex;
                             align-items: center;
                             text-decoration: none;
@@ -71,13 +72,46 @@
                             border-radius: 5px;
                             transition: background 0.3s ease, transform 0.2s ease;
                         " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
-                           onmouseout="this.style.backgroundColor=''; this.style.transform='';">
-                            Đơn hàng
-                        </a>
-                    </li>
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+							Đơn hàng
+						</a>
+					</li>
+					<li style="margin-bottom: 5px;">
+						<a th:href="@{/seller/offline-orders}" style="
+				        display: flex;
+				        align-items: center;
+				        text-decoration: none;
+				        color: white;
+				        font-size: 16px;
+				        padding: 12px 20px;
+				        border-radius: 5px;
+				        transition: background 0.3s ease, transform 0.2s ease;
+				    " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+							Tạo đơn hàng
+						</a>
+					</li>
+					<li style="margin-bottom: 5px;">
+						<a th:href="@{/seller/products-to-request}" style="
+				        display: flex;
+				        align-items: center;
+				        text-decoration: none;
+				        color: white;
+				        font-size: 16px;
+				        padding: 12px 20px;
+				        border-radius: 5px;
+				        transition: background 0.3s ease, transform 0.2s ease;
+				    " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
 
-                    <li style="margin-bottom: 5px;">
-                        <a th:href="@{/seller/hoadon}" style="
+
+
+
+							Yêu cầu bổ sung hàng</a>
+					</li>
+
+					<li style="margin-bottom: 5px;">
+						<a th:href="@{/seller/hoadon}" style="
                             display: flex;
                             align-items: center;
                             text-decoration: none;
@@ -87,16 +121,16 @@
                             border-radius: 5px;
                             transition: background 0.3s ease, transform 0.2s ease;
                         " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
-                           onmouseout="this.style.backgroundColor=''; this.style.transform='';">
-                            Hóa Đơn
-                        </a>
-                    </li>
-                </ul>
-            </div>
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+							Hóa Đơn
+						</a>
+					</li>
+				</ul>
+			</div>
 
-            <!-- Đăng xuất -->
-            <div style="text-align: center; padding: 15px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
-                <a th:href="@{/seller/logout}" style="
+			<!-- Đăng xuất -->
+			<div style="text-align: center; padding: 15px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+				<a th:href="@{/seller/logout}" style="
                     display: flex;
                     align-items: center;
                     text-decoration: none;
@@ -106,13 +140,13 @@
                     border-radius: 5px;
                     transition: background 0.3s ease, transform 0.2s ease;
                 " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
-                   onmouseout="this.style.backgroundColor=''; this.style.transform='';">
-                    Đăng Xuất
-                </a>
-            </div>
+					onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+					Đăng Xuất
+				</a>
+			</div>
 
-        </div>
-    </div>
+		</div>
+	</div>
 </body>
 
 </html>

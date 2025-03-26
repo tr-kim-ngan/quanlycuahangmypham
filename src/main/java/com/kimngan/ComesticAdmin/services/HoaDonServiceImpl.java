@@ -303,6 +303,12 @@ public class HoaDonServiceImpl implements HoaDonService {
 	    hoaDonRepository.save(hoaDon);
 	}
 
+	@Override
+	public Page<HoaDon> searchByMultipleStatuses(List<String> trangThaiList, Pageable pageable) {
+	    return hoaDonRepository.findPageByTrangThaiThanhToanIn(trangThaiList, pageable);
+	}
+
+
 	
 	
 }

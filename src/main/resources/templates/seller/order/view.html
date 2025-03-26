@@ -4,22 +4,60 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Chi tiết đơn hàng</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/sale.png}">
+
+	<style>
+		.header {
+			background-color: #f8f9fa;
+			padding: 15px 0px;
+			display: flex;
+			justify-content: space-between;
+			/* Giữ trái phải */
+			align-items: center;
+			border-bottom: 2px solid #dee2e6;
+			padding-left: 250px;
+			padding-right: 40px;
+		}
+
+
+		.header h2 {
+			margin: 0;
+			font-size: 26px;
+			color: #333;
+		}
+
+		.back-btn {
+			text-decoration: none !important;
+
+		}
+	</style>
 </head>
 
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
 
+
+	<div class="header" style="padding-left: 250px;">
+		<h2>Chi tiết đơn hàng</h2>
+		<a href="/seller/orders" class="btn btn-success btn-lg back-btn">Quay về</a>
+	</div>
 	<!-- Sidebar bên trái -->
 	<div th:replace="seller/fragment/sidebar :: sidebar"></div>
 
 	<!-- Nội dung chính -->
 	<div style="margin-left: 250px; padding: 30px;">
-		<h2>Chi tiết đơn hàng</h2>
+
 
 		<!-- Thông tin đơn hàng -->
 		<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; margin-bottom: 20px;">
 			<div><strong> Mã đơn hàng:</strong> <span th:text="${donHang.maDonHang}"></span></div>
 			<div><strong> Khách hàng:</strong>
-				<span th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}"></span>
+				<span
+					th:text="${donHang.nguoiDung != null and donHang.nguoiDung.hoTen != null ? donHang.nguoiDung.hoTen : 'Khách vãng lai'}"></span>
+			</div>
+
+			<div th:if="${donHang.nguoiDung != null and donHang.nguoiDung.soDienThoai != '0000000000'}">
+				<strong> Số điện thoại:</strong>
+				<span th:text="${donHang.nguoiDung.soDienThoai}"></span>
 			</div>
 			<div><strong> Địa chỉ giao hàng:</strong> <span th:text="${donHang.diaChiGiaoHang}"></span></div>
 			<div><strong> Trạng thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span></div>

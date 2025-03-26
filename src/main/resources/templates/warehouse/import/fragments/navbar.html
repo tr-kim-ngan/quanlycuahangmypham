@@ -6,7 +6,7 @@
 	<title>Quản lý Kho</title>
 
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
-	
+
 </head>
 
 <body style="margin: 0; padding: 0; display: flex; font-family: Arial, sans-serif; background-color: #f4f4f4;">
@@ -51,8 +51,7 @@
 			<div class="menu" style="flex-grow: 1; padding: 10px;">
 				<ul style="list-style: none; padding: 0; margin: 0;">
 					<li style="margin-bottom: 5px;">
-						<a href="/warehouse/import/purchaseorder" class="nav-link" 
-						style="
+						<a href="/warehouse/import/purchaseorder" class="nav-link" style="
                             display: flex;
                             align-items: center;
                             text-decoration: none;
@@ -99,7 +98,21 @@
 							Đơn hàng đã xuất kho
 						</a>
 					</li>
-
+					<li style="margin-bottom: 5px;">
+						<a href="/warehouse/import/yeu-cau-bo-sung" class="nav-link" style="
+	        display: flex;
+	        align-items: center;
+	        text-decoration: none;
+	        color: white;
+	        font-size: 16px;
+	        padding: 12px 20px;
+	        border-radius: 5px;
+	        transition: background 0.3s ease, transform 0.2s ease;
+	    " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+							Yêu cầu bô sung lên kệ
+						</a>
+					</li>
 
 					<li style="margin-bottom: 5px;">
 						<a href="/warehouse/import/ton-kho" class="nav-link" style="
@@ -144,9 +157,9 @@
 							Thống kê
 						</a>
 					</li>
-					
+
 					<li style="margin-bottom: 5px;">
-					    <a href="/warehouse/import/shifts" class="nav-link" style="
+						<a href="/warehouse/import/shifts" class="nav-link" style="
 					        display: flex;
 					        align-items: center;
 					        text-decoration: none;
@@ -156,13 +169,13 @@
 					        border-radius: 5px;
 					        transition: background 0.3s ease, transform 0.2s ease;
 					    " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
-					       onmouseout="this.style.backgroundColor=''; this.style.transform='';">
-					        Quản lý ca làm việc
-					    </a>
+							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+							Quản lý ca làm việc
+						</a>
 					</li>
-					
-					
-					
+
+
+
 
 				</ul>
 			</div>
@@ -185,7 +198,7 @@
 		</div>
 
 
-		
+
 </body>
 
 </html>

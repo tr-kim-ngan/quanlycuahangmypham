@@ -44,6 +44,7 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     
     List<HoaDon> findByTrangThaiThanhToan(String trangThai);
     List<HoaDon> findByTrangThaiThanhToanIn(List<String> trangThai);
+    Page<HoaDon> findPageByTrangThaiThanhToanIn(List<String> trangThaiList, Pageable pageable);
 
     
     @Query("SELECT DATE(h.ngayXuatHoaDon), SUM(h.tongTien) " +

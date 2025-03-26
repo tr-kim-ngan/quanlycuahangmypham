@@ -16,6 +16,9 @@ public interface ChiTietDonNhapHangService {
 	List<ChiTietDonNhapHang> getAll();
 
 	List<ChiTietDonNhapHang> findByDonNhapHang(DonNhapHang donNhapHang);
+	
+	List<SanPham> getActiveProductsFromChiTietDonNhap();
+
 
 	ChiTietDonNhapHang findById(ChiTietDonNhapHangId id);
 

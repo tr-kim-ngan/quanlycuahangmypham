@@ -43,9 +43,11 @@
 							<tr th:each="donHang : ${donHangs}">
 								<td style="text-align: center;" th:text="${donHang.maDonHang}"></td>
 								<td style="text-align: center;"
-									th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}">
+									th:text="${donHang.nguoiDung != null and donHang.nguoiDung.soDienThoai != '0000000000' ? donHang.nguoiDung.hoTen : 'Khách vãng lai'}">
 								</td>
-								<td style="text-align: center;" th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
+
+								<td style="text-align: center;"
+									th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
 								<!--<td th:text="${donHang.trangThaiDonHang}"></td>-->
 								<td style="text-align: center;">
 									<span th:text="${donHang.trangThaiDonHang}" th:classappend="
@@ -54,13 +56,11 @@
             (${donHang.trangThaiDonHang == 'Đang giao hàng'} ? 'badge bg-warning' :
             (${donHang.trangThaiDonHang == 'Đã hoàn thành'} ? 'badge bg-success' :
             (${donHang.trangThaiDonHang == 'Đã hủy'} ? 'badge bg-danger' : 'badge bg-secondary'))))"
-            style="font-size: 15px; font-weight: bold; "
-            
-            >
+										style="font-size: 15px; font-weight: bold; ">
 									</span>
 								</td>
 
-								<td >
+								<td>
 									<a th:href="@{/admin/orders/{maDonHang}(maDonHang=${donHang.maDonHang})}"
 										class="btn btn-primary">Xem Chi Tiết</a>
 									<a th:if="${donHang.trangThaiDonHang == 'Đã hoàn thành'}"
