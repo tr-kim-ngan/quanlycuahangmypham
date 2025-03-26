@@ -59,8 +59,9 @@
 
 
 
-								<td style="text-align: center;" th:text="${hoaDon.tenNguoiNhan}"></td>
-
+								<td class="text-center"
+									th:text="${hoaDon.soDienThoaiNhanHang != '0000000000' ? hoaDon.donHang.nguoiDung.hoTen : 'Khách vãng lai'}">
+								</td>
 
 								<td style="text-align: center;">
 									<span

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Xác nhận đơn hàng</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/sale.png}">
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: Arial, sans-serif;
+			background-color: #f4f4f4;
+		}
+
+		.main-panel {
+			margin-left: 250px;
+			padding: 30px;
+		}
+
+		.page-inner {
+			background-color: #ffffff;
+			padding: 30px;
+			border-radius: 0;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+		}
+
+
+
+		table img {
+			width: 80px;
+			border-radius: 0;
+		}
+
+		.alert {
+			max-width: 600px;
+			margin: 0 auto 20px auto;
+		}
+
+		#soDienThoai {
+			max-width: 250px;
+		}
+
+		.text-center span.fw-bold {
+			font-size: 18px;
+		}
+
+		.btn {
+			min-width: 120px;
+		}
+
+		.header {
+			background-color: #f8f9fa;
+			padding: 15px 0px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 2px solid #dee2e6;
+			position: relative;
+			justify-content: center;
+		}
+
+		.header h2 {
+			margin: 0;
+			font-size: 26px;
+			color: #333;
+		}
+
+		.header .btn {
+			margin-left: auto;
+		}
+
+		.custom-thead {
+			background-color: #1f2a40 !important;
+			color: white !important;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="header d-flex justify-content-between align-items-center" style="padding-left: 250px;">
+		<h2 class="m-0">Tạo đơn hàng</h2>
+
+		<div class="d-flex align-items-center gap-2" style=" padding-right: 10px;">
+			<a href="/seller/offline-orders" class="btn btn-secondary">
+				<i class="bi bi-arrow-left"></i> Quay lại
+			</a>
+
+			<form id="orderForm" th:action="@{/seller/offline-orders/checkout}" method="POST">
+				<input type="hidden" id="soDienThoaiHiddenForm" name="soDienThoai" th:value="${soDienThoai}">
+				<button type="submit" class="btn btn-success">
+					<i class="bi bi-check-circle"></i> Xác nhận đơn hàng
+				</button>
+			</form>
+		</div>
+	</div>
+
+
+	<div th:replace="seller/fragment/sidebar :: sidebar"></div>
+
+	<div class="main-panel">
+		<div class="page-inner">
+
+			<!-- Thông báo -->
+			<div class="text-center">
+				<div th:if="${successMessage}" class="alert alert-success">
+					<span th:text="${successMessage}"></span>
+				</div>
+				<div th:if="${errorMessage}" class="alert alert-danger">
+					<span th:text="${errorMessage}"></span>
+				</div>
+				<div th:if="${orderItems == null or #lists.isEmpty(orderItems)}" class="alert alert-warning">
+					Không có sản phẩm nào trong đơn hàng.
+				</div>
+			</div>
+
+			<!-- Danh sách sản phẩm -->
+			<div class="mb-4">
+				<table class="table table-bordered table-hover text-center align-middle bg-white" border="1"
+					cellspacing="0" cellpadding="10" style="width: 100%; background-color: white;"
+					th:if="${orderItems != null and not #lists.isEmpty(orderItems)}">
+					<thead class="custom-thead">
+						<tr>
+							<th>Hình ảnh</th>
+							<th>Sản phẩm</th>
+							<th>Giá</th>
+							<th>Số lượng</th>
+							<th>Hành động</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="item : ${orderItems}">
+							<td><img th:src="@{/upload/} + ${item.sanPham.hinhAnh}"></td>
+							<td th:text="${item.sanPham.tenSanPham}"></td>
+							<td th:text="${formattedDiscountPrices[item.sanPham.maSanPham]}"></td>
+							<td th:text="${item.soLuong}"></td>
+							<td>
+								<form th:action="@{/seller/offline-orders/remove}" method="post">
+									<input type="hidden" name="sanPhamId" th:value="${item.sanPham.maSanPham}">
+									<button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Nhập số điện thoại -->
+			<form th:action="@{/seller/offline-orders/check-phone}" method="POST"
+				class="d-flex justify-content-center align-items-center mb-4">
+				<label for="soDienThoai" class="me-2 fw-bold">Số điện thoại khách hàng:</label>
+				<input type="text" id="soDienThoai" name="soDienThoai" class="form-control me-2"
+					placeholder="Nhập số điện thoại (bỏ trống nếu là khách vãng lai)"
+					th:value="${soDienThoai != '0000000000' ? soDienThoai : ''}">
+				<button type="submit" class="btn btn-primary">Kiểm tra</button>
+			</form>
+
+			<!-- Tên khách hàng -->
+			<div class="text-center" th:if="${tenKhachHang != null}">
+				<span class="fw-bold"
+					th:classappend="${tenKhachHang == 'Khách vãng lai'} ? 'text-danger' : 'text-success'">
+					Khách hàng: <span th:text="${tenKhachHang}"></span>
+				</span>
+			</div>
+
+			<!-- Tổng tiền -->
+			<div class="text-center mb-4 mt-3">
+				<h4 style="color: #007bff;">Tổng tiền: <span th:text="${totalPrice} + ' VND'"></span></h4>
+			</div>
+
+
+		</div>
+	</div>
+</body>
+
+</html>

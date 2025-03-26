@@ -187,6 +187,13 @@ public class ChiTietDonNhapHangServiceImpl implements ChiTietDonNhapHangService 
 		  return chiTietDonNhapHangRepository.getTopImportedProducts(fromDate, toDate);
 	}
 
+	@Override
+	public List<SanPham> getActiveProductsFromChiTietDonNhap() {
+		// TODO Auto-generated method stub
+	    return chiTietDonNhapHangRepository.findDistinctActiveProductsInChiTietDonNhapHang();
+
+	}
+
 	
 
 

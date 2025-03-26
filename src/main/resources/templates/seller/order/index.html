@@ -4,16 +4,73 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Đơn hàng</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/sale.png}">
+
+	<style>
+		.header {
+			background-color: #f8f9fa;
+
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 2px solid #dee2e6;
+			position: relative;
+			justify-content: center;
+		}
+
+		.header h2 {
+
+			font-size: 26px;
+			color: #333;
+		}
+
+		.status {
+			font-weight: bold;
+			padding: 6px 12px;
+			border-radius: 5px;
+			display: inline-block;
+			width: 100%;
+		}
+
+		.status-confirmed {
+			color: #084298;
+		}
+
+		.status-processing {
+			color: #856404;
+		}
+
+		.status-shipping {
+			color: #055160;
+		}
+
+		.status-completed {
+			color: #198754;
+		}
+
+		.status-cancelled {
+			color: #842029;
+		}
+
+		.status-failed {
+			color: #a15c00;
+		}
+
+		.status-default {
+			color: #41464b;
+		}
+	</style>
 </head>
 
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-
+	<div class="header">
+		<h2>Danh sách đơn hàng</h2>
+	</div>
 	<!-- Gọi sidebar bên trái -->
 	<div th:replace="seller/fragment/sidebar :: sidebar"></div>
 
 	<!-- Nội dung chính bên phải -->
 	<div style="margin-left: 240px; padding: 30px;">
-		<h2 style="margin-bottom: 20px;">Danh sách đơn hàng</h2>
 
 		<table border="1" cellspacing="0" cellpadding="10" style="width: 100%; background-color: white;">
 			<thead style="background-color: #1f2a40; color: white;">
@@ -29,12 +86,37 @@
 			<tbody>
 				<tr th:each="donHang : ${donHangs}">
 					<td style="text-align: center;" th:text="${donHang.maDonHang}"></td>
-					<td style="text-align: center;" th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}"></td>
-					<td style="text-align: center;" th:text="${#temporals.format(donHang.ngayDat, 'dd-MM-yyyy HH:mm')}"></td>
-					<td style="text-align: center;" th:text="${donHang.trangThaiDonHang}"></td>
+
+					<td style="text-align: center;"
+						th:text="${donHang.nguoiDung != null and donHang.nguoiDung.hoTen != null ? donHang.nguoiDung.hoTen : 'Khách vãng lai'}">
+					</td>
+
+
+					<td style="text-align: center;" th:text="${#temporals.format(donHang.ngayDat, 'dd-MM-yyyy HH:mm')}">
+					</td>
+					<!--<td style="text-align: center;" th:text="${donHang.trangThaiDonHang}"></td>
+-->
+					<td style="text-align: center;">
+						<span th:switch="${donHang.trangThaiDonHang}">
+							<span th:case="'Đã xác nhận'" class="status status-confirmed"
+								th:text="${donHang.trangThaiDonHang}"></span>
+							<span th:case="'Đang xử lý'" class="status status-processing"
+								th:text="${donHang.trangThaiDonHang}"></span>
+							<span th:case="'Đang giao hàng'" class="status status-shipping"
+								th:text="${donHang.trangThaiDonHang}"></span>
+							<span th:case="'Đã hoàn thành'" class="status status-completed"
+								th:text="${donHang.trangThaiDonHang}"></span>
+							<span th:case="'Đã hủy'" class="status status-cancelled"
+								th:text="${donHang.trangThaiDonHang}"></span>
+
+							<span th:case="*" class="status status-default"
+								th:text="${donHang.trangThaiDonHang}"></span>
+						</span>
+					</td>
 
 					<!-- Định dạng tiền -->
-					<td style="text-align: center;" th:text="${#numbers.formatDecimal(donHang.tongGiaTriDonHang, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+					<td style="text-align: center;"
+						th:text="${#numbers.formatDecimal(donHang.tongGiaTriDonHang, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
 					</td>
 
 					<td style="text-align: center;">

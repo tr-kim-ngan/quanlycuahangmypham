@@ -32,15 +32,27 @@
 
 					<!-- Cột giá tiền -->
 					<td>
+						<!-- Nếu có khuyến mãi -->
+						<div th:if="${phanTramGiamMap != null and phanTramGiamMap[item.sanPham.maSanPham] > 0}"
+							class="d-flex justify-content-center align-items-center gap-2">
+							<small class="text-muted" style="text-decoration: line-through; font-size: 0.85rem;  color: gray; "
+								th:text="${#numbers.formatDecimal(item.sanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+							</small>
+							<span class="fw-bold text-dark"
+								th:text="${#numbers.formatDecimal(sanPhamGiaSauGiamMap[item.sanPham.maSanPham], 0, 'COMMA', 0, 'POINT')} + ' đ'">
+							</span>
+							
+						</div>
 
-						<div th:if="${phanTramGiamMap != null and phanTramGiamMap[item.sanPham.maSanPham] > 0}">
-							<p style="color: red;" th:text="${sanPhamGiaSauGiamMap[item.sanPham.maSanPham]} + ' VND'">
-							</p>
-
-							<p style="text-decoration: line-through; color: gray;"
-								th:text="${item.sanPham.donGiaBan} + ' VND'"></p>
+						<!-- Nếu không có khuyến mãi -->
+						<div
+							th:if="${phanTramGiamMap == null or phanTramGiamMap[item.sanPham.maSanPham] == null or phanTramGiamMap[item.sanPham.maSanPham] == 0}">
+							<span class="fw-bold text-dark"
+								th:text="${#numbers.formatDecimal(item.sanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+							</span>
 						</div>
 					</td>
+
 
 					<!-- Cột số lượng -->
 					<td>
@@ -92,7 +104,7 @@
 				<div class="col-md-6">
 					<form th:action="@{/customer/order/create}" method="POST">
 						<div class="mb-3">
-							
+
 							<div class="mb-3">
 								<label for="phone" style="font-weight: bold; color: #333;">Số điện thoại:</label>
 								<input type="text" id="phone" name="phone" th:value="${currentUser.soDienThoai}"

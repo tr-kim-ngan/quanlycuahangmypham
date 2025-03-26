@@ -813,7 +813,7 @@ public class OrderController {
 		// // Kiểm tra số điện thoại, nếu tìm thấy khách hàng thì lấy thông tin
 		NguoiDung khachHang = nguoiDungRepository.findBySoDienThoai(soDienThoai).orElse(null);
 		if (khachHang != null) {
-			model.addAttribute("tenKhachHang", khachHang.getTenNguoiDung());
+			model.addAttribute("tenKhachHang", khachHang.getHoTen());
 			model.addAttribute("soDienThoai", khachHang.getSoDienThoai());
 		} else {
 			model.addAttribute("tenKhachHang", "Khách vãng lai");
@@ -897,7 +897,7 @@ public class OrderController {
 		Optional<NguoiDung> optionalKhachHang = nguoiDungRepository.findBySoDienThoai(soDienThoai);
 		if (optionalKhachHang.isPresent()) {
 			NguoiDung khachHang = optionalKhachHang.get();
-			redirectAttributes.addAttribute("tenKhachHang", khachHang.getTenNguoiDung());
+			redirectAttributes.addAttribute("tenKhachHang", khachHang.getHoTen());
 			redirectAttributes.addAttribute("soDienThoai", khachHang.getSoDienThoai());
 			System.out.println("🟢 Tìm thấy khách hàng: " + khachHang.getTenNguoiDung());
 		} else {

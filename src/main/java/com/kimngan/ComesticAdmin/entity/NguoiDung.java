@@ -19,6 +19,8 @@ public class NguoiDung {
     private Integer maNguoiDung;
 
     private String tenNguoiDung;
+    private String hoTen;
+
     private String matKhau;
     private String email;
     private String soDienThoai;
@@ -48,16 +50,13 @@ public class NguoiDung {
     public NguoiDung() {}    
   
 
-	
-
-
-
-	public NguoiDung(Integer maNguoiDung, String tenNguoiDung, String matKhau, String email, String soDienThoai,
-			String diaChi, String avatar, QuyenTruyCap quyenTruyCap, LoaiKhachHang loaiKhachHang,
+	public NguoiDung(Integer maNguoiDung, String tenNguoiDung, String hoTen, String matKhau, String email,
+			String soDienThoai, String diaChi, String avatar, QuyenTruyCap quyenTruyCap, LoaiKhachHang loaiKhachHang,
 			PhieuGiamGia phieuGiamGia, GioHang gioHang) {
 		super();
 		this.maNguoiDung = maNguoiDung;
 		this.tenNguoiDung = tenNguoiDung;
+		this.hoTen = hoTen;
 		this.matKhau = matKhau;
 		this.email = email;
 		this.soDienThoai = soDienThoai;
@@ -68,9 +67,6 @@ public class NguoiDung {
 		this.phieuGiamGia = phieuGiamGia;
 		this.gioHang = gioHang;
 	}
-
-
-
 
 
 
@@ -157,8 +153,15 @@ public class NguoiDung {
 	public void setLoaiKhachHang(LoaiKhachHang loaiKhachHang) {
 		this.loaiKhachHang = loaiKhachHang;
 	}
+
+
+	public String getHoTen() {
+		return hoTen;
+	}
+
+
+	public void setHoTen(String hoTen) {
+		this.hoTen = hoTen;
+	}
 	
-
-
-     
 }

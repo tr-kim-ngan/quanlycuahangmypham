@@ -25,6 +25,7 @@ import com.kimngan.ComesticAdmin.entity.DonNhapHang;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.NhaCungCap;
 import com.kimngan.ComesticAdmin.entity.SanPham;
+import com.kimngan.ComesticAdmin.entity.YeuCauBoSung;
 import com.kimngan.ComesticAdmin.repository.SanPhamRepository;
 import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
 import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
@@ -34,6 +35,7 @@ import com.kimngan.ComesticAdmin.services.KiemKeKhoService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.NhaCungCapService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
+import com.kimngan.ComesticAdmin.services.YeuCauBoSungService;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -78,6 +80,9 @@ public class WarehouseImportController {
 
 	@Autowired
 	private SanPhamRepository sanPhamRepository;
+	
+	@Autowired
+	private YeuCauBoSungService yeuCauBoSungService;
 	
 	// Lấy thông tin nhân viên nhập kho hiện tại
 	@ModelAttribute("user")
@@ -330,6 +335,67 @@ public class WarehouseImportController {
 		return "redirect:/warehouse/import/ton-kho";
 	}
 
+	
+	@GetMapping("/yeu-cau-bo-sung")
+	public String hienThiDanhSachYeuCau(
+	        Model model,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size) {
+
+	    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "thoiGianYeuCau"));
+	    Page<YeuCauBoSung> pageYeuCau = yeuCauBoSungService.findAll(pageable);
+
+	    model.addAttribute("pageYeuCau", pageYeuCau);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", pageYeuCau.getTotalPages());
+
+	    return "warehouse/export/yeu-cau-bo-sung";
+	}
+
+
+	@PostMapping("/xac-nhan-yeu-cau/{id}")
+	public String xacNhanYeuCau(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+	    YeuCauBoSung yeuCau = yeuCauBoSungService.findById(id);
+	    if (yeuCau == null) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy yêu cầu.");
+	        return "redirect:/warehouse/import/yeu-cau-bo-sung";
+	    }
+
+	    SanPham sanPham = yeuCau.getSanPham();
+	    Integer maSanPham = sanPham.getMaSanPham();
+
+	    int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+	    int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+	    int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+	    int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+	    int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+
+	    Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+	    int soLuongTonKho = (tonKhoDaDuyet != null)
+	            ? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+	            : (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
+
+	    if (yeuCau.getSoLuongYeuCau() > soLuongTonKho) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Không đủ hàng tồn kho để bổ sung.");
+	        return "redirect:/warehouse/import/yeu-cau-bo-sung";
+	    }
+
+	    // ✅ Trừ kho và cộng vào số lượng trên kệ
+	    sanPham.setSoLuong(sanPham.getSoLuong() + yeuCau.getSoLuongYeuCau());
+	    sanPhamService.update(sanPham);
+
+	    // ✅ Đánh dấu đã xử lý yêu cầu
+	    yeuCau.setDaXuLy(true);
+	    yeuCauBoSungService.save(yeuCau);
+
+	    redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận và bổ sung hàng lên kệ.");
+	    return "redirect:/warehouse/import/yeu-cau-bo-sung";
+	}
+
+	
+	
+	
+	
 	// Hiển thị danh sách nhà cung cấp
 	@GetMapping("/nha-cung-cap")
 	public String danhSachNhaCungCap(Model model, @RequestParam(value = "page", defaultValue = "0") int page,

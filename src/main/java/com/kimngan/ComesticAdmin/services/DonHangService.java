@@ -63,6 +63,15 @@ public interface DonHangService {
     List<DonHang> findDonHangsDaXuatKho();
 
     int getSoLuongTraHang(Integer maSanPham) ;
+    void clearOfflineOrder();
+    
+    
+    void updateOfflineOrderQuantity(Integer sanPhamId, int quantity);
+
+    void saveOfflineOrder(String soDienThoai);
+
+    
+    
     
     
     }

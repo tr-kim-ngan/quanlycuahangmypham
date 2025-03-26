@@ -22,60 +22,71 @@
 					<!-- Thông tin sản phẩm -->
 					<div class="card mb-4">
 						<div class="card-body">
-							<h5 class="fw-bold mb-3">Chi tiết sản phẩm</h5>
-							<!-- Nút Chỉnh sửa -->
-							<a th:href="@{/admin/edit-product/{id}(id=${sanPham.maSanPham})}"
-								class="btn btn-warning  mb-3">
-								Chỉnh sửa
-							</a>
+							<h5 class="fw-bold mb-4">Chi tiết sản phẩm</h5>
 
-							<a th:href="@{/admin/product}" class="btn btn-primary mb-3">
-								Quay về
-							</a>
-							<p class="fw-bold">Tên sản phẩm: <span th:text="${sanPham.tenSanPham}"></span></p>
-							<p class="fw-bold">Giá bán: <span th:text="${formattedPrice}"></span></p>
-							<p class="fw-bold">Số lượng đã bán: <span th:text="${soldQuantity}"></span></p>
-							<p class="fw-bold">Số lượng trên kệ: <span th:text="${sanPham.soLuong}"></span></p>
-							<!--<p>Mô tả: <span th:text="${sanPham.moTa}"></span></p>-->
-							<p class="fw-bold">Mô tả:</p>
-							<pre class="fw-bold" th:text="${sanPham.moTa}"
-								style="font-family: inherit; font-size: inherit; line-height: inherit;"></pre>
-
-
-							<p class="fw-bold">Tên đơn vị: <span th:text="${sanPham.donViTinh.tenDonVi}"></span></p>
-							<p class="fw-bold">Tên danh mục: <span th:text="${danhMuc.tenDanhMuc}"></span></p>
-							<p class="fw-bold">Tên thương hiệu:
-								<span
-									th:text="${sanPham.thuongHieu != null ? sanPham.thuongHieu.tenThuongHieu : 'Không có thương hiệu'}"></span>
-							</p>
-
-							<!-- Thông tin khuyến mãi -->
-							<div th:if="${highestKhuyenMai != null}">
-								<p class="fw-bold">Khuyến mãi hiện tại: <span
-										th:text="${highestKhuyenMai.tenKhuyenMai}"></span></p>
-								<p class="fw-bold">Phần trăm khuyến mãi: <span
-										th:text="${highestKhuyenMai.phanTramGiamGia}"></span>%
-								</p>
-								<p class="fw-bold">Giá sau khi giảm: 
-									<span th:text="${formattedDiscountPrice}"></span>
-								</p>
-
-
+							<!-- Nút thao tác -->
+							<div class="mb-4">
+								<a th:href="@{/admin/edit-product/{id}(id=${sanPham.maSanPham})}"
+									class="btn btn-warning me-2">Chỉnh sửa</a>
+								<a th:href="@{/admin/product}" class="btn btn-primary">Quay về</a>
 							</div>
-							<div class="fw-bold" th:if="${highestKhuyenMai == null}">
-								<p>Không có khuyến mãi hiện tại.</p>
+
+							<!-- Bảng thông tin sản phẩm -->
+							<div class="row mb-2">
+								<div class="col-md-6">
+									<p><strong>Tên sản phẩm:</strong> <span th:text="${sanPham.tenSanPham}"></span></p>
+									<p><strong>Giá bán:</strong> <span th:text="${formattedPrice}"></span></p>
+									<p><strong>Số lượng đã bán:</strong> <span th:text="${soldQuantity}"></span></p>
+									<p><strong>Số lượng trên kệ:</strong> <span th:text="${sanPham.soLuong}"></span></p>
+								</div>
+								<div class="col-md-6">
+									<p><strong>Đơn vị:</strong> <span th:text="${sanPham.donViTinh.tenDonVi}"></span>
+									</p>
+									<p><strong>Danh mục:</strong> <span th:text="${danhMuc.tenDanhMuc}"></span></p>
+									<p><strong>Thương hiệu:</strong>
+										<span
+											th:text="${sanPham.thuongHieu != null ? sanPham.thuongHieu.tenThuongHieu : 'Không có thương hiệu'}"></span>
+									</p>
+								</div>
+							</div>
+
+							<!-- Mô tả -->
+							<!-- Mô tả -->
+							<div class="mb-3 mt-1">
+								<p class="mb-1"><strong>Mô tả:</strong></p>
+								<div class="ps-5" style="white-space: pre-wrap; margin-top: 0; font-size: 15px;"
+									th:text="${sanPham.moTa}"></div>
 							</div>
 
 
+							<!-- Khuyến mãi -->
+							<div class="mb-4">
+								<p><strong>Khuyến mãi:</strong></p>
+								<div th:if="${highestKhuyenMai != null}">
+									<table class="table table-bordered w-auto">
+										<tr>
+											<th>Tên</th>
+											<th>Giảm giá</th>
+											<th>Giá sau khi giảm</th>
+										</tr>
+										<tr>
+											<td th:text="${highestKhuyenMai.tenKhuyenMai}"></td>
+											<td th:text="${highestKhuyenMai.phanTramGiamGia + '%'}"></td>
+											<td th:text="${formattedDiscountPrice}"></td>
+										</tr>
+									</table>
+								</div>
+								<div th:if="${highestKhuyenMai == null}">
+									<p>Không có khuyến mãi hiện tại.</p>
+								</div>
+							</div>
 
-							<!-- Hiển thị hình ảnh sản phẩm -->
-							<div>
-								<p class="fw-bold">Hình ảnh sản phẩm:</p>
+							<!-- Hình ảnh -->
+							<div class="mb-3">
+								<p><strong>Hình ảnh sản phẩm:</strong></p>
 								<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
-									style="width: 100px; height: auto;">
-
+									style="width: 200px; height: auto; border: 1px solid #ccc; padding: 5px;">
 							</div>
-
 						</div>
 					</div>
 

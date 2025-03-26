@@ -1,55 +1,139 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
 	<meta charset="UTF-8">
-	<title>Quản lý hóa đơn</title>
+	<title>Hóa Đơn</title>
+	<link rel="icon" type="image/png" th:href="@{/fe/images/sale.png}">
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+	<style>
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			background-color: white;
+		}
+
+		th,
+		td {
+			padding: 10px;
+			border: 1px solid #ddd;
+			text-align: center;
+		}
+
+		th {
+			background-color: #1f2a40;
+			color: white;
+		}
+	</style>
 </head>
 
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+	<div style=" padding: 20px 40px 10px 250px; display: flex; justify-content: space-between; align-items: center;">
+		<!-- Bộ lọc bên trái -->
+		<form th:action="@{${searchAction}}" method="get"
+			style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+			<label for="status" style="font-weight: bold; margin-bottom: 0;">Lọc theo trạng thái:</label>
 
-	<!-- Sidebar nhân viên bán hàng -->
-	<div th:replace="seller/fragment/sidebar :: sidebar"></div>
+			<select name="status" id="status"
+				style="padding: 6px 12px; min-width: 180px; border: 1px solid #ccc; border-radius: 4px;">
+				<option value="">Tất cả</option>
+				<option value="paid" th:selected="${selectedStatus == 'paid'}">Đã thanh toán</option>
+				<option value="Chưa xác nhận" th:selected="${selectedStatus == 'Chưa xác nhận'}">Chưa thanh toán
+				</option>
+			</select>
 
-	<!-- Nội dung quản lý hóa đơn -->
-	<div style="margin-left: 240px; padding: 30px;">
-		<h2 style="margin-bottom: 20px;">Danh sách hóa đơn</h2>
+			<button type="submit"
+				style="padding: 6px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+				Lọc
+			</button>
+		</form>
+
+		<!-- Tiêu đề bên phải -->
+		<h2 style="margin: 0; font-size: 24px; font-weight: bold; color: #1f2a40;">
+			📄 Danh Sách Hóa Đơn
+		</h2>
+		<div style=" margin-right: 300px;">
+
+		</div>
+	</div>
+	<hr style="border: none; height: 1px; background-color: #1f2a40; margin: 0 40px 10px 250px;">
+
+
+
+	<div class="container" style="margin-left: 260px; padding: 30px;">
+		<div th:replace="seller/fragment/sidebar :: sidebar"></div>
+
+
+
+		<div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+			<span th:text="${errorMessage}"></span>
+		</div>
 
 		<table border="1" cellspacing="0" cellpadding="10" style="width: 100%; background-color: white;">
 			<thead style="background-color: #1f2a40; color: white;">
 				<tr>
-					<th>Mã hóa đơn</th>
-					<th>Khách hàng</th>
-					<th>Ngày xuất</th>
-					<th>Trạng thái</th>
-					<th>Tổng tiền</th>
-					<th>Hành động</th>
+					<th class="text-center">Mã Hóa Đơn</th>
+					<th class="text-center">Ngày Xuất</th>
+					<th class="text-center">Tổng Tiền</th>
+					<th class="text-center">Người Nhận</th>
+					<th class="text-center">Trạng Thái</th>
+					<th class="text-center">Thao Tác</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="hoaDon : ${hoaDons}">
-					<td style="text-align: center;" th:text="${hoaDon.maHoaDon}"></td>
-					<td style="text-align: center;" th:text="${hoaDon.donHang.nguoiDung != null ? hoaDon.donHang.nguoiDung.tenNguoiDung : 'Không xác định'}"></td>
-					<td style="text-align: center;" th:text="${#temporals.format(hoaDon.ngayXuat, 'dd-MM-yyyy HH:mm')}"></td>
-					<td style="text-align: center;" th:text="${hoaDon.trangThai}"></td>
-					<td style="text-align: center;" th:text="${#numbers.formatDecimal(hoaDon.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-					<td style="text-align: center;">
-						<a th:href="@{'/seller/hoadon/' + ${hoaDon.maHoaDon}}" style="
-                            background-color: #0099cc;
-                            color: white;
-                            padding: 6px 12px;
-                            text-decoration: none;">
-							Xem
-						</a>
-					</td>
-				</tr>
-
-				<!-- Trường hợp không có hóa đơn nào -->
 				<tr th:if="${hoaDons.isEmpty()}">
-					<td colspan="6" style="text-align: center;">Không có hóa đơn nào.</td>
+					<td colspan="6" class="text-center text-muted">Không tìm thấy hóa đơn nào.</td>
+				</tr>
+				<tr th:each="hoaDon : ${hoaDons}">
+					<td class="text-center" th:text="${hoaDon.maHoaDon}"></td>
+					<td class="text-center" th:text="${#temporals.format(hoaDon.ngayXuatHoaDon, 'dd/MM/yyyy HH:mm')}">
+					</td>
+					<td class="text-center">
+						<span class="fw-bold"
+							th:text="${#numbers.formatDecimal(hoaDon.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+					</td>
+					<td class="text-center"
+						th:text="${hoaDon.soDienThoaiNhanHang != '0000000000' ? hoaDon.donHang.nguoiDung.hoTen : 'Khách vãng lai'}">
+					</td>
+					<td class="text-center">
+						<span
+							th:text="${hoaDon.trangThaiThanhToan == 'Chưa xác nhận' ? 'Chưa thanh toán' : 'Đã thanh toán'}"
+							th:classappend="${hoaDon.trangThaiThanhToan == 'Chưa xác nhận' ? 'text-danger' : 'text-success'}"></span>
+						<i
+							th:classappend="${hoaDon.trangThaiThanhToan == 'Chưa xác nhận' ? 'fa fa-times-circle text-danger' : 'fa fa-check-circle text-success'}"></i>
+					</td>
+					<td class="text-center">
+						<a th:href="@{'/seller/hoadon/' + ${hoaDon.donHang.maDonHang}}" class="btn btn-primary">Xem Chi
+							Tiết</a>
+					</td>
 				</tr>
 			</tbody>
 		</table>
+
+		<div style="margin-top: 30px;">
+			<nav aria-label="Page navigation">
+				<ul class="pagination justify-content-center" style="gap: 6px;">
+					<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+						<a th:href="@{|/seller/hoadon?page=${currentPage - 1}&size=${size}|}" class="page-link"
+							style="border-radius: 6px;">Trước</a>
+					</li>
+
+					<li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+						th:classappend="${currentPage == i} ? 'active'">
+						<a th:href="@{|/seller/hoadon?page=${i}&size=${size}|}" class="page-link"
+							style="border-radius: 6px;" th:text="${i + 1}">1</a>
+					</li>
+
+					<li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+						<a th:href="@{|/seller/hoadon?page=${currentPage + 1}&size=${size}|}" class="page-link"
+							style="border-radius: 6px;">Sau</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+
 	</div>
 
 </body>
