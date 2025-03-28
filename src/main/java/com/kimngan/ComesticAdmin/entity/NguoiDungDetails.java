@@ -67,7 +67,7 @@ public class NguoiDungDetails implements UserDetails{
 	 
 	@Override
     public boolean isEnabled() {
-        return true;  // Giả định tài khoản được kích hoạt
+		return nguoiDung.isTrangThai();   // Giả định tài khoản được kích hoạt
     }
 
 }

@@ -770,6 +770,18 @@ public class DonHangServiceImpl implements DonHangService {
 	    donHangRepository.save(donHang);
 	    offlineOrder.clear();
 	}
+
+	@Override
+	public Page<DonHang> getOrdersByUserAndDiaChi(String username, String diaChi, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return donHangRepository.findByNguoiDung_TenNguoiDungAndDiaChiGiaoHang(username, diaChi, pageable);
+	}
+
+	@Override
+	public Page<DonHang> getOrdersByUserAndDiaChiNot(String username, String diaChi, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return donHangRepository.findByNguoiDung_TenNguoiDungAndDiaChiGiaoHangNot(username, diaChi, pageable);
+	}
 	
 
 

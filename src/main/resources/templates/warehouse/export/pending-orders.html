@@ -124,7 +124,7 @@
 				<tr th:if="${not #lists.isEmpty(donHangs)}" th:each="order : ${donHangs}">
 					<td th:text="${order.maDonHang}"></td>
 					<td th:text="${#temporals.format(order.ngayDat, 'dd-MM-yyyy HH:mm')}"></td>
-					<td th:text="${order.nguoiDung.tenNguoiDung}"></td>
+					<td th:text="${order.nguoiDung.hoTen}"></td>
 					<td th:text="${order.sdtNhanHang}"></td>
 					<td th:text="${#numbers.formatInteger(order.tongGiaTriDonHang, 0, 'POINT')} + ' đ'"></td>
 					<td>

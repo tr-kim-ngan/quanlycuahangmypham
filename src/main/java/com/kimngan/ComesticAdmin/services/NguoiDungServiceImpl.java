@@ -104,9 +104,13 @@ public class NguoiDungServiceImpl implements NguoiDungService {
 
 	@Override
 	public void deleteById(Integer id) {
-		nguoiDungRepository.deleteById(id);
-
+	    NguoiDung nd = nguoiDungRepository.findById(id).orElse(null);
+	    if (nd != null) {
+	        nd.setTrangThai(false);
+	        nguoiDungRepository.save(nd);
+	    }
 	}
+
 
 	@Override
 	public boolean existsByEmail(String email) {

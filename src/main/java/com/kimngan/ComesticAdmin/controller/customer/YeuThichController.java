@@ -15,6 +15,10 @@ import org.springframework.ui.Model;
 import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.SanPham;
+import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
+import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
+import com.kimngan.ComesticAdmin.services.DonHangService;
+import com.kimngan.ComesticAdmin.services.KiemKeKhoService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.YeuThichService;
@@ -44,20 +48,33 @@ public class YeuThichController {
 
 	@Autowired
 	private YeuThichService yeuThichService;
+
+	@Autowired
+	private ChiTietDonNhapHangService chiTietDonNhapHangService;
+
+	@Autowired
+	private ChiTietDonHangService chiTietDonHangService;
+
+	@Autowired
+	private KiemKeKhoService kiemKeKhoService;
+	@Autowired
+	private DonHangService donHangService;
+
 	@ModelAttribute
 	public void addAttributes(Model model, Principal principal) {
-	    if (principal != null) {
-	        // Lấy tên đăng nhập từ Principal
-	        String username = principal.getName();
+		if (principal != null) {
+			// Lấy tên đăng nhập từ Principal
+			String username = principal.getName();
 
-	        // Tìm thông tin người dùng
-	        NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
+			// Tìm thông tin người dùng
+			NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(username);
 
-	        // Thêm thông tin người dùng và timestamp vào Model
-	        model.addAttribute("currentUser", currentUser);
-	        model.addAttribute("timestamp", System.currentTimeMillis()); // Timestamp luôn được cập nhật
-	    }
+			// Thêm thông tin người dùng và timestamp vào Model
+			model.addAttribute("currentUser", currentUser);
+			model.addAttribute("timestamp", System.currentTimeMillis()); // Timestamp luôn được cập nhật
+		}
 	}
+
 	@GetMapping("/index")
 	public String viewIndex(Model model, Principal principal) {
 		List<Integer> favoriteProductIds = new ArrayList<>();
@@ -79,38 +96,69 @@ public class YeuThichController {
 		}
 
 		NguoiDung nguoiDung = getCurrentUser(principal);
-		List<SanPham> yeuThichList = yeuThichService.getFavoritesByUser(nguoiDung);
-		Set<Integer> favoriteProductIds = yeuThichList != null
-				? yeuThichList.stream().map(SanPham::getMaSanPham).collect(Collectors.toSet())
+		List<SanPham> allFavorites = yeuThichService.getFavoritesByUser(nguoiDung);
+
+		Set<Integer> favoriteProductIds = allFavorites != null
+				? allFavorites.stream().map(SanPham::getMaSanPham).collect(Collectors.toSet())
 				: new HashSet<>();
 
 		LocalDate today = LocalDate.now();
 		Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
 		Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
+		Map<Integer, Integer> sanPhamSoLuongTonKhoMap = new HashMap<>();
 
-		for (SanPham sanPham : yeuThichList) {
-			Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
-					.filter(km -> km.getTrangThai())
-					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
-							&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
-					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+		List<SanPham> yeuThichList = new ArrayList<>();
+		Map<Integer, String> sanPhamThuongHieuMap = new HashMap<>();
 
-			BigDecimal giaSauGiam = sanPham.getDonGiaBan();
-			if (highestCurrentKhuyenMai.isPresent()) {
-				BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
-				giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
-			} else {
-				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), null);
+		// Trong vòng lặp for (SanPham sanPham : allFavorites)
+		
+		for (SanPham sanPham : allFavorites) {
+			Integer maSanPham = sanPham.getMaSanPham();
+			int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+			int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+			int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+			int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+			int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+
+			int soLuongTonKho = (tonKhoDaDuyet != null)
+					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
+
+			if (soLuongTonKho > 0) {
+				yeuThichList.add(sanPham);
+				sanPhamSoLuongTonKhoMap.put(maSanPham, soLuongTonKho);
+				if (sanPham.getThuongHieu() != null) {
+					sanPhamThuongHieuMap.put(maSanPham, sanPham.getThuongHieu().getTenThuongHieu());
+				} else {
+					sanPhamThuongHieuMap.put(maSanPham, "Không có thương hiệu");
+				}
+
+				Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
+						.filter(km -> km.getTrangThai())
+						.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
+								&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
+						.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+
+				BigDecimal giaSauGiam = sanPham.getDonGiaBan();
+				if (highestCurrentKhuyenMai.isPresent()) {
+					BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
+					giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
+					sanPhamKhuyenMaiMap.put(maSanPham, highestCurrentKhuyenMai.get());
+				} else {
+					sanPhamKhuyenMaiMap.put(maSanPham, null);
+				}
+
+				sanPhamGiaSauGiamMap.put(maSanPham, giaSauGiam);
 			}
-			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
 		}
 
 		model.addAttribute("yeuThichList", yeuThichList);
 		model.addAttribute("favoriteProductIds", favoriteProductIds);
-		model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap); // Map khuyến mãi cao nhất cho từng sản phẩm
-		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap); // Giá sau khi giảm
-
+		model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap);
+		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
+		model.addAttribute("sanPhamSoLuongTonKhoMap", sanPhamSoLuongTonKhoMap);
+		model.addAttribute("sanPhamThuongHieuMap", sanPhamThuongHieuMap);
 		return "customer/favorites";
 	}
 

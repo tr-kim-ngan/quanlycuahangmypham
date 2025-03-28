@@ -30,6 +30,13 @@
 			text-decoration: none !important;
 
 		}
+
+		th,
+		td {
+			padding: 12px;
+			text-align: center;
+
+		}
 	</style>
 </head>
 
@@ -181,7 +188,8 @@
 
 		<!-- Nếu có trạng thái chờ xác nhận -->
 		<!-- Bọc chung toàn khối -->
-		<div style="display: flex; gap: 40px; margin-top: 30px; align-items: flex-start;">
+		<hr style="border: none; height: 2px; background-color: #1f2a40; margin: 0px 0;">
+		<div style="display: flex; gap: 40px; margin-top: 0px;  padding-bottom: 40px; align-items: flex-start;">
 
 			<!-- BÊN TRÁI: Thông tin giao hàng -->
 			<div style="flex: 1;">
@@ -194,8 +202,8 @@
 
 				<!-- Shipper -->
 				<div th:if="${donHang.shipper != null}" style="margin-top: 20px;">
-					<p>Đơn hàng đã được giao cho: <span th:text="${donHang.shipper.tenNguoiDung}"
-							style="color: green;"></span></p>
+					<p>Đơn hàng đã được giao cho: <span th:text="${donHang.shipper.hoTen}" style="color: green;"></span>
+					</p>
 					<p>Điện thoại: <span th:text="${donHang.shipper.soDienThoai}" style="color: #007bff;"></span></p>
 				</div>
 
@@ -307,15 +315,16 @@
 				<!-- Gán shipper nếu đơn đã xác nhận (hiển thị sau cùng trong khối) -->
 				<div th:if="${donHang.trangThaiDonHang == 'Đã xác nhận'}">
 					<form th:action="@{/seller/orders/{id}/assign-shipper(id=${donHang.maDonHang})}" method="post"
-						style="  border-radius: 5px;  width: fit-content;">
-						<label style="font-weight: bold; font-size: 18px; display: block; margin-bottom: 10px;"
-							for="shipper"><strong>🚚 Gán shipper:</strong></label>
+						style="  border-radius: 5px;  width: fit-content; padding-left: 20px;">
+						<label style="font-weight: bold; font-size: 18px; margin-bottom: 10px;" for="shipper"><strong>🚚
+								Gán shipper:</strong></label>
 						<select name="shipperId" id="shipper" required style="margin-left: 10px; padding: 10px;">
 							<option style="font-size: 16px;" value="">-- Chọn shipper --</option>
 							<option style="font-size: 16px;" th:each="shipper : ${danhSachShipper}"
-								th:value="${shipper.maNguoiDung}" th:text="${shipper.tenNguoiDung}"></option>
+								th:value="${shipper.maNguoiDung}" th:text="${shipper.hoTen}"></option>
 						</select>
-						<button type="submit" style="font-size: 16px; padding: 10px 20px; color: green;">
+						<button type="submit" class="btn btn-primary mt-3"
+							style="font-size: 16px; padding: 10px 20px; color: green;">
 							Xác nhận</button>
 					</form>
 				</div>
@@ -324,13 +333,16 @@
 				<div style="margin-top: 20px;" th:if="${donHang.trangThaiChoXacNhan == 'Đang giao hàng' 
              or donHang.trangThaiChoXacNhan == 'Giao lại đơn hàng'
              or donHang.trangThaiChoXacNhan == 'Đã hoàn thành'}">
-					<p style="font-size: 18px; color: #1f2a40;"><strong>🔄 Đang chờ xác nhận:</strong> <span
-							th:text="${donHang.trangThaiChoXacNhan}"></span></p>
-					<form th:action="@{/seller/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
-						method="post">
-						<button style="font-size: 16px; padding: 10px 20px; color: green;" type="submit"
-							class="btn btn-success mt-2">Xác nhận trạng thái</button>
-					</form>
+					<div style="display: flex; align-items: center; gap: 20px;">
+
+						<p style="font-size: 18px; color: #1f2a40;"><strong>🔄 Đang chờ xác nhận:</strong> <span
+								th:text="${donHang.trangThaiChoXacNhan}"></span></p>
+						<form th:action="@{/seller/orders/{maDonHang}/confirm-status(maDonHang=${donHang.maDonHang})}"
+							method="post">
+							<button style="font-size: 16px; padding: 10px 20px; color: green;" type="submit"
+								class="btn btn-success mt-2">Xác nhận trạng thái</button>
+						</form>
+					</div>
 				</div>
 
 				<!-- Giao hàng thất bại lần 1 -->
@@ -359,7 +371,7 @@
 								class="form-control" required>
 								<option value="">-- Chọn Shipper --</option>
 								<option th:each="shipper : ${danhSachShipper}" th:value="${shipper.maNguoiDung}"
-									th:text="${shipper.tenNguoiDung}"></option>
+									th:text="${shipper.hoTen}"></option>
 							</select>
 							<button style="font-size: 16px; padding: 10px 20px;" type="submit"
 								class="btn btn-warning mt-2">📦 Xác nhận giao lại</button>

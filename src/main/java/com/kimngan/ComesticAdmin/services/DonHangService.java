@@ -70,7 +70,10 @@ public interface DonHangService {
 
     void saveOfflineOrder(String soDienThoai);
 
-    
+    Page<DonHang> getOrdersByUserAndDiaChi(String username, String diaChi, Pageable pageable);
+
+    Page<DonHang> getOrdersByUserAndDiaChiNot(String username, String diaChi, Pageable pageable);
+
     
     
     

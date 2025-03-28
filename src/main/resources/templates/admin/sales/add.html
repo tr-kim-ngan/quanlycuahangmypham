@@ -16,7 +16,7 @@
 
 			<div class="container" style="background-color: #faeee7;">
 				<div class="page-inner">
-					<h3 class="fw-bold mb-3">Thêm Shipper</h3>
+					<h3 class="fw-bold mb-3">Thêm Nhân Viên Kho</h3>
 
 					<!-- Hiển thị lỗi -->
 					<div th:if="${error != null}" class="alert alert-danger">
@@ -26,11 +26,12 @@
 						<i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
 					</div>
 
-					<form th:action="@{/admin/shipper/add}" th:object="${nguoiDung}" method="post">
+					<form th:action="@{/admin/sales-staff/add}" th:object="${nguoiDung}" method="post">
 						<div class="form-group">
 							<label for="tenNguoiDung">Tên người dùng</label>
 							<input type="text" class="form-control" id="tenNguoiDung" th:field="*{tenNguoiDung}"
-								required>
+								required pattern="^[a-zA-Z0-9._-]{4,30}$"
+								title="Tên người dùng không được chứa dấu, không có khoảng trắng và từ 4–30 ký tự (chỉ chữ, số, dấu chấm, gạch dưới)">
 						</div>
 
 						<div class="form-group">
@@ -40,15 +41,17 @@
 								title="Họ tên chỉ được chứa chữ cái và khoảng trắng.">
 						</div>
 
-
 						<div class="form-group">
 							<label for="email">Email</label>
-							<input type="email" class="form-control" id="email" th:field="*{email}" required>
+							<input type="email" class="form-control" id="email" th:field="*{email}" required
+								pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+								title="Email phải đúng định dạng, ví dụ: example@gmail.com">
 						</div>
 
 						<div class="form-group">
 							<label for="soDienThoai">Số điện thoại</label>
-							<input type="text" class="form-control" id="soDienThoai" th:field="*{soDienThoai}" required>
+							<input type="text" class="form-control" id="soDienThoai" th:field="*{soDienThoai}" required
+								pattern="0\d{9}" title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số.">
 						</div>
 
 						<div class="form-group">
@@ -77,11 +80,12 @@
 									icon.classList.add('fa-eye');
 								}
 							});
+							
 						</script>
 
 
-						<button type="submit" class="btn btn-primary">Thêm Shipper</button>
-						<a th:href="@{/admin/shipper}" class="btn btn-secondary">Hủy</a>
+						<button type="submit" class="btn btn-primary">Thêm nhân viên kho</button>
+						<a th:href="@{/admin/sales-staff}" class="btn btn-secondary">Hủy</a>
 					</form>
 
 				</div>
@@ -93,7 +97,7 @@
 		</div>
 	</div>
 
-	<!-- Core JS Files -->
+	<!-- Core JS Files-->
 	<div th:replace="admin/fragments/script::script"></div>
 </body>
 

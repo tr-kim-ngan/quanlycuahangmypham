@@ -10,10 +10,21 @@
 		<h2 class="text-center" style="color: #333; font-weight: bold; margin-bottom: 20px;">Đơn hàng của tôi</h2>
 
 		<!-- Tabs trạng thái đơn hàng -->
+		<!-- Tabs trạng thái đơn hàng -->
 		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-			<button class="tab-btn" onclick="changeTab('all')" data-status="all">Mua online</button>
-			<button class="tab-btn inactive" onclick="changeTab('store')" data-status="store">Mua tại cửa hàng</button>
+			<a th:href="@{/customer/order(type='online')}" class="tab-btn"
+				th:classappend="${selectedType == 'online'} ? '' : 'inactive'" style="padding: 10px 20px; border-radius: 6px; font-weight: bold; border: 1px solid #007bff;
+		text-decoration: none; transition: all 0.3s ease;
+		
+		">Mua online</a>
+
+			<a th:href="@{/customer/order(type='store')}" class="tab-btn"
+				th:classappend="${selectedType == 'store'} ? '' : 'inactive'" style="padding: 10px 20px; border-radius: 6px; font-weight: bold; border: 1px solid #007bff;
+		text-decoration: none; transition: all 0.3s ease;
+		
+		">Mua tại cửa hàng</a>
 		</div>
+
 
 		<!-- Thanh menu trạng thái -->
 		<div class="order-tabs">
@@ -195,30 +206,32 @@
 
 
 		<!-- Phân trang -->
+		<!-- Phân trang -->
 		<div class="pagination" style="text-align: center; margin-top: 20px;">
 			<ul style="display: inline-flex; list-style: none; padding: 0;">
-				<!-- Nút Previous (Chỉ hiển thị nếu currentPage > 0) -->
+				<!-- Nút Previous -->
 				<li th:if="${currentPage > 0}">
-					<a th:href="@{/customer/order(page=${currentPage - 1}, size=${size}, status=${selectedStatus})}"
+					<a th:href="@{/customer/order(page=${currentPage - 1}, size=${size}, status=${selectedStatus}, type=${selectedType})}"
 						style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; text-decoration: none; 
                       color: #333; background-color: white; margin: 0 5px;">
 						❮ Trước
 					</a>
 				</li>
 
-				<!-- Hiển thị số trang -->
+				<!-- Số trang -->
 				<li th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-					<a th:href="@{/customer/order(page=${i}, size=${size}, status=${selectedStatus})}" th:style="${i == currentPage} ? 
-                    'padding: 6px 10px; border: 1px solid #007bff; border-radius: 4px; text-decoration: none; 
-                     color: white; background-color: #007bff; font-weight: bold; margin: 0 5px;' :
-                    'padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; text-decoration: none; 
-                     color: #333; background-color: white; margin: 0 5px;'" th:text="${i + 1}">
+					<a th:href="@{/customer/order(page=${i}, size=${size}, status=${selectedStatus}, type=${selectedType})}"
+						th:style="${i == currentPage} ? 
+                'padding: 6px 10px; border: 1px solid #007bff; border-radius: 4px; text-decoration: none; 
+                 color: white; background-color: #007bff; font-weight: bold; margin: 0 5px;' :
+                'padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; text-decoration: none; 
+                 color: #333; background-color: white; margin: 0 5px;'" th:text="${i + 1}">
 					</a>
 				</li>
 
-				<!-- Nút Next (Chỉ hiển thị nếu chưa đến trang cuối) -->
+				<!-- Nút Next -->
 				<li th:if="${currentPage < totalPages - 1}">
-					<a th:href="@{/customer/order(page=${currentPage + 1}, size=${size}, status=${selectedStatus})}"
+					<a th:href="@{/customer/order(page=${currentPage + 1}, size=${size}, status=${selectedStatus}, type=${selectedType})}"
 						style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; text-decoration: none; 
                       color: #333; background-color: white; margin: 0 5px;">
 						Sau ❯
@@ -226,6 +239,7 @@
 				</li>
 			</ul>
 		</div>
+
 
 
 	</main>
