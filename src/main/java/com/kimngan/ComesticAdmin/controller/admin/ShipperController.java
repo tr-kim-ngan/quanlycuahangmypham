@@ -32,7 +32,6 @@ public class ShipperController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	// 💡 Thêm thông tin user vào model để tránh lỗi Thymeleaf
 	@ModelAttribute
 	public void addUserToModel(Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -42,64 +41,61 @@ public class ShipperController {
 		}
 	}
 
-	// 1️ Xem danh sách Shipper
 	@GetMapping
 	public String listShippers(Model model) {
-		List<NguoiDung> shippers = nguoiDungService.findByRole("SHIPPER")
-				  .stream()
-	                .sorted(Comparator.comparingInt(NguoiDung::getMaNguoiDung).reversed()) // Sắp xếp giảm dần
-	                .collect(Collectors.toList());
-				
-		System.out.println("DEBUG - Shippers trong Controller: " + shippers); // Debug
+		List<NguoiDung> shippers = nguoiDungService.findByRole("SHIPPER").stream().filter(s -> s.isTrangThai())
+				.sorted(Comparator.comparingInt(NguoiDung::getMaNguoiDung).reversed()).collect(Collectors.toList());
+
 		model.addAttribute("shippers", shippers);
 		return "admin/shipper/index";
 	}
 
-	// 2️ Hiển thị form thêm Shipper
 	@GetMapping("/add")
 	public String showAddForm(Model model) {
 		model.addAttribute("nguoiDung", new NguoiDung());
 		return "admin/shipper/add"; // Giao diện thêm shipper
 	}
 
-	// 3️ Xử lý thêm Shipper
 
 	@PostMapping("/add")
-	public String addShipper(@ModelAttribute("nguoiDung") NguoiDung nguoiDung, 
-			RedirectAttributes redirectAttributes) {
-		 // Kiểm tra nếu tên đã tồn tại
-	    if (nguoiDungService.existsByTenNguoiDung(nguoiDung.getTenNguoiDung())) {
-	        redirectAttributes.addFlashAttribute("error", "Tên người dùng đã được sử dụng!");
-	        return "redirect:/admin/shipper/add";
-	    }
-	    // Kiểm tra nếu email đã tồn tại
-	    if (nguoiDungService.existsByEmail(nguoiDung.getEmail())) {
-	        redirectAttributes.addFlashAttribute("error", "Email đã được sử dụng!");
-	        return "redirect:/admin/shipper/add";
-	    }
+	public String addShipper(@ModelAttribute("nguoiDung") NguoiDung nguoiDung, RedirectAttributes redirectAttributes) {
+		// Kiểm tra nếu tên đã tồn tại
+		
+		if (!nguoiDung.getTenNguoiDung().matches("^[a-zA-Z0-9._-]{4,30}$")) {
+            redirectAttributes.addFlashAttribute("error", "Tên người dùng không hợp lệ! Chỉ dùng chữ không dấu, số, và không có khoảng trắng.");
+            return "redirect:/admin/shipper/add";
+        }
+		
+		if (nguoiDungService.existsByTenNguoiDung(nguoiDung.getTenNguoiDung())) {
+			redirectAttributes.addFlashAttribute("error", "Tên người dùng đã được sử dụng!");
+			return "redirect:/admin/shipper/add";
+		}
+		// Kiểm tra nếu email đã tồn tại
+		if (nguoiDungService.existsByEmail(nguoiDung.getEmail())) {
+			redirectAttributes.addFlashAttribute("error", "Email đã được sử dụng!");
+			return "redirect:/admin/shipper/add";
+		}
 
-	    // Kiểm tra nếu số điện thoại đã tồn tại
-	    if (nguoiDungService.existsBySoDienThoai(nguoiDung.getSoDienThoai())) {
-	        redirectAttributes.addFlashAttribute("error", "Số điện thoại đã được sử dụng!");
-	        return "redirect:/admin/shipper/add";
-	    }
+		// Kiểm tra nếu số điện thoại đã tồn tại
+		if (nguoiDungService.existsBySoDienThoai(nguoiDung.getSoDienThoai())) {
+			redirectAttributes.addFlashAttribute("error", "Số điện thoại đã được sử dụng!");
+			return "redirect:/admin/shipper/add";
+		}
 
-	    // Gán quyền SHIPPER
-	    QuyenTruyCap quyenShipper = quyenTruyCapRepository.findByTenQuyen("SHIPPER");
-	    nguoiDung.setQuyenTruyCap(quyenShipper);
+		// Gán quyền SHIPPER
+		QuyenTruyCap quyenShipper = quyenTruyCapRepository.findByTenQuyen("SHIPPER");
+		nguoiDung.setQuyenTruyCap(quyenShipper);
 
-	    // Mã hóa mật khẩu trước khi lưu
-	    nguoiDung.setMatKhau(passwordEncoder.encode(nguoiDung.getMatKhau()));
+		// Mã hóa mật khẩu trước khi lưu
+		nguoiDung.setMatKhau(passwordEncoder.encode(nguoiDung.getMatKhau()));
 
-	    // Lưu vào DB
-	    nguoiDungService.save(nguoiDung);
-	    redirectAttributes.addFlashAttribute("success", "Thêm shipper thành công!");
+		// Lưu vào DB
+		nguoiDungService.save(nguoiDung);
+		redirectAttributes.addFlashAttribute("success", "Thêm shipper thành công!");
 
-	    return "redirect:/admin/shipper";
+		return "redirect:/admin/shipper";
 	}
 
-
-	// 4️⃣ Hiển thị form sửa Shipper
 	@GetMapping("/edit/{id}")
 	public String showEditForm(@PathVariable("id") Integer id, Model model) {
 		NguoiDung shipper = nguoiDungService.findById(id);
@@ -107,60 +103,69 @@ public class ShipperController {
 		return "admin/shipper/edit"; // Giao diện sửa shipper
 	}
 
-	// 5️⃣ Xử lý cập nhật Shipper
 	@PostMapping("/edit")
-	public String updateShipper(@ModelAttribute("nguoiDung") NguoiDung updatedShipper, RedirectAttributes redirectAttributes) {
-	    // Tìm Shipper hiện tại trong database
-	    NguoiDung existingShipper = nguoiDungService.findById(updatedShipper.getMaNguoiDung());
+	public String updateShipper(@ModelAttribute("nguoiDung") NguoiDung updatedShipper,
+			RedirectAttributes redirectAttributes) {
+		// Tìm Shipper hiện tại trong database
+		NguoiDung existingShipper = nguoiDungService.findById(updatedShipper.getMaNguoiDung());
 
-	    if (existingShipper == null) {
-	        redirectAttributes.addFlashAttribute("error", "Không tìm thấy shipper cần cập nhật!");
-	        return "redirect:/admin/shipper";
-	    }
-	    // Kiểm tra nếu tên đã tồn tại ở một Shipper khác
-	    if (nguoiDungService.existsByTenNguoiDungAndNotId(updatedShipper.getTenNguoiDung(), updatedShipper.getMaNguoiDung())) {
-	        redirectAttributes.addFlashAttribute("error", "Tên người dùng đã được sử dụng!");
-	        return "redirect:/admin/shipper/edit/" + updatedShipper.getMaNguoiDung();
-	    }
+		if (existingShipper == null) {
+			redirectAttributes.addFlashAttribute("error", "Không tìm thấy shipper cần cập nhật!");
+			return "redirect:/admin/shipper";
+		}
+		// Kiểm tra nếu tên đã tồn tại ở một Shipper khác
+		if (nguoiDungService.existsByTenNguoiDungAndNotId(updatedShipper.getTenNguoiDung(),
+				updatedShipper.getMaNguoiDung())) {
+			redirectAttributes.addFlashAttribute("error", "Tên người dùng đã được sử dụng!");
+			return "redirect:/admin/shipper/edit/" + updatedShipper.getMaNguoiDung();
+		}
 
-	    // Kiểm tra nếu email đã tồn tại ở một Shipper khác
-	    if (nguoiDungService.existsByEmailAndNotId(updatedShipper.getEmail(), updatedShipper.getMaNguoiDung())) {
-	        System.out.println("❌ Lỗi: Email đã tồn tại!");
-	        redirectAttributes.addFlashAttribute("error", "Email đã được sử dụng!");
-	        return "redirect:/admin/shipper/edit/" + updatedShipper.getMaNguoiDung();
-	    }
+		// Kiểm tra nếu email đã tồn tại ở một Shipper khác
+		if (nguoiDungService.existsByEmailAndNotId(updatedShipper.getEmail(), updatedShipper.getMaNguoiDung())) {
+			System.out.println("❌ Lỗi: Email đã tồn tại!");
+			redirectAttributes.addFlashAttribute("error", "Email đã được sử dụng!");
+			return "redirect:/admin/shipper/edit/" + updatedShipper.getMaNguoiDung();
+		}
 
-	    // Kiểm tra nếu số điện thoại đã tồn tại ở một Shipper khác
-	    if (nguoiDungService.existsBySoDienThoaiAndNotId(updatedShipper.getSoDienThoai(), updatedShipper.getMaNguoiDung())) {
-	        System.out.println("❌ Lỗi: Số điện thoại đã tồn tại!");
-	        redirectAttributes.addFlashAttribute("error", "Số điện thoại đã được sử dụng!");
-	        return "redirect:/admin/shipper/edit/" + updatedShipper.getMaNguoiDung();
-	    }
+		// Kiểm tra nếu số điện thoại đã tồn tại ở một Shipper khác
+		if (nguoiDungService.existsBySoDienThoaiAndNotId(updatedShipper.getSoDienThoai(),
+				updatedShipper.getMaNguoiDung())) {
+			System.out.println("❌ Lỗi: Số điện thoại đã tồn tại!");
+			redirectAttributes.addFlashAttribute("error", "Số điện thoại đã được sử dụng!");
+			return "redirect:/admin/shipper/edit/" + updatedShipper.getMaNguoiDung();
+		}
 
-	    // Cập nhật thông tin Shipper
-	    existingShipper.setTenNguoiDung(updatedShipper.getTenNguoiDung());
-	    existingShipper.setEmail(updatedShipper.getEmail());
-	    existingShipper.setSoDienThoai(updatedShipper.getSoDienThoai());
+		// Cập nhật thông tin Shipper
+		existingShipper.setTenNguoiDung(updatedShipper.getTenNguoiDung());
+		existingShipper.setEmail(updatedShipper.getEmail());
+		existingShipper.setSoDienThoai(updatedShipper.getSoDienThoai());
 
-	    // Chỉ mã hóa mật khẩu nếu admin nhập mật khẩu mới
-	    if (updatedShipper.getMatKhau() != null && !updatedShipper.getMatKhau().isEmpty()) {
-	        existingShipper.setMatKhau(passwordEncoder.encode(updatedShipper.getMatKhau()));
-	    }
+		// Chỉ mã hóa mật khẩu nếu admin nhập mật khẩu mới
+		if (updatedShipper.getMatKhau() != null && !updatedShipper.getMatKhau().isEmpty()) {
+			existingShipper.setMatKhau(passwordEncoder.encode(updatedShipper.getMatKhau()));
+		}
 
-	    // Lưu vào DB
-	    nguoiDungService.save(existingShipper);
-	    redirectAttributes.addFlashAttribute("success", "Cập nhật shipper thành công!");
+		// Lưu vào DB
+		nguoiDungService.save(existingShipper);
+		redirectAttributes.addFlashAttribute("success", "Cập nhật shipper thành công!");
 
-	    return "redirect:/admin/shipper/edit/" + updatedShipper.getMaNguoiDung();
+		return "redirect:/admin/shipper/edit/" + updatedShipper.getMaNguoiDung();
 
 	}
-
-
 
 	// 4️ Xóa hoặc vô hiệu hóa Shipper
+	// 6️⃣ Vô hiệu hóa (ẩn) shipper thay vì xóa
 	@GetMapping("/delete/{id}")
-	public String deleteShipper(@PathVariable("id") Integer id) {
-		nguoiDungService.deleteById(id);
+	public String disableShipper(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+		NguoiDung shipper = nguoiDungService.findById(id);
+		if (shipper != null) {
+			shipper.setTrangThai(false); // Đặt trạng thái thành false
+			nguoiDungService.save(shipper); // Lưu lại vào DB
+			redirectAttributes.addFlashAttribute("success", "Đã vô hiệu hóa shipper thành công.");
+		} else {
+			redirectAttributes.addFlashAttribute("error", "Không tìm thấy shipper để vô hiệu hóa.");
+		}
 		return "redirect:/admin/shipper";
 	}
+
 }

@@ -112,6 +112,7 @@ public class DonHangController {
 
 	@GetMapping
 	public String viewOrders(@RequestParam(value = "status", required = false, defaultValue = "all") String status,
+			 @RequestParam(value = "type", required = false, defaultValue = "all") String type,
 			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "2") int size, Principal principal, Model model) {
 		if (page < 0) {
@@ -127,19 +128,24 @@ public class DonHangController {
 
 		Page<DonHang> donHangPage;
 		if ("all".equals(status)) {
-			// Lấy tất cả đơn hàng
-			donHangPage = donHangService.getOrdersByUser(username, pageRequest);
+			// Xử lý theo loại đơn hàng
+			if ("store".equals(type)) {
+				donHangPage = donHangService.getOrdersByUserAndDiaChi(username, "Mua tại quầy KN", pageRequest);
+			} else if ("online".equals(type)) {
+				donHangPage = donHangService.getOrdersByUserAndDiaChiNot(username, "Mua tại quầy KN", pageRequest);
+			} else {
+				donHangPage = donHangService.getOrdersByUser(username, pageRequest);
+			}
 		} else if ("Mới đặt".equals(status)) {
-			// Chỉ lấy các đơn hàng có ngày đặt mới nhất
 			donHangPage = donHangService.getLatestOrdersByUser(username, pageRequest);
 		} else {
-			// Lọc theo trạng thái khác
 			donHangPage = donHangService.getOrdersByUserAndStatus(username, status, pageRequest);
 		}
 
 		model.addAttribute("donHangs", donHangPage.getContent());
 		model.addAttribute("currentPage", donHangPage.getNumber());
 		model.addAttribute("totalPages", donHangPage.getTotalPages());
+		model.addAttribute("selectedType", type);
 		model.addAttribute("selectedStatus", status);
 		model.addAttribute("size", size);
 

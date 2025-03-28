@@ -66,6 +66,11 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 		       "JOIN c.donHang d WHERE d.trangThaiDonHang = 'Đã hủy' " +
 		       "AND c.sanPham.maSanPham = :maSanPham")
 		int tinhTongSoLuongTraHang(@Param("maSanPham") Integer maSanPham);
+	
+	Page<DonHang> findByNguoiDung_TenNguoiDungAndDiaChiGiaoHang(String username, String diaChi, Pageable pageable);
+
+	Page<DonHang> findByNguoiDung_TenNguoiDungAndDiaChiGiaoHangNot(String username, String diaChi, Pageable pageable);
+
 
 
 }

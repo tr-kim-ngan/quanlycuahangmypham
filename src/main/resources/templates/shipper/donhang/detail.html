@@ -21,7 +21,7 @@
 						<div class="col-md-6" style="padding-left:100px;">
 							<p><strong>Mã đơn hàng:</strong> <span th:text="${order.maDonHang}"></span></p>
 							<p th:if="${order.nguoiDung != null}">
-								<strong>Người đặt hàng:</strong> <span th:text="${order.nguoiDung.tenNguoiDung}"></span>
+								<strong>Người đặt hàng:</strong> <span th:text="${order.nguoiDung.hoTen}"></span>
 							</p>
 							<p th:if="${order.nguoiDung == null}" class="text-danger">
 								<strong>Người đặt hàng:</strong> Không có thông tin

@@ -26,6 +26,8 @@ public class NguoiDung {
     private String soDienThoai;
     private String diaChi;
     private String avatar;
+    private boolean trangThai = true;
+
     // quan hệ với bảng Quyền Truy Cập
     @ManyToOne
     @JoinColumn(name = "maQuyen", referencedColumnName ="maQuyen") // Khóa ngoại trỏ đến bảng QuyenTruyCap
@@ -51,8 +53,8 @@ public class NguoiDung {
   
 
 	public NguoiDung(Integer maNguoiDung, String tenNguoiDung, String hoTen, String matKhau, String email,
-			String soDienThoai, String diaChi, String avatar, QuyenTruyCap quyenTruyCap, LoaiKhachHang loaiKhachHang,
-			PhieuGiamGia phieuGiamGia, GioHang gioHang) {
+			String soDienThoai, String diaChi, String avatar,  QuyenTruyCap quyenTruyCap,
+			LoaiKhachHang loaiKhachHang, PhieuGiamGia phieuGiamGia, GioHang gioHang) {
 		super();
 		this.maNguoiDung = maNguoiDung;
 		this.tenNguoiDung = tenNguoiDung;
@@ -62,12 +64,12 @@ public class NguoiDung {
 		this.soDienThoai = soDienThoai;
 		this.diaChi = diaChi;
 		this.avatar = avatar;
+		
 		this.quyenTruyCap = quyenTruyCap;
 		this.loaiKhachHang = loaiKhachHang;
 		this.phieuGiamGia = phieuGiamGia;
 		this.gioHang = gioHang;
 	}
-
 
 
 	public Integer getMaNguoiDung() {
@@ -163,5 +165,19 @@ public class NguoiDung {
 	public void setHoTen(String hoTen) {
 		this.hoTen = hoTen;
 	}
+
+
+	public boolean isTrangThai() {
+		return trangThai;
+	}
+
+
+	public void setTrangThai(boolean trangThai) {
+		this.trangThai = trangThai;
+	}
+	
+	
+	
+	
 	
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.ui.Model;
 import org.springframework.security.core.Authentication;
@@ -26,9 +27,14 @@ import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.entity.SanPham;
+import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
+import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DanhGiaService;
 import com.kimngan.ComesticAdmin.services.DanhMucService;
+import com.kimngan.ComesticAdmin.services.DonHangService;
+import com.kimngan.ComesticAdmin.services.KiemKeKhoService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
+
 import com.kimngan.ComesticAdmin.services.YeuThichService;
 
 import org.springframework.data.domain.Page;
@@ -50,134 +56,143 @@ public class CustomerCategoryController {
 	@Autowired
 	private YeuThichService yeuThichService;
 
+	@Autowired
+	private ChiTietDonNhapHangService chiTietDonNhapHangService;
+
+	@Autowired
+	private ChiTietDonHangService chiTietDonHangService;
+
+	@Autowired
+	private KiemKeKhoService kiemKeKhoService;
+	@Autowired
+	private DonHangService donHangService;
+	
+	
 	@GetMapping({ "/{maDanhMuc}", "/all", "/", "" })
-	public String productsByCategoryOrAll(@PathVariable(value = "maDanhMuc", required = false) Integer maDanhMuc,
-			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(value = "sortOrder", defaultValue = "asc") String sortOrder,
-			@RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
-			@RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice, Model model,
-			Authentication authentication) {
+	public String productsByCategoryOrAll(
+	        @PathVariable(value = "maDanhMuc", required = false) Integer maDanhMuc,
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(value = "sortOrder", defaultValue = "asc") String sortOrder,
+	        @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+	        @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
+	        Model model,
+	        Authentication authentication) {
 
-		// Lấy thông tin người dùng hiện tại nếu đăng nhập
-		NguoiDung currentUser = null;
-		if (authentication != null && authentication.isAuthenticated()) {
-			Object principal = authentication.getPrincipal();
-			if (principal instanceof NguoiDungDetails) {
-				NguoiDungDetails userDetails = (NguoiDungDetails) principal;
-				currentUser = userDetails.getNguoiDung();
-				System.out.println("Current user: " + currentUser.getTenNguoiDung());
-			}
-		}
-		if (currentUser != null) {
-			model.addAttribute("currentUser", currentUser);
-		}
-		model.addAttribute("timestamp", System.currentTimeMillis()); // Thêm timestamp vào Model
+	    NguoiDung currentUser = null;
+	    if (authentication != null && authentication.isAuthenticated()) {
+	        Object principal = authentication.getPrincipal();
+	        if (principal instanceof NguoiDungDetails) {
+	            NguoiDungDetails userDetails = (NguoiDungDetails) principal;
+	            currentUser = userDetails.getNguoiDung();
+	        }
+	    }
+	    if (currentUser != null) {
+	        model.addAttribute("currentUser", currentUser);
+	    }
+	    model.addAttribute("timestamp", System.currentTimeMillis());
 
-		// Nếu người dùng đã đăng nhập, lấy danh sách sản phẩm yêu thích
-		Set<Integer> favoriteProductIds = new HashSet<>();
-		if (currentUser != null) {
-			favoriteProductIds = yeuThichService.getFavoriteProductIdsForUser(currentUser);
-			System.out.println("favoriteProductIds: " + favoriteProductIds);
-		}
+	    Set<Integer> favoriteProductIds = new HashSet<>();
+	    if (currentUser != null) {
+	        favoriteProductIds = yeuThichService.getFavoriteProductIdsForUser(currentUser);
+	    }
 
-		Page<SanPham> products;
-		String selectedCategoryName;
-		 // Giá trị mặc định cho khoảng giá
+	    Page<SanPham> products;
+	    String selectedCategoryName;
 	    if (minPrice == null) minPrice = BigDecimal.ZERO;
 	    if (maxPrice == null) maxPrice = new BigDecimal("999999999");
 
-//		if (maDanhMuc == null) {
-//			// Hiển thị tất cả sản phẩm đang hoạt động
-//			products = sanPhamService.findAllActive(PageRequest.of(page, 15));
-//			selectedCategoryName = "Tất cả";
-//		} else {
-//			// Hiển thị sản phẩm theo danh mục đã chọn
-//			products = sanPhamService.findActiveProductsInOrderDetailsByCategory(maDanhMuc, PageRequest.of(page, 15));
-//			DanhMuc selectedCategory = danhMucService.findById(maDanhMuc);
-//			selectedCategoryName = selectedCategory != null ? selectedCategory.getTenDanhMuc()
-//					: "Danh mục không tồn tại";
-//		}
-
 	    if (maDanhMuc == null) {
-	        products = sanPhamService.findAllActiveByPriceRange(minPrice, maxPrice, PageRequest.of(page, 15));
+	        products = sanPhamService.findAllActiveByPriceRange(minPrice, maxPrice, PageRequest.of(page, 1000));
 	        selectedCategoryName = "Tất cả";
 	    } else {
-	        products = sanPhamService.findActiveProductsByCategoryAndPrice(maDanhMuc, minPrice, maxPrice, PageRequest.of(page, 15));
+	        products = sanPhamService.findActiveProductsByCategoryAndPrice(maDanhMuc, minPrice, maxPrice, PageRequest.of(page, 1000));
 	        DanhMuc selectedCategory = danhMucService.findById(maDanhMuc);
 	        selectedCategoryName = selectedCategory != null ? selectedCategory.getTenDanhMuc() : "Danh mục không tồn tại";
 	    }
+	    
+	    Map<Integer, Integer> sanPhamSoLuongTonKhoMap = new HashMap<>();
 
-		Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
-		Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
-		Map<Integer, Double> sanPhamAverageRatingMap = new HashMap<>();
-		Map<Integer, String> sanPhamThuongHieuMap = new HashMap<>();
-		
-		LocalDate today = LocalDate.now();
+	    List<SanPham> filteredProducts = products.getContent().stream().filter(sp -> {
+	        Integer maSanPham = sp.getMaSanPham();
+	        int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+	        int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+	        int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+	        int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+	        int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+	        Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
 
-		// Tính toán giá sau giảm và lưu vào map
-		for (SanPham sanPham : products.getContent()) {
-			Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
-					.filter(km -> km.getTrangThai())
-					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
-							&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
-					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+	        int soLuongTonKho = (tonKhoDaDuyet != null)
+	                ? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+	                : (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
+	        sanPhamSoLuongTonKhoMap.put(maSanPham, soLuongTonKho);
+	        return soLuongTonKho > 0;
+	    }).collect(Collectors.toList());
 
-			BigDecimal giaSauGiam = sanPham.getDonGiaBan();
-			if (highestCurrentKhuyenMai.isPresent()) {
-				BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
-				giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
-			}
-			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
+	    Map<Integer, KhuyenMai> sanPhamKhuyenMaiMap = new HashMap<>();
+	    Map<Integer, BigDecimal> sanPhamGiaSauGiamMap = new HashMap<>();
+	    Map<Integer, Double> sanPhamAverageRatingMap = new HashMap<>();
+	    Map<Integer, String> sanPhamThuongHieuMap = new HashMap<>();
+	    LocalDate today = LocalDate.now();
 
-			// Lấy danh sách đánh giá sản phẩm và tính trung bình số sao
-			List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
-			Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0);
-			sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
-			 // 🔹 **Thêm logic lấy thương hiệu sản phẩm**
-		    if (sanPham.getThuongHieu() != null) { 
-		        sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), sanPham.getThuongHieu().getTenThuongHieu());
-		    } else {
-		        sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), "Không có thương hiệu");
-		    }
-		}
+	    for (SanPham sanPham : filteredProducts) {
+	        Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
+	                .filter(km -> km.getTrangThai())
+	                .filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
+	                        && !km.getNgayKetThuc().toLocalDate().isBefore(today))
+	                .max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
 
-		// Chuyển đổi Page<SanPham> sang List<SanPham> và thực hiện sắp xếp
-		List<SanPham> sortedProducts = new ArrayList<>(products.getContent());
-		sortedProducts.sort((p1, p2) -> {
-			BigDecimal giaSauGiam1 = sanPhamGiaSauGiamMap.getOrDefault(p1.getMaSanPham(), p1.getDonGiaBan());
-			BigDecimal giaSauGiam2 = sanPhamGiaSauGiamMap.getOrDefault(p2.getMaSanPham(), p2.getDonGiaBan());
-			return sortOrder.equals("asc") ? giaSauGiam1.compareTo(giaSauGiam2) : giaSauGiam2.compareTo(giaSauGiam1);
-		});
+	        BigDecimal giaSauGiam = sanPham.getDonGiaBan();
+	        if (highestCurrentKhuyenMai.isPresent()) {
+	            BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
+	            giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
+	            sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
+	        }
+	        sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
 
-		// In ra để kiểm tra sắp xếp
-		System.out.println("Sorted Products:");
-		sortedProducts.forEach(
-				sp -> System.out.println(sp.getMaSanPham() + " - " + sanPhamGiaSauGiamMap.get(sp.getMaSanPham())));
+	        List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
+	        Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0);
+	        sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
 
-		// Phân trang danh sách đã sắp xếp
-		int pageSize = 15;
-		int start = Math.min(page * pageSize, sortedProducts.size());
-		int end = Math.min((page + 1) * pageSize, sortedProducts.size());
-		List<SanPham> paginatedProducts = sortedProducts.subList(start, end);
+	        if (sanPham.getThuongHieu() != null) {
+	            sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), sanPham.getThuongHieu().getTenThuongHieu());
+	        } else {
+	            sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), "Không có thương hiệu");
+	        }
+	    }
 
-		// Thêm dữ liệu vào model
-		model.addAttribute("sanPhams", paginatedProducts);
-		model.addAttribute("maDanhMuc", maDanhMuc);
-		model.addAttribute("selectedCategory", selectedCategoryName);
-		model.addAttribute("categories", danhMucService.getAll());
-		model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap);
-		model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
-		model.addAttribute("sortOrder", sortOrder); // Để giữ giá trị sắp xếp hiện tại trên giao diện
-		model.addAttribute("favoriteProductIds", favoriteProductIds);
-		model.addAttribute("sanPhamAverageRatingMap", sanPhamAverageRatingMap);
+	    List<SanPham> sortedProducts = new ArrayList<>(filteredProducts);
+	    sortedProducts.sort((p1, p2) -> {
+	        BigDecimal gia1 = sanPhamGiaSauGiamMap.getOrDefault(p1.getMaSanPham(), p1.getDonGiaBan());
+	        BigDecimal gia2 = sanPhamGiaSauGiamMap.getOrDefault(p2.getMaSanPham(), p2.getDonGiaBan());
+	        return sortOrder.equals("asc") ? gia1.compareTo(gia2) : gia2.compareTo(gia1);
+	    });
+
+	    int pageSize = 15;
+	    int start = Math.min(page * pageSize, sortedProducts.size());
+	    int end = Math.min((page + 1) * pageSize, sortedProducts.size());
+	    List<SanPham> paginatedProducts = sortedProducts.subList(start, end);
+
+	    int totalPages = (int) Math.ceil((double) sortedProducts.size() / pageSize);
+	    model.addAttribute("totalPages", totalPages);
+	    model.addAttribute("currentPage", page);
+
+	    model.addAttribute("sanPhams", paginatedProducts);
+	    model.addAttribute("maDanhMuc", maDanhMuc);
+	    model.addAttribute("selectedCategory", selectedCategoryName);
+	    model.addAttribute("categories", danhMucService.getAll());
+	    model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap);
+	    model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
+	    model.addAttribute("sortOrder", sortOrder);
+	    model.addAttribute("favoriteProductIds", favoriteProductIds);
+	    model.addAttribute("sanPhamAverageRatingMap", sanPhamAverageRatingMap);
 	    model.addAttribute("minPrice", minPrice);
 	    model.addAttribute("maxPrice", maxPrice);
 	    model.addAttribute("sanPhamThuongHieuMap", sanPhamThuongHieuMap);
+	    model.addAttribute("sanPhamSoLuongTonKhoMap", sanPhamSoLuongTonKhoMap);
 
-
-		return "customer/categoryProduct";
+	    return "customer/categoryProduct";
 	}
+
 
 	@GetMapping("/search")
 	public String searchProducts(@RequestParam(value = "category", required = false) Integer category,

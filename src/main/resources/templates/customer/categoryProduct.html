@@ -225,7 +225,7 @@
 
 							<!-- Giá sản phẩm -->
 							<div class="product-pricing" style="display: flex; align-items: center; gap: 10px;">
-								<div class="product-price" style="font-size: 14px; font-weight: bold; color: #e74c3c;">
+								<div class="product-price" style="font-size: 13px; font-weight: bold; color: #e74c3c;">
 									<span
 										th:text="${sanPhamGiaSauGiamMap[sanPham.maSanPham] != null ? #numbers.formatDecimal(sanPhamGiaSauGiamMap[sanPham.maSanPham], 0, 'COMMA', 0, 'POINT') + ' đ' : 'Đang cập nhật'}"></span>
 								</div>
@@ -233,7 +233,7 @@
 								<!-- Giá gốc + Khuyến mãi -->
 								<div style="display: flex; align-items: center; gap: 5px;">
 									<div th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
-										style="font-size: 12px; color: #999; text-decoration: line-through;">
+										style="font-size: 10px; color: #999; text-decoration: line-through;">
 										<span
 											th:text="${#numbers.formatDecimal(sanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
 									</div>
@@ -249,7 +249,7 @@
 							<!-- Số lượng còn lại -->
 							<span class="remaining-quantity"
 								style="font-size: 12px; color: #555; display: block; margin-top: 5px;">
-								Số lượng: <span th:text="${sanPham.soLuong}" style="font-size: 12px;">0</span>
+								Số lượng: <span th:text="${sanPhamSoLuongTonKhoMap[sanPham.maSanPham]}" style="font-size: 12px;">0</span>
 								<span class="qty" th:text="${sanPham.donViTinh.tenDonVi}" style="font-size: 11px;">Đơn
 									vị tính</span>
 							</span>
