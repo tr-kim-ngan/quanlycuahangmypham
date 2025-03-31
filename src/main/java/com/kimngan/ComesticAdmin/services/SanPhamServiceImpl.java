@@ -2,12 +2,14 @@ package com.kimngan.ComesticAdmin.services;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +42,10 @@ public class SanPhamServiceImpl implements SanPhamService {
 	
 	@Autowired
 	private KiemKeKhoRepository kiemKeKhoRepository;
+	
+	@Autowired
+	@Lazy
+	private DonHangService donHangService;
 
 	@Override
 	public List<SanPham> getAll() {
@@ -361,82 +367,38 @@ public class SanPhamServiceImpl implements SanPhamService {
 	        // ✅ Nếu chưa có kiểm kê xét duyệt → tính số lượng tồn kho động
 	        return tongNhap - tongBan - soLuongTrenKe;
 	}
+	@Override
+	public List<SanPham> getSanPhamGanHetHang(int nguongCanhBao) {
+		List<SanPham> tatCaSanPham = sanPhamRepository.findByTrangThaiTrue();
+	    List<SanPham> sanPhamGanHet = new ArrayList<>();
 
-//	@Override
-//	public int tinhSoLuongTonKho(Integer maSanPham) {
-//		int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
-//		int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
-//		int soLuongTrenKe = sanPhamRepository.getSoLuongTrenKe(maSanPham);
-//		int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
-//
-//		return tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
-//	}
+	    for (SanPham sp : tatCaSanPham) {
+	    	Integer maSanPham = sp.getMaSanPham();
 
-//	@Override
-//	public Integer getSoLuongTonKho(Integer maSanPham) {
-//	    Integer tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
-//	    Integer soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
-//	    Integer soLuongTrenKe = getSoLuongTrenKe(maSanPham);
-//
-//	    tongSoLuongNhap = (tongSoLuongNhap != null) ? tongSoLuongNhap : 0;
-//	    soLuongBan = (soLuongBan != null) ? soLuongBan : 0;
-//	    soLuongTrenKe = (soLuongTrenKe != null) ? soLuongTrenKe : 0;
-//
-//	    int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe;
-//
-//	    // 🛑 Debug kiểm tra
-//	    System.out.println("📦 DEBUG - Sản phẩm ID: " + maSanPham);
-//	    System.out.println("📥 Tổng nhập: " + tongSoLuongNhap);
-//	    System.out.println("📤 Đã bán: " + soLuongBan);
-//	    System.out.println("📌 Số lượng trên kệ: " + soLuongTrenKe);
-//	    System.out.println("🔍 Số lượng tồn kho thực tế: " + soLuongTonKho);
-//
-//	    return Math.max(soLuongTonKho, 0);
-//	}
+	    	int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+	    	int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+	    	int soLuongTrenKe = sp.getSoLuong(); 
+	    	int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+	    	int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
 
-//	@Override
-//	public Boolean updateSoLuongTonKho(Integer maSanPham, Integer soLuongMoi) {
-//	    Optional<SanPham> optionalSanPham = sanPhamRepository.findById(maSanPham);
-//	    if (optionalSanPham.isPresent()) {
-//	        SanPham sanPham = optionalSanPham.get();
-//
-//	        // 🛑 Debug trước khi cập nhật
-//	        System.out.println("🔄 Trước khi cập nhật: Sản phẩm ID " + maSanPham + 
-//	                           " - Tồn kho hiện tại: " + sanPham.getSoLuongTonKho() + 
-//	                           " -> Cập nhật thành: " + soLuongMoi);
-//
-//	        // Cập nhật số lượng tồn kho
-//	        sanPham.setSoLuongTonKho(soLuongMoi);
-//	        sanPhamRepository.save(sanPham);
-//
-//	        // ✅ Debug sau khi cập nhật
-//	        System.out.println("✅ Sau khi cập nhật: " + sanPham.getSoLuongTonKho());
-//	        return true;
-//	    }
-//	    System.out.println("❌ Không tìm thấy sản phẩm ID: " + maSanPham);
-//	    return false;
-//	}
-//
-//	@Override
-//	public Boolean updateSoLuongTonKho(Integer maSanPham, Integer soLuongMoi) {
-//	    Optional<SanPham> optionalSanPham = sanPhamRepository.findById(maSanPham);
-//	    if (optionalSanPham.isPresent()) {
-//	        SanPham sanPham = optionalSanPham.get();
-//
-//	        // Debug kiểm tra trước khi cập nhật
-//	        System.out.println("🔄 Trước khi cập nhật: Sản phẩm ID " + maSanPham 
-//	            + " - Tồn kho hiện tại: " + sanPham.getSoLuongTonKho() 
-//	            + " -> Cập nhật thành: " + soLuongMoi);
-//
-//	        sanPham.setSoLuongTonKho(soLuongMoi);
-//	        sanPhamRepository.save(sanPham); // Kiểm tra xem có dòng này không!
-//
-//	        // Debug kiểm tra sau khi cập nhật
-//	        System.out.println("✅ Sau khi cập nhật: " + sanPham.getSoLuongTonKho());
-//	        return true;
-//	    }
-//	    System.out.println("❌ Không tìm thấy sản phẩm ID: " + maSanPham);
-//	    return false;
-//	}
+	    	Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+
+	    	int soLuongTonKho = (tonKhoDaDuyet != null)
+	    	        ? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+	    	        : (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
+
+	        if (soLuongTonKho <= nguongCanhBao) {
+	            sanPhamGanHet.add(sp);
+	        }
+	    }
+
+	    return sanPhamGanHet;
+	}
+
+	@Override
+	public List<SanPham> getSanPhamsCoTrongChiTietNhapVaDangHoatDong() {
+	    return sanPhamRepository.findActiveProductsInOrderDetails(Pageable.unpaged()).getContent();
+	}
+
 
 }

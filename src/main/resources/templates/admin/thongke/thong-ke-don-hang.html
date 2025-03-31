@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head">
+
+
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container"
+				style="padding: 20px; background-color: #faeee7; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center mb-4">
+						<h3 class="mb-0">Thống kê đơn hàng</h3>
+						<button class="btn btn-outline-dark" onclick="toggleRightPanel()">☰ Thống kê</button>
+
+					</div>
+					<div id="right-panel" style="
+										width: 250px;
+										min-height: 100px;
+										max-height: 90vh;
+										position: fixed;
+										top: 135px;
+										right: -250px;
+										background-color: white;
+										color: black;
+										padding: 5px 5px 0px 0px;
+										overflow-y: auto;
+										transition: right 0.3s ease-in-out;
+										box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
+										border-radius: 10px;
+										z-index: 9999;">
+						<ul style="list-style: none; padding: 0; margin: 0;">
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/donhang}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Thống kê đơn hàng</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/doanhthu-loinhuan}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Doanh Thu </a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/sanpham-banchay}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Sản Phẩm</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/trangthai-donhang}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Trạng thái đơn hàng</a>
+							</li>
+
+						</ul>
+					</div>
+
+					<form method="GET" th:action="@{/admin/thongke/donhang}"
+						style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;">
+						<label class="mb-0">Từ ngày:</label>
+						<input type="date" name="fromDate" th:value="${fromDate}" required class="form-control"
+							style="width: 180px;">
+						<label class="mb-0">Đến ngày:</label>
+						<input type="date" name="toDate" th:value="${toDate}" required class="form-control"
+							style="width: 180px;">
+						<button type="submit" class="btn btn-primary">Lọc</button>
+					</form>
+
+					<!-- Tổng số đơn -->
+					<div style="text-align: center; font-size: 24px; font-weight: bold;">
+						Tổng số đơn hàng trong khoảng thời gian:
+						<span style="color: #007bff;" th:text="${tongSoDon} + ' đơn'"></span>
+					</div>
+					<div style="max-width: 1000px; margin: 30px auto;">
+						<canvas id="donHangChart" height="100"></canvas>
+					</div>
+
+					<h4 class="mt-5">👑 Top khách hàng đặt nhiều đơn nhất</h4>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>STT</th>
+								<!--	<th>Tên đăng nhập</th>-->
+								<th>Họ tên</th>
+								<th>Số điện thoại</th>
+								<th>Số đơn hàng</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="kh, iterStat : ${topKhachHang}">
+								<td th:text="${iterStat.count}"></td>
+								<!--<td th:text="${kh[0]}"></td> -->
+								<td th:text="${kh[1]}"></td> <!-- hoTen -->
+								<td th:text="${kh[2]}"></td> <!-- soDienThoai -->
+								<td th:text="${kh[3]}"></td> <!-- số đơn -->
+							</tr>
+						</tbody>
+					</table>
+
+					<h4 class="mt-5">🔥 Top sản phẩm được đặt nhiều nhất</h4>
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>STT</th>
+								<th>Sản phẩm</th>
+								<th>Tổng số lượng đặt</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="sp, iterStat : ${topSanPham}">
+								<td th:text="${iterStat.count}"></td>
+								<td th:text="${sp[0]}"></td>
+								<td th:text="${sp[1]}"></td>
+							</tr>
+						</tbody>
+					</table>
+
+
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+		const labels = /*[[${ngayLabels}]]*/[];
+		const values = /*[[${soDonTheoNgay}]]*/[];
+
+		const ctx = document.getElementById('donHangChart').getContext('2d');
+		new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: labels,
+				datasets: [{
+					label: 'Số đơn hàng mỗi ngày',
+					data: values,
+					backgroundColor: 'rgba(54, 162, 235, 0.7)',
+					borderColor: 'rgba(54, 162, 235, 1)',
+					borderWidth: 1
+				}]
+			},
+			options: {
+				responsive: true,
+				scales: {
+					y: {
+						beginAtZero: true
+					}
+				}
+			}
+		});
+
+		function toggleRightPanel() {
+			const panel = document.getElementById("right-panel");
+			panel.style.right = (panel.style.right === "0px") ? "-250px" : "0px";
+		}
+
+	</script>
+
+	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+</body>
+
+</html>

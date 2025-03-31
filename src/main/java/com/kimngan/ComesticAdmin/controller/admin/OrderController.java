@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -102,7 +103,10 @@ public class OrderController {
 		List<NguoiDung> danhSachShipper = new ArrayList<>();
 		if ("Giao hàng thất bại".equals(donHang.getTrangThaiChoXacNhan())
 				|| "Đã xác nhận".equals(donHang.getTrangThaiDonHang())) {
-			danhSachShipper = nguoiDungService.findByRole("SHIPPER");
+			danhSachShipper = nguoiDungService.findByRole("SHIPPER").stream()
+				    .filter(NguoiDung::isTrangThai)
+				    .collect(Collectors.toList());
+
 		}
 
 		model.addAttribute("danhSachShipper", danhSachShipper);
@@ -202,7 +206,7 @@ public class OrderController {
 //	Gán shipper cho đơn hàng và cập nhật trạng thái đơn
 	@PostMapping("/orders/{maDonHang}/assign-shipper")
 	public String assignShipper(@PathVariable("maDonHang") Integer maDonHang,
-			@RequestParam("shipperId") Integer shipperId, RedirectAttributes redirectAttributes) {
+			@RequestParam("shipperId") Integer shipperId, RedirectAttributes redirectAttributes, Principal principal) {
 		DonHang donHang = donHangService.getDonHangById(maDonHang);
 
 		if (donHang == null) {
@@ -215,12 +219,14 @@ public class OrderController {
 			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy shipper!");
 			return "redirect:/admin/orders/" + maDonHang;
 		}
+		String tenAdmin = principal.getName();
+		NguoiDung admin = nguoiDungService.findByTenNguoiDung(tenAdmin);
 
-		// **Kiểm tra shipper và trạng thái trước khi cập nhật**
 		System.out.println("💡 [DEBUG] Gán shipper: " + shipper.getTenNguoiDung() + " cho đơn hàng " + maDonHang);
 
 		// Gán shipper vào đơn hàng và cập nhật trạng thái
 		donHang.setShipper(shipper);
+		donHang.setSeller(admin);
 		donHang.setTrangThaiDonHang("Đang chuẩn bị hàng");
 		donHangService.capNhatTrangThai(donHang, "Đang chuẩn bị hàng");
 		donHangService.updateDonHang(donHang);
@@ -240,8 +246,7 @@ public class OrderController {
 			@RequestParam(value = "cancelReason", required = false) String cancelReason,
 			@RequestParam("status") String action,
 			@RequestParam(value = "shipperId", required = false) Integer shipperId,
-			RedirectAttributes redirectAttributes,
-			HttpServletRequest request) {
+			RedirectAttributes redirectAttributes, HttpServletRequest request) {
 
 		DonHang donHang = donHangService.getDonHangById(maDonHang);
 		if (donHang == null) {
@@ -265,7 +270,6 @@ public class OrderController {
 			redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận đơn hàng giao thất bại.");
 			return "redirect:/admin/orders/" + maDonHang;
 		}
-		
 
 		// Hủy đơn hàng
 //		else if ("cancel".equals(action)) {
@@ -294,7 +298,7 @@ public class OrderController {
 
 			// Nếu là do giao thất bại
 			if ("Giao hàng thất bại (Lần 1)".equals(trangThaiChoXacNhan)) {
-				lyDo =  "" ;
+				lyDo = "";
 			} else {
 				// Nếu admin tự hủy, phải nhập lý do
 				if (cancelReason == null || cancelReason.trim().isEmpty()) {
@@ -302,11 +306,11 @@ public class OrderController {
 					return "redirect:/admin/orders/" + maDonHang;
 				}
 				// Xử lý rõ ràng khi người dùng chọn "Khác"
-	            if ("Khác".equals(cancelReason)) {
-	                lyDo =  request.getParameter("customCancelReason");
-	            } else {
-	                lyDo =  cancelReason;
-	            }
+				if ("Khác".equals(cancelReason)) {
+					lyDo = request.getParameter("customCancelReason");
+				} else {
+					lyDo = cancelReason;
+				}
 			}
 
 			donHang.setTrangThaiDonHang("Đã hủy");
@@ -316,7 +320,6 @@ public class OrderController {
 			redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã bị hủy.");
 			return "redirect:/admin/orders/" + maDonHang;
 		}
-
 
 		// Nếu shipper báo "Giao hàng thất bại lần 2"
 //		if ("Giao hàng thất bại (Lần 2)".equals(donHang.getTrangThaiChoXacNhan()) || "Giao thất bại".equals(action)) {
@@ -415,7 +418,10 @@ public class OrderController {
 
 		// Thêm thông tin vào model
 		// Lấy danh sách shipper
-		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER");
+		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER")
+			    .stream()
+			    .filter(NguoiDung::isTrangThai) // chỉ lấy shipper có trạng thái = true
+			    .collect(Collectors.toList());
 		List<String> nextStatuses = getNextStatuses(donHang.getTrangThaiDonHang(), false,
 				donHang.getSoLanGiaoThatBai());
 		model.addAttribute("nextStatuses", nextStatuses);
@@ -547,8 +553,8 @@ public class OrderController {
 		else {
 			redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
 		}
-		//return "redirect:/orders/" + maDonHang;
-		 return "redirect:/admin/orders/" + maDonHang;
+		// return "redirect:/orders/" + maDonHang;
+		return "redirect:/admin/orders/" + maDonHang;
 	}
 
 	@PostMapping("/orders/{maDonHang}/cancel-order")
@@ -658,7 +664,10 @@ public class OrderController {
 		model.addAttribute("danhSachNhanVienXuatKho", danhSachNhanVienXuatKho);
 
 		// Lấy danh sách shipper
-		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER");
+		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER")
+			    .stream()
+			    .filter(NguoiDung::isTrangThai) // chỉ lấy shipper có trạng thái = true
+			    .collect(Collectors.toList());
 		List<String> nextStatuses = getNextStatuses(donHang.getTrangThaiDonHang(), false,
 				donHang.getSoLanGiaoThatBai());
 		model.addAttribute("nextStatuses", nextStatuses);
@@ -833,7 +842,7 @@ public class OrderController {
 	@PostMapping("/offline-orders/confirm")
 	public String confirmSelectedProducts(
 			@RequestParam(value = "selectedProducts", required = false) List<Integer> selectedProductIds,
-			@RequestParam Map<String, String> allParams, RedirectAttributes redirectAttributes) {
+			@RequestParam Map<String, String> allParams, RedirectAttributes redirectAttributes, Principal principal) {
 
 		// Kiểm tra danh sách sản phẩm được chọn
 		if (selectedProductIds == null || selectedProductIds.isEmpty()) {

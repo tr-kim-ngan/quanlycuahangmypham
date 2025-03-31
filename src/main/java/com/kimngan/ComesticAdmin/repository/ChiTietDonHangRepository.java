@@ -68,17 +68,36 @@ public interface ChiTietDonHangRepository extends JpaRepository<ChiTietDonHang, 
 	List<Object[]> getTopExportedProducts(@Param("fromDate") LocalDateTime fromDate,
 			@Param("toDate") LocalDateTime toDate);
 
-	@Query("SELECT dh.sanPham.tenSanPham, SUM(dh.soLuong), dh.donHang.ngayDat, dh.donHang.nguoiDung.tenNguoiDung "
-			+ "FROM ChiTietDonHang dh " + "WHERE dh.donHang.trangThaiDonHang <> 'Đã hủy' "
-			+ "AND dh.donHang.ngayDat BETWEEN :fromDate AND :toDate "
-			+ "GROUP BY dh.sanPham.tenSanPham, dh.donHang.ngayDat, dh.donHang.nguoiDung.tenNguoiDung "
-			+ "ORDER BY dh.donHang.ngayDat DESC")
-	List<Object[]> getBaoCaoXuatKhoChiTiet(@Param("fromDate") LocalDateTime fromDate,
-			@Param("toDate") LocalDateTime toDate);
+	@Query("SELECT dh.sanPham.tenSanPham, SUM(dh.soLuong), dh.donHang.ngayDat, dh.donHang.nguoiDung.tenNguoiDung, dh.donHang.nguoiDung.hoTen " +
+		       "FROM ChiTietDonHang dh " +
+		       "WHERE dh.donHang.trangThaiDonHang <> 'Đã hủy' " +
+		       "AND dh.donHang.ngayDat BETWEEN :fromDate AND :toDate " +
+		       "GROUP BY dh.sanPham.tenSanPham, dh.donHang.ngayDat, dh.donHang.nguoiDung.tenNguoiDung, dh.donHang.nguoiDung.hoTen " +
+		       "ORDER BY dh.donHang.ngayDat DESC")
+		List<Object[]> getBaoCaoXuatKhoChiTiet(@Param("fromDate") LocalDateTime fromDate,
+		                                       @Param("toDate") LocalDateTime toDate);
+
 
 	@Query("SELECT dh.donHang.nguoiDung.tenNguoiDung, COUNT(dh.donHang) " + "FROM ChiTietDonHang dh "
 			+ "WHERE dh.donHang.trangThaiDonHang <> 'Đã hủy' " + "AND dh.donHang.ngayDat BETWEEN :fromDate AND :toDate "
 			+ "GROUP BY dh.donHang.nguoiDung.tenNguoiDung " + "ORDER BY COUNT(dh.donHang) DESC")
 	List<Object[]> getTopCustomers(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
 
+	
+	
+	@Query("SELECT ctdh.sanPham.tenSanPham, SUM(ctdh.soLuong) " +
+		       "FROM ChiTietDonHang ctdh " +
+		       "WHERE ctdh.donHang.ngayDat BETWEEN :from AND :to " +
+		       "AND ctdh.donHang.trangThaiDonHang = 'Đã hoàn thành' " +
+		       "GROUP BY ctdh.sanPham.tenSanPham " +
+		       "ORDER BY SUM(ctdh.soLuong) DESC")
+		List<Object[]> findTopSanPhamBanChay(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+
+		@Query("SELECT ctdh.sanPham.tenSanPham, SUM(ctdh.soLuong) FROM ChiTietDonHang ctdh "
+				+ "WHERE ctdh.donHang.trangThaiDonHang IN ('Đã hủy', 'Giao thất bại') "
+				+ "GROUP BY ctdh.sanPham.tenSanPham " + "ORDER BY SUM(ctdh.soLuong) DESC")
+		List<Object[]> thongKeSanPhamBiTraNhieuNhat();
+
+	
 }

@@ -261,7 +261,7 @@
 											<select id="shipper" name="shipperId" class="form-control" required>
 												<option value="">-- Chọn Shipper --</option>
 												<option th:each="shipper : ${danhSachShipper}"
-													th:value="${shipper.maNguoiDung}" th:text="${shipper.tenNguoiDung}">
+													th:value="${shipper.maNguoiDung}" th:text="${shipper.hoTen}">
 												</option>
 											</select>
 											<button type="submit" class="btn btn-primary mt-3">Gán Shipper</button>

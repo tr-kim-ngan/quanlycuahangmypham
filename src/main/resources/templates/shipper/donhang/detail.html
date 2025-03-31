@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{shipper/fragments/head::head}">
+<head>
 	<title>Chi tiết đơn hàng</title>
+	<link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+
 </head>
 
 <body>
 	<div class="wrapper">
 		<div class="sidebar" th:replace="~{shipper/fragments/sidebar::sidebar}"></div>
 		<div class="main-panel">
-			<div th:replace="~{shipper/fragments/header::header}"></div>
+			
 
-			<div class="container mt-4"
+			<div class="container"
 				style="padding-left:190px; padding-right:0; margin-right: 0px; margin-left: 100px;">
 				<div class="p-4"
-					style="background: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+					style="background: white; border-radius: 8px; ">
 					<h3 class="text-center text-primary">Chi tiết đơn hàng</h3>
 					<hr>
 					<div class="row">

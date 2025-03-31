@@ -73,6 +73,9 @@ public class DonHang {
 	@JoinColumn(name = "ShipperId", referencedColumnName = "maNguoiDung", nullable = true)
 	private NguoiDung shipper; 
 
+	@ManyToOne
+	@JoinColumn(name = "ma_nguoi_ban", referencedColumnName = "maNguoiDung", nullable = true)
+	private NguoiDung seller;
 
 	// Quan hệ với ChiTietDonHang
 	@OneToMany(mappedBy = "donHang", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -85,10 +88,11 @@ public class DonHang {
 
 
 
+
 	public DonHang(Integer maDonHang, LocalDateTime ngayDat, String diaChiGiaoHang, String trangThaiDonHang,
 			String trangThaiChoXacNhan, BigDecimal tongGiaTriDonHang, BigDecimal phiVanChuyen, Integer soLanGiaoThatBai,
 			String ghiChu, String hinhAnhGiaoHang, String sdtNhanHang, String lichSuTrangThai,
-			LocalDateTime ngayXacNhanXuatKho, NguoiDung nguoiDung, NguoiDung shipper,
+			LocalDateTime ngayXacNhanXuatKho, NguoiDung nguoiDung, NguoiDung shipper, NguoiDung seller,
 			List<ChiTietDonHang> chiTietDonHangs) {
 		super();
 		this.maDonHang = maDonHang;
@@ -106,8 +110,10 @@ public class DonHang {
 		this.ngayXacNhanXuatKho = ngayXacNhanXuatKho;
 		this.nguoiDung = nguoiDung;
 		this.shipper = shipper;
+		this.seller = seller;
 		this.chiTietDonHangs = chiTietDonHangs;
 	}
+
 
 
 
@@ -241,6 +247,15 @@ public class DonHang {
 
 	public void setNgayXacNhanXuatKho(LocalDateTime ngayXacNhanXuatKho) {
 		this.ngayXacNhanXuatKho = ngayXacNhanXuatKho;
+	}
+
+	public NguoiDung getSeller() {
+		return seller;
+	}
+
+
+	public void setSeller(NguoiDung seller) {
+		this.seller = seller;
 	}
 
 	

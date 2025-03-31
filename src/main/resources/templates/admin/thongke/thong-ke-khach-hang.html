@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head">
+
+
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container"
+				style="padding: 20px; background-color: #faeee7; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center mb-4">
+						<h3 class="mb-0">Thống kê khách hàng</h3>
+
+					</div>
+
+
+					<form method="get" th:action="@{/admin/thongke/khachhang}"
+						style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+
+						<label class="mb-0">Từ ngày:</label>
+						<input type="date" name="fromDate" th:value="${fromDate}" required class="form-control"
+							style="width: 180px;">
+
+						<label class="mb-0">Đến ngày:</label>
+						<input type="date" name="toDate" th:value="${toDate}" required class="form-control"
+							style="width: 180px;">
+
+						<button type="submit" class="btn btn-primary">Lọc</button>
+					</form>
+					<div class="mt-5">
+						<h5>📊 Biểu đồ khách hàng mua nhiều nhất</h5>
+						<div style="max-width: 1200px; height: 450px; margin: 0 auto;">
+							<canvas id="topMuaChart"></canvas>
+						</div>
+					</div>
+
+					<div class="mt-5">
+						<h5>📊 Biểu đồ khách hàng huỷ đơn nhiều nhất</h5>
+						<div style="max-width: 1200px; height: 450px; margin: 0 auto;">
+							<canvas id="topHuyChart"></canvas>
+						</div>
+					</div>
+					<h5 class="mt-4 mb-2">📋 Bảng chi tiết khách hàng mua</h5>
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th>STT</th>
+								<th>Họ tên</th>
+								<th>Tên đăng nhập</th>
+								<th>Số đơn mua</th>
+								<th>Tổng tiền (VNĐ)</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="kh, stat : ${bangChiTietMua}">
+								<td th:text="${stat.index + 1}"></td>
+								<td th:text="${kh['hoTen']}"></td>
+								<td th:text="${kh['tenNguoiDung']}"></td>
+								<td th:text="${kh['soLuongDon']}"></td>
+								<td th:text="${#numbers.formatDecimal(kh['tongTien'], 0, 'COMMA', 0, 'POINT')}"></td>
+							</tr>
+						</tbody>
+					</table>
+
+					<div class="mt-5">
+						<h5>Bảng chi tiết khách hàng hủy đơn </h5>
+						<table class="table table-bordered table-striped">
+							<thead class="table-light">
+								<tr>
+									<th>STT</th>
+									<th>Họ tên</th>
+									<th>Tên đăng nhập</th>
+									<th>Số đơn hủy</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="kh, stat : ${bangChiTietHuy}">
+									<td th:text="${stat.index + 1}"></td>
+									<td th:text="${kh['hoTen']}"></td>
+									<td th:text="${kh['tenNguoiDung']}"></td>
+									<td th:text="${kh['soLuongDon']}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+		let tenDayDuMua = /*[[${tenDayDuMua}]]*/[];
+		let tongTienMua = /*[[${tongTienMua}]]*/[];
+
+		let tenDayDuHuy = /*[[${tenDayDuHuy}]]*/[];
+		let soLuongHuy = /*[[${soLuongHuy}]]*/[];
+
+		// Biểu đồ khách mua
+		new Chart(document.getElementById('topMuaChart'), {
+			type: 'bar',
+			data: {
+				labels: tenDayDuMua,
+				datasets: [{
+					label: 'Tổng tiền mua (VNĐ)',
+					data: tongTienMua,
+					backgroundColor: 'rgba(54, 162, 235, 0.5)',
+					borderColor: 'rgba(54, 162, 235, 1)',
+					borderWidth: 1
+				}]
+			},
+			options: {
+				responsive: true,
+				plugins: {legend: {display: false}},
+				scales: {
+					y: {beginAtZero: true},
+					x: {ticks: {autoSkip: false, maxRotation: 45, minRotation: 45}}
+				}
+			}
+		});
+
+		// Biểu đồ khách huỷ
+		new Chart(document.getElementById('topHuyChart'), {
+			type: 'bar',
+			data: {
+				labels: tenDayDuHuy,
+				datasets: [{
+					label: 'Số đơn huỷ',
+					data: soLuongHuy,
+					backgroundColor: 'rgba(255, 99, 132, 0.5)',
+					borderColor: 'rgba(255, 99, 132, 1)',
+					borderWidth: 1
+				}]
+			},
+			options: {
+				responsive: true,
+				plugins: {legend: {display: false}},
+				scales: {
+					y: {beginAtZero: true},
+					x: {ticks: {autoSkip: false, maxRotation: 45, minRotation: 45}}
+				}
+			}
+		});
+
+	</script>
+	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+</body>
+
+</html>

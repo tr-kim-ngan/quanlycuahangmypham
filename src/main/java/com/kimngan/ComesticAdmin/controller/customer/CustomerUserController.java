@@ -50,7 +50,8 @@ public class CustomerUserController {
 
 	// Phương thức xử lý đăng ký
 	@PostMapping("/register")
-	public String registerCustomer(@ModelAttribute("nguoiDung") NguoiDung nguoiDung) {
+	public String registerCustomer(@ModelAttribute("nguoiDung") NguoiDung nguoiDung,
+			@RequestParam("avatarFile") MultipartFile avatarFile) {
 		// Mã hóa mật khẩu trước khi lưu
 		nguoiDung.setMatKhau(passwordEncoder.encode(nguoiDung.getMatKhau()));
 
@@ -59,6 +60,19 @@ public class CustomerUserController {
 
 		// Gán quyền CUSTOMER cho người dùng
 		nguoiDung.setQuyenTruyCap(quyenCustomer);
+
+		// Xử lý lưu ảnh đại diện
+		if (avatarFile != null && !avatarFile.isEmpty()) {
+			try {
+				String fileName = storageService.storeFile(avatarFile);
+				nguoiDung.setAvatar(fileName);
+			} catch (IOException e) {
+				e.printStackTrace(); // Ghi log lỗi
+				nguoiDung.setAvatar("default-avatar.jpg"); // fallback ảnh mặc định
+			}
+		} else {
+			nguoiDung.setAvatar("default-avatar.jpg");
+		}
 
 		// Lưu người dùng vào cơ sở dữ liệu
 		nguoiDungService.saveCustomer(nguoiDung);
@@ -72,7 +86,6 @@ public class CustomerUserController {
 	public String showLoginForm() {
 		return "customer/login";
 	}
-
 
 	// Thêm thông tin người dùng hiện tại vào model
 	@ModelAttribute("currentUser")
@@ -102,7 +115,6 @@ public class CustomerUserController {
 		return "customer/account"; // Hiển thị file account.html
 	}
 
-
 	@PostMapping("/account")
 	public String updateAccount(@ModelAttribute("nguoiDung") NguoiDung updatedUser,
 			@RequestParam("avatarFile") MultipartFile avatarFile, Principal principal,
@@ -121,7 +133,7 @@ public class CustomerUserController {
 				return "redirect:/customer/account";
 			}
 			// Cập nhật thông tin cơ bản
-			currentUser.setHoTen(updatedUser.getHoTen()); 
+			currentUser.setHoTen(updatedUser.getHoTen());
 			currentUser.setEmail(updatedUser.getEmail());
 			currentUser.setSoDienThoai(updatedUser.getSoDienThoai());
 			currentUser.setDiaChi(updatedUser.getDiaChi());
@@ -143,7 +155,7 @@ public class CustomerUserController {
 			// Lưu thông tin người dùng
 			nguoiDungService.save(currentUser);
 			// Gọi phương thức để cập nhật SecurityContext
-            updateSecurityContext(currentUser);
+			updateSecurityContext(currentUser);
 
 			// Thông báo thành công
 			redirectAttributes.addFlashAttribute("successMessage", "Cập nhật thông tin thành công!");
@@ -153,27 +165,21 @@ public class CustomerUserController {
 
 		return "redirect:/customer/account";
 	}
-	 // Phương thức cập nhật SecurityContext
-	private void updateSecurityContext(NguoiDung updatedUser) {
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    if (authentication != null) {
-	        // Sử dụng constructor hiện tại của NguoiDungDetails
-	        NguoiDungDetails userDetails = new NguoiDungDetails(updatedUser, authentication.getAuthorities());
-	        
-	        // Tạo một Authentication mới
-	        Authentication newAuth = new UsernamePasswordAuthenticationToken(
-	                userDetails,
-	                authentication.getCredentials(),
-	                authentication.getAuthorities()
-	        );
-	        
-	        // Cập nhật SecurityContext với Authentication mới
-	        SecurityContextHolder.getContext().setAuthentication(newAuth);
-	    }
-	}
 
-	
-	
-	
+	// Phương thức cập nhật SecurityContext
+	private void updateSecurityContext(NguoiDung updatedUser) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null) {
+			// Sử dụng constructor hiện tại của NguoiDungDetails
+			NguoiDungDetails userDetails = new NguoiDungDetails(updatedUser, authentication.getAuthorities());
+
+			// Tạo một Authentication mới
+			Authentication newAuth = new UsernamePasswordAuthenticationToken(userDetails,
+					authentication.getCredentials(), authentication.getAuthorities());
+
+			// Cập nhật SecurityContext với Authentication mới
+			SecurityContextHolder.getContext().setAuthentication(newAuth);
+		}
+	}
 
 }

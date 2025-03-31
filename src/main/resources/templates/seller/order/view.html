@@ -220,7 +220,7 @@
 			<!-- BÊN PHẢI: Xử lý trạng thái -->
 			<div style="flex: 1; background-color: #f4f4f4; padding: 20px; border-radius: 8px; ">
 
-				<th:block th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}">
+				<!--<th:block th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}">
 					<form id="orderActionForm"
 						th:action="@{/seller/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
 						method="post" onsubmit="return validateCancelReason();">
@@ -233,7 +233,6 @@
 							<option value="cancel">Hủy đơn hàng</option>
 						</select>
 
-						<!-- Dropdown chọn lý do hủy -->
 						<div id="cancelReasonDiv" style="display: none; margin-top: 10px;">
 							<label for="cancelReasonDropdown">Lý do hủy đơn hàng:</label>
 							<select id="cancelReasonDropdown" class="form-control" onchange="handleCancelReason()"
@@ -246,7 +245,6 @@
 								<option value="Khác">Khác (Nhập tay)</option>
 							</select>
 
-							<!-- Ô nhập lý do khi chọn 'Khác' -->
 							<textarea id="customCancelReason" class="form-control mt-2"
 								placeholder="Nhập lý do hủy đơn..."
 								style="display:none;font-size:16px;padding:10px;"></textarea>
@@ -261,7 +259,6 @@
 					</form>
 				</th:block>
 
-				<!-- JavaScript xử lý lý do hủy đơn hàng -->
 				<script>
 					function toggleCancelReason() {
 						let actionSelect = document.getElementById("orderAction");
@@ -277,7 +274,7 @@
 
 						if (cancelReasonDropdown.value === "Khác") {
 							customCancelReason.style.display = "block";
-							finalCancelReason.value = ""; // reset giá trị
+							finalCancelReason.value = ""; 
 						} else {
 							customCancelReason.style.display = "none";
 							customCancelReason.value = "";
@@ -310,7 +307,7 @@
 						return true;
 					}
 
-				</script>
+				</script>-->
 
 				<!-- Gán shipper nếu đơn đã xác nhận (hiển thị sau cùng trong khối) -->
 				<div th:if="${donHang.trangThaiDonHang == 'Đã xác nhận'}">
@@ -351,6 +348,7 @@
 					<p class="text-danger fw-bold">🚨 Giao hàng thất bại lần 1. Chọn hành động tiếp theo:</p>
 					<form th:action="@{/seller/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
 						method="post">
+						
 						<label for="adminDecision" style="font-size: 18px;">📌 Hành động:</label>
 						<select style="font-size: 16px; padding: 10px;" id="adminDecision" name="status"
 							class="form-control" required>

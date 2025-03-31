@@ -54,8 +54,8 @@
 								<td style="text-align: center;" th:text="${nv.email}"></td>
 								<td style="text-align: center;" th:text="${nv.soDienThoai}"></td>
 								<td style="text-align: center;">
-									<a th:href="@{/admin/customers/edit/{id}(id=${nv.maNguoiDung})}"
-										class="btn btn-warning">Sửa</a>
+									<a th:href="@{/admin/customers/view/{id}(id=${nv.maNguoiDung})}"
+										class="btn btn-warning">Xem chi tiết</a>
 									<a th:href="@{/admin/customers/delete/{id}(id=${nv.maNguoiDung})}"
 										class="btn btn-danger">Xóa</a>
 								</td>

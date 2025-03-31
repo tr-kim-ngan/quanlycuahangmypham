@@ -18,7 +18,8 @@ import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
@@ -29,6 +30,7 @@ import com.kimngan.ComesticAdmin.entity.GioHang;
 import com.kimngan.ComesticAdmin.entity.HoaDon;
 import com.kimngan.ComesticAdmin.entity.KhuyenMai;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
+import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.repository.ChiTietDonHangRepository;
 import com.kimngan.ComesticAdmin.repository.DonHangRepository;
@@ -558,6 +560,9 @@ public class DonHangServiceImpl implements DonHangService {
 	        System.out.println(" Lỗi: Không có sản phẩm trong offlineOrder.");
 	        return false;
 	    }
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+	    NguoiDung seller = nguoiDungRepository.findByTenNguoiDung(userDetails.getUsername());
 
 	    NguoiDung khachHang;
 	    boolean isGuest = false;
@@ -624,10 +629,8 @@ public class DonHangServiceImpl implements DonHangService {
 	            System.out.println(" Lỗi: Số lượng sản phẩm không đủ. Sản phẩm ID: " + sanPham.getMaSanPham());
 	            return false;
 	        }
-
 	        //  Lưu cập nhật vào database
 	        sanPhamRepository.save(sanPham);
-	        // 🟢 Debug log để kiểm tra giá
 	        System.out.println(" Kiểm tra giá trị đơn hàng:");
 	        System.out.println(" - ID sản phẩm: " + sanPham.getMaSanPham());
 	        System.out.println(" - Giá gốc: " + giaGoc);
@@ -648,7 +651,8 @@ public class DonHangServiceImpl implements DonHangService {
 	    donHang.setHinhAnhGiaoHang(null);
 	    donHang.setPhiVanChuyen(BigDecimal.ZERO);
 	    donHang.setTongGiaTriDonHang(totalPrice);
-
+	    donHang.setSeller(seller);
+	    
 	    donHang = donHangRepository.save(donHang);
 
 	    //  Cập nhật mã đơn hàng cho từng chi tiết đơn hàng
@@ -782,9 +786,137 @@ public class DonHangServiceImpl implements DonHangService {
 		// TODO Auto-generated method stub
 		return donHangRepository.findByNguoiDung_TenNguoiDungAndDiaChiGiaoHangNot(username, diaChi, pageable);
 	}
+
+	@Override
+	public List<DonHang> findByTrangThaiAndShipper(NguoiDung shipper, String trangThai) {
+		// TODO Auto-generated method stub
+	    return donHangRepository.findByTrangThaiDonHangAndShipper(trangThai, shipper);
+	}
+
+	@Override
+	public int countByShipper(NguoiDung shipper) {
+		// TODO Auto-generated method stub
+	    return donHangRepository.countByShipper(shipper);
+	}
+
+	@Override
+	public List<DonHang> findBySeller(NguoiDung seller) {
+	    return donHangRepository.findBySeller(seller);
+	}
+
+	@Override
+	public long demDonHangTrongKhoangNgay(LocalDateTime fromDateTime, LocalDateTime toDateTime) {
+		// TODO Auto-generated method stub
+		 return donHangRepository.countByNgayDatBetween(fromDateTime, toDateTime);
+	}
+
+	@Override
+	public List<Object[]> getSoDonHangTheoNgay(LocalDate fromDate, LocalDate toDate) {
+	    if (fromDate == null) {
+	        fromDate = LocalDate.now().minusDays(30);
+	    }
+	    if (toDate == null) {
+	        toDate = LocalDate.now();
+	    }
+
+	    LocalDateTime fromDateTime = fromDate.atStartOfDay();
+	    LocalDateTime toDateTime = toDate.atTime(23, 59, 59);
+
+	    return donHangRepository.getSoDonHangTheoNgay(fromDateTime, toDateTime);
+	}
+
+	@Override
+	public List<Object[]> getTopNhanVienBanHang(LocalDateTime from, LocalDateTime to) {
+	    return donHangRepository.findTopNhanVienBanHang(from, to);
+	}
+
+
+	@Override
+	public List<Object[]> getTopKhachHang(LocalDateTime from, LocalDateTime to) {
+	    return donHangRepository.findTopKhachHang(from, to);
+	}
+	@Override
+	public List<Object[]> getTopSanPham(LocalDateTime from, LocalDateTime to) {
+	    return donHangRepository.findTopSanPham(from, to);
+	}
+
+	@Override
+	public List<Map<String, Object>> thongKeDoanhThuVaLoiNhuanTheoNgay(LocalDateTime fromDate, LocalDateTime toDate) {
+	    // KHÔNG gọi atStartOfDay hay atTime nữa
+	    List<Object[]> results = donHangRepository.getDoanhThuVaLoiNhuanTheoNgay(fromDate, toDate);
+
+	    // Xử lý dữ liệu như cũ
+	    List<Map<String, Object>> list = new ArrayList<>();
+	    for (Object[] row : results) {
+	        Map<String, Object> map = new HashMap<>();
+	        map.put("ngay", row[0]);
+	        map.put("doanhThu", row[1]);
+	        map.put("loiNhuan", row[2]);
+	        list.add(map);
+	    }
+
+	    return list;
+	}
+
+	@Override
+	public List<Map<String, Object>> thongKeDoanhThuVaLoiNhuanTheoSanPham(LocalDateTime fromDate, LocalDateTime toDate) {
+	    List<Object[]> rawData = donHangRepository.getDoanhThuVaLoiNhuanTheoSanPham(fromDate, toDate);
+	    List<Map<String, Object>> result = new ArrayList<>();
+
+	    for (Object[] row : rawData) {
+	        Map<String, Object> item = new HashMap<>();
+	        item.put("tenSanPham", row[0]);
+	        item.put("doanhThu", row[1]);
+	        item.put("loiNhuan", row[2]);
+	        result.add(item);
+	    }
+
+	    return result;
+	}
+
+	@Override
+	public List<Object[]> thongKeSanPhamBanChay(LocalDateTime fromDate, LocalDateTime toDate) {
+	    return chiTietDonHangRepository.findTopSanPhamBanChay(fromDate, toDate);
+	}
+	@Override
+	public List<Object[]> thongKeSanPhamBanChayChiTiet(LocalDateTime fromDate, LocalDateTime toDate) {
+	    return donHangRepository.thongKeSanPhamBanChayChiTiet(fromDate, toDate);
+	}
+
+	@Override
+	public List<Object[]> thongKeDonHangTheoTrangThai() {
+	    return donHangRepository.thongKeDonHangTheoTrangThai();
+	}
+	@Override
+	public List<Object[]> thongKeDoanhThuTheoNhanVien(LocalDateTime from, LocalDateTime to) {
+	    return donHangRepository.thongKeDoanhThuTheoNhanVien(from, to);
+	}
+
+	@Override
+	public List<Object[]> thongKeSanPhamBiTraNhieuNhat() {
+	    return chiTietDonHangRepository.thongKeSanPhamBiTraNhieuNhat();
+	}
+
+	@Override
+	public List<Object[]> thongKeKhachHangMuaNhieu(LocalDateTime from, LocalDateTime to) {
+	    return donHangRepository.thongKeKhachHangMuaNhieu(from, to);
+	}
+
+	@Override
+	public List<Object[]> thongKeKhachHangHuyDonNhieu(LocalDateTime from, LocalDateTime to) {
+	    return donHangRepository.thongKeKhachHangHuyDonNhieu(from, to);
+	}
 	
+	@Override
+	public List<Object[]> thongKeDonMuaTheoKhach(Integer id) {
+	    return donHangRepository.thongKeDonMuaTheoKhach(id);
+	}
 
 
+	@Override
+	public Long thongKeDonHuyTheoKhach(Integer maNguoiDung) {
+	    return donHangRepository.thongKeDonHuyTheoKhach(maNguoiDung);
+	}
 
 
 

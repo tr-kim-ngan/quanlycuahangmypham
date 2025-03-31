@@ -1,8 +1,12 @@
 package com.kimngan.ComesticAdmin.services;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -74,7 +78,40 @@ public interface DonHangService {
 
     Page<DonHang> getOrdersByUserAndDiaChiNot(String username, String diaChi, Pageable pageable);
 
+    List<DonHang> findByTrangThaiAndShipper(NguoiDung shipper, String trangThai);
+
+    int countByShipper(NguoiDung shipper);
+    List<DonHang> findBySeller(NguoiDung seller);
+    long demDonHangTrongKhoangNgay(LocalDateTime fromDateTime, LocalDateTime toDateTime);
+    List<Object[]> getSoDonHangTheoNgay(LocalDate fromDate, LocalDate toDate);
+
+    //Top nhân viên bán hàng có nhiều đơn nhất
+    List<Object[]> getTopNhanVienBanHang(LocalDateTime from, LocalDateTime to);
+
+    //Top khách hàng đặt nhiều đơn nhất
+    List<Object[]> getTopKhachHang(LocalDateTime from, LocalDateTime to);
+
     
+    //Top sản phẩm được đặt nhiều nhất
+    List<Object[]> getTopSanPham(LocalDateTime from, LocalDateTime to);
+
+    List<Map<String, Object>> thongKeDoanhThuVaLoiNhuanTheoNgay(LocalDateTime fromDate, LocalDateTime toDate);
     
+    List<Map<String, Object>> thongKeDoanhThuVaLoiNhuanTheoSanPham(LocalDateTime fromDate, LocalDateTime toDate);
+    
+    List<Object[]> thongKeSanPhamBanChay(LocalDateTime fromDate, LocalDateTime toDate);
+    List<Object[]> thongKeSanPhamBanChayChiTiet(LocalDateTime fromDate, LocalDateTime toDate);
+
+    List<Object[]> thongKeDonHangTheoTrangThai();
+
+    List<Object[]> thongKeDoanhThuTheoNhanVien(LocalDateTime from, LocalDateTime to);
+    
+    List<Object[]> thongKeSanPhamBiTraNhieuNhat();
+    List<Object[]> thongKeKhachHangMuaNhieu(LocalDateTime from, LocalDateTime to);
+    List<Object[]> thongKeKhachHangHuyDonNhieu(LocalDateTime from, LocalDateTime to);
+    List<Object[]> thongKeDonMuaTheoKhach(Integer id);
+    Long thongKeDonHuyTheoKhach(Integer maNguoiDung);
+
+
     
     }
