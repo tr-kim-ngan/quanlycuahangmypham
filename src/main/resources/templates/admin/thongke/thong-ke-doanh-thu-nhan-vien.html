@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head">
+
+
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container"
+				style="padding: 20px; background-color: #faeee7; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center mb-4">
+						<h3 class="mb-0">📊 Thống kê doanh thu theo người bán</h3>
+						
+
+					</div>
+					
+
+					<form method="GET" th:action="@{/admin/thongke/doanhthu}"
+						style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;">
+						<label class="mb-0">Từ ngày:</label>
+						<input type="date" name="fromDate" th:value="${fromDate}" required class="form-control"
+							style="width: 180px;">
+						<label class="mb-0">Đến ngày:</label>
+						<input type="date" name="toDate" th:value="${toDate}" required class="form-control"
+							style="width: 180px;">
+						<button type="submit" class="btn btn-primary">Lọc</button>
+					</form>
+
+
+					<div style="max-width: 1300px; height: 500px; margin: 20px auto">
+						<h4>
+						</h4>
+						<canvas id="chartNhanVienDoanhThu"></canvas>
+					</div>
+					<div class="mt-5">
+						<h5>📋 Bảng chi tiết doanh thu từng nhân viên</h5>
+						<table class="table table-bordered table-striped">
+							<thead class="table-light">
+								<tr>
+									<th>STT</th>
+									<th>Họ tên nhân viên</th>
+									<th>Doanh thu (VNĐ)</th>
+									<th>Số lượng đơn</th>
+									<th>Số lượng sản phẩm</th>
+									<th>Đóng góp (%)</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="nv, iter : ${bangChiTiet}">
+									<td th:text="${iter.count}"></td>
+									<td th:text="${nv['hoTen']}"></td>
+									<td th:text="${#numbers.formatDecimal(nv['doanhThu'], 0, 'COMMA', 0, 'POINT')}">
+									</td>
+									<td th:text="${nv['soLuongDon']}"></td>
+									<td th:text="${nv['soLuongSanPham']}"></td>
+									<td
+										th:text="${#numbers.formatDecimal(nv['phanTramDongGop'], 1, 'POINT', 1, 'POINT')} + '%'">
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+
+
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Scripts -->
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+		const tenNhanViens = /*[[${tenNhanViens}]]*/[];
+		const doanhThus = /*[[${doanhThus}]]*/[];
+
+		const ctxNhanVien = document.getElementById("chartNhanVienDoanhThu").getContext("2d");
+		new Chart(ctxNhanVien, {
+			type: 'bar',
+			data: {
+				labels: tenNhanViens,
+				datasets: [{
+					label: 'Doanh thu (VNĐ)',
+					data: doanhThus,
+					backgroundColor: 'rgba(75, 192, 192, 0.5)',
+					borderColor: 'rgba(75, 192, 192, 1)',
+					borderWidth: 1
+				}]
+			},
+			options: {
+				responsive: true,
+				scales: {
+					y: {
+						beginAtZero: true,
+						ticks: {
+							callback: function (value) {
+								return value.toLocaleString("vi-VN") + " đ";
+							}
+						},
+						title: {
+							display: true,
+							text: "VNĐ"
+						}
+					},
+					x: {
+						title: {
+							display: true,
+							text: "Người bán"
+						}
+					}
+				},
+				plugins: {
+					legend: {
+						position: 'top'
+					}
+				}
+			}
+		});
+
+		
+	</script>
+
+	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+</body>
+
+</html>

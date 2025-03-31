@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head"></head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container" style="background-color: #faeee7;">
+				<div class="page-inner"
+					style="background-color: #fafcff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+
+					<div
+						style="margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap; text-align: left;">
+						<!-- Avatar -->
+						<div style="flex-shrink: 0;">
+							<img th:if="${customer.avatar != null}"
+								th:src="@{'/upload/' + ${customer.avatar} + '?t=' + ${timestamp}}" alt="Avatar"
+								style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+
+							<img th:if="${customer.avatar == null}" src="/images/default-avatar.png" alt="Avatar"
+								style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+						</div>
+
+						<!-- Thông tin -->
+						<div>
+							<h3 style="border-bottom: 2px solid #6c63ff; padding-bottom: 5px; color: #2c2c84;">
+								<i class="fas fa-user" style="margin-right: 6px;"></i>Thông Tin Khách Hàng
+							</h3>
+							<div style="margin-top: 10px; line-height: 1.6;">
+								<p><strong>Họ tên:</strong> <span th:text="${customer.hoTen}"></span></p>
+								<p><strong>Tên đăng nhập:</strong> <span th:text="${customer.tenNguoiDung}"></span></p>
+								<p><strong>Email:</strong> <span th:text="${customer.email}"></span></p>
+								<p><strong>Số điện thoại:</strong> <span th:text="${customer.soDienThoai}"></span></p>
+							</div>
+						</div>
+					</div>
+
+
+					<div style="background-color: #f3f7ff; padding: 20px; border-radius: 8px;">
+						<h4 style="color: #4e54c8; margin-bottom: 15px;">📊 Thống kê đơn hàng</h4>
+						<div style="display: flex; justify-content: space-between;">
+							<div style="flex: 1; padding: 10px;">
+								<div
+									style="background-color: #ffffff; border-radius: 6px; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+									<h5 style="color: #333;">Số đơn đã mua</h5>
+									<p style="font-size: 1.2em; font-weight: bold; color: #28a745;"
+										th:text="${soDonMua}"></p>
+								</div>
+							</div>
+
+							<div style="flex: 1; padding: 10px;">
+								<div
+									style="background-color: #ffffff; border-radius: 6px; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+									<h5 style="color: #333;">Tổng tiền đã mua</h5>
+									<p style="font-size: 1.2em; font-weight: bold; color: #007bff;"
+										th:text="${#numbers.formatDecimal(tongTienMua, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+									</p>
+								</div>
+							</div>
+
+							<div style="flex: 1; padding: 10px;">
+								<div
+									style="background-color: #ffffff; border-radius: 6px; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+									<h5 style="color: #333;">Số đơn đã huỷ</h5>
+									<p style="font-size: 1.2em; font-weight: bold; color: #dc3545;"
+										th:text="${soDonHuy}"></p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div style="margin-top: 20px;">
+						<a th:href="@{/admin/customers}" class="btn btn-secondary"
+							style="background-color: #6c757d; border:none;">← Quay lại danh sách khách hàng</a>
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<div th:replace="admin/fragments/script::script"></div>
+	<!-- End JS -->
+</body>
+
+</html>

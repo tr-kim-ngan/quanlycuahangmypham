@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head">
+
+
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container"
+				style="padding: 20px; background-color: #faeee7; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center mb-4">
+						<h3 class="mb-0">Thống kê nhập hàng</h3>
+						<button class="btn btn-outline-dark" onclick="toggleRightPanel()">☰ Thống kê</button>
+
+					</div>
+					<div id="right-panel" style="
+										width: 250px;
+										min-height: 100px;
+										max-height: 90vh;
+										position: fixed;
+										top: 135px;
+										right: -250px;
+										background-color: white;
+										color: black;
+										padding: 5px 5px 0px 0px;
+										overflow-y: auto;
+										transition: right 0.3s ease-in-out;
+										box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
+										border-radius: 10px;
+										z-index: 9999;">
+						<ul style="list-style: none; padding: 0; margin: 0;">
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/sanpham-gan-het}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Sản Phẩm sắp hết</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Nhập theo
+									sản phẩm</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang/tong-gia-tri}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Tổng giá trị nhập
+									kho</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang/xu-huong}"
+									th:classappend="${activeMenu == 'xu-huong'} ? 'active'">Xu
+									hướng nhập kho</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/xuat-kho}"
+									th:classappend="${activeMenu == 'xuat-kho'} ? 'active'">Thống kê
+									xuất kho</a>
+							</li>
+						</ul>
+					</div>
+
+					<form method="get" th:action="@{/admin/thongke/nhaphang}"
+						style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+
+						<label class="mb-0">Từ ngày:</label>
+						<input type="date" name="fromDate" th:value="${fromDate}" required class="form-control"
+							style="width: 180px;">
+
+						<label class="mb-0">Đến ngày:</label>
+						<input type="date" name="toDate" th:value="${toDate}" required class="form-control"
+							style="width: 180px;">
+
+						<button type="submit" class="btn btn-primary">Lọc</button>
+					</form>
+
+
+					<canvas id="importChart" style="max-width: 100%; height: 400px;"></canvas>
+
+					<div class="mt-4">
+						<h5>Top nhà cung cấp nhập nhiều nhất</h5>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>STT</th>
+									<th>Nhà cung cấp</th>
+									<th>Tổng số lượng nhập</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="supplier, i : ${topSuppliers}">
+									<td th:text="${i.index + 1}"></td>
+									<td th:text="${supplier[0]}"></td>
+									<td th:text="${supplier[1]}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="mt-4">
+						<h5>Top sản phẩm nhập nhiều nhất</h5>
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>STT</th>
+									<th>Sản phẩm</th>
+									<th>Tổng nhập</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="product, i : ${topProducts}">
+									<td th:text="${i.index + 1}"></td>
+									<td th:text="${product[0]}"></td>
+									<td th:text="${product[1]}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="mt-4">
+						<h5>Báo cáo chi tiết nhập kho</h5>
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>Sản phẩm</th>
+									<th>Số lượng</th>
+									<th>Ngày nhập</th>
+									<th>Nhà cung cấp</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="row : ${danhSachBaoCao}">
+									<td th:text="${row[0]}"></td>
+									<td th:text="${row[1]}"></td>
+									<td th:text="${#temporals.format(row[2], 'dd/MM/yyyy')}"></td>
+									<td th:text="${row[3]}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+		let labels = /*[[${labels}]]*/[];
+		let values = /*[[${values}]]*/[];
+
+		const ctx = document.getElementById('importChart').getContext('2d');
+		new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: labels,
+				datasets: [{
+					label: 'Số lượng nhập',
+					data: values,
+					backgroundColor: 'rgba(75, 192, 192, 0.7)',
+					borderColor: 'rgba(75, 192, 192, 1)',
+					borderWidth: 1
+				}]
+			},
+			options: {
+				responsive: true,
+				scales: {
+					y: {
+						beginAtZero: true
+					}
+				},
+				plugins: {
+					legend: {
+						display: false
+					},
+					tooltip: {
+						callbacks: {
+							label: function (context) {
+								return ' ' + context.raw + ' sản phẩm';
+							}
+						}
+					}
+				}
+			}
+		});
+		function toggleRightPanel() {
+			const panel = document.getElementById("right-panel");
+			if (panel.style.right === "0px") {
+				panel.style.right = "-250px";
+			} else {
+				panel.style.right = "0px";
+			}
+		}
+	</script>
+	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+</body>
+
+</html>

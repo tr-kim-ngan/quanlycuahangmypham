@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head">
+
+
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container"
+				style="padding: 20px; background-color: #faeee7; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center mb-4">
+						<h3 class="mb-0"></h3>
+						<button class="btn btn-outline-dark" onclick="toggleRightPanel()">☰ Thống kê</button>
+
+					</div>
+					<div id="right-panel" style="
+										width: 250px;
+										min-height: 100px;
+										max-height: 90vh;
+										position: fixed;
+										top: 135px;
+										right: -250px;
+										background-color: white;
+										color: black;
+										padding: 5px 5px 0px 0px;
+										overflow-y: auto;
+										transition: right 0.3s ease-in-out;
+										box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
+										border-radius: 10px;
+										z-index: 9999;">
+						<ul style="list-style: none; padding: 0; margin: 0;">
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/sanpham-gan-het}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Sản Phẩm sắp hết</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Nhập theo
+									sản phẩm</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang/tong-gia-tri}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Tổng giá trị nhập
+									kho</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang/xu-huong}"
+									th:classappend="${activeMenu == 'xu-huong'} ? 'active'">Xu
+									hướng nhập kho</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/xuat-kho}"
+									th:classappend="${activeMenu == 'xuat-kho'} ? 'active'">Thống kê
+									xuất kho</a>
+							</li>
+						</ul>
+					</div>
+					<div style="max-width: 1300px; height: 500px; margin: 0 auto">
+						<h5>📦 Biểu đồ tổng quan số lượng tồn kho</h5>
+						<canvas id="tonKhoChart"></canvas>
+					</div>
+
+					<div style="max-width: 1300px; height: 500px; margin: 30px auto">
+						<h4>📊 Biểu đồ sản phẩm gần hết hàng</h4>
+						<canvas id="chartTonKho"></canvas>
+					</div>
+
+					<div class="mt-4">
+						<h5>📋 Danh sách sản phẩm sắp hết hàng</h5>
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>STT</th>
+									<th>Tên sản phẩm</th>
+									<th>Số lượng còn trên kệ</th>
+									<th>Số lượng tồn kho</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="sp, iter : ${sanPhamGanHet}">
+									<td th:text="${iter.count}"></td>
+									<td th:text="${sp.tenSanPham}"></td>
+									<td th:text="${sp.soLuong}"></td>
+									<td th:text="${tonKhos[iter.index]}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="mt-4">
+						<h5>📦 Danh sách sản phẩm chưa từng nhập kho</h5>
+						<table class="table table-bordered">
+							<thead >
+								<tr>
+									<th>STT</th>
+									<th>Tên sản phẩm</th>
+									
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="sp, iter : ${chuaNhap}">
+									<td th:text="${iter.count}"></td>
+									<td th:text="${sp.tenSanPham}"></td>
+									
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+		let tenSanPhams = /*[[${tenSanPhams}]]*/[];
+		let tonKhos = /*[[${tonKhos}]]*/[];
+
+
+		// Dữ liệu biểu đồ tất cả sản phẩm hoạt động có trong đơn nhập
+		let tenSanPhamsAll = /*[[${tenSanPhamsAll}]]*/[];
+		let tonKhosAll = /*[[${tonKhosAll}]]*/[];
+
+		let ctx = document.getElementById('chartTonKho').getContext('2d');
+		new Chart(ctx, {
+			type: 'bar',
+			data: {
+				labels: tenSanPhams,
+				datasets: [{
+					label: 'Tồn kho (sản phẩm)',
+					data: tonKhos,
+					backgroundColor: tonKhos.map(value => value < 10 ? 'rgba(255, 99, 132, 0.6)' : 'rgba(255, 206, 86, 0.6)'),
+					borderColor: tonKhos.map(value => value < 10 ? 'rgba(255, 99, 132, 1)' : 'rgba(255, 206, 86, 1)'),
+					borderWidth: 1
+				}]
+			},
+			options: {
+				scales: {
+					y: {
+						beginAtZero: true,
+						title: {
+							display: true,
+							text: 'Số lượng tồn'
+						}
+					},
+					x: {
+						title: {
+							display: true,
+							text: 'Sản phẩm'
+						}
+					}
+				},
+				plugins: {
+					legend: {
+						display: false
+					}
+				}
+			}
+		});
+		// Biểu đồ tổng quan tồn kho
+		const ctxTonKho = document.getElementById("tonKhoChart").getContext("2d");
+		new Chart(ctxTonKho, {
+			type: 'bar',
+			data: {
+				labels: tenSanPhamsAll,
+				datasets: [{
+					label: 'Tồn kho (sản phẩm)',
+					data: tonKhosAll,
+					backgroundColor: 'rgba(255, 206, 86, 0.6)',
+					borderColor: 'rgba(255, 206, 86, 1)',
+					borderWidth: 1
+				}]
+			},
+			options: {
+				responsive: true,
+				scales: {
+					y: {
+						beginAtZero: true,
+						title: {
+							display: true,
+							text: 'Số lượng tồn'
+						}
+					},
+					x: {
+						ticks: {
+							autoSkip: false,
+							maxRotation: 45,
+							minRotation: 30
+						}
+					}
+				}
+			}
+		});
+		function toggleRightPanel() {
+			const panel = document.getElementById("right-panel");
+			panel.style.right = (panel.style.right === "0px") ? "-250px" : "0px";
+		} F
+	</script>
+
+	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+
+</body>
+
+</html>

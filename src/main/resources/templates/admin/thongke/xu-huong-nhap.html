@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head">
+
+
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container"
+				style="padding: 20px; background-color: #faeee7; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center mb-4">
+						<h3 class="mb-0">Xu hướng nhập kho</h3>
+						<button class="btn btn-outline-dark" onclick="toggleRightPanel()">☰ Thống kê</button>
+
+					</div>
+					<div id="right-panel" style="
+										width: 250px;
+										min-height: 100px;
+										max-height: 90vh;
+										position: fixed;
+										top: 135px;
+										right: -250px;
+										background-color: white;
+										color: black;
+										padding: 5px 5px 0px 0px;
+										overflow-y: auto;
+										transition: right 0.3s ease-in-out;
+										box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
+										border-radius: 10px;
+										z-index: 9999;">
+						<ul style="list-style: none; padding: 0; margin: 0;">
+							
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/sanpham-gan-het}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Sản Phẩm sắp hết</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Nhập theo
+									sản phẩm</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang/tong-gia-tri}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Tổng giá trị nhập
+									kho</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang/xu-huong}"
+									th:classappend="${activeMenu == 'xu-huong'} ? 'active'">Xu
+									hướng nhập kho</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/xuat-kho}"
+									th:classappend="${activeMenu == 'xuat-kho'} ? 'active'">Thống kê
+									xuất kho</a>
+							</li>
+						</ul>
+					</div>
+					<!-- Form lọc thời gian -->
+					<form method="GET" th:action="@{/admin/thongke/nhaphang/xu-huong}"
+						style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+
+						<label class="mb-0">Ngày bắt đầu:</label>
+						<input type="date" name="fromDate" th:value="${fromDate}" required class="form-control"
+							style="width: 180px;">
+
+						<label class="mb-0">Ngày kết thúc:</label>
+						<input type="date" name="toDate" th:value="${toDate}" required class="form-control"
+							style="width: 180px;">
+
+						<button type="submit" class="btn btn-primary">Lọc</button>
+					</form>
+
+					<!-- Biểu đồ -->
+					<div style="max-width: 1300px; height: 500px; margin: 0 auto">
+						<canvas id="trendChart"></canvas>
+					</div>
+
+					<!-- Bảng chi tiết -->
+					<h5 class="text-center mt-5 mb-3">Báo cáo chi tiết Xu hướng nhập kho</h5>
+					<div class="table-responsive">
+						<table class="table table-bordered text-center">
+							<thead class="table-primary">
+								<tr>
+									<th>Ngày nhập</th>
+									<th>Số lượng nhập</th>
+									<th>Tổng giá trị nhập (VND)</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="record : ${reportData}">
+									<td th:text="${#temporals.format(record.ngayNhap, 'dd/MM/yyyy')}"></td>
+									<td th:text="${record.soLuongNhap}"></td>
+									<td
+										th:text="${#numbers.formatDecimal(record.tongGiaTriNhap, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+		function toggleRightPanel() {
+			const panel = document.getElementById("right-panel");
+			panel.style.right = (panel.style.right === "0px") ? "-250px" : "0px";
+		}
+
+		const labels = /*[[${labels}]]*/[];
+		const values = /*[[${values}]]*/[];
+		const totalValues = /*[[${totalValues}]]*/[];
+
+		if (labels.length > 0 && values.length > 0) {
+			const ctx = document.getElementById('trendChart').getContext('2d');
+			new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: labels,
+					datasets: [
+						{
+							label: 'Số lượng nhập',
+							data: values,
+							backgroundColor: 'rgba(75, 192, 192, 0.3)',
+							borderColor: 'rgba(75, 192, 192, 1)',
+							borderWidth: 2,
+							fill: true,
+							tension: 0.4,
+							yAxisID: 'yLeft'
+						},
+						{
+							label: 'Tổng giá trị nhập (VND)',
+							data: totalValues,
+							backgroundColor: 'rgba(255, 99, 132, 0.3)',
+							borderColor: 'rgba(255, 99, 132, 1)',
+							borderWidth: 2,
+							fill: true,
+							tension: 0.4,
+							yAxisID: 'yRight'
+						}
+					]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {position: 'top'}
+					},
+					scales: {
+						yLeft: {
+							position: 'left',
+							title: {display: true, text: 'Số lượng nhập'},
+							beginAtZero: true
+						},
+						yRight: {
+							position: 'right',
+							title: {display: true, text: 'Tổng giá trị nhập (VND)'},
+							beginAtZero: true
+						},
+						x: {
+							title: {display: true, text: 'Ngày nhập kho'}
+						}
+					}
+				}
+			});
+		}
+	</script>
+	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head">
+
+
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container"
+				style="padding: 20px; background-color: #faeee7; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center mb-4">
+						<h3 class="mb-0">Sản phẩm xuất kho</h3>
+						<button class="btn btn-outline-dark" onclick="toggleRightPanel()">☰ Thống kê</button>
+
+					</div>
+					<div id="right-panel" style="
+										width: 250px;
+										min-height: 100px;
+										max-height: 90vh;
+										position: fixed;
+										top: 135px;
+										right: -250px;
+										background-color: white;
+										color: black;
+										padding: 5px 5px 0px 0px;
+										overflow-y: auto;
+										transition: right 0.3s ease-in-out;
+										box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
+										border-radius: 10px;
+										z-index: 9999;">
+						<ul style="list-style: none; padding: 0; margin: 0;">
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/sanpham-gan-het}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Sản Phẩm sắp hết</a>
+							</li>
+
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Nhập theo
+									sản phẩm</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang/tong-gia-tri}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Tổng giá trị nhập
+									kho</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang/xu-huong}"
+									th:classappend="${activeMenu == 'xu-huong'} ? 'active'">Xu
+									hướng nhập kho</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/xuat-kho}"
+									th:classappend="${activeMenu == 'xuat-kho'} ? 'active'">Thống kê
+									xuất kho</a>
+							</li>
+						</ul>
+					</div>
+					<!-- Form lọc thời gian -->
+					<form method="GET" th:action="@{/admin/thongke/nhaphang/xuat-kho}"
+						style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+
+						<label class="mb-0">Ngày bắt đầu:</label>
+						<input type="date" name="fromDate" th:value="${fromDate}" required class="form-control"
+							style="width: 180px;">
+
+						<label class="mb-0">Ngày kết thúc:</label>
+						<input type="date" name="toDate" th:value="${toDate}" required class="form-control"
+							style="width: 180px;">
+
+						<button type="submit" class="btn btn-primary">Lọc</button>
+					</form>
+
+					<!-- Biểu đồ xuất kho -->
+					<div style="max-width: 1300px; height: 500px; margin: 0 auto">
+						<canvas id="exportChart"></canvas>
+					</div>
+
+					<!-- Biểu đồ tồn kho -->
+					<div style="max-width:1500px; height: 500px; margin: 0px auto">
+						<h4 class="mb-3 text-center">📊 Số lượng tồn kho trước/sau kiểm kê</h4>
+						<canvas id="stockChart"></canvas>
+					</div>
+					<!-- Báo cáo chi tiết -->
+					<div class="mt-5">
+						<h4>📋 Báo cáo chi tiết xuất kho</h4>
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>Sản phẩm</th>
+									<th>Số lượng xuất</th>
+									<th>Ngày xuất</th>
+									<th>Khách hàng</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="row : ${danhSachBaoCao}">
+									<td th:text="${row[0]}"></td>
+									<td th:text="${row[1]}" class="text-center"></td>
+									<td th:text="${#temporals.format(row[2], 'dd/MM/yyyy')}"></td>
+									<td>
+										<span th:if="${row[4] != null}" th:text="${row[4]}"></span>
+										<span th:if="${row[4] == null}" th:text="${row[3]}"></span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Top sản phẩm xuất nhiều nhất -->
+					<div class="mt-5">
+						<h4>📌 Top sản phẩm xuất nhiều nhất</h4>
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>STT</th>
+									<th>Sản phẩm</th>
+									<th>Tổng số lượng xuất</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="product, iterStat : ${topProducts}">
+									<td th:text="${iterStat.count}"></td>
+									<td th:text="${product[0]}"></td>
+									<td th:text="${product[1]}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+
+	<!-- Scripts -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+		var labels = /*[[${labels}]]*/[];
+		var values = /*[[${values}]]*/[];
+		var stockLabels = /*[[${stockLabels}]]*/[];
+		var stockValuesBefore = /*[[${stockValuesBefore}]]*/[];
+		var stockValuesAfter = /*[[${stockValuesAfter}]]*/[];
+
+		new Chart(document.getElementById('exportChart').getContext('2d'), {
+			type: 'bar',
+			data: {
+				labels: labels,
+				datasets: [{
+					label: 'Số lượng xuất',
+					data: values,
+					backgroundColor: 'rgba(255, 99, 132, 0.6)',
+					borderColor: 'rgba(255, 99, 132, 1)',
+					borderWidth: 1
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				scales: {
+					y: {beginAtZero: true}
+				}
+			}
+		});
+
+		new Chart(document.getElementById('stockChart').getContext('2d'), {
+			type: 'bar',
+			data: {
+				labels: stockLabels,
+				datasets: [
+					{
+						label: 'Tồn kho trước kiểm kê',
+						data: stockValuesBefore,
+						backgroundColor: 'rgba(54, 162, 235, 0.6)',
+						borderColor: 'rgba(54, 162, 235, 1)',
+						borderWidth: 1
+					},
+					{
+						label: 'Tồn kho sau kiểm kê',
+						data: stockValuesAfter,
+						backgroundColor: 'rgba(255, 99, 132, 0.6)',
+						borderColor: 'rgba(255, 99, 132, 1)',
+						borderWidth: 1
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				scales: {
+					y: {beginAtZero: true}
+				}
+			}
+		});
+
+		function toggleRightPanel() {
+			const panel = document.getElementById("right-panel");
+			panel.style.right = (panel.style.right === "0px") ? "-250px" : "0px";
+		}
+	</script>
+	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+
+</body>
+
+</html>

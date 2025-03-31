@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head">
+
+
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container"
+				style="padding: 20px; background-color: #faeee7; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center mb-4">
+						<h3 class="mb-0">Thống kê nhập kho theo nhà cung cấp</h3>
+						<button class="btn btn-outline-dark" onclick="toggleRightPanel()">☰ Thống kê</button>
+
+					</div>
+					<div id="right-panel" style="
+										width: 250px;
+										min-height: 100px;
+										max-height: 90vh;
+										position: fixed;
+										top: 135px;
+										right: -250px;
+										background-color: white;
+										color: black;
+										padding: 5px 5px 0px 0px;
+										overflow-y: auto;
+										transition: right 0.3s ease-in-out;
+										box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
+										border-radius: 10px;
+										z-index: 9999;">
+						<ul style="list-style: none; padding: 0; margin: 0;">
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/sanpham-gan-het}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Sản Phẩm sắp hết</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Nhập theo
+									sản phẩm</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang/tong-gia-tri}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Tổng giá trị nhập
+									kho</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/nhaphang/xu-huong}"
+									th:classappend="${activeMenu == 'xu-huong'} ? 'active'">Xu
+									hướng nhập kho</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/xuat-kho}"
+									th:classappend="${activeMenu == 'xuat-kho'} ? 'active'">Thống kê
+									xuất kho</a>
+							</li>
+						</ul>
+					</div>
+					<!-- Form lọc thời gian -->
+					<form method="GET" th:action="@{/admin/thongke/nhaphang/tong-gia-tri}"
+						style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+
+						<label class="mb-0">Ngày bắt đầu:</label>
+						<input type="date" name="fromDate" th:value="${fromDate}" required class="form-control"
+							style="width: 180px;">
+
+						<label class="mb-0">Ngày kết thúc:</label>
+						<input type="date" name="toDate" th:value="${toDate}" required class="form-control"
+							style="width: 180px;">
+
+						<button type="submit" class="btn btn-primary">Lọc</button>
+					</form>
+
+
+
+
+					<!-- Biểu đồ -->
+					<div style="max-width: 700px; height: 500px; margin: 0 auto;">
+						<canvas id="importChart" style="width: 100%; height: 100%;"></canvas>
+					</div>
+
+					<!-- Bảng dữ liệu -->
+					<div class="mt-4 table-responsive">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Sản phẩm</th>
+									<th>Số lượng nhập</th>
+									<th>Tổng giá trị nhập</th>
+									<th>Ngày nhập</th>
+									<th>Nhà cung cấp</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:if="${#lists.isEmpty(reportData)}">
+									<td colspan="5"
+										style="text-align: center; font-weight: bold; padding: 15px; color: red;">
+										Không có dữ liệu trong khoảng thời gian này.
+									</td>
+								</tr>
+								<tr th:each="record : ${reportData}">
+									<td th:text="${record[0]}"></td>
+									<td th:text="${record[1]}"></td>
+									<td th:text="${#numbers.formatDecimal(record[2], 0, 'COMMA', 0, 'POINT')} + ' đ'">
+									</td>
+									<td th:text="${#temporals.format(record[3], 'dd/MM/yyyy')}"></td>
+									<td th:text="${record[4]}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<!-- Scripts -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+		function toggleRightPanel() {
+			const panel = document.getElementById("right-panel");
+			if (panel.style.right === "0px") {
+				panel.style.right = "-250px";
+			} else {
+				panel.style.right = "0px";
+			}
+		}
+
+		var labels = /*[[${labels}]]*/[];
+		var values = /*[[${values}]]*/[];
+
+		const ctx = document.getElementById('importChart').getContext('2d');
+		const totalValue = values.reduce((acc, val) => acc + val, 0);
+
+		if (labels.length > 0 && values.length > 0) {
+			new Chart(ctx, {
+				type: 'pie',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Tổng giá trị nhập (VND)',
+						data: values,
+						backgroundColor: [
+							'rgba(255, 99, 132, 0.6)',
+							'rgba(54, 162, 235, 0.6)',
+							'rgba(255, 206, 86, 0.6)',
+							'rgba(75, 192, 192, 0.6)',
+							'rgba(153, 102, 255, 0.6)',
+							'rgba(255, 159, 64, 0.6)'
+						],
+						borderColor: [
+							'rgba(255, 99, 132, 1)',
+							'rgba(54, 162, 235, 1)',
+							'rgba(255, 206, 86, 1)',
+							'rgba(75, 192, 192, 1)',
+							'rgba(153, 102, 255, 1)',
+							'rgba(255, 159, 64, 1)'
+						],
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: {
+						legend: {position: 'top'},
+						tooltip: {
+							callbacks: {
+								label: function (tooltipItem) {
+									const value = tooltipItem.raw;
+									const percentage = ((value / totalValue) * 100).toFixed(2);
+									return `${tooltipItem.label}: ${value.toLocaleString()} VND (${percentage}%)`;
+								}
+							}
+						}
+					}
+				}
+			});
+		}
+	</script>
+	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+
+</body>
+
+</html>

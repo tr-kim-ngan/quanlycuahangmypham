@@ -6,7 +6,7 @@
 	<div class="sidebar-logo">
 		<!-- Logo Header -->
 		<div class="logo-header" style="height: 110px; display: flex; justify-content: center; align-items: center;">
-			<a th:href="@{/admin}" class="logo">
+			<a th:href="@{/admin/thongke/donhang}" class="logo">
 				<div style="text-align: center;">
 					<img th:src="@{/assets/img/kaiadmin/logo_light.svg.png}" alt="navbar brand" class="navbar-brand"
 						height="120" width="auto" style="margin-top: 15px;" />
@@ -30,14 +30,27 @@
 	<div class="sidebar-wrapper scrollbar scrollbar-inner">
 		<div class="sidebar-content">
 			<ul class="nav nav-secondary">
-				<li class="nav-item active">
-					<a th:href="@{/admin}" class="collapsed" aria-expanded="false">
-						<i class="fas fa-home"></i>
-						<p>Trang Chủ</p>
-
+				<li class="nav-item">
+					<a data-bs-toggle="collapse" href="#collapseThongKe" aria-expanded="false" class="nav-link">
+						<i class="fas fa-chart-bar"></i>
+						<p>Thống Kê</p>
+						<span class="caret"></span>
 					</a>
-
+					<div class="collapse" id="collapseThongKe">
+						<ul class="nav nav-collapse">
+							<li><a th:href="@{/admin/thongke/donhang}"><i class="fas fa-box"></i> Thống kê đơn hàng</a>
+							</li>
+							<li><a th:href="@{/admin/thongke/sanpham-gan-het}"><i class="fas fa-truck-loading"></i>
+									Thống kê
+									nhập hàng</a></li>
+							<li><a th:href="@{/admin/thongke/doanhthu}"><i class="fas fa-user-friends"></i> Thống kê
+									nhân viên</a></li>
+							<li><a th:href="@{/admin/thongke/khachhang}"><i class="fas fa-address-book"></i> Khách hàng</a></li>
+						</ul>
+					</div>
 				</li>
+
+
 				<li class="nav-section">
 					<span class="sidebar-mini-icon">
 						<i class="fa fa-ellipsis-h"></i>

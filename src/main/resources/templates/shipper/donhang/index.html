@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="shipper/fragments/head::head"></head>
+<head>
+	<title>Đơn hàng</title>
+	<link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+
+</head>
 
 <body>
 	<div class="wrapper">
@@ -10,13 +14,11 @@
 
 		<!-- Nội dung chính -->
 		<div class="main-panel">
-			<!-- Header -->
-			<div th:replace="~{shipper/fragments/header::header}"></div>
 
 			<div class="container-fluid mt-4">
 				<h3 class="text-center">Quản lý đơn hàng</h3>
-				<p class="text-center text-muted">Danh sách đơn hàng của: <strong
-						th:text="${shipper.tenNguoiDung}"></strong></p>
+				<p class="text-center text-muted">Danh sách đơn hàng của: <strong th:text="${shipper.hoTen}"></strong>
+				</p>
 
 				<!-- Bảng danh sách đơn hàng -->
 				<table class="table table-striped mt-4">
@@ -88,15 +90,11 @@
 					background-color: #fff;
 					margin-bottom: 50px;
 				}
-
-				
 			</style>
 			<!-- Footer -->
-			<div th:replace="~{shipper/fragments/footer::footer}"></div>
 		</div>
 	</div>
 
-	<div th:replace="~{shipper/fragments/script::script}"></div>
 </body>
 
 </html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="admin/fragments/head :: head">
+
+
+</head>
+
+<body>
+	<div class="wrapper">
+		<!-- Sidebar -->
+		<div th:replace="admin/fragments/sidebar::sidebar"></div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<!-- Header -->
+			<div th:replace="admin/fragments/header :: header"></div>
+			<!-- End Header -->
+
+			<div class="container"
+				style="padding: 20px; background-color: #faeee7; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
+				<div class="page-inner">
+					<div class="d-flex justify-content-between align-items-center mb-4">
+						<h3 class="mb-0">Doanh Thu</h3>
+						<button class="btn btn-outline-dark" onclick="toggleRightPanel()">☰ Thống kê</button>
+
+					</div>
+					<div id="right-panel" style="
+										width: 250px;
+										min-height: 100px;
+										max-height: 90vh;
+										position: fixed;
+										top: 135px;
+										right: -250px;
+										background-color: white;
+										color: black;
+										padding: 5px 5px 0px 0px;
+										overflow-y: auto;
+										transition: right 0.3s ease-in-out;
+										box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
+										border-radius: 10px;
+										z-index: 9999;">
+						<ul style="list-style: none; padding: 0; margin: 0;">
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/donhang}"
+									th:classappend="${activeMenu == 'tong-quan'} ? 'active'">Thống kê đơn hàng</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/doanhthu-loinhuan}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Doanh Thu </a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/sanpham-banchay}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Sản Phẩm</a>
+							</li>
+							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/trangthai-donhang}"
+									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Trạng thái đơn hàng</a>
+							</li>
+
+
+						</ul>
+					</div>
+
+					<form method="GET" th:action="@{/admin/thongke/trangthai-donhang}"
+						style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;">
+						<label class="mb-0">Từ ngày:</label>
+						<input type="date" name="fromDate" th:value="${fromDate}" required class="form-control"
+							style="width: 180px;">
+						<label class="mb-0">Đến ngày:</label>
+						<input type="date" name="toDate" th:value="${toDate}" required class="form-control"
+							style="width: 180px;">
+						<button type="submit" class="btn btn-primary">Lọc</button>
+					</form>
+					<!-- Biểu đồ -->
+
+					<div class="container mt-4">
+						<h4>📦 Thống kê đơn hàng theo trạng thái</h4>
+						<div style="max-width: 500px; margin: 0 auto;">
+							<canvas id="donHangChart" style="width: 100%; height: 300px;"></canvas>
+						</div>
+					</div>
+
+
+
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div th:replace="admin/fragments/footer::footer"></div>
+			<!-- End Footer -->
+		</div>
+	</div>
+
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+		const labels = /*[[${labels}]]*/[];
+		const values = /*[[${values}]]*/[];
+
+		new Chart(document.getElementById('donHangChart'), {
+			type: 'pie', // đổi sang 'bar' nếu muốn biểu đồ cột
+			data: {
+				labels: labels,
+				datasets: [{
+					label: 'Số đơn hàng',
+					data: values,
+					backgroundColor: [
+						'rgba(54, 162, 235, 0.6)',
+						'rgba(255, 206, 86, 0.6)',
+						'rgba(75, 192, 192, 0.6)',
+						'rgba(255, 99, 132, 0.6)',
+						'rgba(153, 102, 255, 0.6)'
+					]
+				}]
+			},
+			options: {
+				responsive: true,
+				plugins: {
+					legend: {
+						position: 'top'
+					}
+				}
+			}
+		});
+
+		function toggleRightPanel() {
+			const panel = document.getElementById("right-panel");
+			if (panel.style.right === "0px") {
+				panel.style.right = "-250px";
+			} else {
+				panel.style.right = "0px";
+			}
+		}
+	</script>
+
+	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
+</body>
+
+</html>

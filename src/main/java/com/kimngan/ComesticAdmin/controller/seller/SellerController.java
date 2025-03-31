@@ -81,9 +81,11 @@ public class SellerController {
 	}
 
 	@GetMapping("/orders")
-	public String getOrdersForSeller(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
+	public String getOrdersForSeller(Model model,
+
+			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "10") int size,
-			@RequestParam(value = "status", required = false) String status) {
+			@RequestParam(value = "status", required = false, defaultValue = "all") String status) {
 
 		page = Math.max(page, 0);
 		PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "maDonHang"));
@@ -121,12 +123,15 @@ public class SellerController {
 
 		// ✅ Thêm danh sách shipper vào nếu đơn đang chờ gán shipper
 		if ("Đã xác nhận".equals(donHang.getTrangThaiDonHang())) {
-			List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER");
+			List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER").stream()
+					.filter(NguoiDung::isTrangThai) 
+					.collect(Collectors.toList());
 			model.addAttribute("danhSachShipper", danhSachShipper);
 		}
 		System.out.println("📌 Ghi chú hiện tại:\n" + donHang.getGhiChu());
 
-		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER");
+		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER").stream().filter(NguoiDung::isTrangThai) 
+				.collect(Collectors.toList());
 		model.addAttribute("danhSachShipper", danhSachShipper);
 		return "seller/order/view";
 	}
@@ -146,6 +151,10 @@ public class SellerController {
 			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy shipper!");
 			return "redirect:/seller/orders/" + maDonHang;
 		}
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+		NguoiDung seller = nguoiDungService.findByTenNguoiDung(userDetails.getUsername());
+		donHang.setSeller(seller); // 👈 GÁN NGƯỜI BÁN Ở ĐÂY
 
 		// Gán shipper và cập nhật trạng thái
 		donHang.setShipper(shipper);
@@ -184,7 +193,8 @@ public class SellerController {
 		model.addAttribute("user", userDetails);
 
 		// Danh sách shipper
-		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER");
+		List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER").stream().filter(NguoiDung::isTrangThai) 
+				.collect(Collectors.toList());
 
 		// Trạng thái tiếp theo có thể chọn
 		List<String> nextStatuses = getNextStatuses(donHang.getTrangThaiDonHang(), false,
@@ -450,221 +460,220 @@ public class SellerController {
 	}
 
 	@GetMapping("/offline-orders")
-	public String showOfflineOrderFormForSeller(@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
-	        @RequestParam(value = "size", defaultValue = "5") int size,
-	        @RequestParam(value = "keyword", required = false) String keyword,
-	        @RequestParam(value = "selectedProductIds", required = false) String selectedProductIdsStr,
-	        @RequestParam(value = "selectedQuantities", required = false) String selectedQuantitiesStr,
-	        HttpServletRequest request, Model model) {
+	public String showOfflineOrderFormForSeller(
+			@RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+			@RequestParam(value = "size", defaultValue = "5") int size,
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "selectedProductIds", required = false) String selectedProductIdsStr,
+			@RequestParam(value = "selectedQuantities", required = false) String selectedQuantitiesStr,
+			HttpServletRequest request, Model model) {
 
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    if (authentication != null && authentication.getPrincipal() instanceof NguoiDungDetails) {
-	        NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
-	        model.addAttribute("user", userDetails);
-	    } else {
-	        model.addAttribute("user", null);
-	    }
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.getPrincipal() instanceof NguoiDungDetails) {
+			NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+			model.addAttribute("user", userDetails);
+		} else {
+			model.addAttribute("user", null);
+		}
 
-	    model.addAttribute("requestUri", request.getRequestURI());
+		model.addAttribute("requestUri", request.getRequestURI());
 
-	    List<Integer> selectedProductIds = new ArrayList<>();
-	    List<Integer> selectedQuantities = new ArrayList<>();
+		List<Integer> selectedProductIds = new ArrayList<>();
+		List<Integer> selectedQuantities = new ArrayList<>();
 
-	    if (selectedProductIdsStr != null && !selectedProductIdsStr.isEmpty()) {
-	        selectedProductIds = Arrays.stream(selectedProductIdsStr.split(","))
-	                .map(Integer::parseInt)
-	                .collect(Collectors.toList());
-	    }
+		if (selectedProductIdsStr != null && !selectedProductIdsStr.isEmpty()) {
+			selectedProductIds = Arrays.stream(selectedProductIdsStr.split(",")).map(Integer::parseInt)
+					.collect(Collectors.toList());
+		}
 
-	    if (selectedQuantitiesStr != null && !selectedQuantitiesStr.isEmpty()) {
-	        selectedQuantities = Arrays.stream(selectedQuantitiesStr.split(","))
-	                .map(q -> {
-	                    String[] parts = q.split(":");
-	                    return parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
-	                })
-	                .collect(Collectors.toList());
-	    }
+		if (selectedQuantitiesStr != null && !selectedQuantitiesStr.isEmpty()) {
+			selectedQuantities = Arrays.stream(selectedQuantitiesStr.split(",")).map(q -> {
+				String[] parts = q.split(":");
+				return parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+			}).collect(Collectors.toList());
+		}
 
-	    Page<SanPham> sanPhamPage;
-	    if (keyword != null && !keyword.isEmpty()) {
-	        sanPhamPage = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
-	    } else {
-	        sanPhamPage = sanPhamService.findAllActiveWithStock(PageRequest.of(page, size));
-	    }
+		Page<SanPham> sanPhamPage;
+		if (keyword != null && !keyword.isEmpty()) {
+			sanPhamPage = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
+		} else {
+			sanPhamPage = sanPhamService.findAllActiveWithStock(PageRequest.of(page, size));
+		}
 
-	    if (sanPhamPage.isEmpty()) {
-	        model.addAttribute("noProductsMessage", "Không có sản phẩm nào phù hợp.");
-	    }
+		if (sanPhamPage.isEmpty()) {
+			model.addAttribute("noProductsMessage", "Không có sản phẩm nào phù hợp.");
+		}
 
-	    LocalDate today = LocalDate.now();
-	    Map<Integer, String> formattedPrices = new HashMap<>();
-	    Map<Integer, String> formattedDiscountPrices = new HashMap<>();
-	    DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+		LocalDate today = LocalDate.now();
+		Map<Integer, String> formattedPrices = new HashMap<>();
+		Map<Integer, String> formattedDiscountPrices = new HashMap<>();
+		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
 
-	    for (SanPham sp : sanPhamPage.getContent()) {
-	        BigDecimal giaGoc = sp.getDonGiaBan();
-	        formattedPrices.put(sp.getMaSanPham(), decimalFormat.format(giaGoc) + " VND");
+		for (SanPham sp : sanPhamPage.getContent()) {
+			BigDecimal giaGoc = sp.getDonGiaBan();
+			formattedPrices.put(sp.getMaSanPham(), decimalFormat.format(giaGoc) + " VND");
 
-	        Optional<KhuyenMai> highestKhuyenMai = sp.getKhuyenMais().stream()
-	                .filter(KhuyenMai::getTrangThai)
-	                .filter(km -> km.getNgayBatDau() != null && km.getNgayKetThuc() != null
-	                        && !km.getNgayBatDau().toLocalDate().isAfter(today)
-	                        && !km.getNgayKetThuc().toLocalDate().isBefore(today))
-	                .max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+			Optional<KhuyenMai> highestKhuyenMai = sp.getKhuyenMais().stream().filter(KhuyenMai::getTrangThai)
+					.filter(km -> km.getNgayBatDau() != null && km.getNgayKetThuc() != null
+							&& !km.getNgayBatDau().toLocalDate().isAfter(today)
+							&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
+					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
 
-	        if (highestKhuyenMai.isPresent() && highestKhuyenMai.get().getPhanTramGiamGia() != null) {
-	            BigDecimal phanTramGiam = highestKhuyenMai.get().getPhanTramGiamGia();
-	            BigDecimal giaSauGiam = giaGoc.subtract(giaGoc.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
+			if (highestKhuyenMai.isPresent() && highestKhuyenMai.get().getPhanTramGiamGia() != null) {
+				BigDecimal phanTramGiam = highestKhuyenMai.get().getPhanTramGiamGia();
+				BigDecimal giaSauGiam = giaGoc.subtract(giaGoc.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
 
-	            formattedDiscountPrices.put(sp.getMaSanPham(),
-	                    "<del style='color:grey; font-size:14px;'>" + decimalFormat.format(giaGoc) + " VND</del> "
-	                            + "<span class='text-danger fw-bold'>" + decimalFormat.format(giaSauGiam) + " VND</span>");
-	        } else {
-	            formattedDiscountPrices.put(sp.getMaSanPham(), decimalFormat.format(giaGoc) + " VND");
-	        }
-	    }
+				formattedDiscountPrices.put(sp.getMaSanPham(),
+						"<del style='color:grey; font-size:14px;'>" + decimalFormat.format(giaGoc) + " VND</del> "
+								+ "<span class='text-danger fw-bold'>" + decimalFormat.format(giaSauGiam)
+								+ " VND</span>");
+			} else {
+				formattedDiscountPrices.put(sp.getMaSanPham(), decimalFormat.format(giaGoc) + " VND");
+			}
+		}
 
-	    model.addAttribute("selectedProductIds", selectedProductIds);
-	    model.addAttribute("selectedQuantities", selectedQuantities);
-	    model.addAttribute("sanPhamList", sanPhamPage.getContent());
-	    model.addAttribute("currentPage", page);
-	    model.addAttribute("totalPages", sanPhamPage.getTotalPages());
-	    model.addAttribute("formattedDiscountPrices", formattedDiscountPrices);
+		model.addAttribute("selectedProductIds", selectedProductIds);
+		model.addAttribute("selectedQuantities", selectedQuantities);
+		model.addAttribute("sanPhamList", sanPhamPage.getContent());
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", sanPhamPage.getTotalPages());
+		model.addAttribute("formattedDiscountPrices", formattedDiscountPrices);
 
-	    return "seller/order/offline-order";
+		return "seller/order/offline-order";
 	}
 
 	@GetMapping("/offline-orders/confirm")
 	public String confirmOfflineOrderForSeller(Model model,
-	        @RequestParam(value = "soDienThoai", required = false) String soDienThoai) {
+			@RequestParam(value = "soDienThoai", required = false) String soDienThoai) {
 
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    if (authentication != null && authentication.getPrincipal() instanceof NguoiDungDetails) {
-	        NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
-	        model.addAttribute("user", userDetails);
-	    }
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.getPrincipal() instanceof NguoiDungDetails) {
+			NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+			model.addAttribute("user", userDetails);
+		}
 
-	    List<ChiTietDonHang> orderItems = donHangService.getCurrentOfflineOrder();
+		List<ChiTietDonHang> orderItems = donHangService.getCurrentOfflineOrder();
 
-	    if (orderItems.isEmpty()) {
-	        model.addAttribute("orderItems", Collections.emptyList());
-	        model.addAttribute("totalPrice", "0 VND");
-	        return "seller/order/offline-order-confirm";
-	    }
+		if (orderItems.isEmpty()) {
+			model.addAttribute("orderItems", Collections.emptyList());
+			model.addAttribute("totalPrice", "0 VND");
+			return "seller/order/offline-order-confirm";
+		}
 
-	    LocalDate today = LocalDate.now();
-	    DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
+		LocalDate today = LocalDate.now();
+		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
 
-	    BigDecimal totalPrice = BigDecimal.ZERO;
-	    Map<Integer, String> formattedDiscountPrices = new HashMap<>();
+		BigDecimal totalPrice = BigDecimal.ZERO;
+		Map<Integer, String> formattedDiscountPrices = new HashMap<>();
 
-	    for (ChiTietDonHang chiTiet : orderItems) {
-	        SanPham sp = chiTiet.getSanPham();
+		for (ChiTietDonHang chiTiet : orderItems) {
+			SanPham sp = chiTiet.getSanPham();
 
-	        // Load lại danh sách khuyến mãi mới nhất
-	        sp.setKhuyenMais(new HashSet<>(
-	                sanPhamRepository.findByIdInWithKhuyenMai(List.of(sp.getMaSanPham())).get(0).getKhuyenMais()));
+			// Load lại danh sách khuyến mãi mới nhất
+			sp.setKhuyenMais(new HashSet<>(
+					sanPhamRepository.findByIdInWithKhuyenMai(List.of(sp.getMaSanPham())).get(0).getKhuyenMais()));
 
-	        Optional<KhuyenMai> highestKhuyenMai = sp.getKhuyenMais().stream().filter(KhuyenMai::getTrangThai)
-	                .filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
-	                        && !km.getNgayKetThuc().toLocalDate().isBefore(today))
-	                .max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+			Optional<KhuyenMai> highestKhuyenMai = sp.getKhuyenMais().stream().filter(KhuyenMai::getTrangThai)
+					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
+							&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
+					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
 
-	        BigDecimal giaSauGiam = sp.getDonGiaBan();
-	        if (highestKhuyenMai.isPresent()) {
-	            BigDecimal phanTramGiam = highestKhuyenMai.get().getPhanTramGiamGia();
-	            giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-	        }
+			BigDecimal giaSauGiam = sp.getDonGiaBan();
+			if (highestKhuyenMai.isPresent()) {
+				BigDecimal phanTramGiam = highestKhuyenMai.get().getPhanTramGiamGia();
+				giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
+			}
 
-	        formattedDiscountPrices.put(sp.getMaSanPham(), decimalFormat.format(giaSauGiam) + " VND");
-	        totalPrice = totalPrice.add(giaSauGiam.multiply(BigDecimal.valueOf(chiTiet.getSoLuong())));
-	    }
+			formattedDiscountPrices.put(sp.getMaSanPham(), decimalFormat.format(giaSauGiam) + " VND");
+			totalPrice = totalPrice.add(giaSauGiam.multiply(BigDecimal.valueOf(chiTiet.getSoLuong())));
+		}
 
-	    NguoiDung khachHang = nguoiDungRepository.findBySoDienThoai(soDienThoai).orElse(null);
-	    if (khachHang != null) {
-	        model.addAttribute("tenKhachHang", khachHang.getHoTen());
-	        model.addAttribute("soDienThoai", khachHang.getSoDienThoai());
-	    } else {
-	        model.addAttribute("tenKhachHang", "Khách vãng lai");
-	        model.addAttribute("soDienThoai", "0000000000");
-	    }
+		NguoiDung khachHang = nguoiDungRepository.findBySoDienThoai(soDienThoai).orElse(null);
+		if (khachHang != null) {
+			model.addAttribute("tenKhachHang", khachHang.getHoTen());
+			model.addAttribute("soDienThoai", khachHang.getSoDienThoai());
+		} else {
+			model.addAttribute("tenKhachHang", "Khách vãng lai");
+			model.addAttribute("soDienThoai", "0000000000");
+		}
 
-	    model.addAttribute("diaChiGiaoHang", "Mua tại quầy KN");
-	    model.addAttribute("orderItems", orderItems);
-	    model.addAttribute("totalPrice", decimalFormat.format(totalPrice) + " VND");
-	    model.addAttribute("formattedDiscountPrices", formattedDiscountPrices);
+		model.addAttribute("diaChiGiaoHang", "Mua tại quầy KN");
+		model.addAttribute("orderItems", orderItems);
+		model.addAttribute("totalPrice", decimalFormat.format(totalPrice) + " VND");
+		model.addAttribute("formattedDiscountPrices", formattedDiscountPrices);
 
-	    return "seller/order/offline-order-confirm";
+		return "seller/order/offline-order-confirm";
 	}
+
 	@PostMapping("/offline-orders/remove")
 	public String removeFromOfflineOrderForSeller(@RequestParam("sanPhamId") Integer sanPhamId,
-	                                              RedirectAttributes redirectAttributes) {
-	    donHangService.removeFromOfflineOrder(sanPhamId);
-	    redirectAttributes.addFlashAttribute("successMessage", "Sản phẩm đã được xóa khỏi đơn hàng!");
-	    return "redirect:/seller/offline-orders/confirm";
+			RedirectAttributes redirectAttributes) {
+		donHangService.removeFromOfflineOrder(sanPhamId);
+		redirectAttributes.addFlashAttribute("successMessage", "Sản phẩm đã được xóa khỏi đơn hàng!");
+		return "redirect:/seller/offline-orders/confirm";
 	}
+
 	@PostMapping("/offline-orders/checkout")
 	public String checkoutOfflineOrderForSeller(RedirectAttributes redirectAttributes,
-	                                            @RequestParam(value = "soDienThoai", required = false) String soDienThoai) {
-	    System.out.println("🔵 Số điện thoại nhận được khi checkout (SELLER): " + soDienThoai);
+			@RequestParam(value = "soDienThoai", required = false) String soDienThoai) {
+		System.out.println("🔵 Số điện thoại nhận được khi checkout (SELLER): " + soDienThoai);
 
-	    if (soDienThoai == null || soDienThoai.trim().isEmpty()) {
-	        soDienThoai = "0000000000"; // Khách vãng lai
-	    }
+		if (soDienThoai == null || soDienThoai.trim().isEmpty()) {
+			soDienThoai = "0000000000"; // Khách vãng lai
+		}
 
-	    boolean isConfirmed = donHangService.processAndGenerateInvoiceForOfflineOrder(soDienThoai);
+		boolean isConfirmed = donHangService.processAndGenerateInvoiceForOfflineOrder(soDienThoai);
 
-	    if (isConfirmed) {
-	        redirectAttributes.addFlashAttribute("successMessage", "Hóa đơn đã được tạo thành công!");
-	        return "redirect:/seller/orders";
-	    } else {
-	        redirectAttributes.addFlashAttribute("errorMessage", "Không thể tạo hóa đơn. Vui lòng thử lại.");
-	        return "redirect:/seller/offline-orders/confirm";
-	    }
+		if (isConfirmed) {
+			redirectAttributes.addFlashAttribute("successMessage", "Hóa đơn đã được tạo thành công!");
+			return "redirect:/seller/orders";
+		} else {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không thể tạo hóa đơn. Vui lòng thử lại.");
+			return "redirect:/seller/offline-orders/confirm";
+		}
 	}
+
 	@PostMapping("/offline-orders/check-phone")
 	public String checkPhoneForSeller(@RequestParam(value = "soDienThoai", required = false) String soDienThoai,
-	                                  RedirectAttributes redirectAttributes) {
-	    System.out.println("📞 [SELLER] Kiểm tra số điện thoại: " + soDienThoai);
+			RedirectAttributes redirectAttributes) {
+		System.out.println("📞 [SELLER] Kiểm tra số điện thoại: " + soDienThoai);
 
-	    if (soDienThoai == null || soDienThoai.trim().isEmpty()) {
-	        redirectAttributes.addFlashAttribute("errorMessage",
-	                "Vui lòng nhập số điện thoại hoặc để trống nếu là khách vãng lai.");
-	        return "redirect:/seller/offline-orders/confirm";
-	    }
+		if (soDienThoai == null || soDienThoai.trim().isEmpty()) {
+			redirectAttributes.addFlashAttribute("errorMessage",
+					"Vui lòng nhập số điện thoại hoặc để trống nếu là khách vãng lai.");
+			return "redirect:/seller/offline-orders/confirm";
+		}
 
-	    Optional<NguoiDung> optionalKhachHang = nguoiDungRepository.findBySoDienThoai(soDienThoai);
-	    if (optionalKhachHang.isPresent()) {
-	        NguoiDung khachHang = optionalKhachHang.get();
-	        redirectAttributes.addAttribute("tenKhachHang", khachHang.getHoTen());
-	        redirectAttributes.addAttribute("soDienThoai", khachHang.getSoDienThoai());
-	        System.out.println("✅ [SELLER] Tìm thấy khách hàng: " + khachHang.getTenNguoiDung());
-	    } else {
-	        redirectAttributes.addAttribute("tenKhachHang", "Khách vãng lai");
-	        redirectAttributes.addAttribute("soDienThoai", "0000000000");
-	        redirectAttributes.addFlashAttribute("errorMessage",
-	                "Không tìm thấy khách hàng. Tiếp tục với khách vãng lai.");
-	        System.out.println("❌ [SELLER] Không tìm thấy khách hàng -> Khách vãng lai");
-	    }
+		Optional<NguoiDung> optionalKhachHang = nguoiDungRepository.findBySoDienThoai(soDienThoai);
+		if (optionalKhachHang.isPresent()) {
+			NguoiDung khachHang = optionalKhachHang.get();
+			redirectAttributes.addAttribute("tenKhachHang", khachHang.getHoTen());
+			redirectAttributes.addAttribute("soDienThoai", khachHang.getSoDienThoai());
+			System.out.println("✅ [SELLER] Tìm thấy khách hàng: " + khachHang.getTenNguoiDung());
+		} else {
+			redirectAttributes.addAttribute("tenKhachHang", "Khách vãng lai");
+			redirectAttributes.addAttribute("soDienThoai", "0000000000");
+			redirectAttributes.addFlashAttribute("errorMessage",
+					"Không tìm thấy khách hàng. Tiếp tục với khách vãng lai.");
+			System.out.println("❌ [SELLER] Không tìm thấy khách hàng -> Khách vãng lai");
+		}
 
-	    return "redirect:/seller/offline-orders/confirm";
+		return "redirect:/seller/offline-orders/confirm";
 	}
 
 	@PostMapping("/offline-orders/add")
 	public String addProductToOrderForSeller(@RequestParam("sanPhamId") Integer sanPhamId,
-	                                         @RequestParam("soLuong") Integer soLuong,
-	                                         RedirectAttributes redirectAttributes) {
+			@RequestParam("soLuong") Integer soLuong, RedirectAttributes redirectAttributes) {
 
-	    Optional<SanPham> optionalSanPham = sanPhamRepository.findById(sanPhamId);
-	    if (optionalSanPham.isPresent()) {
-	        donHangService.addToOfflineOrder(optionalSanPham.get(), soLuong);
-	        redirectAttributes.addFlashAttribute("successMessage", "Sản phẩm đã được thêm vào đơn hàng!");
-	    } else {
-	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy sản phẩm.");
-	    }
+		Optional<SanPham> optionalSanPham = sanPhamRepository.findById(sanPhamId);
+		if (optionalSanPham.isPresent()) {
+			donHangService.addToOfflineOrder(optionalSanPham.get(), soLuong);
+			redirectAttributes.addFlashAttribute("successMessage", "Sản phẩm đã được thêm vào đơn hàng!");
+		} else {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy sản phẩm.");
+		}
 
-	    return "redirect:/seller/offline-orders"; // Giữ nguyên trang seller
+		return "redirect:/seller/offline-orders"; // Giữ nguyên trang seller
 	}
-
 
 }

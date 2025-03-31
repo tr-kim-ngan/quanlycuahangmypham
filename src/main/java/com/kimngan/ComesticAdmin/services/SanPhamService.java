@@ -83,4 +83,10 @@ public interface SanPhamService {
 	 List<Object[]> getStockStatistics() ;
 	 
 	 int getSoLuongTonKho(Integer maSanPham) ;
+	 
+	 List<SanPham> getSanPhamGanHetHang(int nguongCanhBao);
+	 List<SanPham> getSanPhamsCoTrongChiTietNhapVaDangHoatDong();
+
+	 
+	 
 }

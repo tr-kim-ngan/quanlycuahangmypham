@@ -28,7 +28,7 @@ public class AdminSecurityConfig {
                     .loginProcessingUrl("/login")
                     .usernameParameter("username")
                     .passwordParameter("password")
-                    .defaultSuccessUrl("/admin", true) // Điều hướng đến trang admin sau khi đăng nhập thành công
+                    .defaultSuccessUrl("/admin/thongke/donhang", true) // Điều hướng đến trang admin sau khi đăng nhập thành công
                     .failureUrl("/login?error=true")
                     .permitAll())
                 .logout((logout) -> logout

@@ -19,9 +19,32 @@
 		}
 
 		.header h2 {
-
+			padding-right: 250px;
 			font-size: 26px;
 			color: #333;
+			text-align: center;
+			flex: 1;
+		}
+
+		.filter-form form {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding-left: 250px;
+			padding-top: 10px;
+		}
+
+		.filter-form label {
+			font-weight: bold;
+			color: #333;
+		}
+
+		.filter-form select {
+			padding: 6px 10px;
+			border-radius: 5px;
+			border: 1px solid #ccc;
+			background-color: #fff;
+			font-size: 14px;
 		}
 
 		.status {
@@ -59,18 +82,65 @@
 		.status-default {
 			color: #41464b;
 		}
+
+		.pagination {
+			display: flex;
+			list-style: none;
+			padding: 0;
+		}
+
+		.pagination .page-item {
+			margin: 0 5px;
+		}
+
+		.pagination .page-link {
+			display: block;
+			padding: 6px 12px;
+			color: #007bff;
+			text-decoration: none;
+			border: 1px solid #dee2e6;
+			border-radius: 4px;
+		}
+
+		.pagination .active .page-link {
+			background-color: #007bff;
+			color: white;
+			border-color: #007bff;
+		}
+
+		.pagination .disabled .page-link {
+			color: #ccc;
+			pointer-events: none;
+			border-color: #dee2e6;
+		}
 	</style>
 </head>
 
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
 	<div class="header">
+		<div class="filter-form">
+			<form method="get" th:action="@{/seller/orders}" style="margin-bottom: 20px;">
+				<label for="status">Lọc theo trạng thái:</label>
+				<select id="status" name="status" onchange="this.form.submit()" style="padding: 5px;">
+					<option value="all" th:selected="${selectedStatus == null or selectedStatus == 'all'}">Tất cả
+					</option>
+					<option value="Đã xác nhận" th:selected="${selectedStatus == 'Đã xác nhận'}">Đã xác nhận</option>
+					<option value="Đang xử lý" th:selected="${selectedStatus == 'Đang xử lý'}">Đang xử lý</option>
+					<option value="Đang giao hàng" th:selected="${selectedStatus == 'Đang giao hàng'}">Đang giao hàng
+					</option>
+					<option value="Đã hoàn thành" th:selected="${selectedStatus == 'Đã hoàn thành'}">Đã hoàn thành
+					</option>
+					<option value="Đã hủy" th:selected="${selectedStatus == 'Đã hủy'}">Đã hủy</option>
+				</select>
+			</form>
+		</div>
 		<h2>Danh sách đơn hàng</h2>
 	</div>
 	<!-- Gọi sidebar bên trái -->
 	<div th:replace="seller/fragment/sidebar :: sidebar"></div>
 
 	<!-- Nội dung chính bên phải -->
-	<div style="margin-left: 240px; padding: 30px;">
+	<div style="margin-left: 240px; padding: 20px;">
 
 		<table border="1" cellspacing="0" cellpadding="10" style="width: 100%; background-color: white;">
 			<thead style="background-color: #1f2a40; color: white;">
@@ -137,7 +207,28 @@
 			</tbody>
 		</table>
 	</div>
+	<div style="margin-top: 0px; display: flex; justify-content: center;">
+		<nav>
+			<ul class="pagination">
+				<li th:classappend="${currentPage == 0} ? 'disabled'" class="page-item">
+					<a class="page-link"
+						th:href="@{/seller/orders(page=${currentPage - 1}, size=${size}, status=${selectedStatus})}">«</a>
+				</li>
 
+				<li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+					th:classappend="${i == currentPage} ? 'active'">
+					<a class="page-link" th:href="@{/seller/orders(page=${i}, size=${size}, status=${selectedStatus})}"
+						th:text="${i + 1}">1</a>
+				</li>
+
+				<li th:classappend="${currentPage + 1 == totalPages} ? 'disabled'" class="page-item">
+					<a class="page-link"
+						th:href="@{/seller/orders(page=${currentPage + 1}, size=${size}, status=${selectedStatus})}">»</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+	F
 </body>
 
 </html>

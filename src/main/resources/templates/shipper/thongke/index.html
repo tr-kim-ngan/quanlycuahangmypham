@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Thống Kê</title>
+
+	<style>
+		.sidebar {
+			height: 100vh;
+			position: fixed;
+			top: 0;
+			left: 0;
+			padding: 20px;
+		}
+
+		.main-panel {
+			padding: 40px 20px;
+			min-height: 100vh;
+		}
+
+		.chart-wrapper {
+			max-width: 500px;
+			margin: auto;
+			padding: 30px;
+			text-align: center;
+			transition: all 0.3s ease;
+		}
+
+
+
+		.chart-wrapper h2 {
+			font-size: 26px;
+			color: #333;
+			margin-bottom: 20px;
+		}
+
+		canvas {
+			width: 100% !important;
+			max-width: 320px;
+			height: auto !important;
+			max-height: 320px;
+			margin: 20px auto;
+			display: block;
+		}
+
+		h4 {
+			font-weight: bold;
+			margin-top: 30px;
+			font-size: 20px;
+		}
+
+		.card {
+			border-radius: 15px;
+		}
+
+		.list-group-item span {
+			font-weight: 500;
+		}
+
+		.list-group-item.success {
+			color: #4CAF50;
+		}
+
+		.list-group-item.warning {
+			color: #FFC107;
+		}
+
+		.list-group-item.danger {
+			color: #F44336;
+		}
+
+		.header {
+
+			background-color: #f8f9fa;
+			padding: 0px 10px 10px 10px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 2px solid #dee2e6;
+		}
+
+		.header h2 {
+			padding-left: 680px;
+			margin: 0;
+			font-size: 20px;
+			color: #333;
+		}
+	</style>
+
+
+</head>
+
+<body>
+
+	<div>
+		<div class="header">
+
+			<h2>📊 Báo cáo đơn hàng của bạn</h2>
+
+		</div>
+	</div>
+
+	<div class="main-panel" style="padding-left: 300px;">
+		<div class="sidebar" th:replace="~{shipper/fragments/sidebar::sidebar}"></div>
+
+		<canvas id="orderPieChart"></canvas>
+		<div class="col-md-6">
+			<div class="card p-4  mb-4">
+				<h4 class="text-center mb-4">Thống kê chi tiết</h4>
+				<ul class="list-group">
+					<li class="list-group-item d-flex justify-content-between">
+						<span>📦 Tổng đơn:</span>
+						<strong th:text="${tongThanhCong + tongDangGiao + tongDangGiaoHang + tongThatBai}">0</strong>
+					</li>
+					<li class="list-group-item d-flex justify-content-between success">
+						<span>✅ Đã hoàn thành:</span>
+						<strong th:text="${tongThanhCong}">0</strong>
+					</li>
+					<li class="list-group-item d-flex justify-content-between warning">
+						<span>🚚 Đang giao hàng:</span>
+						<strong th:text="${tongDangGiao}">0</strong>
+					</li>
+					<li class="list-group-item d-flex justify-content-between danger">
+						<span>❌ Đã hủy:</span>
+						<strong th:text="${tongThatBai}">0</strong>
+					</li>
+
+					<li class="list-group-item d-flex justify-content-between">
+						<span>🔁 Tỷ lệ hoàn thành:</span>
+						<strong style="color: #17a2b8;"
+							th:text="${#numbers.formatDecimal(tyLeHoanThanh, 1, 'COMMA', 1, 'POINT')} + ' %'">0%</strong>
+					</li>
+
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script th:inline="javascript">
+		document.addEventListener("DOMContentLoaded", function () {
+			const tongThanhCong = /*[[${tongThanhCong}]]*/ 0;
+			const tongDangGiao = /*[[${tongDangGiao}]]*/ 0;
+			const tongThatBai = /*[[${tongThatBai}]]*/ 0;
+
+			const ctx = document.getElementById('orderPieChart').getContext('2d');
+
+			new Chart(ctx, {
+				type: 'pie',
+				data: {
+					labels: ['Đã hoàn thành', 'Đang giao hàng', 'Đã hủy'],
+					datasets: [{
+						data: [tongThanhCong, tongDangGiao, tongThatBai],
+						backgroundColor: ['#4CAF50', '#FFC107', '#F44336'],
+						borderColor: '#fff',
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: {
+						legend: {
+							position: 'bottom'
+						},
+						title: {
+							display: true,
+							text: 'Phân bố đơn hàng'
+						}
+					}
+				}
+			});
+		});
+
+	</script>
+
+
+</body>
+
+</html>
