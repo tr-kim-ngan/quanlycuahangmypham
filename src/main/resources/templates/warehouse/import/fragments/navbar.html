@@ -37,12 +37,26 @@
 			    align-items: center;
 			    gap: 10px;">
 
-				<!-- Bọc cả icon và chữ vào thẻ <a> -->
+				<!-- Bọc cả icon và chữ vào thẻ <a> 
 				<a href="/warehouse/import/purchaseorder"
 					style="display: flex; align-items: center; text-decoration: none; color: white;">
 					<img src="/fe/images/warehouse.png" alt="Nhập Kho" style="width: 70px; height: 70px;">
 					<span style="margin-left: 10px;">Nhập Xuất Kho</span>
-				</a>
+				</a>-->
+				<div style="text-align: center; margin: 20px 0;">
+					<img th:if="${currentWarehouseUser != null && currentWarehouseUser.avatar != null}"
+						th:src="@{'/upload/' + ${currentWarehouseUser.avatar}}" alt="Avatar"
+						style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+					<img th:if="${currentWarehouseUser == null || currentWarehouseUser.avatar == null}"
+						src="/images/default-avatar.png" alt="Avatar"
+						style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+					<div style="color: white; font-weight: bold; margin-top: 10px;">
+						👋 <span th:if="${currentWarehouseUser != null}"
+							th:text="'Xin chào, ' + ${currentWarehouseUser.hoTen}">Xin chào</span>
+					</div>
+				</div>
+
+
 
 			</div>
 
@@ -142,7 +156,7 @@
 							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
 							Nhà cung cấp</a>
 					</li>
-					<li style="margin-bottom: 5px;">
+					<!--<li style="margin-bottom: 5px;">
 						<a href="/warehouse/import/thong-ke" class="nav-link" style="
 				        display: flex;
 				        align-items: center;
@@ -156,7 +170,7 @@
 							onmouseout="this.style.backgroundColor=''; this.style.transform='';">
 							Thống kê
 						</a>
-					</li>
+					</li>-->
 
 					<li style="margin-bottom: 5px;">
 						<a href="/warehouse/import/shifts" class="nav-link" style="
@@ -182,6 +196,21 @@
 
 			<!-- Nút đăng xuất -->
 			<div style="text-align: center; padding: 15px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+				<div style="margin-bottom: 10px;">
+					<a href="/warehouse/import/account" style="
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                color: white;
+                font-size: 16px;
+                padding: 12px 20px;
+                border-radius: 5px;
+                transition: background 0.3s ease, transform 0.2s ease;
+            " onmouseover="this.style.backgroundColor='#2b3b5b'; this.style.transform='translateX(5px)';"
+						onmouseout="this.style.backgroundColor=''; this.style.transform='';">
+						Tài khoản cá nhân
+					</a>
+				</div>
 				<a href="/warehouse/import/logout" style="
                             display: flex;
                             align-items: center;

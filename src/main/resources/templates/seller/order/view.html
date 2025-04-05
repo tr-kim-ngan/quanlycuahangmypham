@@ -193,12 +193,7 @@
 
 			<!-- BÊN TRÁI: Thông tin giao hàng -->
 			<div style="flex: 1;">
-				<!-- Hình ảnh giao hàng -->
-				<div th:if="${!#strings.isEmpty(donHang.hinhAnhGiaoHang)}">
-					<h4 style="color: #1f2a40;">📷 Hình ảnh giao hàng:</h4>
-					<img th:src="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}" alt="Hình ảnh giao hàng"
-						style="max-width: 250px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2);">
-				</div>
+				
 
 				<!-- Shipper -->
 				<div th:if="${donHang.shipper != null}" style="margin-top: 20px;">
@@ -209,12 +204,16 @@
 
 				<!-- Ghi chú -->
 				<div th:if="${donHang.ghiChu != null and !#strings.isEmpty(donHang.ghiChu)}" style="margin-top: 20px;">
-					<h4 style="color: #dc3545;">Lý do thất bại:</h4>
+					<h4 style="color: #dc3545;">Lý do:</h4>
 					<div style="background-color: #f8f9fa; border-radius: 5px;">
 						<span th:utext="${#strings.replace(donHang.ghiChu, '\n', '<br/>')}"></span>
 					</div>
 				</div>
-
+				<div th:if="${!#strings.isEmpty(donHang.hinhAnhGiaoHang)}">
+					<h4 style="color: #1f2a40;">📷 Hình ảnh giao hàng:</h4>
+					<img th:src="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}" alt="Hình ảnh giao hàng"
+						style="max-width: 250px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2);">
+				</div>
 			</div>
 
 			<!-- BÊN PHẢI: Xử lý trạng thái -->
@@ -309,7 +308,7 @@
 
 				</script>-->
 
-				<!-- Gán shipper nếu đơn đã xác nhận (hiển thị sau cùng trong khối) -->
+				<!-- Gán shipper nếu đơn đã xác nhận (hiển thị sau cùng trong khối) 
 				<div th:if="${donHang.trangThaiDonHang == 'Đã xác nhận'}">
 					<form th:action="@{/seller/orders/{id}/assign-shipper(id=${donHang.maDonHang})}" method="post"
 						style="  border-radius: 5px;  width: fit-content; padding-left: 20px;">
@@ -324,9 +323,9 @@
 							style="font-size: 16px; padding: 10px 20px; color: green;">
 							Xác nhận</button>
 					</form>
-				</div>
+				</div>-->
 
-				<!-- Trạng thái chờ xác nhận -->
+				<!-- Trạng thái chờ xác nhận 
 				<div style="margin-top: 20px;" th:if="${donHang.trangThaiChoXacNhan == 'Đang giao hàng' 
              or donHang.trangThaiChoXacNhan == 'Giao lại đơn hàng'
              or donHang.trangThaiChoXacNhan == 'Đã hoàn thành'}">
@@ -340,9 +339,9 @@
 								class="btn btn-success mt-2">Xác nhận trạng thái</button>
 						</form>
 					</div>
-				</div>
+				</div>-->
 
-				<!-- Giao hàng thất bại lần 1 -->
+				<!-- Giao hàng thất bại lần 1 
 				<div th:if="${donHang.trangThaiChoXacNhan != null and #strings.contains(donHang.trangThaiChoXacNhan, 'Giao hàng thất bại (Lần 1)')}"
 					style="margin-top: 20px;">
 					<p class="text-danger fw-bold">🚨 Giao hàng thất bại lần 1. Chọn hành động tiếp theo:</p>
@@ -360,7 +359,6 @@
 							class="btn btn-primary mt-3">✅ Xác nhận</button>
 					</form>
 
-					<!-- Nếu chọn giao lại thì chọn shipper -->
 					<div id="selectShipper" style="display: none; margin-top: 20px;">
 						<form th:action="@{/seller/orders/{maDonHang}/assign-shipper(maDonHang=${donHang.maDonHang})}"
 							method="post">
@@ -375,9 +373,9 @@
 								class="btn btn-warning mt-2">📦 Xác nhận giao lại</button>
 						</form>
 					</div>
-				</div>
+				</div>-->
 
-				<!-- Giao thất bại lần 2 -->
+				<!-- Giao thất bại lần 2 
 				<div th:if="${donHang.trangThaiChoXacNhan == 'Giao hàng thất bại (Lần 2)'}" class="mt-4">
 					<p class="text-danger fw-bold">🚫 Giao hàng thất bại lần 2. Không thể giao lại!</p>
 					<form th:action="@{/seller/orders/{maDonHang}/update-status(maDonHang=${donHang.maDonHang})}"
@@ -386,7 +384,7 @@
 							value="cancel" class="btn btn-danger"> Xác nhận hủy đơn
 							hàng</button>
 					</form>
-				</div>
+				</div>-->
 
 			</div>
 		</div>

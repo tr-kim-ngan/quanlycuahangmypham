@@ -7,11 +7,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.kimngan.ComesticAdmin.entity.LoaiKhachHang;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.QuyenTruyCap;
 import com.kimngan.ComesticAdmin.repository.DonHangRepository;
-import com.kimngan.ComesticAdmin.repository.HoaDonRepository;
 import com.kimngan.ComesticAdmin.repository.LoaiKhachHangRepository;
 import com.kimngan.ComesticAdmin.repository.NguoiDungRepository;
 import com.kimngan.ComesticAdmin.repository.QuyenTruyCapRepository;
@@ -23,9 +21,7 @@ public class NguoiDungServiceImpl implements NguoiDungService {
 	private NguoiDungRepository nguoiDungRepository;
 	@Autowired
 	private QuyenTruyCapRepository quyenTruyCapRepository;
-	@Autowired
-	private HoaDonRepository hoaDonRepository;
-
+	
 	@Autowired
 	private LoaiKhachHangRepository loaiKhachHangRepository;
 	@Autowired
@@ -159,6 +155,14 @@ public class NguoiDungServiceImpl implements NguoiDungService {
 	    return nguoiDungRepository.findBySoDienThoai(phone);
 	}
 
+	@Override
+	public NguoiDung findFirstByRole(int maQuyen) {
+	    return nguoiDungRepository.findFirstByQuyenTruyCap_MaQuyenAndTrangThaiTrue(maQuyen);
+	}
+	@Override
+	public List<NguoiDung> findByRole(int maQuyen) {
+	    return nguoiDungRepository.findByQuyenTruyCap_MaQuyen(maQuyen);
+	}
 
 
 

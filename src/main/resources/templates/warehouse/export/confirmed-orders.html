@@ -106,7 +106,7 @@
 <body>
 	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
 	<div class="header" style="padding-left: 300px;">
-		<h2>Danh sách đơn hàng đã xuất kho</h2>
+		<h2>Danh sách đơn hàng</h2>
 	</div>
 	<div class="container" style="padding-left: 300px;">
 		<table>
@@ -120,13 +120,19 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="donHang : ${donHangs}">
+				<tr th:each="donHang : ${donHangPage}">
 					<td th:text="${donHang.maDonHang}"></td>
-					<td th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}"></td>
+					<td th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.hoTen : 'Không xác định'}"></td>
 					<td
 						th:text="${donHang.ngayXacNhanXuatKho != null ? #temporals.format(donHang.ngayXacNhanXuatKho, 'dd-MM-yyyy HH:mm') : 'Chưa cập nhật'}">
 					</td>
-					<td th:text="${donHang.trangThaiDonHang}"></td>
+					<td>
+						<span th:text="${donHang.trangThaiDonHang}"></span>
+						<br th:if="${donHang.trangThaiChoXacNhan != null}" />
+						<small th:if="${donHang.trangThaiChoXacNhan != null}"
+							th:text="'(Chờ xác nhận: ' + ${donHang.trangThaiChoXacNhan} + ')'"></small>
+					</td>
+
 					<td>
 						<a th:href="@{/warehouse/import/exported-order-details/{id}(id=${donHang.maDonHang})}"
 							class="btn btn-info">
@@ -135,7 +141,7 @@
 					</td>
 				</tr>
 
-				<tr th:if="${#lists.isEmpty(donHangs)}">
+				<tr th:if="${donHangPage.empty}">
 					<td colspan="5"
 						style="text-align: center; padding: 15px; font-size: 16px; color: #dc3545; font-weight: bold;">
 						Không có đơn hàng nào cần xuất kho.
@@ -143,7 +149,31 @@
 				</tr>
 			</tbody>
 		</table>
+		<!-- Phân trang căn giữa bảng -->
+		<div style="display: flex; justify-content: center; margin-top: 20px;">
+			<div class="pagination" style="display: flex; gap: 8px;">
+				<div th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+					th:classappend="${i} == ${currentPage} ? 'active-page' : ''">
+					<a class="page-link" th:href="@{/warehouse/import/exported-orders(page=${i})}" th:text="${i + 1}"
+						style="border-radius: 6px;
+					  min-width: 36px;
+					  height: 36px;
+					  display: flex;
+					  align-items: center;
+					  justify-content: center;
+					  background-color: #f8f9fa;
+					  color: #007bff;
+					  border: 1px solid #dee2e6;
+					  font-weight: bold;
+					  transition: 0.3s;">
+					</a>
+				</div>
+			</div>
+		</div>
+
 	</div>
+
+
 </body>
 
 </html>

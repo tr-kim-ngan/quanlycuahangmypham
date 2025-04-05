@@ -3,8 +3,12 @@
 
 <head>
 	<meta charset="UTF-8">
-	<!-- Thử bản khác -->
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+	<title>Giao Hàng</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+		integrity="sha512-Vf5u4+g4gH92bld6R6zGj2KPKVQU3rKSkXWKrNoP3vhPuOSz2HZb9nYyyl6sxpp5T1ZsU0XqHy5X4rRvTwQJiw=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
 
 </head>
 
@@ -12,36 +16,50 @@
 
 
 	<div class="sidebar" th:fragment="sidebar">
-		<div class="sidebar-logo" style="padding-bottom: 0px;">
+		
+
+		<!--<div class="sidebar-logo" style="padding-bottom: 0px;">
 			<div class="logo-header">
 				<a th:href="@{/shipper}" class="logo">
 					<img th:src="@{/assets/img/kaiadmin/logotruck.png}" alt="Shipper Logo" class="logo-img">
 				</a>
 			</div>
+		</div>-->
+		<div class="sidebar-logo" style="padding-bottom: 0px;">
+			<img th:if="${currentShipper.avatar != null}" th:src="@{'/upload/' + ${currentShipper.avatar}}" alt="Avatar"
+				style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #ccc;">
+
+			<img th:if="${currentShipper.avatar == null}" src="/images/default-avatar.png" alt="Default Avatar"
+				style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #ccc;">
+
+			<p style="margin-top: 8px; font-weight: 600;" th:text="${currentShipper.hoTen}">Shipper</p>
 		</div>
 
-		<div class="sidebar-wrapper">
-			<ul class="nav">
+		<div class="sidebar-wrapper mt-auto" style="border-top: 1px solid #ddd; padding-top: 15px; ">
+			<ul class="nav flex-column">
 				<li class="nav-item">
-					<a th:href="@{/shipper/orders}">
-						<i class="fas fa-box"></i>
+					<a th:href="@{/shipper/orders}" class="d-flex align-items-center gap-2 sidebar-link">
+						<i class="fas fa-user-circle"></i>
 						<p>Đơn Hàng</p>
 					</a>
 				</li>
-				<li class="nav-item">
-					<a th:href="@{/shipper/thongke}">
-						<i class="fas fa-chart-pie"></i>
-						<p>Thống kê</p>
-					</a>
-				</li>
-				<li class="nav-item">
-					<a th:href="@{/shipper/profile}">
+			</ul>
+		</div>
+
+		<!-- Phần dưới cùng của sidebar -->
+		<div class="sidebar-wrapper mt-auto" style="border-top: 1px solid #ddd; padding-top: 5px;">
+			<ul class="nav flex-column">
+				<li class="nav-item mb-2">
+					<a th:href="@{/shipper/account}" class="d-flex align-items-center gap-2 sidebar-link">
 						<i class="fas fa-user-circle"></i>
-						<p>Thông tin cá nhân</p>
+						<span>Thông tin cá nhân</span>
 					</a>
 				</li>
-
-
+				<li class="nav-item">
+					<a th:href="@{/shipper/logout}" class="d-flex align-items-center gap-2 sidebar-link">
+						<i class="fas fa-box"></i> <span>Đăng xuất</span>
+					</a>
+				</li>
 			</ul>
 		</div>
 		<style>
@@ -57,66 +75,80 @@
 
 			.sidebar-logo {
 				text-align: center;
-				padding:30px 0;
+				padding: 10px 0;
 				border-bottom: 1px solid #ccc;
 			}
 
-			.logo-img {
-				width: 120px;
-				border-radius: 10px;
-			}
 
-			.sidebar-wrapper {
-				padding: 20px 0;
-			}
 
-			.nav {
-				list-style: none;
-				padding: 0;
-				margin: 0;
-			}
 
-			.nav-section {
-				margin-top: 15px;
-				font-size: 13px;
-				text-transform: uppercase;
-				font-weight: 600;
-				color: #888;
-				padding-left: 15px;
-				margin-bottom: 5px;
-			}
 
-			.nav-item {
-				width: 100%;
-				margin-bottom: 5px;
-			}
 
-			.nav-item a {
-				display: flex;
-				align-items: center;
-				padding: 10px 15px;
-				color: #333;
-				border-radius: 8px;
-				transition: all 0.3s ease;
-				font-size: 15px;
-				font-weight: 500;
-				text-decoration: none;
-			}
 
-			.nav-item a i {
-				margin-right: 12px;
-				font-size: 16px;
-				color: #666;
-			}
 
-			.nav-item a:hover {
-				background-color: #4b7bec;
-				color: #fff;
-				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-			}
+
+
+
 
 			.nav-item a:hover i {
 				color: #fff;
+			}
+
+
+
+			.nav-link-custom {
+				display: flex;
+				align-items: center;
+				color: #333;
+				text-decoration: none;
+				font-weight: 500;
+				padding: 0px 15px;
+				border-radius: 8px;
+				transition: all 0.3s ease;
+			}
+
+			.nav-link-custom:hover {
+				background-color: #f0f4ff;
+				color: #0d6efd;
+				transform: translateX(5px);
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+			}
+
+			.nav-link-custom i {
+				font-size: 18px;
+			}
+
+			.sidebar-wrapper {
+				padding: 15px 20px;
+			}
+
+			.sidebar-link {
+				color: #333;
+				text-decoration: none;
+				padding: 10px 1px;
+				border-radius: 8px;
+				display: flex;
+				align-items: center;
+				font-weight: 500;
+				transition: background-color 0.3s, transform 0.2s;
+			}
+
+			.sidebar-link i {
+				font-size: 18px;
+				width: 22px;
+				text-align: center;
+				color: #0d6efd;
+			}
+
+			.sidebar-link span,
+			.sidebar-link p {
+				margin: 0;
+				color: #0d6efd;
+			}
+
+			.sidebar-link:hover {
+				background-color: #eaf1ff;
+				transform: translateX(5px);
 			}
 		</style>
 

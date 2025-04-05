@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.ui.Model;
 
+import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.entity.YeuCauBoSung;
@@ -24,6 +26,7 @@ import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
 import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
 import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.KiemKeKhoService;
+import com.kimngan.ComesticAdmin.services.NguoiDungService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.YeuCauBoSungService;
 @Controller
@@ -48,7 +51,15 @@ public class YeuCauBoSungController {
    private DonHangService donHangService;
    
    
-  
+   @Autowired
+	private NguoiDungService nguoiDungService;
+	@ModelAttribute("currentSeller")
+	public NguoiDung getCurrentSeller(Principal principal) {
+	    if (principal != null) {
+	        return nguoiDungService.findByTenNguoiDung(principal.getName());
+	    }
+	    return null;
+	}
 
    @GetMapping("/products-to-request")
    public String showProductsToRequest(Model model,

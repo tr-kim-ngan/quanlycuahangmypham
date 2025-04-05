@@ -92,7 +92,10 @@
 				</div>
 			</div>
 			-->
-			<div th:each="order : ${donHangs}" style="background-color: #fff; border-radius: 10px; padding: 20px; margin-bottom: 15px; 
+
+
+
+			<div th:each="order : ${donHangs}" style=" position: relative;background-color: #fff; border-radius: 10px; padding: 20px; margin-bottom: 15px; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); transition: 0.3s; border-left: 5px solid #007bff;">
 
 				<h5 style="color: #007bff; margin-bottom: 10px;">🛒 Đơn hàng số: <span
@@ -102,11 +105,8 @@
 					<span th:text="${#temporals.format(order.ngayDat, 'dd/MM/yyyy HH:mm')}"></span>
 				</p>
 
-				<!--<p><strong>📍 Địa chỉ giao hàng:</strong>
-					<span th:text="${order.diaChiGiaoHang}"></span>
-				</p>-->
 
-				<!-- ✅ Hiển thị trạng thái đơn hàng với màu sắc nổi bật -->
+				<!--  Hiển thị trạng thái đơn hàng với màu sắc nổi bật -->
 				<p><strong>📌 Trạng thái:</strong>
 					<span th:text="${order.trangThaiDonHang}" th:style="'padding: 5px 10px; border-radius: 5px; font-weight: bold; color: white; background-color: ' + 
                 (${order.trangThaiDonHang == 'Mới đặt'} ? '#ffcc00' : 
@@ -118,19 +118,17 @@
 					</span>
 					<!--  Hiển thị Icon trạng thái -->
 					<span th:switch="${order.trangThaiDonHang}">
-						<span th:case="'Mới đặt'">🆕</span>
-						<span th:case="'Đang xử lý'">⌛</span>
-						<span th:case="'Đã xác nhận'">✅</span>
-						<span th:case="'Đang giao hàng'">🚚</span>
-						<span th:case="'Đã hoàn thành'">🎉</span>
-						<span th:case="'Đã hủy'">❌</span>
-						<span th:case="*">🔵</span> <!-- Trạng thái không xác định -->
+						<span th:case="'Mới đặt'"></span>
+						<span th:case="'Đang xử lý'"></span>
+						<span th:case="'Đã xác nhận'"></span>
+						<span th:case="'Đang giao hàng'"></span>
+						<span th:case="'Đã hoàn thành'"></span>
+						<span th:case="'Đã hủy'"></span>
+						<span th:case="*"></span> <!-- Trạng thái không xác định -->
 					</span>
 				</p>
 
-				<!--<p><strong>🚚 Phí vận chuyển:</strong>
-					<span th:text="${#numbers.formatDecimal(order.phiVanChuyen, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
-				</p>-->
+
 
 				<p><strong>💰 Tổng tiền:</strong>
 					<span
@@ -140,10 +138,41 @@
 				<!-- 🔹 Nút hành động -->
 				<div style="display: flex; gap: 10px; margin-top: 15px;">
 					<!-- Nút xem chi tiết -->
-					<a th:href="@{/customer/order/{maDonHang}(maDonHang=${order.maDonHang})}" style="background-color: #007bff; color: white; padding: 8px 12px; border-radius: 5px; 
+				<!--	<a th:href="@{/customer/order/{maDonHang}(maDonHang=${order.maDonHang})}" style="background-color: #007bff; color: white; padding: 8px 12px; border-radius: 5px; 
                   text-decoration: none; transition: 0.3s; font-size: 14px;">
 						Xem Chi Tiết
 					</a>
+					<div th:if="${order.trangThaiDonHang == 'Đã hoàn thành' and !order.daKhachXacNhan}">
+						<form th:action="@{/customer/order/confirm-delivery}" method="post"
+							onsubmit="return confirm('🎉 Cảm ơn bạn đã xác nhận đã nhận hàng!');"
+							style="display:inline;">
+							<input type="hidden" name="maDonHang" th:value="${order.maDonHang}" />
+							<button type="submit" style="background-color: #28a745; color: white; padding: 8px 12px; border-radius: 5px;
+			   border: none; text-decoration: none; transition: 0.3s; font-size: 14px; cursor: pointer;">
+								✅ Đã nhận hàng
+							</button>
+						</form>
+
+
+						<form th:action="@{/customer/order/report-not-received}" method="post"
+							style="display:inline; margin-left: 10px;">
+							<input type="hidden" name="maDonHang" th:value="${order.maDonHang}" />
+							<button type="submit" class="btn btn-warning">❗ Tôi chưa nhận được hàng</button>
+						</form>
+					</div>-->
+
+					<!-- Nếu đã hết hạn xác nhận -->
+					<div
+						th:if="${order.trangThaiDonHang == 'Đã hoàn thành' and !order.daKhachXacNhan and order.thoiGianXacNhanKhach != null and #dates.daysBetween(order.thoiGianXacNhanKhach, T(java.time.LocalDateTime).now()) > 14}">
+						<p style="color: #dc3545;">⏰ Đã hết thời gian xác nhận (14 ngày)</p>
+					</div>
+
+					<!-- Nếu khách đã xác nhận -->
+					<div th:if="${order.trangThaiDonHang == 'Đã hoàn thành' and order.daKhachXacNhan}">
+						<p style="color: #28a745; font-weight: bold;">✔️ Bạn đã xác nhận đã nhận hàng</p>
+					</div>
+
+
 
 					<!-- Nút Hủy đơn hàng (Chỉ hiển thị khi trạng thái là 'Đang xử lý') -->
 					<form id="cancelForm" th:action="@{/customer/order/cancel}" method="POST"
@@ -196,6 +225,27 @@
 							return confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?");
 						}
 					</script>
+					<!-- 🔹 Nhóm nút nằm ở góc phải phía trên -->
+					<div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
+						<!-- Nút xem chi tiết -->
+						<a th:href="@{/customer/order/{maDonHang}(maDonHang=${order.maDonHang})}" style="background-color: #007bff; color: white; padding: 8px 12px; border-radius: 5px;
+			  text-decoration: none; transition: 0.3s; font-size: 14px;">
+							Xem Chi Tiết
+						</a>
+
+						<!-- Nút xác nhận khách đã nhận hàng -->
+						<form th:if="${order.trangThaiDonHang == 'Đã hoàn thành' and !order.daKhachXacNhan}"
+							th:action="@{/customer/order/confirm-delivery}" method="post"
+							onsubmit="return confirm('🎉 Cảm ơn bạn đã xác nhận đã nhận hàng!');"
+							style="display:inline;">
+							<input type="hidden" name="maDonHang" th:value="${order.maDonHang}" />
+							<button type="submit" style="background-color: #28a745; color: white; padding: 8px 12px; border-radius: 5px;
+			   border: none; text-decoration: none; transition: 0.3s; font-size: 14px; cursor: pointer;">
+								✅ Đã nhận hàng
+							</button>
+						</form>
+					</div>
+
 				</div>
 			</div>
 

@@ -59,8 +59,18 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 	@Query("SELECT d FROM DonHang d WHERE d.trangThaiDonHang = :status")
 	List<DonHang> findByTrangThaiDonHang(@Param("status") String status);
 
-	@Query("SELECT d FROM DonHang d WHERE d.ngayXacNhanXuatKho IS NOT NULL")
-	List<DonHang> findDonHangsDaXuatKho();
+//	@Query("SELECT d FROM DonHang d WHERE d.ngayXacNhanXuatKho IS NOT NULL")
+//	List<DonHang> findDonHangsDaXuatKho();
+//	
+	@Query("""
+		    SELECT d FROM DonHang d
+		    WHERE d.ngayXacNhanXuatKho IS NOT NULL
+		       OR (d.trangThaiDonHang = 'Đã hủy' AND d.seller IS NOT NULL AND d.seller.quyenTruyCap.maQuyen = 4)
+		""")
+		Page<DonHang> findDonHangsDaXuatKho(Pageable pageable);
+
+
+
 
 	@Query("SELECT COALESCE(SUM(c.soLuong), 0) FROM ChiTietDonHang c "
 			+ "JOIN c.donHang d WHERE d.trangThaiDonHang = 'Đã hủy' " + "AND c.sanPham.maSanPham = :maSanPham")
@@ -215,6 +225,8 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 			       "WHERE dh.nguoiDung.maNguoiDung = :maNguoiDung " +
 			       "AND LOWER(dh.trangThaiDonHang) LIKE '%huỷ%'")
 			Long thongKeDonHuyTheoKhach(@Param("maNguoiDung") Integer maNguoiDung);
+	
+		List<DonHang> findByTrangThaiDonHangIn(List<String> trangThaiList);
 
 	
 	

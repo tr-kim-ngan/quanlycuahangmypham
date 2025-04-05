@@ -23,6 +23,7 @@ import com.kimngan.ComesticAdmin.entity.ChiTietDonNhapHangId;
 import com.kimngan.ComesticAdmin.entity.DonHang;
 import com.kimngan.ComesticAdmin.entity.DonNhapHang;
 import com.kimngan.ComesticAdmin.entity.NguoiDung;
+import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.entity.NhaCungCap;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.entity.YeuCauBoSung;
@@ -41,6 +42,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -49,7 +51,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.data.domain.*;
-import org.springframework.format.annotation.DateTimeFormat;;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;;
 
 @Controller
 @RequestMapping("/warehouse/import")
@@ -85,7 +89,7 @@ public class WarehouseImportController {
 	private YeuCauBoSungService yeuCauBoSungService;
 	
 	// Lấy thông tin nhân viên nhập kho hiện tại
-	@ModelAttribute("user")
+	@ModelAttribute("currentWarehouseUser")
 	public NguoiDung getCurrentUser(Principal principal) {
 		if (principal != null) {
 			return nguoiDungService.findByTenNguoiDung(principal.getName());
@@ -975,7 +979,7 @@ public class WarehouseImportController {
 	// Hiển thị danh sách đơn hàng cần xuất kho
 	@GetMapping("/pending-orders")
 	public String getPendingOrders(Model model) {
-		List<DonHang> donHangs = donHangService.getDonHangsByStatus("Đang xử lý");
+	    List<DonHang> donHangs = donHangService.getDonHangsByStatuses(List.of("Đang xử lý", "Đã xác nhận"));
 
 		for (DonHang order : donHangs) {
 			if (order.getNguoiDung() != null) {
@@ -992,7 +996,7 @@ public class WarehouseImportController {
 
 	// Xem chi tiết đơn hàng chờ xuất kho
 	@GetMapping("/pending-orders/{maDonHang}")
-	public String viewPendingOrderDetails(@PathVariable("maDonHang") Integer maDonHang, Model model) {
+	public String viewPendingOrderDetails(@PathVariable("maDonHang") Integer maDonHang, Model model) { 
 		System.out.println("📌 [Debug] Bắt đầu xem chi tiết đơn hàng chờ xuất kho - Mã đơn hàng: " + maDonHang);
 
 		DonHang donHang = donHangService.getDonHangById(maDonHang);
@@ -1007,9 +1011,15 @@ public class WarehouseImportController {
 
 		for (ChiTietDonHang chiTiet : donHang.getChiTietDonHangs()) {
 			System.out.println(
-					"🛒 [Sản phẩm] " + chiTiet.getSanPham().getTenSanPham() + " | Số lượng: " + chiTiet.getSoLuong());
+					" [Sản phẩm] " + chiTiet.getSanPham().getTenSanPham() + " | Số lượng: " + chiTiet.getSoLuong());
 		}
 		model.addAttribute("donHang", donHang);
+		if ("Đã xác nhận".equals(donHang.getTrangThaiDonHang())) {
+			List<NguoiDung> danhSachShipper = nguoiDungService.findByRole("SHIPPER").stream()
+					.filter(NguoiDung::isTrangThai)
+					.collect(Collectors.toList());
+			model.addAttribute("danhSachShipper", danhSachShipper);
+		}
 		return "warehouse/export/order-details";
 	}
 
@@ -1017,11 +1027,11 @@ public class WarehouseImportController {
 	@PostMapping("/confirm-export/{maDonHang}")
 	public String xacNhanXuatKho(@PathVariable("maDonHang") Integer maDonHang, RedirectAttributes redirectAttributes) {
 
-		System.out.println("📌 [Debug] Bắt đầu xác nhận xuất kho - Mã đơn hàng: " + maDonHang);
+		System.out.println(" [Debug] Bắt đầu xác nhận xuất kho - Mã đơn hàng: " + maDonHang);
 
 		DonHang donHang = donHangService.getDonHangById(maDonHang);
 		if (donHang == null) {
-			System.out.println("❌ [Error] Không tìm thấy đơn hàng - Mã đơn hàng: " + maDonHang);
+			System.out.println(" [Error] Không tìm thấy đơn hàng - Mã đơn hàng: " + maDonHang);
 
 			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
 			return "redirect:/warehouse/import/pending-orders";
@@ -1037,16 +1047,61 @@ public class WarehouseImportController {
 
 		redirectAttributes.addFlashAttribute("successMessage",
 				"Xuất kho thành công! Đơn hàng đã chuyển sang trạng thái 'Đang giao hàng'.");
+		return "redirect:/warehouse/import/pending-orders/" + maDonHang;
+		}
+	
+	@PostMapping("/assign-shipper/{maDonHang}")
+	public String assignShipperFromWarehouse(@PathVariable("maDonHang") Integer maDonHang,
+			@RequestParam("shipperId") Integer shipperId,
+			RedirectAttributes redirectAttributes) {
+
+		DonHang donHang = donHangService.getDonHangById(maDonHang);
+		if (donHang == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+			return "redirect:/warehouse/import/pending-orders";
+		}
+
+		NguoiDung shipper = nguoiDungService.findById(shipperId);
+		if (shipper == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy shipper.");
+			return "redirect:/warehouse/pending-orders/" + maDonHang;
+		}
+
+		//  Gán người xử lý (người bán) là nhân viên kho đang đăng nhập
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+		NguoiDung nhanVienKho = nguoiDungService.findByTenNguoiDung(userDetails.getUsername());
+		donHang.setSeller(nhanVienKho);
+
+		//  Gán shipper và cập nhật trạng thái
+		donHang.setShipper(shipper);
+		donHang.setTrangThaiDonHang("Đang chuẩn bị hàng");
+
+		donHangService.capNhatTrangThai(donHang, "Đang chuẩn bị hàng");
+		donHangService.updateDonHang(donHang);
+
+		redirectAttributes.addFlashAttribute("successMessage",
+				"Gán shipper thành công. Đơn hàng chuyển sang 'Đang chuẩn bị hàng'.");
+
 		return "redirect:/warehouse/import/pending-orders";
 	}
 
+
 	// Hiển thị danh sách hàng đã xuất kho
 	@GetMapping("/exported-orders")
-	public String listExportedOrders(Model model, Principal principal) {
-		List<DonHang> donHangs = donHangService.findDonHangsDaXuatKho();
-		model.addAttribute("donHangs", donHangs);
-		return "warehouse/export/confirmed-orders";
+	public String listExportedOrders(@RequestParam(defaultValue = "0") int page,
+	                                 @RequestParam(defaultValue = "5") int size,
+	                                 Model model) {
+	    Pageable pageable = PageRequest.of(page, size, Sort.by("maDonHang").descending());
+	    Page<DonHang> donHangPage = donHangService.findDonHangsDaXuatKho(pageable);
+
+	    model.addAttribute("donHangPage", donHangPage);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", donHangPage.getTotalPages());
+
+	    return "warehouse/export/confirmed-orders";
 	}
+
 
 	@GetMapping("/exported-order-details/{maDonHang}")
 	public String viewExportedOrderDetails(@PathVariable("maDonHang") Integer maDonHang, Model model) {
@@ -1063,5 +1118,91 @@ public class WarehouseImportController {
 		model.addAttribute("donHang", donHang);
 		return "warehouse/export/exported-order-details";
 	}
+	
+	@PostMapping("/exported-order-details/{maDonHang}/update-status")
+	public String updateExportedOrderStatus(@PathVariable("maDonHang") Integer maDonHang,
+	                                        @RequestParam("action") String action,
+	                                        RedirectAttributes redirectAttributes) {
+
+	    DonHang donHang = donHangService.getDonHangById(maDonHang);
+	    if (donHang == null) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+	        return "redirect:/warehouse/export/exported-orders";
+	    }
+
+	    //  Xác nhận hủy do giao thất bại lần 2
+	    if ("Giao hàng thất bại (Lần 2)".equals(donHang.getTrangThaiChoXacNhan()) || "xacNhanHoanHang".equals(action)) {
+	        donHang.setTrangThaiDonHang("Đã hủy");
+	        donHang.setTrangThaiChoXacNhan(null);
+	        donHangService.updateDonHang(donHang);
+
+	        redirectAttributes.addFlashAttribute("successMessage", "✅ Đã xác nhận hoàn hàng về kho.");
+	        return "redirect:/warehouse/import/exported-order-details/" + maDonHang;
+	    }
+
+	    //  Giao lại đơn hàng
+	    if ("retry".equals(action)) {
+	        if (donHang.getSoLanGiaoThatBai() >= 2) {
+	            redirectAttributes.addFlashAttribute("errorMessage", "Không thể giao lại vì đã thất bại 2 lần.");
+	            return "redirect:/warehouse/import/exported-order-details/" + maDonHang;
+	        }
+
+	        //  Không chọn lại shipper, giữ nguyên shipper cũ
+	        donHang.setTrangThaiDonHang("Đang chuẩn bị hàng");
+	        donHang.setTrangThaiChoXacNhan("Chờ shipper xác nhận lại");
+
+	        //  Ghi lịch sử
+	        String lichSu = donHang.getLichSuTrangThai() != null ? donHang.getLichSuTrangThai() : "";
+	        String thoiGian = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+	        lichSu += "\n" + thoiGian + " - Giao lại đơn hàng (lần " + donHang.getSoLanGiaoThatBai() + ")";
+	        donHang.setLichSuTrangThai(lichSu);
+
+	        donHangService.updateDonHang(donHang);
+	        redirectAttributes.addFlashAttribute("successMessage", " Đơn hàng đã được chuyển sang giao lại.");
+	        return "redirect:/warehouse/import/exported-order-details/" + maDonHang;
+	    }
+
+	    //  Không hợp lệ
+	    redirectAttributes.addFlashAttribute("errorMessage", "Không thể xử lý trạng thái này.");
+	    return "redirect:/warehouse/import/exported-order-details/" + maDonHang;
+	}
+	@PostMapping("/cancel-order/{id}")
+	public String cancelOrderFromWarehouse(@PathVariable("id") Integer maDonHang,
+	                                       @RequestParam("cancelReason") String cancelReason,
+	                                       @RequestParam(value = "customCancelReason", required = false) String customReason,
+	                                       RedirectAttributes redirectAttributes) {
+	    DonHang donHang = donHangService.getDonHangById(maDonHang);
+	    if (donHang == null) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+	        return "redirect:/warehouse/import/pending-orders";
+	    }
+
+	    // Lý do thực tế (nếu chọn khác thì lấy custom)
+	    String finalReason = "Khác".equals(cancelReason) ? customReason : cancelReason;
+	    if (finalReason == null || finalReason.trim().isEmpty()) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng nhập lý do hủy hợp lệ.");
+	        return "redirect:/warehouse/import/exported-order-details/" + maDonHang;
+	    }
+
+	    // Cập nhật trạng thái
+	    donHang.setTrangThaiDonHang("Đã hủy");
+	    donHang.setTrangThaiChoXacNhan(null);
+
+	    // Ghi lý do hủy vào ghi chú (nếu có ghi chú cũ thì nối vào)
+	    String ghiChuCu = donHang.getGhiChu() != null ? donHang.getGhiChu() : "";
+	    donHang.setGhiChu((ghiChuCu  + finalReason).trim());
+	   
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
+	    NguoiDung nhanVienKho = nguoiDungService.findByTenNguoiDung(userDetails.getUsername());
+	    donHang.setSeller(nhanVienKho);
+	    
+	    // Lưu lại
+	    donHangService.updateDonHang(donHang);
+
+	    redirectAttributes.addFlashAttribute("successMessage", "✅ Đã hủy đơn hàng thành công.");
+	    return "redirect:/warehouse/import/pending-orders";
+	}
+
 
 }

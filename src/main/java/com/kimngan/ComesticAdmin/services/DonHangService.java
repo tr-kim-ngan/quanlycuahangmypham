@@ -64,7 +64,7 @@ public interface DonHangService {
 //    List<DonHang> getOrdersByStatusesAndExportStaff(List<String> trangThaiList, Integer maNhanVien);
 //    
     List<DonHang> getDonHangsByStatus(String status);
-    List<DonHang> findDonHangsDaXuatKho();
+    Page<DonHang> findDonHangsDaXuatKho(Pageable pageable);
 
     int getSoLuongTraHang(Integer maSanPham) ;
     void clearOfflineOrder();
@@ -112,6 +112,6 @@ public interface DonHangService {
     List<Object[]> thongKeDonMuaTheoKhach(Integer id);
     Long thongKeDonHuyTheoKhach(Integer maNguoiDung);
 
-
+    List<DonHang> getDonHangsByStatuses(List<String> trangThaiList);
     
     }

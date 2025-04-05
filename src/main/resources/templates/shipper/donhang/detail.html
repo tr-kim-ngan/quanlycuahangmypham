@@ -11,12 +11,10 @@
 	<div class="wrapper">
 		<div class="sidebar" th:replace="~{shipper/fragments/sidebar::sidebar}"></div>
 		<div class="main-panel">
-			
 
-			<div class="container"
-				style="padding-left:190px; padding-right:0; margin-right: 0px; margin-left: 100px;">
-				<div class="p-4"
-					style="background: white; border-radius: 8px; ">
+
+			<div class="container" style="padding-left:190px; padding-right:0; margin-right: 0px; margin-left: 100px;">
+				<div class="p-4" style="background: white; border-radius: 8px; ">
 					<h3 class="text-center text-primary">Chi tiết đơn hàng</h3>
 					<hr>
 					<div class="row">
@@ -94,11 +92,14 @@
 					<th:block th:if="${order.hinhAnhGiaoHang != null and not #strings.isEmpty(order.hinhAnhGiaoHang)}">
 						<h5 style="padding-left: 100px;" class="mt-3">📷 Hình Ảnh Giao Hàng</h5>
 						<div style="padding-left: 100px;">
-							<img th:src="@{/upload/{fileName}(fileName=${order.hinhAnhGiaoHang})}"
-								alt="Hình ảnh giao hàng"
-								style="max-width: 300px; border-radius: 8px; box-shadow: 0px 0px 5px rgba(0,0,0,0.2);">
+							<a th:href="@{/upload/{fileName}(fileName=${order.hinhAnhGiaoHang})}" target="_blank">
+								<img th:src="@{/upload/{fileName}(fileName=${order.hinhAnhGiaoHang})}"
+									alt="Hình ảnh giao hàng"
+									style="max-width: 300px; border-radius: 8px; box-shadow: 0px 0px 5px rgba(0,0,0,0.2); cursor: zoom-in;">
+							</a>
 						</div>
 					</th:block>
+
 
 
 					<!-- Nếu trạng thái là 'Đang chuẩn bị hàng' và đơn hàng đã thất bại lần 1, hiển thị nút 'Xác nhận đang giao lại (Lần 2)' -->
@@ -153,11 +154,14 @@
 
 					<!-- Nếu trạng thái là 'Chờ shipper xác nhận lại', shipper sẽ thấy nút xác nhận -->
 					<th:block th:if="${order.trangThaiChoXacNhan == 'Chờ shipper xác nhận lại'}">
-						<form th:action="@{/shipper/order/confirm-shipper}" method="post" style="padding-left:100px;">
+						<form th:action="@{/shipper/order/update-status}" method="post" style="padding-left:100px;">
 							<input type="hidden" name="orderId" th:value="${order.maDonHang}">
+							<input type="hidden" name="status" value="Xác nhận nhận đơn">
+							<!-- dùng làm action định danh -->
 							<button type="submit" class="btn btn-success mt-3">✅ Xác nhận nhận đơn</button>
 						</form>
 					</th:block>
+
 
 
 					<!-- Nếu trạng thái là 'Đang giao hàng' thì hiển thị dropdown chọn kết quả giao -->

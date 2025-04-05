@@ -1,0 +1,179 @@
+<!-- popup-chat.html -->
+
+
+<div th:fragment="chatList">
+	<div style="background-color: #007bff; padding: 10px; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+		<p style="font-weight: bold; margin: 0; color: #f0f0f0;">
+			💬 Đoạn chat
+		</p>
+	</div>
+	<ul style="
+	list-style: none;
+	 padding: 0;
+	  margin: 0; 
+	  
+	   min-height: 389px;
+	   overflow-y: auto;">
+	
+		<li th:each="customer : ${customers}" class="chat-item"
+			th:classappend="${chuaDocMap[customer.maNguoiDung]} ? 'unread'">
+
+			<a href="javascript:void(0);" th:attr="data-id=${customer.maNguoiDung}, 
+	            data-name=${customer.hoTen}, 
+	            data-avatar=${customer.avatar != null 
+	                ? '/upload/' + customer.avatar + '?t=' + #dates.createNow().time 
+	                : '/fe/images/up/aa.jpg'}" onclick="openSellerChat(this)"
+				style="display: flex; align-items: center; gap: 10px; text-decoration: none; padding: 10px;">
+
+				<!-- Avatar -->
+				<img th:src="${customer.avatar != null 
+				? '/upload/' + customer.avatar + '?t=' + #dates.createNow().time 
+				: '/fe/images/up/aa.jpg'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;"
+					alt="avatar" />
+
+				<!-- Tên khách -->
+				<span th:text="${customer.hoTen}" class="chat-name"></span>
+			</a>
+		</li>
+
+
+
+	</ul>
+	<style>
+		.chat-name {
+			color: #000;
+			font-size: 14px;
+		}
+
+		.chat-item:hover {
+			background-color: #f0f0f0;
+			border-radius: 8px;
+		}
+
+
+		.chat-item.unread .chat-name {
+			font-weight: bold;
+		}
+
+
+
+		/* Scroll đẹp */
+		ul::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		ul::-webkit-scrollbar-thumb {
+			background-color: rgba(0, 0, 0, 0.2);
+			border-radius: 4px;
+		}
+	</style>
+
+</div>
+
+
+<div th:fragment="popupMessage">
+
+	<!-- Danh sách khách hàng sẽ được fetch động -->
+	<div id="chat-list-container" style="display: none; position: fixed; bottom: 80px; right: 20px;
+		width: 318px; background: white; padding: 0px; z-index: 10000;
+		border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.3);">
+	</div>
+
+	<!-- Icon tin nhắn nổi -->
+	<a href="javascript:void(0);" onclick="toggleChatList()" style="position: fixed; bottom: 20px; right: 20px; background-color: #007bff; color: white;
+		width: 50px; height: 50px; border-radius: 50%; text-align: center; line-height: 50px;
+		text-decoration: none; font-size: 20px; z-index: 10000;">
+		💬
+		<span id="unreadBadgeSeller" style="
+			position: absolute; top: -7px; right: -7px;
+			background-color: red; color: white;
+			font-size: 0.9rem; width: 1.8em; height: 1.8em;
+			display: none; align-items: center; justify-content: center;
+			text-align: center; border-radius: 50%;">
+		</span>
+	</a>
+
+	
+	<!-- Popup chat -->
+	<div id="messagePopupSeller" style="display: none; position: fixed; bottom: 80px; right: 20px;
+	width: 320px; height: 430px; background: white; border-radius: 10px;
+	box-shadow: 0 0 15px rgba(0,0,0,0.3); z-index: 9999; overflow: hidden;">
+
+		<div style="background-color: #007bff; color: white; padding: 10px; font-weight: bold;
+		display: flex; align-items: center; gap: 10px;">
+
+			<!-- Avatar khách -->
+			<img id="chatCustomerAvatar" src="/fe/images/up/aa.jpg"
+				style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;" alt="avatar" />
+
+			<!-- Tên khách -->
+			<span id="chatCustomerName">Khách hàng</span>
+
+			<!-- Nút đóng -->
+			<button onclick="closeMessagePopupSeller()"
+				style="margin-left: auto; background: none; border: none; color: white;">&times;</button>
+		</div>
+
+		<iframe id="sellerChatIframe" src="" style="width: 100%; height: calc(100% - 40px); border: none;"></iframe>
+	</div>
+
+
+	<!-- Scripts -->
+	<script>
+		function toggleChatList() {
+			const listContainer = document.getElementById("chat-list-container");
+			if (listContainer.style.display === "block") {
+				listContainer.style.display = "none";
+				return;
+			}
+			fetch("/seller/messages/chat-list")
+				.then(response => response.text())
+				.then(html => {
+					listContainer.innerHTML = html;
+					listContainer.style.display = "block";
+				})
+				.catch(err => console.error("Lỗi khi load danh sách khách hàng:", err));
+		}
+
+		function openSellerChat(anchor) {
+			const customerId = anchor.getAttribute("data-id");
+			const customerName = anchor.getAttribute("data-name");
+			const customerAvatar = anchor.getAttribute("data-avatar");
+
+			const iframe = document.getElementById("sellerChatIframe");
+			iframe.src = "http://localhost:8084/seller/messages/" + customerId;
+			document.getElementById("chatCustomerName").innerText = customerName;
+
+			document.getElementById("chatCustomerAvatar").src = customerAvatar;
+			document.getElementById("messagePopupSeller").style.display = "block";
+			document.getElementById("chat-list-container").style.display = "none";
+
+			fetch('/seller/messages/mark-read/' + customerId)
+				.then(() => {
+					const badge = document.getElementById("unreadBadgeSeller");
+					if (badge) badge.style.display = "none";
+				})
+				.catch(err => console.error("Lỗi khi đánh dấu đã đọc:", err));
+		}
+
+		function closeMessagePopupSeller() {
+			document.getElementById("messagePopupSeller").style.display = "none";
+		}
+
+		document.addEventListener("DOMContentLoaded", function () {
+			fetch("/seller/messages/count-unread")
+				.then(response => response.json())
+				.then(data => {
+					const badge = document.getElementById("unreadBadgeSeller");
+					if (badge && data > 0) {
+						badge.innerText = data;
+						badge.style.display = "flex";
+					} else if (badge) {
+						badge.style.display = "none";
+					}
+				})
+				.catch(error => console.error("Lỗi khi lấy số tin chưa đọc:", error));
+		});
+	</script>
+
+</div>

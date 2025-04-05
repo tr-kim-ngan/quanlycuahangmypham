@@ -18,6 +18,8 @@ public class SellerSecurityConfig {
     public SecurityFilterChain sellerSecurityFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/seller/**") // áp dụng bảo mật cho các URL bắt đầu bằng /seller
             .csrf(csrf -> csrf.disable())
+           
+            .headers(headers -> headers.frameOptions(frame -> frame.disable())) 
             .authorizeHttpRequests(requests -> requests
                 .requestMatchers("/seller/login", "/seller/logout").permitAll() // cho phép không cần đăng nhập
                 .requestMatchers("/seller/**").hasAuthority("NHAN_VIEN_BAN_HANG") // yêu cầu quyền đúng
