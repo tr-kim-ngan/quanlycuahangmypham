@@ -99,13 +99,59 @@
 
 	<div class="header" style="padding-left: 300px;">
 		<h2>Chi tiết đơn hàng đã xuất</h2>
-		<div class="button-group">
+		<div style="display: flex; gap: 10px; padding-left: 300px; margin-bottom: 20px; align-items: center;">
 			<a href="/warehouse/import/exported-orders" class="btn btn-primary">Quay lại</a>
+
+
+
+			<!-- ✅ Chỉ hiện nếu đang chờ xác nhận Giao hàng thất bại (Lần 1) -->
+			<div th:if="${donHang.trangThaiChoXacNhan == 'Giao hàng thất bại (Lần 1)'}"
+				style="display: flex; gap: 10px; ">
+
+				<!-- Nút xác nhận hủy đơn -->
+				<form
+					th:action="@{/warehouse/import/exported-order-details/{id}/update-status(id=${donHang.maDonHang})}"
+					method="post" onsubmit="return confirm('Xác nhận hủy đơn hàng và hoàn hàng về kho?')"
+					style="margin: 0;">
+					<input type="hidden" name="action" value="xacNhanHoanHang" />
+					<button type="submit"
+						style="padding: 8px 16px; background-color: #dc3545; color: white; border: none; border-radius: 4px;">
+						Xác nhận hủy đơn
+					</button>
+				</form>
+
+				<!-- Nút giao lại đơn -->
+				<form
+					th:action="@{/warehouse/import/exported-order-details/{id}/update-status(id=${donHang.maDonHang})}"
+					method="post" onsubmit="return confirm('Xác nhận giao lại đơn hàng?')" style="margin: 0;">
+					<input type="hidden" name="action" value="retry" />
+					<button type="submit"
+						style="padding: 8px 16px; background-color: #ffc107; color: black; border: none; border-radius: 4px;">
+						Giao lại đơn
+					</button>
+				</form>
+
+			</div>
+			<div th:if="${donHang.trangThaiChoXacNhan == 'Giao hàng thất bại (Lần 2)'}"
+				style="display: flex; gap: 10px;">
+				<!-- Nút xác nhận hủy đơn -->
+				<form
+					th:action="@{/warehouse/import/exported-order-details/{id}/update-status(id=${donHang.maDonHang})}"
+					method="post" onsubmit="return confirm('Xác nhận hủy đơn hàng và hoàn hàng về kho?')"
+					style="margin: 0;">
+					<input type="hidden" name="action" value="xacNhanHoanHang" />
+					<button type="submit"
+						style="padding: 8px 16px; background-color: #dc3545; color: white; border: none; border-radius: 4px;">
+						Xác nhận hủy đơn
+					</button>
+				</form>
+			</div>
 		</div>
+	</div>
 
 	</div>
 
-	<div class="container" style="padding-left: 300px;">
+	<div class="container" style="padding-left: 300px; margin-top:0px; padding-top: 0px;">
 		<h4 class="text-center text-primary">Thông tin đơn hàng</h4>
 		<table class="table table-bordered mt-3">
 			<tbody>
@@ -115,8 +161,11 @@
 				</tr>
 				<tr>
 					<td><b>Khách hàng:</b></td>
-					<td th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.tenNguoiDung : 'Không xác định'}"></td>
+					<td th:if="${donHang.nguoiDung != null}"
+						th:text="${donHang.nguoiDung.hoTen + ' - ' + donHang.nguoiDung.soDienThoai}"></td>
+					<td th:if="${donHang.nguoiDung == null}">Không xác định</td>
 				</tr>
+
 				<tr>
 					<td><b>Ngày đặt:</b></td>
 					<td th:text="${#temporals.format(donHang.ngayDat, 'dd-MM-yyyy HH:mm:ss')}"></td>
@@ -131,10 +180,38 @@
 					<td><b>Trạng thái:</b></td>
 					<td th:text="${donHang.trangThaiDonHang}"></td>
 				</tr>
+
+				<tr th:if="${donHang.shipper != null}">
+					<td><b>Giao hàng:</b></td>
+					<td>
+						<span th:text="${donHang.shipper.hoTen}"></span> -
+						<span th:text="${donHang.shipper.soDienThoai}"></span>
+					</td>
+				</tr>
+
 				<tr th:if="${donHang.trangThaiDonHang == 'Đã hủy'}">
-					<td><i class="fas fa-sticky-note icon"></i> Lý Do:</td>
+					<td><b> Lý Do:</b></td>
 					<td th:text="${donHang.ghiChu != null ? donHang.ghiChu : 'Không có ghi chú'}"></td>
 				</tr>
+				<tr th:if="${donHang.trangThaiChoXacNhan != null}">
+					<td><b>Trạng thái chờ xác nhận:</b></td>
+					<td th:text="${donHang.trangThaiChoXacNhan}"></td>
+				</tr>
+				<tr th:if="${donHang.ghiChu != null and donHang.trangThaiDonHang != 'Đã hủy'}">
+					<td><b>Ghi chú:</b></td>
+					<td th:text="${donHang.ghiChu}"></td>
+				</tr>
+
+				<tr th:if="${donHang.hinhAnhGiaoHang != null}">
+					<td><b>Ảnh giao hàng:</b></td>
+					<td>
+						<a th:href="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}" target="_blank">
+							<img th:src="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}" alt="Ảnh giao hàng"
+								style="max-width: 150px; border-radius: 8px; border: 1px solid #ddd; cursor: zoom-in;" />
+						</a>
+					</td>
+				</tr>
+
 			</tbody>
 		</table>
 

@@ -27,6 +27,8 @@ public interface NguoiDungRepository extends JpaRepository<NguoiDung, Integer> {
 
     Optional<NguoiDung> findBySoDienThoai(String phone);
 
+    NguoiDung findFirstByQuyenTruyCap_MaQuyenAndTrangThaiTrue(Integer maQuyen);
 
+    List<NguoiDung> findByQuyenTruyCap_MaQuyen(int maQuyen);
 
 }

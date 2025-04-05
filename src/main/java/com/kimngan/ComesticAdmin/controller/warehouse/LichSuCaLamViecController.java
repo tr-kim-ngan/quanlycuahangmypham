@@ -41,6 +41,15 @@ public class LichSuCaLamViecController {
 	private SanPhamService sanPhamService;
 	@Autowired
 	private KiemKeKhoService kiemKeKhoService;
+	
+	
+	@ModelAttribute("currentWarehouseUser")
+	public NguoiDung getCurrentUser(Principal principal) {
+		if (principal != null) {
+			return nguoiDungService.findByTenNguoiDung(principal.getName());
+		}
+		return null;
+	}
 
 	// Hiển thị danh sách ca làm việc (Admin hoặc nhân viên kho xem)
 	@GetMapping("/shifts")

@@ -2,6 +2,7 @@ package com.kimngan.ComesticAdmin.controller.admin;
 
 import com.kimngan.ComesticAdmin.entity.KiemKeKho;
 import com.kimngan.ComesticAdmin.entity.LichSuCaLamViec;
+import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
@@ -247,7 +248,14 @@ public class InventoryController {
 		model.addAttribute("maCa", maCa);
 		model.addAttribute("daXetDuyet", daXetDuyet);
 		// Thêm lý do kiểm kê
-		model.addAttribute("nhanVienThucHien", caLamViec.getNhanVien().getTenNguoiDung());
+//		model.addAttribute("HoTennhanVienThucHien", caLamViec.getNhanVien().getHoTen());
+//
+//		model.addAttribute("nhanVienThucHien", caLamViec.getNhanVien().getTenNguoiDung());
+		NguoiDung nhanVien = caLamViec.getNhanVien();
+		model.addAttribute("nhanVienThucHien", nhanVien); // truyền cả object
+		model.addAttribute("thoiGianBatDau", caLamViec.getThoiGianBatDau());
+		model.addAttribute("thoiGianKetThuc", caLamViec.getThoiGianKetThuc());
+
 		model.addAttribute("thoiGianBatDau", caLamViec.getThoiGianBatDau());
 		model.addAttribute("thoiGianKetThuc", caLamViec.getThoiGianKetThuc());
 		return "admin/inventory/kiem-ke-chi-tiet";

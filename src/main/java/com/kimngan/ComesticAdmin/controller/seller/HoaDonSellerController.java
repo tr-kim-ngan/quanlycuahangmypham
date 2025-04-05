@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,9 +41,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.kimngan.ComesticAdmin.entity.ChiTietDonHang;
 import com.kimngan.ComesticAdmin.entity.DonHang;
 import com.kimngan.ComesticAdmin.entity.HoaDon;
+import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.HoaDonService;
+import com.kimngan.ComesticAdmin.services.NguoiDungService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,6 +60,17 @@ public class HoaDonSellerController {
 	@Autowired
 	private DonHangService donHangService;
 
+	@Autowired
+	private NguoiDungService nguoiDungService;
+	@ModelAttribute("currentSeller")
+	public NguoiDung getCurrentSeller(Principal principal) {
+	    if (principal != null) {
+	        return nguoiDungService.findByTenNguoiDung(principal.getName());
+	    }
+	    return null;
+	}
+
+	
 	@GetMapping("/hoadon")
 	public String getSellerHoaDons(HttpServletRequest request, Model model,
 

@@ -25,11 +25,21 @@
 					</div>
 
 					<!-- Thông tin ca làm việc -->
+					<!-- Thông tin ca làm việc -->
 					<div class="card p-4 shadow-sm"
 						style="background-color: #ffffff; border-radius: 8px; border: 1px solid #dee2e6; padding: 15px;">
 						<h5 class="fw-bold text-secondary">Thông tin kiểm kê</h5>
-						<p><strong><i class="fas fa-user-check"></i> Nhân viên kiểm kê:</strong>
-							<span th:text="${nhanVienThucHien}"></span>
+
+						<!-- Avatar -->
+						<img th:src="${nhanVienThucHien.avatar != null} ? @{'/upload/' + ${nhanVienThucHien.avatar}} : '/images/default-avatar.png'"
+							alt="Avatar"
+							style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #6c63ff; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+
+						<p><strong><i class="fas fa-user-check"></i> Tên đăng nhập nhân viên:</strong>
+							<span th:text="${nhanVienThucHien.tenNguoiDung}"></span>
+						</p>
+						<p><strong><i class="fas fa-user"></i> Nhân viên kiểm kê:</strong>
+							<span th:text="${nhanVienThucHien.hoTen}"></span>
 						</p>
 						<p><strong><i class="fas fa-clock"></i> Thời gian bắt đầu:</strong>
 							<span th:text="${#temporals.format(thoiGianBatDau, 'dd/MM/yyyy HH:mm')}"></span>
@@ -38,6 +48,7 @@
 							<span th:text="${#temporals.format(thoiGianKetThuc, 'dd/MM/yyyy HH:mm')}"></span>
 						</p>
 					</div>
+
 
 					<!-- Bảng hiển thị sản phẩm tồn kho -->
 					<div class="table-responsive mt-4">

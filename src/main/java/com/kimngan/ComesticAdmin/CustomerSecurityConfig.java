@@ -19,6 +19,8 @@ public class CustomerSecurityConfig {
      SecurityFilterChain customerSecurityFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/**") // Áp dụng cho toàn bộ URL của khách hàng
             .csrf(csrf -> csrf.disable())
+            
+            .headers(headers -> headers.frameOptions(frame -> frame.disable())) 
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/", "/index", 
                 		"/brands/**",

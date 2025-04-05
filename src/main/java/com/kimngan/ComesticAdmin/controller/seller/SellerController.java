@@ -72,7 +72,7 @@ public class SellerController {
 		return "seller/login"; // file login.html trong thư mục templates/seller/
 	}
 
-	@ModelAttribute("user")
+	@ModelAttribute("currentSeller")
 	public NguoiDung getCurrentUser(Principal principal) {
 		if (principal != null) {
 			return nguoiDungService.findByTenNguoiDung(principal.getName());

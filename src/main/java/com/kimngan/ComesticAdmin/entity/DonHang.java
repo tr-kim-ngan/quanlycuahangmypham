@@ -59,8 +59,12 @@ public class DonHang {
 	@Column(name = "ngay_xac_nhan_xuat_kho")
 	private LocalDateTime ngayXacNhanXuatKho;
 	
-//	@Column(name = "LyDoHuy", length = 500)
-//	private String lyDoHuy;
+	@Column(name = "DaKhachXacNhan")
+	private Boolean daKhachXacNhan = false;
+
+	@Column(name = "ThoiGianXacNhanKhach")
+	private LocalDateTime thoiGianXacNhanKhach;
+
 
 
 	// Quan hệ với bảng NguoiDung
@@ -87,13 +91,11 @@ public class DonHang {
 
 
 
-
-
 	public DonHang(Integer maDonHang, LocalDateTime ngayDat, String diaChiGiaoHang, String trangThaiDonHang,
 			String trangThaiChoXacNhan, BigDecimal tongGiaTriDonHang, BigDecimal phiVanChuyen, Integer soLanGiaoThatBai,
 			String ghiChu, String hinhAnhGiaoHang, String sdtNhanHang, String lichSuTrangThai,
-			LocalDateTime ngayXacNhanXuatKho, NguoiDung nguoiDung, NguoiDung shipper, NguoiDung seller,
-			List<ChiTietDonHang> chiTietDonHangs) {
+			LocalDateTime ngayXacNhanXuatKho, Boolean daKhachXacNhan, LocalDateTime thoiGianXacNhanKhach,
+			NguoiDung nguoiDung, NguoiDung shipper, NguoiDung seller, List<ChiTietDonHang> chiTietDonHangs) {
 		super();
 		this.maDonHang = maDonHang;
 		this.ngayDat = ngayDat;
@@ -108,15 +110,13 @@ public class DonHang {
 		this.sdtNhanHang = sdtNhanHang;
 		this.lichSuTrangThai = lichSuTrangThai;
 		this.ngayXacNhanXuatKho = ngayXacNhanXuatKho;
+		this.daKhachXacNhan = daKhachXacNhan;
+		this.thoiGianXacNhanKhach = thoiGianXacNhanKhach;
 		this.nguoiDung = nguoiDung;
 		this.shipper = shipper;
 		this.seller = seller;
 		this.chiTietDonHangs = chiTietDonHangs;
 	}
-
-
-
-
 
 	// Getters và Setters
 	public Integer getMaDonHang() {
@@ -256,6 +256,26 @@ public class DonHang {
 
 	public void setSeller(NguoiDung seller) {
 		this.seller = seller;
+	}
+
+
+
+	public Boolean getDaKhachXacNhan() {
+		return daKhachXacNhan;
+	}
+
+
+
+	public void setDaKhachXacNhan(Boolean daKhachXacNhan) {
+		this.daKhachXacNhan = daKhachXacNhan;
+	}
+
+	public LocalDateTime getThoiGianXacNhanKhach() {
+		return thoiGianXacNhanKhach;
+	}
+
+	public void setThoiGianXacNhanKhach(LocalDateTime thoiGianXacNhanKhach) {
+		this.thoiGianXacNhanKhach = thoiGianXacNhanKhach;
 	}
 
 	

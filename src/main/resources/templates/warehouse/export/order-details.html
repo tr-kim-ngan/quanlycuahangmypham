@@ -125,13 +125,66 @@
 
 		<!-- Wrapper để căn 2 nút bên phải -->
 		<div class="btn-group">
-			<form th:action="@{/warehouse/import/confirm-export/{id}(id=${donHang.maDonHang})}" method="post"
-				onsubmit="return confirm('Xác nhận xuất kho cho đơn hàng này?')">
-				<button type="submit" class="btn btn-success"> <i class="fas fa-check-circle"></i> Xác nhận xuất
-					kho</button>
-			</form>
-			<a href="/warehouse/import/pending-orders" class="btn btn-secondary"> <i class="fas fa-arrow-left"></i> Quay
-				lại</a>
+			<div th:if="${donHang.trangThaiDonHang == 'Đang xử lý'}"
+				style="display: flex; align-items: center; gap: 20px;">
+				<form th:action="@{/warehouse/import/confirm-export/{id}(id=${donHang.maDonHang})}" method="post"
+					onsubmit="return confirm('Xác nhận xuất kho cho đơn hàng này?')">
+					<button type="submit" class="btn btn-success"> <i class="fas fa-check-circle"></i> Xác nhận xuất
+						kho</button>
+				</form>
+				<form th:action="@{/warehouse/import/cancel-order/{id}(id=${donHang.maDonHang})}" method="post"
+					onsubmit="return validateCancelReason();"
+					style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+
+					<label for="cancelReason" style="font-weight: bold;">Lý do hủy:</label>
+
+					<select name="cancelReason" id="cancelReason"
+						style="padding: 6px 10px; font-size: 14px; border-radius: 5px; min-width: 200px;">
+						<option value="">-- Chọn lý do --</option>
+						<option value="Khách yêu cầu hủy">Khách yêu cầu hủy</option>
+						<option value="Hết hàng">Hết hàng</option>
+						<option value="Lỗi hệ thống">Lỗi hệ thống</option>
+						<option value="Khác">Khác</option>
+					</select>
+
+					<!-- Ô nhập lý do tùy chỉnh -->
+					<input type="text" name="customCancelReason" id="customCancelReason"
+						placeholder="Nhập lý do khác..."
+						style="display: none; padding: 6px 10px; border-radius: 5px; min-width: 200px;">
+
+					<button type="submit" class="btn btn-danger"
+						style="padding: 8px 16px; font-size: 14px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+						<i class="fas fa-times-circle"></i> Hủy đơn
+					</button>
+
+				</form>
+			</div>
+			<!-- Chỉ hiển thị khi trạng thái là 'Đã xác nhận' -->
+			<!-- Chỉ hiển thị khi trạng thái là 'Đã xác nhận' -->
+			<div th:if="${donHang.trangThaiDonHang == 'Đã xác nhận'}" style="margin-top: 0px; padding-left: 300px;">
+				<form th:action="@{/warehouse/import/assign-shipper/{id}(id=${donHang.maDonHang})}" method="post"
+					style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+
+					<label style="font-weight: bold; font-size: 16px;" for="shipper">🚚 Gán shipper:</label>
+
+					<select name="shipperId" id="shipper" required
+						style="padding: 6px 10px; font-size: 14px; border-radius: 5px; min-width: 200px; max-width: 250px;">
+						<option value="">-- Chọn shipper --</option>
+						<option th:each="shipper : ${danhSachShipper}" th:value="${shipper.maNguoiDung}"
+							th:text="${shipper.hoTen}">
+						</option>
+					</select>
+
+					<button type="submit" class="btn btn-success" style="font-size: 14px; padding: 8px 16px;">
+						✅ Xác nhận
+					</button>
+				</form>
+			</div>
+
+			<a href="/warehouse/import/pending-orders" class="btn btn-secondary mt-3">
+				<i class="fas fa-arrow-left"></i> Quay lại
+			</a>
+
 		</div>
 	</div>
 
@@ -143,9 +196,11 @@
 			</tr>
 			<tr>
 				<td><i class="fas fa-user icon"></i> Khách hàng:</td>
-				<td th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.hoTen : 'Không xác định'}"></td>
-
+				<td
+					th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.hoTen + ' - ' + donHang.nguoiDung.soDienThoai : 'Không xác định'}">
+				</td>
 			</tr>
+
 			<tr>
 				<td><i class="fas fa-calendar-alt icon"></i> Ngày đặt:</td>
 				<td th:text="${#temporals.format(donHang.ngayDat, 'dd-MM-yyyy HH:mm')}"></td>
@@ -181,6 +236,40 @@
 		</table>
 
 	</div>
+
+
+	<script>
+		// Hiện ô nhập lý do khi chọn "Khác"
+		document.addEventListener("DOMContentLoaded", function () {
+			const reasonDropdown = document.getElementById("cancelReason");
+			const customInput = document.getElementById("customCancelReason");
+
+			reasonDropdown.addEventListener("change", function () {
+				if (this.value === "Khác") {
+					customInput.style.display = "inline-block";
+				} else {
+					customInput.style.display = "none";
+				}
+			});
+		});
+
+		function validateCancelReason() {
+			const reason = document.getElementById("cancelReason").value;
+			const customReason = document.getElementById("customCancelReason").value;
+
+			if (reason === "") {
+				alert("Vui lòng chọn lý do hủy đơn hàng.");
+				return false;
+			}
+
+			if (reason === "Khác" && customReason.trim() === "") {
+				alert("Vui lòng nhập lý do hủy đơn hàng.");
+				return false;
+			}
+
+			return confirm("Bạn có chắc chắn muốn hủy đơn hàng này?");
+		}
+	</script>
 </body>
 
 

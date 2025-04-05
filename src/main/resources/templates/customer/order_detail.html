@@ -58,9 +58,19 @@
 						</p>
 						<p class="text-dark"
 							th:if="${donHang.trangThaiDonHang == 'Đã hủy' and not #strings.isEmpty(donHang.ghiChu)}">
-							<span style="color: red; font-weight: bold;">Lý do hủy đơn:</span>
+							<span class="text-dark">Lý do hủy đơn:</span>
 							<span style="color: red;" th:text="${donHang.ghiChu}"></span>
 						</p>
+						<!-- Hiển thị ảnh nếu đơn hoàn thành -->
+						<div th:if="${donHang.trangThaiDonHang == 'Đã hoàn thành' and donHang.hinhAnhGiaoHang != null}"
+							style="margin-top: 10px;">
+							<p class="text-dark">Ảnh giao hàng:</p>
+							<a th:href="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}" target="_blank">
+								<img th:src="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}" alt="Ảnh giao hàng"
+									style="max-width: 200px; border-radius: 10px; border: 2px solid #28a745; cursor: zoom-in;" />
+							</a>
+						</div>
+
 					</div>
 				</div>
 			</div>

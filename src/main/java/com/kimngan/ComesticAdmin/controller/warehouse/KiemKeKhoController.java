@@ -52,7 +52,7 @@ public class KiemKeKhoController {
 	private DonHangService donHangService;
 
 	// Lấy thông tin người dùng giống bên ShipperAuthController
-	@ModelAttribute("user")
+	@ModelAttribute("currentWarehouseUser")
 	public NguoiDung getCurrentUser(Principal principal) {
 		if (principal != null) {
 			return nguoiDungService.findByTenNguoiDung(principal.getName());
@@ -123,7 +123,8 @@ public class KiemKeKhoController {
 			@RequestParam("soLuongThucTe") List<Integer> soLuongThucTeList,
 			@RequestParam(value = "lyDoDieuChinh", required = false) List<String> lyDoDieuChinhList,
 			@RequestParam(value = "lyDoNhapTay", required = false) List<String> lyDoNhapTayList,
-			@ModelAttribute("user") NguoiDung nguoiDung, @RequestParam("caLamViecId") Integer caLamViecId,
+			@ModelAttribute("currentWarehouseUser") NguoiDung nguoiDung, 
+			@RequestParam("caLamViecId") Integer caLamViecId,
 			RedirectAttributes redirectAttributes, Model model) {
 
 		if (nguoiDung == null) {

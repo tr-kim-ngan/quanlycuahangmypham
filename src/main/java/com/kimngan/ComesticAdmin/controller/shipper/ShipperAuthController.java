@@ -147,135 +147,268 @@ public class ShipperAuthController {
 		return "shipper/donhang/detail";
 	}
 
+//	@PostMapping("/order/update-status")
+//	public String updateOrderStatus(@RequestParam("orderId") Integer orderId, @RequestParam("status") String status,
+//			@RequestParam(value = "hinhAnh", required = false) MultipartFile hinhAnh,
+//			@RequestParam(value = "lyDo", required = false) String lyDo, Principal principal,
+//			RedirectAttributes redirectAttributes) {
+//
+//		if (principal == null) {
+//			return "redirect:/shipper/login";
+//		}
+//
+//		DonHang order = donHangService.getDonHangById(orderId);
+//
+//		if (order == null) {
+//			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+//			return "redirect:/shipper/orders";
+//		}
+//		if ("Đang chuẩn bị hàng".equals(order.getTrangThaiDonHang())) {
+//			order.setTrangThaiChoXacNhan("Đang giao hàng"); // Lưu vào trạng thái chờ xác nhận
+//			donHangService.updateDonHang(order);
+//			redirectAttributes.addFlashAttribute("successMessage", "Đã gửi yêu cầu xác nhận đang giao hàng.");
+//			return "redirect:/shipper/order/" + orderId;
+//		}
+//
+//		if (("Đã xác nhận".equals(order.getTrangThaiDonHang())
+//				|| "Đang chuẩn bị hàng".equals(order.getTrangThaiDonHang()))
+//				&& "Giao hàng thất bại (Lần 1)".equals(order.getTrangThaiChoXacNhan())
+//				&& "Đang giao lại (Lần 2)".equals(status)) {
+//
+//			order.setTrangThaiDonHang("Đang giao hàng");
+//			donHangService.updateDonHang(order);
+//			redirectAttributes.addFlashAttribute("successMessage", "Bạn đã nhận hàng lần 2! Bắt đầu giao lại.");
+//			return "redirect:/shipper/order/" + orderId;
+//		}
+//		if (status.equals("Đã hoàn thành") && hinhAnh != null && !hinhAnh.isEmpty()) {
+//			try {
+//				String fileName = storageService.storeFile(hinhAnh);
+//				order.setHinhAnhGiaoHang(fileName); // Có chắc chỗ này đã chạy không?
+//				System.out.println("📷 Ảnh đã lưu: " + fileName);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//				redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi lưu ảnh.");
+//				return "redirect:/shipper/order/" + orderId;
+//			}
+//		}
+//
+//		// Kiểm tra nếu shipper đang đăng nhập có phải là shipper của đơn hàng không
+//		if (order.getShipper() == null || !order.getShipper().getTenNguoiDung().equals(principal.getName())) {
+//			redirectAttributes.addFlashAttribute("errorMessage", "Bạn không phải shipper của đơn hàng này.");
+//			return "redirect:/shipper/orders";
+//		}
+//
+//		// Nếu shipper nhận đơn giao lại (Admin đã chọn giao lại)
+//		if ("Chờ shipper xác nhận lại".equals(order.getTrangThaiChoXacNhan())) {
+//			order.setTrangThaiDonHang("Đang chuẩn bị hàng"); // Quay về trạng thái chuẩn bị hàng
+//			order.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận
+//			donHangService.updateDonHang(order);
+//			redirectAttributes.addFlashAttribute("successMessage", "Bạn đã nhận đơn hàng để giao lại.");
+//			return "redirect:/shipper/order/" + orderId;
+//		}
+//		// Chỉ cho phép shipper cập nhật trạng thái hợp lệ
+//		List<String> allowedStatuses = Arrays.asList("Đang giao hàng", "Đã hoàn thành", "Giao thất bại");
+//
+//		if (!allowedStatuses.contains(status)) {
+//			redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
+//			return "redirect:/shipper/orders";
+//		}
+//
+//		// Nếu trạng thái là "Giao thất bại", kiểm tra số lần giao thất bại
+//		if (status.equals("Giao thất bại")) {
+//			int soLanGiaoThatBai = order.getSoLanGiaoThatBai(); // Cần có trường này trong DonHang
+//
+//			if (soLanGiaoThatBai >= 2) {
+//				redirectAttributes.addFlashAttribute("errorMessage", "Đơn hàng đã thất bại 2 lần, không thể giao lại.");
+//				return "redirect:/shipper/orders";
+//			}
+//
+//			// Cập nhật trạng thái thất bại theo số lần giao
+//			if (soLanGiaoThatBai == 0) {
+//				order.setTrangThaiChoXacNhan("Giao hàng thất bại (Lần 1)");
+//			} else if (soLanGiaoThatBai == 1) {
+//				order.setTrangThaiChoXacNhan("Giao hàng thất bại (Lần 2)");
+//			}
+//
+//			// Lưu cả lịch sử lý do thất bại mà không ghi đè
+//			// Đảm bảo lưu cả lịch sử lý do thất bại mà không bị lỗi
+//			if (lyDo != null && !lyDo.trim().isEmpty()) {
+//				String ghiChuCu = order.getGhiChu() == null ? "" : order.getGhiChu();
+//				order.setGhiChu(ghiChuCu + "  Lần " + (soLanGiaoThatBai + 1) + ": " + lyDo.trim());
+//			} else {
+//				String ghiChuCu = order.getGhiChu() == null ? "" : order.getGhiChu() + "\n";
+//				order.setGhiChu(ghiChuCu + "  Lần " + (soLanGiaoThatBai + 1) + ": Không có lý do được cung cấp.");
+//			}
+//
+//			// Cập nhật số lần giao thất bại
+//			order.setSoLanGiaoThatBai(soLanGiaoThatBai + 1);
+//
+//			donHangService.updateDonHang(order);
+//
+//			System.out.println(" Ghi chú sau khi shipper nhập: " + order.getGhiChu());
+//
+//			redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thất bại. Chờ admin xác nhận.");
+//			return "redirect:/shipper/order/" + orderId;
+//		}
+//
+//		// Nếu trạng thái là "Đã hoàn thành", lưu ảnh giao hàng
+//
+//		System.out.println(" Nhận yêu cầu cập nhật trạng thái:");
+//		System.out.println("🔹 Order ID: " + orderId);
+//		System.out.println("🔹 Trạng thái mới: " + status);
+//		System.out.println("🔹 Lý do thất bại (lyDo): " + lyDo);
+//		System.out.println("🔹 Hình ảnh: " + (hinhAnh != null ? hinhAnh.getOriginalFilename() : "Không có hình"));
+//
+//		order.setTrangThaiChoXacNhan(status);
+//		donHangService.updateDonHang(order);
+//		System.out.println(" Cập nhật trạng thái thành công.");
+//
+//		redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công. Chờ admin xác nhận.");
+//		return "redirect:/shipper/order/" + orderId;
+//	}
 	@PostMapping("/order/update-status")
 	public String updateOrderStatus(@RequestParam("orderId") Integer orderId, @RequestParam("status") String status,
 			@RequestParam(value = "hinhAnh", required = false) MultipartFile hinhAnh,
 			@RequestParam(value = "lyDo", required = false) String lyDo, Principal principal,
 			RedirectAttributes redirectAttributes) {
 
-		if (principal == null) {
+		if (principal == null)
 			return "redirect:/shipper/login";
-		}
 
 		DonHang order = donHangService.getDonHangById(orderId);
-
 		if (order == null) {
 			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
 			return "redirect:/shipper/orders";
 		}
-		if ("Đang chuẩn bị hàng".equals(order.getTrangThaiDonHang())) {
-			order.setTrangThaiChoXacNhan("Đang giao hàng"); // Lưu vào trạng thái chờ xác nhận
-			donHangService.updateDonHang(order);
-			redirectAttributes.addFlashAttribute("successMessage", "Đã gửi yêu cầu xác nhận đang giao hàng.");
-			return "redirect:/shipper/order/" + orderId;
-		}
 
-		if (("Đã xác nhận".equals(order.getTrangThaiDonHang())
-				|| "Đang chuẩn bị hàng".equals(order.getTrangThaiDonHang()))
-				&& "Giao hàng thất bại (Lần 1)".equals(order.getTrangThaiChoXacNhan())
-				&& "Đang giao lại (Lần 2)".equals(status)) {
-
-			order.setTrangThaiDonHang("Đang giao hàng");
-			donHangService.updateDonHang(order);
-			redirectAttributes.addFlashAttribute("successMessage", "Bạn đã nhận hàng lần 2! Bắt đầu giao lại.");
-			return "redirect:/shipper/order/" + orderId;
-		}
-		if (status.equals("Đã hoàn thành") && hinhAnh != null && !hinhAnh.isEmpty()) {
-			try {
-				String fileName = storageService.storeFile(hinhAnh);
-				order.setHinhAnhGiaoHang(fileName); // Có chắc chỗ này đã chạy không?
-				System.out.println("📷 Ảnh đã lưu: " + fileName);
-			} catch (IOException e) {
-				e.printStackTrace();
-				redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi lưu ảnh.");
-				return "redirect:/shipper/order/" + orderId;
-			}
-		}
-
-		// Kiểm tra nếu shipper đang đăng nhập có phải là shipper của đơn hàng không
+		// ✅ Kiểm tra shipper có phải là người đang đăng nhập không
 		if (order.getShipper() == null || !order.getShipper().getTenNguoiDung().equals(principal.getName())) {
 			redirectAttributes.addFlashAttribute("errorMessage", "Bạn không phải shipper của đơn hàng này.");
 			return "redirect:/shipper/orders";
 		}
 
-		// Nếu shipper nhận đơn giao lại (Admin đã chọn giao lại)
+		// ✅ Nếu đơn đang ở trạng thái yêu cầu shipper giao lại
 		if ("Chờ shipper xác nhận lại".equals(order.getTrangThaiChoXacNhan())) {
-			order.setTrangThaiDonHang("Đang chuẩn bị hàng"); // Quay về trạng thái chuẩn bị hàng
-			order.setTrangThaiChoXacNhan(null); // Xóa trạng thái chờ xác nhận
+			order.setTrangThaiDonHang("Đang chuẩn bị hàng");
+			order.setTrangThaiChoXacNhan(null);
 			donHangService.updateDonHang(order);
 			redirectAttributes.addFlashAttribute("successMessage", "Bạn đã nhận đơn hàng để giao lại.");
 			return "redirect:/shipper/order/" + orderId;
 		}
-		// Chỉ cho phép shipper cập nhật trạng thái hợp lệ
-		List<String> allowedStatuses = Arrays.asList("Đang giao hàng", "Đã hoàn thành", "Giao thất bại");
 
-		if (!allowedStatuses.contains(status)) {
-			redirectAttributes.addFlashAttribute("errorMessage", "Trạng thái không hợp lệ.");
-			return "redirect:/shipper/orders";
-		}
+		if ("Giao thất bại".equals(status)) {
+			int lan = order.getSoLanGiaoThatBai();
 
-		// Nếu trạng thái là "Giao thất bại", kiểm tra số lần giao thất bại
-		if (status.equals("Giao thất bại")) {
-			int soLanGiaoThatBai = order.getSoLanGiaoThatBai(); // Cần có trường này trong DonHang
+			System.out.println("📦 Giao thất bại lần: " + (lan + 1));
 
-			if (soLanGiaoThatBai >= 2) {
-				redirectAttributes.addFlashAttribute("errorMessage", "Đơn hàng đã thất bại 2 lần, không thể giao lại.");
+			if (lan >= 2) {
+				redirectAttributes.addFlashAttribute("errorMessage", "Đơn hàng đã thất bại 2 lần.");
 				return "redirect:/shipper/orders";
 			}
 
-			// Cập nhật trạng thái thất bại theo số lần giao
-			if (soLanGiaoThatBai == 0) {
+			// Giao thất bại lần 1 → chờ xác nhận
+//			if (lan == 0) {
+//				order.setTrangThaiChoXacNhan("Giao hàng thất bại (Lần 1)");
+//				redirectAttributes.addFlashAttribute("successMessage",
+//						"Cập nhật trạng thái thất bại. Chờ xác nhận từ kho.");
+//			}
+//			// Giao thất bại lần 2 → tự động hủy đơn luôn
+//			else if (lan == 1) {
+//				order.setTrangThaiDonHang("Đã hủy");
+//				order.setTrangThaiChoXacNhan(null);
+//				redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã thất bại 2 lần và bị hủy.");
+//			}
+			if (lan == 0) {
 				order.setTrangThaiChoXacNhan("Giao hàng thất bại (Lần 1)");
-			} else if (soLanGiaoThatBai == 1) {
+			} else if (lan == 1) {
 				order.setTrangThaiChoXacNhan("Giao hàng thất bại (Lần 2)");
 			}
 
-			// Lưu cả lịch sử lý do thất bại mà không ghi đè
-			// Đảm bảo lưu cả lịch sử lý do thất bại mà không bị lỗi
-			if (lyDo != null && !lyDo.trim().isEmpty()) {
-				String ghiChuCu = order.getGhiChu() == null ? "" : order.getGhiChu();
-				order.setGhiChu(ghiChuCu + "  Lần " + (soLanGiaoThatBai + 1) + ": " + lyDo.trim());
-			} else {
-				String ghiChuCu = order.getGhiChu() == null ? "" : order.getGhiChu() + "\n";
-				order.setGhiChu(ghiChuCu + "  Lần " + (soLanGiaoThatBai + 1) + ": Không có lý do được cung cấp.");
-			}
 
-			// Cập nhật số lần giao thất bại
-			order.setSoLanGiaoThatBai(soLanGiaoThatBai + 1);
+			order.setSoLanGiaoThatBai(lan + 1);
+
+			// Ghi chú lý do
+			String ghiChuCu = order.getGhiChu() == null ? "" : order.getGhiChu();
+			String ghiChuMoi = "\n  Lần " + (lan + 1) + ": "
+					+ (lyDo == null || lyDo.isBlank() ? "Không có lý do." : lyDo.trim());
+			order.setGhiChu(ghiChuCu + ghiChuMoi);
 
 			donHangService.updateDonHang(order);
-
-			System.out.println(" Ghi chú sau khi shipper nhập: " + order.getGhiChu());
-
-			redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thất bại. Chờ admin xác nhận.");
 			return "redirect:/shipper/order/" + orderId;
 		}
 
-		// Nếu trạng thái là "Đã hoàn thành", lưu ảnh giao hàng
+		// ✅ Nếu trạng thái là "Đã hoàn thành" → cần ảnh và chờ xác nhận
+		if ("Đã hoàn thành".equals(status)) {
+			if (hinhAnh != null && !hinhAnh.isEmpty()) {
+				try {
+					String fileName = storageService.storeFile(hinhAnh);
+					order.setHinhAnhGiaoHang(fileName);
+				} catch (IOException e) {
+					e.printStackTrace();
+					redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi lưu ảnh.");
+					return "redirect:/shipper/order/" + orderId;
+				}
+			}
 
-		System.out.println(" Nhận yêu cầu cập nhật trạng thái:");
-		System.out.println("🔹 Order ID: " + orderId);
-		System.out.println("🔹 Trạng thái mới: " + status);
-		System.out.println("🔹 Lý do thất bại (lyDo): " + lyDo);
-		System.out.println("🔹 Hình ảnh: " + (hinhAnh != null ? hinhAnh.getOriginalFilename() : "Không có hình"));
 
-		order.setTrangThaiChoXacNhan(status);
+			order.setTrangThaiDonHang("Đã hoàn thành");
+			order.setTrangThaiChoXacNhan(null);
+			donHangService.updateDonHang(order);
+			redirectAttributes.addFlashAttribute("successMessage", "Đã gửi xác nhận hoàn thành đơn hàng.");
+			return "redirect:/shipper/order/" + orderId;
+		}
+
+		// ✅ Các trạng thái khác → cập nhật trực tiếp
+		order.setTrangThaiDonHang(status);
+		order.setTrangThaiChoXacNhan(null); // xóa trạng thái chờ nếu có
 		donHangService.updateDonHang(order);
-		System.out.println(" Cập nhật trạng thái thành công.");
 
-		redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công. Chờ admin xác nhận.");
+		redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái đơn hàng thành công.");
 		return "redirect:/shipper/order/" + orderId;
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	@GetMapping("/account")
+	public String showAccountPage(Model model, Principal principal) {
+		if (principal == null) {
+			return "redirect:/shipper/login";
+		}
+		NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
+		model.addAttribute("nguoiDung", currentUser);
+		return "shipper/account"; // Giao diện account của shipper
+	}
+
+	@PostMapping("/account")
+	public String updateAccount(@ModelAttribute("nguoiDung") NguoiDung updatedUser,
+			@RequestParam("avatarFile") MultipartFile avatarFile, Principal principal,
+			RedirectAttributes redirectAttributes) {
+		if (principal == null) {
+			return "redirect:/shipper/login";
+		}
+
+		NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
+		if (currentUser == null) {
+			redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy người dùng.");
+			return "redirect:/shipper/account";
+		}
+
+		currentUser.setHoTen(updatedUser.getHoTen());
+		currentUser.setEmail(updatedUser.getEmail());
+		currentUser.setSoDienThoai(updatedUser.getSoDienThoai());
+		currentUser.setDiaChi(updatedUser.getDiaChi());
+
+		if (avatarFile != null && !avatarFile.isEmpty()) {
+			try {
+				String fileName = storageService.storeFile(avatarFile);
+				currentUser.setAvatar(fileName);
+			} catch (IOException e) {
+				redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi lưu ảnh đại diện.");
+				return "redirect:/shipper/account";
+			}
+		}
+
+		nguoiDungService.save(currentUser);
+		redirectAttributes.addFlashAttribute("successMessage", "Cập nhật thông tin thành công!");
+		return "redirect:/shipper/account";
+	}
+
 }

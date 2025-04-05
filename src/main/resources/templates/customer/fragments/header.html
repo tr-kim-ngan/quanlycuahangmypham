@@ -173,6 +173,33 @@
 							</div>
 						</a>
 					</li>
+					<!-- Tin nhắn -->
+					<li style="position: relative;">
+						<a class="rounded-circle bg-light p-2 mx-1" th:if="${#authentication.name != 'anonymousUser'}"
+							href="javascript:void(0);" onclick="openMessagePopupCustomer()" style="position: relative;">
+							<i class="fas fa-comment-dots" style="font-size: 1.2rem;"></i>
+
+							<!-- Badge số tin chưa đọc -->
+							<span id="unreadBadge" style="
+							 display: none;
+								  position: absolute;
+							        top: -7px; 
+							        right: -7px;
+							        background-color: #ff0000;
+							        color: #ffffff;
+							        font-size: 0.9rem;
+							        width: 1.8em;
+							        height: 1.8em;
+							        display: flex;
+							        align-items: center;
+							        justify-content: center;
+							        text-align: center;
+							        border-radius: 50%;">
+							</span>
+						</a>
+					</li>
+
+
 
 
 					<!-- Đơn hàng -->
@@ -366,7 +393,6 @@
 
 
 
-
 	<!-- Sub-header nằm ngay bên dưới -->
 	<div
 		style="position: fixed; text-align: center; left: 0; width: 100%; height: 45px; z-index: 200; padding-top: 10px; background-color: #ffffff;">
@@ -384,5 +410,68 @@
 		</a>
 
 	</div>
+	<!-- Popup chat cho customer -->
+	<div id="messagePopupCustomer" style="position: fixed; bottom: 20px; right: 20px;
+    width: 300px; height: 400px; background: white; border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2); z-index: 9999; overflow: hidden; display: none;">
+
+		<div style="background-color: #007bff; color: white; padding: 10px; text-align: center;">
+			💬 Nhắn tin với nhân viên
+			<button onclick="closeMessagePopupCustomer()"
+				style="float: right; background: none; border: none; color: white;">&times;</button>
+		</div>
+		<!-- Ngay trước iframe -->
+
+		<iframe th:src="'http://localhost:8081/customer/messages/' + ${seller.maNguoiDung}"
+			style="width: 100%; height: calc(100% - 40px); border: none;"></iframe>
+	</div>
+
+	
+	<script th:inline="javascript">
+		let sellerId = /*[[${seller.maNguoiDung}]]*/ 0;
+
+		function openMessagePopupCustomer() {
+			const popup = document.getElementById("messagePopupCustomer");
+			const iframe = popup.querySelector("iframe");
+
+			// Reload lại iframe mỗi lần mở
+			iframe.src = iframe.src;
+
+			// Gọi API để đánh dấu đã đọc
+			fetch('/customer/messages/mark-read')
+				.then(() => {
+					// Sau khi đánh dấu đã đọc xong thì ẩn badge
+					const badge = document.getElementById("unreadBadge");
+					if (badge) {
+						badge.style.display = "none";
+					}
+				})
+				.catch(err => console.error("Lỗi khi đánh dấu đã đọc:", err));
+
+			popup.style.display = "block";
+		}
+
+		function closeMessagePopupCustomer() {
+			document.getElementById("messagePopupCustomer").style.display = "none";
+		}
+	</script>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			fetch("/customer/messages/count-unread")
+				.then(response => response.json())
+				.then(data => {
+					const badge = document.getElementById("unreadBadge");
+					if (data > 0) {
+						badge.innerText = data;
+						badge.style.display = "flex";
+					} else {
+						badge.style.display = "none";
+					}
+				})
+				.catch(error => console.error("Lỗi khi lấy số tin chưa đọc:", error));
+		});
+	</script>
+
 
 </div>

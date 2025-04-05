@@ -33,7 +33,8 @@ public interface NguoiDungService {
 	
 	boolean existsBySoDienThoaiAndNotId(String soDienThoai, Integer id);
 	 Optional<NguoiDung> findBySoDienThoai(String phone);
-
+	 NguoiDung findFirstByRole(int maQuyen);
+	 List<NguoiDung> findByRole(int maQuyen);
 
 
 }

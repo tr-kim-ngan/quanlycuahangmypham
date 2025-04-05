@@ -717,9 +717,9 @@ public class DonHangServiceImpl implements DonHangService {
 	}
 
 	@Override
-	public List<DonHang> findDonHangsDaXuatKho() {
+	public Page<DonHang> findDonHangsDaXuatKho(Pageable pageable){
 		// TODO Auto-generated method stub
-		 return donHangRepository.findDonHangsDaXuatKho();
+		return donHangRepository.findDonHangsDaXuatKho(pageable);
 	}
 
 	@Override
@@ -916,6 +916,13 @@ public class DonHangServiceImpl implements DonHangService {
 	@Override
 	public Long thongKeDonHuyTheoKhach(Integer maNguoiDung) {
 	    return donHangRepository.thongKeDonHuyTheoKhach(maNguoiDung);
+	}
+
+	@Override
+	public List<DonHang> getDonHangsByStatuses(List<String> trangThaiList) {
+		// TODO Auto-generated method stub
+	    return donHangRepository.findByTrangThaiDonHangIn(trangThaiList);
+
 	}
 
 

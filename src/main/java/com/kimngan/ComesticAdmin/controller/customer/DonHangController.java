@@ -584,5 +584,41 @@ public class DonHangController {
 		redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng đã được hủy thành công.");
 		return "redirect:/customer/order";
 	}
+	
+	 @PostMapping("/confirm-delivery")
+	    public String confirmDelivery(@RequestParam("maDonHang") Integer maDonHang, RedirectAttributes redirectAttributes) {
+	        DonHang donHang = donHangService.getDonHangById(maDonHang);
+	        if (donHang == null || !"Đã hoàn thành".equals(donHang.getTrangThaiDonHang())) {
+	            redirectAttributes.addFlashAttribute("errorMessage", "Không thể xác nhận đơn hàng này.");
+	            return "redirect:/customer/order";
+	        }
+
+	        donHang.setDaKhachXacNhan(true);
+	        donHang.setThoiGianXacNhanKhach(LocalDateTime.now());
+	        donHangService.updateDonHang(donHang);
+
+	        redirectAttributes.addFlashAttribute("successMessage", "Cảm ơn bạn đã xác nhận đơn hàng.");
+	        return "redirect:/customer/order";
+	    }
+
+	    @PostMapping("/report-not-received")
+	    public String reportNotReceived(@RequestParam("maDonHang") Integer maDonHang, RedirectAttributes redirectAttributes) {
+	        DonHang donHang = donHangService.getDonHangById(maDonHang);
+	        if (donHang == null || !"Đã hoàn thành".equals(donHang.getTrangThaiDonHang())) {
+	            redirectAttributes.addFlashAttribute("errorMessage", "Không thể báo lỗi đơn hàng này.");
+	            return "redirect:/customer/order";
+	        }
+
+	        donHang.setTrangThaiChoXacNhan("Khách báo chưa nhận được hàng");
+	        donHangService.updateDonHang(donHang);
+
+	        redirectAttributes.addFlashAttribute("successMessage", "Đã ghi nhận báo cáo của bạn. Chúng tôi sẽ kiểm tra lại.");
+	        return "redirect:/customer/order";
+	    }
+	
+	
+	
+	
+	
 
 }
