@@ -1,5 +1,6 @@
 package com.kimngan.ComesticAdmin.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,4 +35,7 @@ public interface DanhGiaService {
     Page<DanhGia> getAllDanhGias(Pageable pageable);
     void delete(Integer maDanhGia);
 
+    List<Object[]> thongKeSanPhamDanhGiaCao(LocalDateTime from, LocalDateTime to);
+
+    List<DanhGia> getDanhGiaBySanPhamId(Integer maSanPham);  
 }

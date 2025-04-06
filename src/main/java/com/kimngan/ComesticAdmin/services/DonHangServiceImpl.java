@@ -858,6 +858,7 @@ public class DonHangServiceImpl implements DonHangService {
 	    return list;
 	}
 
+
 	@Override
 	public List<Map<String, Object>> thongKeDoanhThuVaLoiNhuanTheoSanPham(LocalDateTime fromDate, LocalDateTime toDate) {
 	    List<Object[]> rawData = donHangRepository.getDoanhThuVaLoiNhuanTheoSanPham(fromDate, toDate);
@@ -865,14 +866,23 @@ public class DonHangServiceImpl implements DonHangService {
 
 	    for (Object[] row : rawData) {
 	        Map<String, Object> item = new HashMap<>();
-	        item.put("tenSanPham", row[0]);
-	        item.put("doanhThu", row[1]);
-	        item.put("loiNhuan", row[2]);
+	        String ten = (String) row[0];
+	        Integer ma = (Integer) row[1];
+
+	        // Cẩn thận: row[2] và row[3] có thể là Double
+	        BigDecimal doanhThu = BigDecimal.valueOf(((Number) row[2]).doubleValue());
+	        BigDecimal loiNhuan = BigDecimal.valueOf(((Number) row[3]).doubleValue());
+
+	        // Ghép tên + mã sản phẩm để hiển thị đẹp hơn
+	        item.put("tenSanPham", ten + " (" + ma + ")");
+	        item.put("doanhThu", doanhThu);
+	        item.put("loiNhuan", loiNhuan);
 	        result.add(item);
 	    }
 
 	    return result;
 	}
+
 
 	@Override
 	public List<Object[]> thongKeSanPhamBanChay(LocalDateTime fromDate, LocalDateTime toDate) {

@@ -50,14 +50,23 @@ public interface ChiTietDonNhapHangRepository extends JpaRepository<ChiTietDonNh
 	Integer getTotalImportedQuantityBySanPhamId(@Param("maSanPham") Integer maSanPham);
 
 // vẽ sơ đồ
-	@Query("SELECT sp.tenSanPham, SUM(ct.soLuongNhap) FROM ChiTietDonNhapHang ct " + "JOIN ct.sanPham sp "
-			+ "JOIN ct.donNhapHang dnh " + "WHERE dnh.ngayNhapHang BETWEEN :fromDate AND :toDate "
-			+ "GROUP BY sp.tenSanPham")
-	List<Object[]> findImportStatistics(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+	@Query("""
+		    SELECT sp.tenSanPham, SUM(ct.soLuongNhap), sp.maSanPham
+		    FROM ChiTietDonNhapHang ct
+		    JOIN ct.sanPham sp
+		    JOIN ct.donNhapHang dnh
+		    WHERE dnh.ngayNhapHang BETWEEN :fromDate AND :toDate
+		    GROUP BY sp.tenSanPham, sp.maSanPham
+		""")
+		List<Object[]> findImportStatistics(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
-	@Query("SELECT c.sanPham.tenSanPham, c.soLuongNhap, d.ngayNhapHang, d.nhaCungCap.tenNhaCungCap "
-			+ "FROM ChiTietDonNhapHang c JOIN c.donNhapHang d " + "WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate")
-	List<Object[]> getBaoCaoChiTiet(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+		@Query("""
+			    SELECT c.sanPham.tenSanPham, c.soLuongNhap, d.ngayNhapHang, d.nhaCungCap.tenNhaCungCap, c.sanPham.maSanPham
+			    FROM ChiTietDonNhapHang c
+			    JOIN c.donNhapHang d
+			    WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate
+			""")
+			List<Object[]> getBaoCaoChiTiet(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
 	@Query("SELECT d.nhaCungCap.tenNhaCungCap, SUM(c.soLuongNhap) " + "FROM ChiTietDonNhapHang c "
 			+ "JOIN c.donNhapHang d " + "WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate "
@@ -87,10 +96,15 @@ public interface ChiTietDonNhapHangRepository extends JpaRepository<ChiTietDonNh
 			+ "ORDER BY d.ngayNhapHang ASC")
 	List<Object[]> getImportTrendDetail(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
-	@Query("SELECT c.sanPham.tenSanPham, SUM(c.soLuongNhap) " + "FROM ChiTietDonNhapHang c " + "JOIN c.donNhapHang d "
-			+ "WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate " + "GROUP BY c.sanPham.tenSanPham "
-			+ "ORDER BY SUM(c.soLuongNhap) DESC")
-	List<Object[]> getTopImportedProducts(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+	@Query("""
+		    SELECT c.sanPham.tenSanPham, SUM(c.soLuongNhap), c.sanPham.maSanPham
+		    FROM ChiTietDonNhapHang c
+		    JOIN c.donNhapHang d
+		    WHERE d.ngayNhapHang BETWEEN :fromDate AND :toDate
+		    GROUP BY c.sanPham.tenSanPham, c.sanPham.maSanPham
+		    ORDER BY SUM(c.soLuongNhap) DESC
+		""")
+		List<Object[]> getTopImportedProducts(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
 	@Query("SELECT DISTINCT ctdnh.sanPham FROM ChiTietDonNhapHang ctdnh WHERE ctdnh.sanPham.trangThai = true")
 	List<SanPham> findDistinctActiveProductsInChiTietDonNhapHang();

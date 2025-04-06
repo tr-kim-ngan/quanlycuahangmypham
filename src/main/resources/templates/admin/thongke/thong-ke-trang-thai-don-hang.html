@@ -54,6 +54,12 @@
 									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Sản Phẩm</a>
 							</li>
 							<li style="padding: 10px 20px;">
+								<a th:href="@{/admin/thongke/danhgia}"
+									th:classappend="${activeMenu == 'thong-ke-danh-gia'} ? 'active'">
+									Đánh Giá
+								</a>
+							</li>
+							<li style="padding: 10px 20px;">
 								<a th:href="@{/admin/thongke/trangthai-donhang}"
 									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Trạng thái đơn hàng</a>
 							</li>

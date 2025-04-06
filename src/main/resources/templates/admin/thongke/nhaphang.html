@@ -118,7 +118,7 @@
 							<tbody>
 								<tr th:each="product, i : ${topProducts}">
 									<td th:text="${i.index + 1}"></td>
-									<td th:text="${product[0]}"></td>
+									<td th:text="${product[0] + ' (' + product[2] + ')'}"></td>
 									<td th:text="${product[1]}"></td>
 								</tr>
 							</tbody>
@@ -138,7 +138,7 @@
 							</thead>
 							<tbody>
 								<tr th:each="row : ${danhSachBaoCao}">
-									<td th:text="${row[0]}"></td>
+									<td th:text="${row[0] + ' (' + row[4] + ')'}"></td>
 									<td th:text="${row[1]}"></td>
 									<td th:text="${#temporals.format(row[2], 'dd/MM/yyyy')}"></td>
 									<td th:text="${row[3]}"></td>

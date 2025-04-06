@@ -82,8 +82,11 @@ public class CustomerController {
 	private DonHangService donHangService;
 
 	@GetMapping({ "/", "/index" })
-	public String homeOrIndex(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "10") int size, Authentication authentication) {
+	public String homeOrIndex(Model model, 
+			
+			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "size", defaultValue = "10") int size, 
+			Authentication authentication) {
 		NguoiDung currentUser = null;
 
 		// Kiểm tra người dùng hiện tại
@@ -157,33 +160,101 @@ public class CustomerController {
 		Map<Integer, String> sanPhamThuongHieuMap = new HashMap<>();
 		LocalDate today = LocalDate.now();
 		Map<Integer, Integer> sanPhamSoLuongTonKhoMap = new HashMap<>();
+//		List<SanPham> sanPhamsKhuyenMai = new ArrayList<>();
 
-		for (SanPham sanPham : filteredSanPhams) {
+//		for (SanPham sanPham : filteredSanPhams) {
+//			Integer maSanPham = sanPham.getMaSanPham();
+//			// Lấy dữ liệu từ các bảng liên quan
+//			int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+//			int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+//			int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+//			int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+//			int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+//
+//			System.out.println("Sản phẩm ID: " + maSanPham);
+//			System.out.println("Tổng số lượng nhập: " + tongSoLuongNhap);
+//			System.out.println("Số lượng đã bán: " + soLuongBan);
+//			System.out.println("Số lượng trên kệ: " + soLuongTrenKe);
+//			System.out.println("Delta kiểm kê: " + deltaKiemKe);
+//			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+//
+//			int soLuongTonKho = (tonKhoDaDuyet != null)
+//					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe +soLuongTraHang)
+//
+//					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
+//
+////			int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
+//			// int soLuongTonKho = sanPhamService.getSoLuongTonKho(sanPham.getMaSanPham());
+//			System.out.println("Số lượng tồn kho sau khi tính: " + soLuongTonKho);
+//
+//			// Tính khuyến mãi
+//			Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
+//					.filter(km -> km.getTrangThai())
+//					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
+//							&& !km.getNgayKetThuc().toLocalDate().isBefore(today))
+//					.max(Comparator.comparing(KhuyenMai::getPhanTramGiamGia));
+//
+//			BigDecimal giaSauGiam = sanPham.getDonGiaBan();
+//			if (highestCurrentKhuyenMai.isPresent()) {
+//				BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
+//				giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
+//				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
+//				sanPhamsKhuyenMai.add(sanPham); // Thêm sản phẩm có khuyến mãi vào danh sách
+//
+//			} else {
+//				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), null);
+//			}
+//
+//			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
+//
+//			// Tính trung bình đánh giá
+//			List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
+//			Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0);
+//			sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
+//
+//			// Map thương hiệu
+//			ThuongHieu thuongHieu = sanPham.getThuongHieu();
+//			if (thuongHieu != null) {
+//				sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), thuongHieu.getTenThuongHieu());
+//			} else {
+//				sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), "Không xác định");
+//			}
+//			sanPhamSoLuongTonKhoMap.put(sanPham.getMaSanPham(), soLuongTonKho);
+//		}
+		List<SanPham> allSanPhams = sanPhamService.findAllActive(Pageable.unpaged()).getContent();
+		List<SanPham> sanPhamsKhuyenMai = new ArrayList<>();
+		List<SanPham> sanPhamsSapKhuyenMai = new ArrayList<>();
+		Map<Integer, KhuyenMai> sanPhamSapKhuyenMaiMap = new HashMap<>();
+
+		for (SanPham sanPham : allSanPhams) {
 			Integer maSanPham = sanPham.getMaSanPham();
-			// Lấy dữ liệu từ các bảng liên quan
 			int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
 			int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
 			int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
 			int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
 			int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
-
-			System.out.println("Sản phẩm ID: " + maSanPham);
-			System.out.println("Tổng số lượng nhập: " + tongSoLuongNhap);
-			System.out.println("Số lượng đã bán: " + soLuongBan);
-			System.out.println("Số lượng trên kệ: " + soLuongTrenKe);
-			System.out.println("Delta kiểm kê: " + deltaKiemKe);
 			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
 
 			int soLuongTonKho = (tonKhoDaDuyet != null)
-					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe +soLuongTraHang)
-
+					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
 					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
 
-//			int soLuongTonKho = tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe;
-			// int soLuongTonKho = sanPhamService.getSoLuongTonKho(sanPham.getMaSanPham());
-			System.out.println("Số lượng tồn kho sau khi tính: " + soLuongTonKho);
+			if (soLuongTonKho <= 0) continue;
 
-			// Tính khuyến mãi
+			//LocalDate today = LocalDate.now();
+			Optional<KhuyenMai> sapKhuyenMai = sanPham.getKhuyenMais().stream()
+				    .filter(km -> km.getTrangThai())
+				    .filter(km -> km.getNgayBatDau().toLocalDate().isAfter(today)) // Sau ngày hiện tại
+				    .filter(km -> km.getNgayKetThuc().toLocalDate().isAfter(today))
+				    .min(Comparator.comparing(KhuyenMai::getNgayBatDau));
+
+				if (sapKhuyenMai.isPresent()) {
+				    sanPhamsSapKhuyenMai.add(sanPham);
+				    sanPhamSapKhuyenMaiMap.put(maSanPham, sapKhuyenMai.get()); // ❗ THÊM DÒNG NÀY
+				}
+			
+				
+				
 			Optional<KhuyenMai> highestCurrentKhuyenMai = sanPham.getKhuyenMais().stream()
 					.filter(km -> km.getTrangThai())
 					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)
@@ -194,27 +265,26 @@ public class CustomerController {
 			if (highestCurrentKhuyenMai.isPresent()) {
 				BigDecimal phanTramGiam = highestCurrentKhuyenMai.get().getPhanTramGiamGia();
 				giaSauGiam = giaSauGiam.subtract(giaSauGiam.multiply(phanTramGiam).divide(BigDecimal.valueOf(100)));
-				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), highestCurrentKhuyenMai.get());
+				sanPhamsKhuyenMai.add(sanPham);
+				sanPhamKhuyenMaiMap.put(maSanPham, highestCurrentKhuyenMai.get());
 			} else {
-				sanPhamKhuyenMaiMap.put(sanPham.getMaSanPham(), null);
+				sanPhamKhuyenMaiMap.put(maSanPham, null);
 			}
 
-			sanPhamGiaSauGiamMap.put(sanPham.getMaSanPham(), giaSauGiam);
+			sanPhamGiaSauGiamMap.put(maSanPham, giaSauGiam);
 
-			// Tính trung bình đánh giá
 			List<DanhGia> danhGias = danhGiaService.findBySanPham(sanPham);
 			Double averageRating = danhGias.stream().mapToInt(DanhGia::getSoSao).average().orElse(0.0);
-			sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
+			sanPhamAverageRatingMap.put(maSanPham, averageRating);
 
-			// Map thương hiệu
 			ThuongHieu thuongHieu = sanPham.getThuongHieu();
-			if (thuongHieu != null) {
-				sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), thuongHieu.getTenThuongHieu());
-			} else {
-				sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), "Không xác định");
-			}
-			sanPhamSoLuongTonKhoMap.put(sanPham.getMaSanPham(), soLuongTonKho);
+			sanPhamThuongHieuMap.put(maSanPham, thuongHieu != null ? thuongHieu.getTenThuongHieu() : "Không xác định");
+
+			sanPhamSoLuongTonKhoMap.put(maSanPham, soLuongTonKho);
 		}
+
+		
+		
 
 		// Lấy danh mục và thêm vào model
 		List<DanhMuc> danhMucs = danhMucService.getAll();
@@ -247,6 +317,12 @@ public class CustomerController {
 			}
 			brandGroups.add(group);
 		}
+		
+		model.addAttribute("sanPhamsSapKhuyenMai", sanPhamsSapKhuyenMai);
+		model.addAttribute("sanPhamSapKhuyenMaiMap", sanPhamSapKhuyenMaiMap);
+		System.out.println("Số sản phẩm sắp khuyến mãi: " + sanPhamsSapKhuyenMai.size());
+
+		model.addAttribute("sanPhamsKhuyenMai", sanPhamsKhuyenMai);
 
 		model.addAttribute("categoryGroups", categoryGroups);
 		model.addAttribute("brandGroups", brandGroups);

@@ -1,5 +1,6 @@
 package com.kimngan.ComesticAdmin.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
@@ -100,8 +101,15 @@ public class DanhGiaServiceImpl implements DanhGiaService {
 		 danhGiaRepository.deleteById(maDanhGia);
 	}
 
+	@Override
+    public List<Object[]> thongKeSanPhamDanhGiaCao(LocalDateTime from, LocalDateTime to) {
+        return danhGiaRepository.thongKeSanPhamDanhGiaCao(from, to);
+    }
 
-	
+    @Override
+    public List<DanhGia> getDanhGiaBySanPhamId(Integer maSanPham) {
+        return danhGiaRepository.findDanhGiaBySanPhamId(maSanPham);
+    }
 
 	
 
