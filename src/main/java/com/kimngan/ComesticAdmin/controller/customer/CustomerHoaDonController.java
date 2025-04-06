@@ -5,6 +5,7 @@ import java.security.Principal;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,13 +73,17 @@ public class CustomerHoaDonController {
 	@GetMapping("/hoadon")
 	public String getHoaDons(Model model) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
 		List<HoaDon> hoaDons = hoaDonService.getHoaDonsByCustomer(username).stream()
 				.filter(hoaDon -> "Đã xác nhận".equals(hoaDon.getTrangThaiThanhToan())
 						|| "Đã hoàn thành".equals(hoaDon.getTrangThaiThanhToan()))
+				.sorted(Comparator.comparing(HoaDon::getMaHoaDon).reversed()) // 🔽 Sắp xếp giảm dần theo mã
 				.collect(Collectors.toList());
+
 		model.addAttribute("hoaDons", hoaDons);
 		return "customer/hoadon";
 	}
+
 
 	@GetMapping("/hoadon/{maDonHang}")
 	public String viewHoaDon(@PathVariable("maDonHang") Integer maDonHang, Model model, Principal principal) {

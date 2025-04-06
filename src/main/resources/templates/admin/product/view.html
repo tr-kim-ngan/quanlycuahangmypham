@@ -33,8 +33,15 @@
 
 							<!-- Bảng thông tin sản phẩm -->
 							<div class="row mb-2">
-								<div class="col-md-6">
+								<!-- Hình ảnh -->
+								<div class="mb-3" style="text-align: center;">
 									<p><strong>Tên sản phẩm:</strong> <span th:text="${sanPham.tenSanPham}"></span></p>
+									<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
+										style="width: 200px; height: auto; border: 1px solid #ccc; padding: 5px;">
+								</div>
+								<div class="col-md-6">
+									<!--<p><strong>Tên sản phẩm:</strong> <span th:text="${sanPham.tenSanPham}"></span></p>
+									-->
 									<p><strong>Giá bán:</strong> <span th:text="${formattedPrice}"></span></p>
 									<p><strong>Số lượng đã bán:</strong> <span th:text="${soldQuantity}"></span></p>
 									<p><strong>Số lượng trên kệ:</strong> <span th:text="${sanPham.soLuong}"></span></p>
@@ -81,12 +88,12 @@
 								</div>
 							</div>
 
-							<!-- Hình ảnh -->
+							<!-- Hình ảnh 
 							<div class="mb-3">
 								<p><strong>Hình ảnh sản phẩm:</strong></p>
 								<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
 									style="width: 200px; height: auto; border: 1px solid #ccc; padding: 5px;">
-							</div>
+							</div>-->
 						</div>
 					</div>
 

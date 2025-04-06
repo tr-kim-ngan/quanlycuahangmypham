@@ -111,11 +111,14 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 
 	// Top sản phẩm được đặt nhiều nhất
 
-	@Query("SELECT ctdh.sanPham.tenSanPham, SUM(ctdh.soLuong) " + "FROM ChiTietDonHang ctdh "
-			+ "WHERE ctdh.donHang.ngayDat BETWEEN :from AND :to " + "GROUP BY ctdh.sanPham.tenSanPham "
-			+ "ORDER BY SUM(ctdh.soLuong) DESC")
-	List<Object[]> findTopSanPham(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+	@Query("SELECT ctdh.sanPham.tenSanPham, SUM(ctdh.soLuong), ctdh.sanPham.maSanPham " +
+		       "FROM ChiTietDonHang ctdh " +
+		       "WHERE ctdh.donHang.ngayDat BETWEEN :from AND :to " +
+		       "GROUP BY ctdh.sanPham.tenSanPham, ctdh.sanPham.maSanPham " +
+		       "ORDER BY SUM(ctdh.soLuong) DESC")
+		List<Object[]> findTopSanPham(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
+	
 	@Query("""
 			    SELECT
 			        FUNCTION('DATE', dh.ngayDat) AS ngay,
@@ -136,23 +139,30 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 			""")
 	List<Object[]> getDoanhThuVaLoiNhuanTheoNgay(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
+	
+	
 	@Query("""
-			    SELECT
-			        ctdh.sanPham.tenSanPham,
-			        SUM(ctdh.giaTaiThoiDiemDat * ctdh.soLuong),
-			        SUM((ctdh.giaTaiThoiDiemDat - (
-			            SELECT COALESCE(AVG(ctdnh.donGiaNhap), 0)
-			            FROM ChiTietDonNhapHang ctdnh
-			            WHERE ctdnh.sanPham.maSanPham = ctdh.sanPham.maSanPham
-			        )) * ctdh.soLuong)
-			    FROM ChiTietDonHang ctdh
-			    WHERE ctdh.donHang.ngayDat BETWEEN :from AND :to
-			        AND ctdh.donHang.trangThaiDonHang = 'Đã hoàn thành'
-			    GROUP BY ctdh.sanPham.tenSanPham
-			    ORDER BY SUM(ctdh.giaTaiThoiDiemDat * ctdh.soLuong) DESC
-			""")
-	List<Object[]> getDoanhThuVaLoiNhuanTheoSanPham(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
-
+		    SELECT
+		        ctdh.sanPham.tenSanPham,
+		        ctdh.sanPham.maSanPham,
+		        SUM(ctdh.giaTaiThoiDiemDat * ctdh.soLuong),
+		        SUM((ctdh.giaTaiThoiDiemDat - (
+		            SELECT COALESCE(AVG(ctdnh.donGiaNhap), 0)
+		            FROM ChiTietDonNhapHang ctdnh
+		            WHERE ctdnh.sanPham.maSanPham = ctdh.sanPham.maSanPham
+		        )) * ctdh.soLuong)
+		    FROM ChiTietDonHang ctdh
+		    WHERE ctdh.donHang.ngayDat BETWEEN :from AND :to
+		      AND ctdh.donHang.trangThaiDonHang = 'Đã hoàn thành'
+		    GROUP BY ctdh.sanPham.tenSanPham, ctdh.sanPham.maSanPham
+		    ORDER BY SUM(ctdh.giaTaiThoiDiemDat * ctdh.soLuong) DESC
+		""")
+		List<Object[]> getDoanhThuVaLoiNhuanTheoSanPham(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+	
+	
+	
+	
+	
 	@Query("""
 			    SELECT
 			        ctdh.sanPham.tenSanPham,
@@ -163,15 +173,19 @@ public interface DonHangRepository extends JpaRepository<DonHang, Integer> {
 			            SELECT AVG(ctn.donGiaNhap)
 			            FROM ChiTietDonNhapHang ctn
 			            WHERE ctn.sanPham.maSanPham = ctdh.sanPham.maSanPham
-			        )) * ctdh.soLuong)
+			        )) * ctdh.soLuong),
+			         ctdh.sanPham.maSanPham 
 			    FROM ChiTietDonHang ctdh
 			    WHERE ctdh.donHang.ngayDat BETWEEN :from AND :to
 			    AND ctdh.donHang.trangThaiDonHang = 'Đã hoàn thành'
-			    GROUP BY ctdh.sanPham.tenSanPham
+			    GROUP BY ctdh.sanPham.tenSanPham,ctdh.sanPham.maSanPham
 			    ORDER BY SUM(ctdh.soLuong) DESC
 			""")
 	List<Object[]> thongKeSanPhamBanChayChiTiet(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
+	
+	
+	
 	@Query("SELECT dh.trangThaiDonHang, COUNT(dh) FROM DonHang dh GROUP BY dh.trangThaiDonHang")
 	List<Object[]> thongKeDonHangTheoTrangThai();
 

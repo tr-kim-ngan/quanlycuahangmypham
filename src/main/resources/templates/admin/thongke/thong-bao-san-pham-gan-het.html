@@ -91,7 +91,7 @@
 							<tbody>
 								<tr th:each="sp, iter : ${sanPhamGanHet}">
 									<td th:text="${iter.count}"></td>
-									<td th:text="${sp.tenSanPham}"></td>
+									<td th:text="${sp.tenSanPham + ' (' + sp.maSanPham + ')'}"></td>
 									<td th:text="${sp.soLuong}"></td>
 									<td th:text="${tonKhos[iter.index]}"></td>
 								</tr>
@@ -101,18 +101,18 @@
 					<div class="mt-4">
 						<h5>📦 Danh sách sản phẩm chưa từng nhập kho</h5>
 						<table class="table table-bordered">
-							<thead >
+							<thead>
 								<tr>
 									<th>STT</th>
 									<th>Tên sản phẩm</th>
-									
+
 								</tr>
 							</thead>
 							<tbody>
 								<tr th:each="sp, iter : ${chuaNhap}">
 									<td th:text="${iter.count}"></td>
-									<td th:text="${sp.tenSanPham}"></td>
-									
+									<td th:text="${sp.tenSanPham + ' (' + sp.maSanPham + ')'}"></td>
+
 								</tr>
 							</tbody>
 						</table>
@@ -211,7 +211,7 @@
 		function toggleRightPanel() {
 			const panel = document.getElementById("right-panel");
 			panel.style.right = (panel.style.right === "0px") ? "-250px" : "0px";
-		} F
+		}
 	</script>
 
 	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>

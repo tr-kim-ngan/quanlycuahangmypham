@@ -1,10 +1,12 @@
 package com.kimngan.ComesticAdmin.controller.admin;
 
+import com.kimngan.ComesticAdmin.entity.DanhGia;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.entity.SanPham;
 import com.kimngan.ComesticAdmin.repository.SanPhamRepository;
 import com.kimngan.ComesticAdmin.services.ChiTietDonHangService;
 import com.kimngan.ComesticAdmin.services.ChiTietDonNhapHangService;
+import com.kimngan.ComesticAdmin.services.DanhGiaService;
 import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.DonNhapHangService;
 import com.kimngan.ComesticAdmin.services.HoaDonService;
@@ -71,6 +73,8 @@ public class AdminController {
 
 	@Autowired
 	private HoaDonService hoaDonService;
+	@Autowired
+	private DanhGiaService danhGiaService;
 
 	@GetMapping({ "", "/index" })
 	public String adminHome(Model model) {
@@ -148,7 +152,9 @@ public class AdminController {
 					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
 					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
 
-			tenSanPhams.add(sp.getTenSanPham());
+			//tenSanPhams.add(sp.getTenSanPham());
+			tenSanPhams.add(sp.getTenSanPham() + " (" + sp.getMaSanPham() + ")");
+
 			tonKhos.add(soLuongTonKho);
 		}
 
@@ -166,7 +172,9 @@ public class AdminController {
 					? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
 					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
 
-			tenSanPhamsAll.add(sp.getTenSanPham());
+		//	tenSanPhamsAll.add(sp.getTenSanPham());
+			tenSanPhamsAll.add(sp.getTenSanPham() + " (" + sp.getMaSanPham() + ")");
+
 			tonKhosAll.add(soLuongTonKho);
 		}
 		NguoiDungDetails nguoiDungDetails = (NguoiDungDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -204,7 +212,10 @@ public class AdminController {
 
 		for (Object[] row : results) {
 			if (row[0] != null && row[1] != null) {
-				labels.add(row[0].toString());
+				String tenSp = row[0].toString();
+				Integer maSp = (Integer) row[2];
+				labels.add(tenSp + " (" + maSp + ")");
+
 				values.add(((Number) row[1]).intValue());
 			}
 		}
@@ -367,7 +378,7 @@ public class AdminController {
 		model.addAttribute("topCustomers", topCustomers);
 		model.addAttribute("topProducts", topProducts);
 
-		return "admin/thongke/thong-ke-xuat"; 
+		return "admin/thongke/thong-ke-xuat";
 	}
 
 	@GetMapping("/thongke/donhang")
@@ -512,21 +523,37 @@ public class AdminController {
 		List<Long> soLuongs = new ArrayList<>();
 
 		for (Object[] row : topSanPham) {
-			tenSanPhams.add(row[0].toString());
-			soLuongs.add((Long) row[1]);
+		    String ten = (String) row[0];
+		    Long soLuong = (Long) row[1];
+		    Integer ma = (Integer) row[2];
+
+		    tenSanPhams.add(ten + " (" + ma + ")");
+		    soLuongs.add(soLuong);
 		}
+
 		// Dữ liệu bảng chi tiết
 		List<Object[]> chiTiet = donHangService.thongKeSanPhamBanChayChiTiet(fromDateTime, toDateTime);
 		List<Map<String, Object>> sanPhamStats = new ArrayList<>();
 		for (Object[] row : chiTiet) {
-			Map<String, Object> map = new HashMap<>();
-			map.put("tenSanPham", row[0]);
-			map.put("soLuong", row[1]);
-			map.put("doanhThu", BigDecimal.valueOf(((Number) row[2]).doubleValue()));
-			map.put("donGiaTB", BigDecimal.valueOf(((Number) row[3]).doubleValue()));
-			map.put("loiNhuan", BigDecimal.valueOf(((Number) row[4]).doubleValue()));
-			sanPhamStats.add(map);
+		    Map<String, Object> map = new HashMap<>();
+
+		    String ten = (String) row[0];
+		    Long soLuong = (Long) row[1];
+		    BigDecimal doanhThu = BigDecimal.valueOf(((Number) row[2]).doubleValue());
+		    BigDecimal donGiaTB = BigDecimal.valueOf(((Number) row[3]).doubleValue());
+		    BigDecimal loiNhuan = BigDecimal.valueOf(((Number) row[4]).doubleValue());
+		    Integer maSanPham = (Integer) row[5]; 
+
+		    
+		    map.put("tenSanPham", ten + " (" + maSanPham + ")");
+		    map.put("soLuong", soLuong);
+		    map.put("doanhThu", doanhThu);
+		    map.put("donGiaTB", donGiaTB);
+		    map.put("loiNhuan", loiNhuan);
+
+		    sanPhamStats.add(map);
 		}
+
 
 		// Thống kê sản phẩm bị trả nhiều nhất
 		List<Object[]> traNhieu = donHangService.thongKeSanPhamBiTraNhieuNhat();
@@ -537,12 +564,14 @@ public class AdminController {
 		for (Object[] row : traNhieu) {
 			String ten = (String) row[0];
 			Long soLuong = (Long) row[1];
+			Integer ma = (Integer) row[2];
 
-			tenSanPhamsTra.add(ten);
+			String tenCoMa = ten + " (" + ma + ")";
+			tenSanPhamsTra.add(tenCoMa);
 			soLuongTras.add(soLuong);
 
 			Map<String, Object> map = new HashMap<>();
-			map.put("tenSanPham", ten);
+			map.put("tenSanPham", tenCoMa);
 			map.put("soLuongTra", soLuong);
 			sanPhamHoanTra.add(map);
 		}
@@ -724,7 +753,7 @@ public class AdminController {
 		List<Map<String, Object>> bangChiTietHuy = new ArrayList<>();
 		for (int i = 0; i < tenKhachHuy.size(); i++) {
 			Map<String, Object> map = new HashMap<>();
-			 String hoTen = tenKhachHuy.get(i);
+			String hoTen = tenKhachHuy.get(i);
 
 			map.put("hoTen", (hoTen == null || hoTen.trim().isEmpty()) ? "không xác định" : hoTen);
 			map.put("tenNguoiDung", tenNguoiDungHuy.get(i));
@@ -749,6 +778,83 @@ public class AdminController {
 
 		return "admin/thongke/thong-ke-khach-hang";
 	}
+
+	@GetMapping("/thongke/danhgia")
+	public String thongKeDanhGiaSanPham(
+			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+			Model model) {
+
+		if (fromDate == null)
+			fromDate = LocalDate.now().minusDays(30);
+		if (toDate == null)
+			toDate = LocalDate.now();
+
+		LocalDateTime fromDateTime = fromDate.atStartOfDay();
+		LocalDateTime toDateTime = toDate.atTime(23, 59, 59);
+
+		List<Object[]> thongKeCao = danhGiaService.thongKeSanPhamDanhGiaCao(fromDateTime, toDateTime);
+		List<Map<String, Object>> danhSachThongKe = new ArrayList<>();
+
+		for (Object[] row : thongKeCao) {
+			Map<String, Object> item = new HashMap<>();
+			String tenSanPham = (String) row[0];
+			Integer maSanPham = (Integer) row[1];
+			Double diemTrungBinh = (Double) row[2];
+			Long soDanhGia = (Long) row[3];
+			String hinhAnh = (String) row[4];
+
+			List<DanhGia> chiTietDanhGias = danhGiaService.getDanhGiaBySanPhamId(maSanPham);
+
+			item.put("tenSanPham", tenSanPham);
+			item.put("maSanPham", maSanPham);
+			item.put("diemTrungBinh", diemTrungBinh);
+			item.put("soDanhGia", soDanhGia);
+			item.put("hinhAnh", hinhAnh);
+			item.put("danhGias", chiTietDanhGias);
+
+			danhSachThongKe.add(item);
+		}
+
+		List<String> highRatingLabels = new ArrayList<>();
+		List<Double> highRatingValues = new ArrayList<>();
+
+		List<String> lowRatingLabels = new ArrayList<>();
+		List<Double> lowRatingValues = new ArrayList<>();
+
+		for (Map<String, Object> sp : danhSachThongKe) {
+		    Double trungBinh = (Double) sp.get("diemTrungBinh");
+		    String tenSanPham = (String) sp.get("tenSanPham");
+		    Integer maSanPham = (Integer) sp.get("maSanPham");
+
+		    String label = tenSanPham + " (" + maSanPham + ")";
+		    
+		    if (trungBinh != null) {
+		        if (trungBinh >= 3.0) {
+		            highRatingLabels.add(label);
+		            highRatingValues.add(trungBinh);
+		        } else {
+		            lowRatingLabels.add(label);
+		            lowRatingValues.add(trungBinh);
+		        }
+		    }
+		}
+
+		NguoiDungDetails nguoiDungDetails = (NguoiDungDetails) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		model.addAttribute("user", nguoiDungDetails);
+		model.addAttribute("highRatingLabels", highRatingLabels);
+		model.addAttribute("highRatingValues", highRatingValues);
+		model.addAttribute("lowRatingLabels", lowRatingLabels);
+		model.addAttribute("lowRatingValues", lowRatingValues);
+
+		
+		model.addAttribute("fromDate", fromDate);
+		model.addAttribute("toDate", toDate);
+		model.addAttribute("danhSachThongKe", danhSachThongKe);
+		return "admin/thongke/thong-ke-danh-gia";
+	}
+
 
 	@GetMapping("/revenue-data")
 	public ResponseEntity<Map<String, List<Map<String, Object>>>> getRevenueData() {

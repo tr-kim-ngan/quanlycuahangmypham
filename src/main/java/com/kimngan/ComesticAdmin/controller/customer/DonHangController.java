@@ -111,10 +111,13 @@ public class DonHangController {
 	}
 
 	@GetMapping
-	public String viewOrders(@RequestParam(value = "status", required = false, defaultValue = "all") String status,
-			 @RequestParam(value = "type", required = false, defaultValue = "all") String type,
-			@RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "2") int size, Principal principal, Model model) {
+	public String viewOrders(
+			   @RequestParam(value = "status", required = false, defaultValue = "all") String status,
+			    @RequestParam(value = "type", required = false, defaultValue = "all") String type,
+			    @RequestParam(value = "page", defaultValue = "0") int page,
+			    Principal principal,
+			    Model model) {
+		  int size = 8;
 		if (page < 0) {
 			page = 0; // Đảm bảo không để số âm gây lỗi
 		}

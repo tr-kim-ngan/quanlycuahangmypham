@@ -21,7 +21,7 @@
 				style="padding: 20px; background-color: #faeee7; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);">
 				<div class="page-inner">
 					<div class="d-flex justify-content-between align-items-center mb-4">
-						<h3 class="mb-0">Thống kê đơn hàng</h3>
+						<h3 class="mb-0">Thống Kê Đánh Giá</h3>
 						<button class="btn btn-outline-dark" onclick="toggleRightPanel()">☰ Thống kê</button>
 
 					</div>
@@ -59,6 +59,7 @@
 									Đánh Giá
 								</a>
 							</li>
+
 							<li style="padding: 10px 20px;">
 								<a th:href="@{/admin/thongke/trangthai-donhang}"
 									th:classappend="${activeMenu == 'tong-gia-tri'} ? 'active'">Trạng thái đơn hàng</a>
@@ -66,8 +67,7 @@
 
 						</ul>
 					</div>
-
-					<form method="GET" th:action="@{/admin/thongke/donhang}"
+					<form method="GET" th:action="@{/admin/thongke/danhgia}"
 						style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;">
 						<label class="mb-0">Từ ngày:</label>
 						<input type="date" name="fromDate" th:value="${fromDate}" required class="form-control"
@@ -78,55 +78,45 @@
 						<button type="submit" class="btn btn-primary">Lọc</button>
 					</form>
 
-					<!-- Tổng số đơn -->
-					<div style="text-align: center; font-size: 24px; font-weight: bold;">
-						Tổng số đơn hàng trong khoảng thời gian:
-						<span style="color: #007bff;" th:text="${tongSoDon} + ' đơn'"></span>
-					</div>
-					<div style="max-width: 1000px; margin: 30px auto;">
-						<canvas id="donHangChart" height="100"></canvas>
+					<div class="mb-4">
+						<h5>Biểu đồ sản phẩm đánh giá cao</h5>
+						<canvas id="highRatingChart" style="max-height: 300px;"></canvas>
 					</div>
 
-					<h4 class="mt-5">👑 Top khách hàng đặt nhiều đơn nhất</h4>
-					<table class="table table-striped">
-						<thead>
-							<tr>
-								<th>STT</th>
-								<!--	<th>Tên đăng nhập</th>-->
-								<th>Họ tên</th>
-								<th>Số điện thoại</th>
-								<th>Số đơn hàng</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr th:each="kh, iterStat : ${topKhachHang}">
-								<td th:text="${iterStat.count}"></td>
-								<!--<td th:text="${kh[0]}"></td> -->
-								<td th:text="${kh[1]}"></td> <!-- hoTen -->
-								<td th:text="${kh[2]}"></td> <!-- soDienThoai -->
-								<td th:text="${kh[3]}"></td> <!-- số đơn -->
-							</tr>
-						</tbody>
-					</table>
+					<div class="mb-4">
+						<h5>Biểu đồ sản phẩm đánh giá thấp</h5>
+						<canvas id="lowRatingChart" style="max-height: 300px;"></canvas>
+					</div>
 
-					<h4 class="mt-5">🔥 Top sản phẩm được đặt nhiều nhất</h4>
-					<table class="table table-hover">
-						<thead>
-							<tr>
-								<th>STT</th>
-								<th>Sản phẩm</th>
-								<th>Tổng số lượng đặt</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr th:each="sp, iterStat : ${topSanPham}">
-								<td th:text="${iterStat.count}"></td>
-								<td th:text="${sp[0]} + ' (' + ${sp[2]} + ')'"></td> 
-								<td th:text="${sp[1]}"></td>
-							</tr>
-						</tbody>
-					</table>
 
+					<!-- Bảng chi tiết đánh giá -->
+					<div class="mt-4">
+						<h4>Chi tiết đánh giá sản phẩm</h4>
+						<div th:each="sp : ${danhSachThongKe}">
+							<hr>
+							<h5 th:text="${sp.tenSanPham + ' (' + sp.maSanPham + ')'}"></h5>
+
+							<p>
+								<strong>Trung bình sao:</strong>
+								<span th:text="${sp.diemTrungBinh}"></span> ★ |
+								<strong>Tổng lượt đánh giá:</strong>
+								<span th:text="${sp.soDanhGia}"></span>
+							</p>
+							<div th:each="dg : ${sp.danhGias}" class="mb-3 p-2"
+								style="background-color: #fff; border-radius: 6px;">
+								<p><strong th:text="${dg.nguoiDung.hoTen}"></strong> -
+									<span
+										th:text="${dg.thoiGianDanhGia != null ? #temporals.format(dg.thoiGianDanhGia, 'dd/MM/yyyy HH:mm') : ''}"></span>
+								</p>
+								<p>Số sao: <span th:text="${dg.soSao}"></span> ★</p>
+								<p>Nội dung: <span th:text="${dg.noiDung}"></span></p>
+								<p th:if="${dg.adminReply != null}">
+									<em>Phản hồi admin: <span th:text="${dg.adminReply}"></span></em>
+								</p>
+							</div>
+
+						</div>
+					</div>
 
 
 				</div>
@@ -138,41 +128,61 @@
 		</div>
 	</div>
 
-	<!-- Scripts -->
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script th:inline="javascript">
-		const labels = /*[[${ngayLabels}]]*/[];
-		const values = /*[[${soDonTheoNgay}]]*/[];
 
-		const ctx = document.getElementById('donHangChart').getContext('2d');
-		new Chart(ctx, {
+	<!-- Thymeleaf sẽ render đúng nếu có th:inline -->
+	<script th:inline="javascript">
+		const highRatingLabels = /*[[${highRatingLabels}]]*/[];
+		const highRatingValues = /*[[${highRatingValues}]]*/[];
+
+		const lowRatingLabels = /*[[${lowRatingLabels}]]*/[];
+		const lowRatingValues = /*[[${lowRatingValues}]]*/[];
+
+		const highCtx = document.getElementById('highRatingChart').getContext('2d');
+		const lowCtx = document.getElementById('lowRatingChart').getContext('2d');
+
+		new Chart(highCtx, {
 			type: 'bar',
 			data: {
-				labels: labels,
+				labels: highRatingLabels,
 				datasets: [{
-					label: 'Số đơn hàng mỗi ngày',
-					data: values,
-					backgroundColor: 'rgba(54, 162, 235, 0.7)',
-					borderColor: 'rgba(54, 162, 235, 1)',
-					borderWidth: 1
+					label: 'Trung bình sao cao',
+					data: highRatingValues,
+					backgroundColor: 'rgba(75, 192, 192, 0.7)'
 				}]
 			},
 			options: {
-				responsive: true,
 				scales: {
-					y: {
-						beginAtZero: true
-					}
+					y: {beginAtZero: true, max: 5}
 				}
 			}
 		});
 
+		new Chart(lowCtx, {
+			type: 'bar',
+			data: {
+				labels: lowRatingLabels,
+				datasets: [{
+					label: 'Trung bình sao thấp',
+					data: lowRatingValues,
+					backgroundColor: 'rgba(255, 99, 132, 0.7)'
+				}]
+			},
+			options: {
+				scales: {
+					y: {beginAtZero: true, max: 5}
+				}
+			}
+		});
 		function toggleRightPanel() {
 			const panel = document.getElementById("right-panel");
 			panel.style.right = (panel.style.right === "0px") ? "-250px" : "0px";
 		}
 
 	</script>
+
+
+
 
 	<script th:src="@{/assets/js/core/bootstrap.min.js}"></script>
 </body>

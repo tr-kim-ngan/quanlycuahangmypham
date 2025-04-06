@@ -85,19 +85,31 @@ public interface ChiTietDonHangRepository extends JpaRepository<ChiTietDonHang, 
 
 	
 	
-	@Query("SELECT ctdh.sanPham.tenSanPham, SUM(ctdh.soLuong) " +
-		       "FROM ChiTietDonHang ctdh " +
-		       "WHERE ctdh.donHang.ngayDat BETWEEN :from AND :to " +
-		       "AND ctdh.donHang.trangThaiDonHang = 'Đã hoàn thành' " +
-		       "GROUP BY ctdh.sanPham.tenSanPham " +
-		       "ORDER BY SUM(ctdh.soLuong) DESC")
+//	@Query("SELECT ctdh.sanPham.tenSanPham, SUM(ctdh.soLuong) " +
+//		       "FROM ChiTietDonHang ctdh " +
+//		       "WHERE ctdh.donHang.ngayDat BETWEEN :from AND :to " +
+//		       "AND ctdh.donHang.trangThaiDonHang = 'Đã hoàn thành' " +
+//		       "GROUP BY ctdh.sanPham.tenSanPham " +
+//		       "ORDER BY SUM(ctdh.soLuong) DESC")
+//		List<Object[]> findTopSanPhamBanChay(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+	@Query("""
+		    SELECT ctdh.sanPham.tenSanPham, SUM(ctdh.soLuong), ctdh.sanPham.maSanPham
+		    FROM ChiTietDonHang ctdh
+		    WHERE ctdh.donHang.ngayDat BETWEEN :from AND :to
+		      AND ctdh.donHang.trangThaiDonHang = 'Đã hoàn thành'
+		    GROUP BY ctdh.sanPham.tenSanPham, ctdh.sanPham.maSanPham
+		    ORDER BY SUM(ctdh.soLuong) DESC
+		""")
 		List<Object[]> findTopSanPhamBanChay(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
-
-		@Query("SELECT ctdh.sanPham.tenSanPham, SUM(ctdh.soLuong) FROM ChiTietDonHang ctdh "
-				+ "WHERE ctdh.donHang.trangThaiDonHang IN ('Đã hủy', 'Giao thất bại') "
-				+ "GROUP BY ctdh.sanPham.tenSanPham " + "ORDER BY SUM(ctdh.soLuong) DESC")
-		List<Object[]> thongKeSanPhamBiTraNhieuNhat();
+		@Query("""
+			    SELECT ctdh.sanPham.tenSanPham, SUM(ctdh.soLuong), ctdh.sanPham.maSanPham
+			    FROM ChiTietDonHang ctdh
+			    WHERE ctdh.donHang.trangThaiDonHang IN ('Đã hủy', 'Giao thất bại')
+			    GROUP BY ctdh.sanPham.tenSanPham, ctdh.sanPham.maSanPham
+			    ORDER BY SUM(ctdh.soLuong) DESC
+			""")
+			List<Object[]> thongKeSanPhamBiTraNhieuNhat();
 
 	
 }
