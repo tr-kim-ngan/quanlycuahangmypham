@@ -71,19 +71,42 @@
 
 
 		<div class="px-4 py-3">
-			<!-- Thanh tìm kiếm -->
-			<form th:action="@{/seller/offline-orders}" method="get" class="d-flex mb-4">
-				<input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm sản phẩm..."
-					class="form-control me-2" style="max-width: 300px;">
-				<button type="submit" class="btn btn-primary">Tìm kiếm</button>
-				<input type="hidden" name="selectedProductIds" th:value="${#strings.listJoin(selectedProductIds, ',')}">
-				<input type="hidden" name="selectedQuantities" th:value="${#strings.listJoin(selectedQuantities, ',')}">
-			</form>
+			<!-- Gộp cả hai form trong một khối flex-wrap -->
+			<div class="d-flex flex-wrap align-items-center justify-content-start mb-4" style="gap: 15px;">
+
+				<!-- Tìm theo tên sản phẩm -->
+				<form th:action="@{/seller/offline-orders}" method="get" class="d-flex align-items-center"
+					style="gap: 10px;">
+					<input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm sản phẩm..."
+						class="form-control" style="width: 250px;">
+					<button type="submit" class="btn btn-primary">Tìm kiếm</button>
+					<input type="hidden" name="selectedProductIds"
+						th:value="${#strings.listJoin(selectedProductIds, ',')}">
+					<input type="hidden" name="selectedQuantities"
+						th:value="${#strings.listJoin(selectedQuantities, ',')}">
+				</form>
+
+				<!-- Tìm theo mã sản phẩm -->
+				<form th:action="@{/seller/offline-orders}" method="get" class="d-flex align-items-center"
+					style="gap: 10px;">
+					<input type="text" name="maSanPham" th:value="${maSanPham}" placeholder="Tìm theo mã sản phẩm"
+						class="form-control" style="width: 250px;">
+					<button type="submit" class="btn btn-primary">Tìm theo mã</button>
+					<input type="hidden" name="selectedProductIds"
+						th:value="${#strings.listJoin(selectedProductIds, ',')}">
+					<input type="hidden" name="selectedQuantities"
+						th:value="${#strings.listJoin(selectedQuantities, ',')}">
+				</form>
+
+			</div>
+
+
 
 			<!-- Bảng sản phẩm -->
 			<table border="1" cellspacing="0" cellpadding="10" style="width: 100%; background-color: white;">
 				<thead style="background-color: #1f2a40; color: white;">
 					<tr>
+						<th>Mã SP</th>
 						<th>Hình ảnh</th>
 						<th>Sản phẩm</th>
 						<th>Giá</th>
@@ -93,6 +116,7 @@
 				</thead>
 				<tbody>
 					<tr th:each="sp : ${sanPhamList}">
+						<td th:text="${sp.maSanPham}"></td>
 						<td class="text-center"><img th:src="@{/upload/} + ${sp.hinhAnh}" style="width: 80px;"></td>
 						<td th:text="${sp.tenSanPham}"></td>
 						<td>

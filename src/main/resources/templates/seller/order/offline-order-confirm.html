@@ -151,14 +151,16 @@
 			</div>
 
 			<!-- Nhập số điện thoại -->
+			<!-- Nhập số điện thoại -->
 			<form th:action="@{/seller/offline-orders/check-phone}" method="POST"
 				class="d-flex justify-content-center align-items-center mb-4">
 				<label for="soDienThoai" class="me-2 fw-bold">Số điện thoại khách hàng:</label>
-				<input type="text" id="soDienThoai" name="soDienThoai" class="form-control me-2"
-					placeholder="Nhập số điện thoại (bỏ trống nếu là khách vãng lai)"
+				<input type="text" id="soDienThoai" name="soDienThoai" class="form-control w-auto me-2"
+					style="min-width: 400px;" placeholder="Nhập số điện thoại (bỏ trống nếu là khách vãng lai)"
 					th:value="${soDienThoai != '0000000000' ? soDienThoai : ''}">
 				<button type="submit" class="btn btn-primary">Kiểm tra</button>
 			</form>
+
 
 			<!-- Tên khách hàng -->
 			<div class="text-center" th:if="${tenKhachHang != null}">

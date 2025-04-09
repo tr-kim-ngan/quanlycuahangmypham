@@ -249,7 +249,9 @@
 							<!-- Số lượng còn lại -->
 							<span class="remaining-quantity"
 								style="font-size: 12px; color: #555; display: block; margin-top: 5px;">
-								Số lượng: <span th:text="${sanPhamSoLuongTonKhoMap[sanPham.maSanPham]}" style="font-size: 12px;">0</span>
+								Số lượng:<span th:if="${sanPhamSoLuongTonKhoMap != null}"
+									th:text="${sanPhamSoLuongTonKhoMap[sanPham.maSanPham]}">0</span>
+
 								<span class="qty" th:text="${sanPham.donViTinh.tenDonVi}" style="font-size: 11px;">Đơn
 									vị tính</span>
 							</span>

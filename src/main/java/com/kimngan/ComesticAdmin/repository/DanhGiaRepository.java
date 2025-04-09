@@ -42,5 +42,15 @@ public interface DanhGiaRepository extends JpaRepository<DanhGia, Integer> {
 
 	@Query("SELECT d FROM DanhGia d WHERE d.sanPham.maSanPham = :maSanPham ORDER BY d.thoiGianDanhGia DESC")
 	List<DanhGia> findDanhGiaBySanPhamId(@Param("maSanPham") Integer maSanPham);
+	
+	@Query("SELECT dg FROM DanhGia dg JOIN FETCH dg.sanPham JOIN FETCH dg.nguoiDung WHERE dg.sanPham.trangThai = true")
+	Page<DanhGia> findAllWithSanPhamAndNguoiDung(Pageable pageable);
 
+	@Query("SELECT dg FROM DanhGia dg JOIN FETCH dg.sanPham JOIN FETCH dg.nguoiDung WHERE dg.sanPham.trangThai = true AND dg.soSao = :soSao")
+	Page<DanhGia> findAllWithSanPhamAndNguoiDungBySoSao(@Param("soSao") int soSao, Pageable pageable);
+
+	@Query("SELECT dg FROM DanhGia dg JOIN FETCH dg.sanPham sp JOIN FETCH dg.nguoiDung nd WHERE sp.maSanPham = :maSanPham")
+	Page<DanhGia> findBySanPham_MaSanPham(@Param("maSanPham") String maSanPham, Pageable pageable);
+
+	
 }

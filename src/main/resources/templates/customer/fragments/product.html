@@ -5,7 +5,8 @@
 		<div class="row">
 			<div class="col-md-12">
 				<div class="bootstrap-tabs product-tabs">
-					<div class="tabs-header d-flex justify-content-between border-bottom my-5">
+					<div th:if="${sanPhamsSapKhuyenMai != null and !sanPhamsSapKhuyenMai.isEmpty()}"
+					 class="tabs-header d-flex justify-content-between border-bottom my-5">
 						<h3 style="color: #007bff; text-align: center; width: 100%;">🕓 Sản phẩm sắp khuyến mãi</h3>
 					</div>
 

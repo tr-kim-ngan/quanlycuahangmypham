@@ -23,6 +23,7 @@ public interface SanPhamService {
 	Boolean delete(Integer maSanPham);
 
 	Boolean update(SanPham SanPham);
+	Page<SanPham> searchActiveByMaSanPham(String maSanPham, Pageable pageable);
 
 	Page<SanPham> findAll(Pageable pageable);
 
@@ -62,6 +63,9 @@ public interface SanPhamService {
 	 List<SanPham> findAllWithDanhGiasAndTrangThaiTrue();
 
 	 List<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(int soSao);
+	 Page<SanPham> findAllWithDanhGiasAndTrangThaiTrue(Pageable pageable);
+
+	 Page<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(int soSao, Pageable pageable);
 
 	 long countActiveProducts();
 	 public Page<SanPham> findActiveProductsByBrand(Integer maThuongHieu, Pageable pageable);
