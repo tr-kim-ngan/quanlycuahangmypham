@@ -111,6 +111,27 @@ public class DanhGiaServiceImpl implements DanhGiaService {
         return danhGiaRepository.findDanhGiaBySanPhamId(maSanPham);
     }
 
+	@Override
+	public Page<DanhGia> findAllWithSanPhamAndNguoiDung(Pageable pageable) {
+		// TODO Auto-generated method stub
+		 return danhGiaRepository.findAllWithSanPhamAndNguoiDung(pageable);
+	}
+
+	@Override
+	public Page<DanhGia> findAllWithSanPhamAndNguoiDungBySoSao(int soSao, Pageable pageable) {
+		// TODO Auto-generated method stub
+		  return danhGiaRepository.findAllWithSanPhamAndNguoiDungBySoSao(soSao, pageable);
+	}
+
+	@Override
+	public Page<DanhGia> findAllWithSanPhamAndNguoiDungByMaSanPham(String maSanPham, Pageable pageable) {
+		// TODO Auto-generated method stub
+		 return danhGiaRepository.findBySanPham_MaSanPham(maSanPham, pageable);
+    
+	}
+
 	
+    
+    
 
 }

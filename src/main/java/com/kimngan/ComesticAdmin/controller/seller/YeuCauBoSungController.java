@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.data.domain.Pageable;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -61,66 +62,65 @@ public class YeuCauBoSungController {
 	    return null;
 	}
 
-   @GetMapping("/products-to-request")
-   public String showProductsToRequest(Model model,
-		   @RequestParam(value = "keyword", required = false) String keyword,
-		    @RequestParam(value = "page", defaultValue = "0") int page,
-		    @RequestParam(value = "size", defaultValue = "10") int size
-		   
-		   
-		   ) {
-	   Page<SanPham> danhSachSanPham;
+	@GetMapping("/products-to-request")
+	public String showProductsToRequest(Model model,
+	        @RequestParam(value = "keyword", required = false) String keyword,
+	        @RequestParam(value = "maSanPham", required = false) String maSanPham,
+	        @RequestParam(value = "page", defaultValue = "0") int page,
+	        @RequestParam(value = "size", defaultValue = "10") int size) {
 
-	    if (keyword != null && !keyword.trim().isEmpty()) {
-	        danhSachSanPham = sanPhamService.searchActiveByName(keyword.trim(), PageRequest.of(page, size));
+	    Pageable pageable = PageRequest.of(page, size);
+	    Page<SanPham> danhSachSanPham;
+
+	    if (maSanPham != null && !maSanPham.trim().isEmpty()) {
+	        danhSachSanPham = sanPhamService.searchActiveByMaSanPham(maSanPham.trim(), pageable);
+	    } else if (keyword != null && !keyword.trim().isEmpty()) {
+	        danhSachSanPham = sanPhamService.searchActiveByName(keyword.trim(), pageable);
 	    } else {
-	        danhSachSanPham = sanPhamService.findAllActive(PageRequest.of(page, size));
+	        danhSachSanPham = sanPhamService.findAllActive(pageable);
 	    }
 
-	   
-//       List<SanPham> danhSachSanPham = sanPhamService.findByTrangThai(true);
-      List<YeuCauBoSung> danhSachYeuCau = yeuCauBoSungService.getAll();
+	    List<YeuCauBoSung> danhSachYeuCau = yeuCauBoSungService.getAll();
 
-       Map<Integer, YeuCauBoSung> daYeuCauMap = danhSachYeuCau.stream()
-           .collect(Collectors.toMap(
-               yc -> yc.getSanPham().getMaSanPham(),
-               Function.identity(),
-               (oldVal, newVal) -> newVal
-           ));
+	    Map<Integer, YeuCauBoSung> daYeuCauMap = danhSachYeuCau.stream()
+	        .collect(Collectors.toMap(
+	            yc -> yc.getSanPham().getMaSanPham(),
+	            Function.identity(),
+	            (oldVal, newVal) -> newVal
+	        ));
 
-       Map<Integer, Integer> tongSoLuongNhapMap = new HashMap<>();
-       Map<Integer, Integer> soLuongTonKhoMap = new HashMap<>();
+	    Map<Integer, Integer> tongSoLuongNhapMap = new HashMap<>();
+	    Map<Integer, Integer> soLuongTonKhoMap = new HashMap<>();
 
-       for (SanPham sanPham : danhSachSanPham) {
-           Integer maSanPham = sanPham.getMaSanPham();
+	    for (SanPham sp : danhSachSanPham.getContent()) {
+	        Integer maSP = sp.getMaSanPham();
+	        int tongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSP);
+	        int ban = chiTietDonHangService.getTotalQuantityBySanPhamId(maSP);
+	        int trenKe = sanPhamService.getSoLuongTrenKe(maSP);
+	        int delta = kiemKeKhoService.getDeltaKiemKe(maSP);
+	        int traHang = donHangService.getSoLuongTraHang(maSP);
+	        Integer tonDaDuyet = kiemKeKhoService.getLastApprovedStock(maSP);
 
-           int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
-           int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
-           int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
-           int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
-           int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+	        int tonKho = (tonDaDuyet != null)
+	                ? (tongNhap - ban - trenKe + delta + traHang)
+	                : (tongNhap - ban - trenKe + traHang);
 
-           Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+	        tongSoLuongNhapMap.put(maSP, tongNhap);
+	        soLuongTonKhoMap.put(maSP, tonKho);
+	    }
 
-           int soLuongTonKho = (tonKhoDaDuyet != null)
-               ? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
-               : (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
+	    model.addAttribute("sanPhamList", danhSachSanPham.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", danhSachSanPham.getTotalPages());
+	    model.addAttribute("keyword", keyword);
+	    model.addAttribute("maSanPham", maSanPham);
 
-           tongSoLuongNhapMap.put(maSanPham, tongSoLuongNhap);
-           soLuongTonKhoMap.put(maSanPham, soLuongTonKho);
-       }
+	    model.addAttribute("daYeuCauMap", daYeuCauMap);
+	    model.addAttribute("tongSoLuongNhapMap", tongSoLuongNhapMap);
+	    model.addAttribute("soLuongTonKhoMap", soLuongTonKhoMap);
 
-       model.addAttribute("sanPhamList",danhSachSanPham.getContent());
-       model.addAttribute("currentPage", page);
-       model.addAttribute("totalPages", danhSachSanPham.getTotalPages());
-       model.addAttribute("keyword", keyword);
-       
-       model.addAttribute("daYeuCauMap", daYeuCauMap);
-       model.addAttribute("tongSoLuongNhapMap", tongSoLuongNhapMap);
-       model.addAttribute("soLuongTonKhoMap", soLuongTonKhoMap);
-
-       return "seller/product/request-stock";
-   }
+	    return "seller/product/request-stock";
+	}
 
     
    @PostMapping("/yeu-cau-bo-sung")

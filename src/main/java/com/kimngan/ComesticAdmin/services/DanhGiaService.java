@@ -30,7 +30,8 @@ public interface DanhGiaService {
     DanhGia findById(Integer maDanhGia); // Tìm đánh giá theo mã
     
     
-    
+    Page<DanhGia> findAllWithSanPhamAndNguoiDungByMaSanPham(String maSanPham, Pageable pageable);
+
     DanhGia save(DanhGia danhGia);
     Page<DanhGia> getAllDanhGias(Pageable pageable);
     void delete(Integer maDanhGia);
@@ -38,4 +39,9 @@ public interface DanhGiaService {
     List<Object[]> thongKeSanPhamDanhGiaCao(LocalDateTime from, LocalDateTime to);
 
     List<DanhGia> getDanhGiaBySanPhamId(Integer maSanPham);  
+    
+    Page<DanhGia> findAllWithSanPhamAndNguoiDung(Pageable pageable);
+
+    Page<DanhGia> findAllWithSanPhamAndNguoiDungBySoSao(int soSao, Pageable pageable);
+
 }

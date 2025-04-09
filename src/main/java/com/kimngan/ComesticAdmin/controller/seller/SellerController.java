@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -466,6 +467,7 @@ public class SellerController {
 			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "selectedProductIds", required = false) String selectedProductIdsStr,
 			@RequestParam(value = "selectedQuantities", required = false) String selectedQuantitiesStr,
+			@RequestParam(value = "maSanPham", required = false) String maSanPham,
 			HttpServletRequest request, Model model) {
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -494,16 +496,17 @@ public class SellerController {
 		}
 
 		Page<SanPham> sanPhamPage;
-		if (keyword != null && !keyword.isEmpty()) {
-			sanPhamPage = sanPhamService.searchActiveByName(keyword, PageRequest.of(page, size));
-		} else {
-			sanPhamPage = sanPhamService.findAllActiveWithStock(PageRequest.of(page, size));
-		}
+	    Pageable pageable = PageRequest.of(page, size);
 
-		if (sanPhamPage.isEmpty()) {
-			model.addAttribute("noProductsMessage", "Không có sản phẩm nào phù hợp.");
-		}
-
+	    if (maSanPham != null && !maSanPham.trim().isEmpty()) {
+	        sanPhamPage = sanPhamService.searchActiveByMaSanPham(maSanPham.trim(), pageable);
+	        model.addAttribute("maSanPham", maSanPham);
+	    } else if (keyword != null && !keyword.trim().isEmpty()) {
+	        sanPhamPage = sanPhamService.searchActiveByName(keyword.trim(), pageable);
+	        model.addAttribute("keyword", keyword);
+	    } else {
+	        sanPhamPage = sanPhamService.findAllActiveWithStock(pageable);
+	    }
 		LocalDate today = LocalDate.now();
 		Map<Integer, String> formattedPrices = new HashMap<>();
 		Map<Integer, String> formattedDiscountPrices = new HashMap<>();

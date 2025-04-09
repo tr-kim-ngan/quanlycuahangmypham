@@ -27,8 +27,9 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 	// Page<SanPham> findByTrangThaiTrue(Pageable pageable);
 	Page<SanPham> findByTrangThai(Boolean trangThai, Pageable pageable);
 
-	// List<SanPham> findByTrangThai();
-	// List<SanPham> findByTrangThai(Boolean trangThai);
+	@Query("SELECT sp FROM SanPham sp WHERE sp.trangThai = true AND CAST(sp.maSanPham AS string) LIKE %:maSanPham%")
+	Page<SanPham> searchActiveByMaSanPham(@Param("maSanPham") String maSanPham, Pageable pageable);
+
 	List<SanPham> findByTrangThai(Boolean trangThai);
 
 	List<SanPham> findByMaSanPhamInAndTrangThai(List<Integer> maSanPham, Boolean trangThai);
@@ -92,6 +93,12 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 	@Query("SELECT sp FROM SanPham sp LEFT JOIN FETCH sp.danhGias dg WHERE sp.trangThai = true AND dg.soSao = :soSao")
 	List<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(@Param("soSao") int soSao);
 
+	@Query(value = "SELECT DISTINCT sp FROM SanPham sp LEFT JOIN FETCH sp.danhGias dg WHERE sp.trangThai = true", countQuery = "SELECT COUNT(sp) FROM SanPham sp WHERE sp.trangThai = true")
+	Page<SanPham> findAllWithDanhGiasAndTrangThaiTrue(Pageable pageable);
+
+	@Query(value = "SELECT DISTINCT sp FROM SanPham sp LEFT JOIN FETCH sp.danhGias dg WHERE sp.trangThai = true AND dg.soSao = :soSao", countQuery = "SELECT COUNT(DISTINCT sp) FROM SanPham sp LEFT JOIN sp.danhGias dg WHERE sp.trangThai = true AND dg.soSao = :soSao")
+	Page<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(@Param("soSao") int soSao, Pageable pageable);
+
 	long countByTrangThaiTrue();
 
 	boolean existsByDonViTinhMaDonVi(Integer maDonVi);
@@ -114,7 +121,6 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 	@Query("SELECT sp FROM SanPham sp WHERE sp.trangThai = true AND sp.soLuongTonKho > 0")
 	Page<SanPham> findAllActiveWithStock(Pageable pageable);
 
-
 	@Query("SELECT s.tenSanPham, "
 			+ "(COALESCE((SELECT SUM(nh.soLuongNhap) FROM ChiTietDonNhapHang nh WHERE nh.sanPham = s), 0) - "
 			+ " COALESCE((SELECT SUM(ch.soLuong) FROM ChiTietDonHang ch WHERE ch.sanPham = s), 0) - s.soLuong) AS tonKho "
@@ -124,16 +130,15 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 			+ "ORDER BY tonKho DESC")
 	List<Object[]> getStockStatistics();
 
-	//  Tổng số lượng nhập kho
+	// Tổng số lượng nhập kho
 	@Query("SELECT COALESCE(SUM(nh.soLuongNhap), 0) FROM ChiTietDonNhapHang nh WHERE nh.sanPham.maSanPham = :maSanPham")
 	Integer getTotalImportedQuantityBySanPhamId(@Param("maSanPham") Integer maSanPham);
 
-	//  Tổng số lượng bán ra
+	// Tổng số lượng bán ra
 	@Query("SELECT COALESCE(SUM(ch.soLuong), 0) FROM ChiTietDonHang ch WHERE ch.sanPham.maSanPham = :maSanPham")
 	Integer getTotalSoldQuantityBySanPhamId(@Param("maSanPham") Integer maSanPham);
-	
+
 	@Query("SELECT COALESCE(SUM(s.soLuong), 0) FROM SanPham s WHERE s.maSanPham = :maSanPham")
 	Integer getSoLuongTrenKe(@Param("maSanPham") Integer maSanPham);
 
-	
 }

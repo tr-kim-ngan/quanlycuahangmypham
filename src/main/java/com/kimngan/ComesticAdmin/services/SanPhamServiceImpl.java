@@ -97,6 +97,11 @@ public class SanPhamServiceImpl implements SanPhamService {
 	}
 
 	@Override
+	public Page<SanPham> searchActiveByMaSanPham(String maSanPham, Pageable pageable) {
+	    return sanPhamRepository.searchActiveByMaSanPham(maSanPham, pageable);
+	}
+
+	@Override
 	public Page<SanPham> findAll(Pageable pageable) {
 		// TODO Auto-generated method stub
 		return sanPhamRepository.findAll(pageable);
@@ -223,20 +228,24 @@ public class SanPhamServiceImpl implements SanPhamService {
 				pageable);
 
 	}
-
 	@Override
 	public List<SanPham> findAllWithDanhGiasAndTrangThaiTrue() {
-		// TODO Auto-generated method stub
 		return sanPhamRepository.findAllWithDanhGiasAndTrangThaiTrue();
-
 	}
 
 	@Override
 	public List<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(int soSao) {
-		// TODO Auto-generated method stub
 		return sanPhamRepository.findAllWithDanhGiasAndTrangThaiTrueBySoSao(soSao);
 	}
+	@Override
+	public Page<SanPham> findAllWithDanhGiasAndTrangThaiTrue(Pageable pageable) {
+		return sanPhamRepository.findAllWithDanhGiasAndTrangThaiTrue(pageable);
+	}
 
+	@Override
+	public Page<SanPham> findAllWithDanhGiasAndTrangThaiTrueBySoSao(int soSao, Pageable pageable) {
+		return sanPhamRepository.findAllWithDanhGiasAndTrangThaiTrueBySoSao(soSao, pageable);
+	}
 	@Override
 	public long countActiveProducts() {
 		// TODO Auto-generated method stub

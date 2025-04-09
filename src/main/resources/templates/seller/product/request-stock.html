@@ -76,20 +76,30 @@
 			style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 20px;">
 
 			<!-- Bên trái gồm: Tiêu đề + ô tìm kiếm -->
-			<div style="display: flex; align-items: center; gap: 20px;">
+			<!-- Bên trái gồm: Tiêu đề + ô tìm kiếm -->
+			<div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
 
-
-				<!-- Form tìm kiếm -->
-				<form th:action="@{/seller/products-to-request}" method="get"
-					style="margin-left: 0px; margin-bottom: 15px;">
+				<!-- Form tìm theo tên -->
+				<form th:action="@{/seller/products-to-request}" method="get">
 					<input type="text" name="keyword" placeholder="Tìm tên sản phẩm..." th:value="${keyword}"
 						style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 5px;" />
 					<button type="submit"
-						style="padding: 6px 12px; background: #2b3b5b; color: white; border-radius: 5px;">Tìm</button>
+						style="padding: 6px 12px; background: #2b3b5b; color: white; border-radius: 5px;">Tìm
+						tên</button>
 				</form>
 
-				<h2 style="margin-left: 200px;">Danh sách sản phẩm cần bổ sung</h2>
+				<!-- Form tìm theo mã -->
+				<form th:action="@{/seller/products-to-request}" method="get">
+					<input type="text" name="maSanPham" placeholder="Tìm theo mã sản phẩm" th:value="${maSanPham}"
+						style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 5px;" />
+					<button type="submit"
+						style="padding: 6px 12px; background: #198754; color: white; border-radius: 5px;">Tìm
+						mã</button>
+				</form>
+
+				<h2 style="margin-left: auto;">Danh sách sản phẩm cần bổ sung</h2>
 			</div>
+
 
 
 		</div>
