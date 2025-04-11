@@ -65,7 +65,7 @@
 		<!-- Danh sách sản phẩm -->
 		<section class="product-list">
 			<div class="row" style="row-gap: 20px;">
-				<div class="col-lg-3 col-md-4 col-sm-6" th:each="product : ${products}" th:if="${product.soLuong > 0}">
+				<div class="col-lg-3 col-md-4 col-sm-6" th:each="product : ${products}" >
 					<a th:href="@{'/product/' + ${product.maSanPham}}" style="text-decoration: none; color: inherit;">
 						<div class="product-card"
 							style="border: 1px solid #ddd; border-radius: 10px; background: white; overflow: hidden; transition: transform 0.3s ease; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);"
@@ -127,8 +127,12 @@
 
 								<!-- Đánh giá -->
 								<div class="product-rating" style="color: #f1c40f; font-size: 14px; margin-top: 2px;">
-									<span
-										th:text="${sanPhamAverageRatingMap[product.maSanPham] != null ? sanPhamAverageRatingMap[product.maSanPham] + ' ★' : 'Chưa có đánh giá'}"></span>
+								
+								
+							<span th:text="${sanPhamAverageRatingMap[product.maSanPham] != null 
+                  ? #numbers.formatDecimal(sanPhamAverageRatingMap[product.maSanPham], 1, 1) + ' ★' 
+                  : 'Chưa có đánh giá'}"></span>
+	
 								</div>
 							</div>
 						</div>

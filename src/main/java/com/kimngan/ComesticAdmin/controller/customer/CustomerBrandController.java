@@ -144,8 +144,11 @@ public class CustomerBrandController {
 					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
 
 			sanPhamSoLuongTonKhoMap.put(maSanPham, soLuongTonKho);
-			return soLuongTonKho > 0 && sp.getDonGiaBan().compareTo(minPrice) >= 0
-					&& sp.getDonGiaBan().compareTo(maxPrice) <= 0;
+			
+//			return soLuongTonKho > 0 && sp.getDonGiaBan().compareTo(minPrice) >= 0
+//					&& sp.getDonGiaBan().compareTo(maxPrice) <= 0;
+			return sp.getDonGiaBan().compareTo(minPrice) >= 0
+				    && sp.getDonGiaBan().compareTo(maxPrice) <= 0;
 		}).peek(sp -> {
 			Optional<KhuyenMai> highestCurrentKhuyenMai = sp.getKhuyenMais().stream().filter(km -> km.getTrangThai())
 					.filter(km -> !km.getNgayBatDau().toLocalDate().isAfter(today)

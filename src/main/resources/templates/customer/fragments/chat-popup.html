@@ -1,0 +1,103 @@
+<div th:fragment="chat-popup">
+	<div id="chat-popup"
+		style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: Arial, sans-serif;">
+		<button class="btn btn-primary rounded-circle" style="width: 50px; height: 50px;" onclick="toggleChat()">💬
+		</button>
+
+		<div id="chat-box"
+			style="display: none; width: 370px; height: 480px; background: #fff; border-radius: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.25); margin-top: 10px; display: flex; flex-direction: column;">
+			<div class="btn btn-primary "
+				style="color: white; padding: 12px; font-weight: bold; font-size: 16px; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+				Trợ lý ảo
+			</div>
+
+			<div id="chatContent" style="flex: 1; overflow-y: auto; padding: 15px; background: #f7f9fc;"></div>
+
+			<div style="padding: 10px; border-top: 1px solid #ccc;">
+				<input type="text" id="chatInput" class="form-control form-control-sm" placeholder="Nhập câu hỏi..."
+					onkeydown="if(event.key === 'Enter') sendBotMessage()">
+			</div>
+		</div>
+	</div>
+
+	<style>
+		.chat-bubble {
+			display: flex;
+			align-items: flex-end;
+			margin-bottom: 10px;
+		}
+
+		.chat-bubble.bot {
+			justify-content: flex-start;
+		}
+
+		.chat-bubble.user {
+			justify-content: flex-end;
+		}
+
+		.chat-bubble .avatar {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			margin-right: 8px;
+		}
+
+		.chat-bubble .bubble {
+			padding: 10px 14px;
+			border-radius: 15px;
+			max-width: 75%;
+			line-height: 1.4;
+			box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+		}
+
+		.chat-bubble.bot .bubble {
+			background: #e4e6eb;
+			color: #000;
+			border-bottom-left-radius: 0;
+		}
+
+		.chat-bubble.user .bubble {
+			background: #f1c40f;
+			color: white;
+			border-bottom-right-radius: 0;
+		}
+	</style>
+
+	<script>
+		window.onload = function () {
+			document.getElementById("chat-box").style.display = "none";
+		};
+		function toggleChat() {
+			const box = document.getElementById("chat-box");
+			box.style.display = box.style.display === "none" ? "flex" : "none";
+		}
+
+		function sendBotMessage() {
+			const input = document.getElementById("chatInput");
+			const chatContent = document.getElementById("chatContent");
+			const message = input.value.trim();
+			if (message === '') return;
+
+			// User message (không avatar)
+			const userMsg = `
+                <div class="chat-bubble user">
+                    <div class="bubble">${message}</div>
+                </div>`;
+			chatContent.innerHTML += userMsg;
+			input.value = "";
+			chatContent.scrollTop = chatContent.scrollHeight;
+
+			fetch(`/api/chatbot/ask?prompt=${encodeURIComponent(message)}`)
+				.then(res => res.text())
+				.then(reply => {
+					const botMsg = `
+                        <div class="chat-bubble bot">
+                            <img class="avatar" src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" />
+                            <div class="bubble">${reply}</div>
+                        </div>`;
+					chatContent.innerHTML += botMsg;
+					chatContent.scrollTop = chatContent.scrollHeight;
+				});
+		}
+	</script>
+</div>

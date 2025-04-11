@@ -30,7 +30,8 @@ public class CustomerSecurityConfig {
                 		"/category/**", 
                 		"/search/**",
                 		"/api/payment/**",
-                		"/shipping-fee"
+                		"/shipping-fee",
+                		"/api/chatbot/**"
                 		
                 		
                 		

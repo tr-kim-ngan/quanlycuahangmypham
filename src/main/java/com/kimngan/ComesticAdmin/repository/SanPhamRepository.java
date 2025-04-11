@@ -19,6 +19,14 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 
 	// Kiểm tra xem sản phẩm có tồn tại và đang hoạt động không
 	boolean existsByTenSanPhamAndTrangThai(String tenSanPham, boolean b);
+	@Query("SELECT sp FROM SanPham sp "
+		     + "LEFT JOIN FETCH sp.danhMuc "
+		     + "LEFT JOIN FETCH sp.thuongHieu "
+		     + "LEFT JOIN FETCH sp.khuyenMais "
+		     + "LEFT JOIN FETCH sp.donViTinh "
+		     + "WHERE sp.trangThai = true")
+		List<SanPham> findAllActiveProductsWithAllInfo();
+	List<SanPham> findByTenSanPhamContainingIgnoreCaseAndTrangThai(String tenSanPham, Boolean trangThai);
 
 	// Tìm tất cả sản phẩm với trạng thái đang hoạt động
 	Page<SanPham> findByTrangThaiTrue(Pageable pageable);
@@ -37,6 +45,10 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 	Page<SanPham> findByDanhMucAndTrangThai(Integer maDanhMuc, Boolean trangThai, Pageable pageable);
 
 	List<SanPham> findByTrangThaiTrue();
+
+	@Query("SELECT sp FROM SanPham sp " + "LEFT JOIN FETCH sp.danhMuc " + "LEFT JOIN FETCH sp.thuongHieu "
+			+ "LEFT JOIN FETCH sp.khuyenMais " + "LEFT JOIN FETCH sp.donViTinh " + "WHERE sp.trangThai = true")
+	List<SanPham> findAllActiveProducts();
 
 	Page<SanPham> findByThuongHieu_MaThuongHieuAndTrangThai(Integer maThuongHieu, boolean trangThai, Pageable pageable);
 
@@ -141,4 +153,33 @@ public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
 	@Query("SELECT COALESCE(SUM(s.soLuong), 0) FROM SanPham s WHERE s.maSanPham = :maSanPham")
 	Integer getSoLuongTrenKe(@Param("maSanPham") Integer maSanPham);
 
+	List<SanPham> findByTenSanPhamContainingIgnoreCaseOrMoTaContainingIgnoreCaseAndTrangThai(
+		    String tenSanPham, String moTa, Boolean trangThai);
+
+	@Query("SELECT sp FROM SanPham sp WHERE sp.trangThai = :trangThai AND " +
+		       "(LOWER(sp.tenSanPham) LIKE LOWER(CONCAT('%', :keyword1, '%')) OR " +
+		       "LOWER(sp.moTa) LIKE LOWER(CONCAT('%', :keyword2, '%')))")
+		List<SanPham> searchByKeyword(@Param("keyword1") String keyword1,
+		                               @Param("keyword2") String keyword2,
+		                               @Param("trangThai") boolean trangThai);
+	@Query("SELECT sp FROM SanPham sp WHERE sp.trangThai = true")
+	List<SanPham> findAllWithTenMoTaTrangThaiTrue();
+	
+	
+	@Query("SELECT DISTINCT sp FROM SanPham sp " +
+		       "JOIN sp.khuyenMais km " +
+		       "WHERE sp.trangThai = true " +
+		       "AND km.trangThai = true " +
+		       "AND CURRENT_DATE < km.ngayBatDau")
+		List<SanPham> findAllActiveWithUpcomingPromotions();
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

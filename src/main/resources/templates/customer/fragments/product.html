@@ -6,7 +6,7 @@
 			<div class="col-md-12">
 				<div class="bootstrap-tabs product-tabs">
 					<div th:if="${sanPhamsSapKhuyenMai != null and !sanPhamsSapKhuyenMai.isEmpty()}"
-					 class="tabs-header d-flex justify-content-between border-bottom my-5">
+						class="tabs-header d-flex justify-content-between border-bottom my-5">
 						<h3 style="color: #007bff; text-align: center; width: 100%;">🕓 Sản phẩm sắp khuyến mãi</h3>
 					</div>
 
@@ -86,8 +86,9 @@
 										<!-- Đánh giá -->
 										<div class="product-rating"
 											style="color: #f1c40f; font-size: 14px; margin-top: 2px;">
-											<span
-												th:text="${sanPhamAverageRatingMap[sp.maSanPham] != null ? sanPhamAverageRatingMap[sp.maSanPham] + ' ★' : 'Chưa có đánh giá'}"></span>
+											<span th:text="${sanPhamAverageRatingMap[sp.maSanPham] != null 
+                ? #numbers.formatDecimal(sanPhamAverageRatingMap[sp.maSanPham], 1, 1) + ' ★' 
+                : 'Chưa có đánh giá'}"></span>
 										</div>
 
 										<!-- Số lượng tồn -->
@@ -177,8 +178,9 @@
 										<!-- Đánh giá -->
 										<div class="product-rating"
 											style="color: #f1c40f; font-size: 14px; margin-top: 2px;">
-											<span
-												th:text="${sanPhamAverageRatingMap[sp.maSanPham] != null ? sanPhamAverageRatingMap[sp.maSanPham] + ' ★' : 'Chưa có đánh giá'}"></span>
+											<span th:text="${sanPhamAverageRatingMap[sp.maSanPham] != null 
+                ? #numbers.formatDecimal(sanPhamAverageRatingMap[sp.maSanPham], 1, 1) + ' ★' 
+                : 'Chưa có đánh giá'}"></span>
 										</div>
 
 										<!-- Số lượng tồn -->
@@ -336,8 +338,10 @@
 											<!-- Đánh giá -->
 											<div class="product-rating"
 												style="color: #f1c40f; font-size: 14px; margin-top: 2px;">
-												<span
-													th:text="${sanPhamAverageRatingMap[sanPham.maSanPham] != null ? sanPhamAverageRatingMap[sanPham.maSanPham] + ' ★' : 'Chưa có đánh giá'}"></span>
+												<span th:text="${sanPhamAverageRatingMap[sanPham.maSanPham] != null 
+              ? #numbers.formatDecimal(sanPhamAverageRatingMap[sanPham.maSanPham], 1, 1) + ' ★' 
+              : 'Chưa có đánh giá'}"></span>
+
 											</div>
 											<!-- Thêm thông tin số lượng còn lại -->
 											<span class="remaining-quantity"
@@ -446,6 +450,7 @@
 		</div>
 	</div>
 	</div>
+	
 </section>
 
 

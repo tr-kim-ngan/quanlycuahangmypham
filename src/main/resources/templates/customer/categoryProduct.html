@@ -218,10 +218,13 @@
 							</p>
 
 							<!-- Đánh giá -->
+							<!-- Đánh giá -->
 							<div class="product-rating" style="color: #f1c40f; font-size: 14px;">
-								<span
-									th:text="${sanPhamAverageRatingMap[sanPham.maSanPham] != null ? sanPhamAverageRatingMap[sanPham.maSanPham] + ' ★' : 'Chưa có đánh giá'}"></span>
+								<span th:text="${sanPhamAverageRatingMap[sanPham.maSanPham] != null 
+                     ? #numbers.formatDecimal(sanPhamAverageRatingMap[sanPham.maSanPham], 1, 1) + ' ★' 
+                     : 'Chưa có đánh giá'}"></span>
 							</div>
+
 
 							<!-- Giá sản phẩm -->
 							<div class="product-pricing" style="display: flex; align-items: center; gap: 10px;">
