@@ -35,7 +35,7 @@
 									<th>STT</th>
 									<th>Hình ảnh</th>
 									<th>Tên sản phẩm</th>
-									<th>Số lượng trên kệ</th>
+								<!--	<th>Số lượng trên kệ</th>-->
 									<th>Số lượng tồn kho</th>
 									
 								</tr>
@@ -52,7 +52,7 @@
 										<span th:if="${soLuongTonKhoMap[sanPham.maSanPham] == 0 and sanPham.soLuong == 0}"
 											style="color: red; font-size: 12px; font-weight: bold;">(Hết hàng)</span>
 									</td>
-									<td>
+									<!--<td>
 										<form th:action="@{/admin/inventory/update-stock}" method="post" class="d-flex justify-content-center">
 											<input type="hidden" name="maSanPham" th:value="${sanPham.maSanPham}">
 											<input type="number" name="soLuongMoi" th:value="${sanPham.soLuong}" min="0"
@@ -60,7 +60,7 @@
 												style="width: 70px;">
 											<button type="submit" class="btn btn-primary ms-2">Lưu</button>
 										</form>
-									</td>
+									</td>-->
 									<td th:text="${soLuongTonKhoMap[sanPham.maSanPham]}"></td>
 								</tr>
 							</tbody>

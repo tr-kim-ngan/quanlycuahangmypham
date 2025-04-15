@@ -193,7 +193,7 @@
 					<th>Hình ảnh</th>
 					<th>Tên sản phẩm</th>
 					<!--<th>Số lượng nhập</th>-->
-					<th>Số lượng trên kệ</th>
+					<!--<th>Số lượng trên kệ</th>-->
 					<th>Số lượng tồn kho</th>
 				</tr>
 			</thead>
@@ -213,7 +213,7 @@
 					</td>
 					<!--<td th:text="${tongSoLuongNhapMap[sanPham.maSanPham]}"></td>
 -->
-					<!-- Ô nhập số lượng trên kệ -->
+					<!-- Ô nhập số lượng trên kệ 
 					<td>
 						<form th:action="@{/warehouse/import/cap-nhat-so-luong}" method="post">
 							<input type="hidden" name="maSanPham" th:value="${sanPham.maSanPham}">
@@ -222,7 +222,7 @@
 							<button type="submit" class="btn btn-primary"
 								style="color: #007bff; background-color: transparent;">Lưu</button>
 						</form>
-					</td>
+					</td>-->
 
 					<td th:text="${soLuongTonKhoMap[sanPham.maSanPham]}"></td>
 				</tr>
