@@ -174,12 +174,25 @@
 				}
 			}
 		});
-		// Biểu đồ tổng quan tồn kho
+		// Rút gọn tên sản phẩm nếu dài quá
+		const maxLength = 25;
+		const shortTenSanPhamsAll = tenSanPhamsAll.map(name => {
+			const match = name.match(/(.+?)\s*(\(\d+\))$/); // tách phần tên và số nếu có (VD: "Sữa Rửa Mặt (123)")
+			if (match) {
+				const ten = match[1];
+				const suffix = match[2];
+				const shortName = ten.length > maxLength ? ten.substring(0, maxLength) + "..." : ten;
+				return shortName + " " + suffix;
+			} else {
+				return name.length > maxLength ? name.substring(0, maxLength) + "..." : name;
+			}
+		});
+
 		const ctxTonKho = document.getElementById("tonKhoChart").getContext("2d");
 		new Chart(ctxTonKho, {
 			type: 'bar',
 			data: {
-				labels: tenSanPhamsAll,
+				labels: shortTenSanPhamsAll,
 				datasets: [{
 					label: 'Tồn kho (sản phẩm)',
 					data: tonKhosAll,
@@ -208,6 +221,7 @@
 				}
 			}
 		});
+
 		function toggleRightPanel() {
 			const panel = document.getElementById("right-panel");
 			panel.style.right = (panel.style.right === "0px") ? "-250px" : "0px";

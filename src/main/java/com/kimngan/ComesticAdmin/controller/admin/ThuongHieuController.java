@@ -3,6 +3,9 @@ package com.kimngan.ComesticAdmin.controller.admin;
 import com.kimngan.ComesticAdmin.entity.ThuongHieu;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.services.ThuongHieuService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.kimngan.ComesticAdmin.services.StorageService;
 
 import java.io.IOException;
@@ -71,8 +74,9 @@ public class ThuongHieuController {
 
     // Thêm thương hiệu
     @GetMapping("/add-brand")
-    public String addBrandPage(Model model) {
+    public String addBrandPage(Model model,HttpServletRequest request) {
         model.addAttribute("thuongHieu", new ThuongHieu());
+        model.addAttribute("requestUri", request.getRequestURI());
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
@@ -128,7 +132,7 @@ public class ThuongHieuController {
 
     // Sửa thương hiệu
     @GetMapping("/edit-brand/{id}")
-    public String edit(@PathVariable("id") Integer id, Model model) {
+    public String edit(@PathVariable("id") Integer id,HttpServletRequest request, Model model) {
         ThuongHieu thuongHieu = thuongHieuService.findById(id);
 
         if (thuongHieu == null) {
@@ -136,6 +140,7 @@ public class ThuongHieuController {
         }
 
         model.addAttribute("thuongHieu", thuongHieu);
+        model.addAttribute("requestUri", request.getRequestURI());
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();

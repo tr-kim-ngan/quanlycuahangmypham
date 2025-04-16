@@ -48,11 +48,23 @@
 								th:text="${#numbers.formatDecimal(tongGiaTriDonHang, 0, 'COMMA', 0, 'POINT')} + ' VND'">
 							</span>
 						</p>
-						<p class="text-dark"><span>Số tiền cần trả:</span>
+						<!--<p class="text-dark"><span>Số tiền cần trả:</span>
 							<span class="fw-bold" style="color: red;"
 								th:text="${#numbers.formatDecimal(donHang.tongGiaTriDonHang, 0, 'COMMA', 0, 'POINT')} + ' VND'">
 							</span>
 						</p>
+						<p class="text-dark" th:if="${donHang.tongGiaTriDonHang > 0}">
+							<span>Số tiền cần trả:</span>
+							<span class="fw-bold" style="color: red;"
+								th:text="${#numbers.formatDecimal(donHang.tongGiaTriDonHang, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+							</span>
+						</p>-->
+
+						<p class="text-dark" th:if="${donHang.tongGiaTriDonHang == 0}">
+							<span class="fw-bold">Đã thanh toán VNPay</span>
+						</p>
+
+
 						<p class="text-dark"><span>Trạng thái:</span>
 							<span style="color: blue;" th:text="${donHang.trangThaiDonHang}"></span>
 						</p>
@@ -101,7 +113,7 @@
 							<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}" class="img-thumbnail"
 								style="width: 80px; height: 80px; object-fit: cover;" alt="Ảnh sản phẩm" />
 						</td>
-						<td class="fw-bold text-start text-dark">
+						<td class="fw-bold text-start text-dark" style="max-width: 250px;">
 							<span th:text="${chiTiet.sanPham.tenSanPham}"></span>
 							<br>
 							<small class="text-dark">Số lượng: <span th:text="${chiTiet.soLuong}"></span></small>

@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Danh sách ca làm việc</title>
+	<title>Hello, Warehouse Staff</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -13,21 +13,6 @@
 			margin: 0;
 			padding: 0;
 
-		}
-
-		.header {
-			background-color: #f8f9fa;
-			padding: 15px 20px;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			border-bottom: 2px solid #dee2e6;
-		}
-
-		.header h2 {
-			margin: 0;
-			font-size: 20px;
-			color: #333;
 		}
 
 		.btn {
@@ -75,19 +60,8 @@
 			background-color: #f1f1f1;
 		}
 
-		.header-buttons a {
-			display: inline-block;
-			background-color: black;
-			color: white;
-			text-decoration: none;
-			font-weight: bold;
-			padding: 10px 10px;
-			font-size: 14px;
-			border-radius: 5px;
-			transition: 0.3s;
-			min-width: auto;
-			width: fit-content;
-		}
+
+
 
 
 
@@ -140,6 +114,42 @@
 			align-items: center;
 			gap: 5px;
 		}
+
+		.header {
+			background-color: #f8f9fa;
+			padding: 15px 20px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border-bottom: 2px solid #dee2e6;
+			position: relative;
+		}
+
+		.header-spacer {
+			width: 160px;
+			/* độ rộng tối thiểu tương đương header-buttons khi có nút */
+		}
+
+		.header-title-wrapper {
+			position: absolute;
+			left: 55%;
+			transform: translateX(-50%);
+			text-align: center;
+		}
+
+		.header-title {
+			font-weight: bold; 
+			margin: 0;
+			font-size: 20px;
+			color: #333;
+			white-space: nowrap;
+		}
+
+		.header-buttons {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
 	</style>
 </head>
 
@@ -147,26 +157,37 @@
 
 
 	<div class="header" style="padding-left: 300px;">
-		<h2>📋 Danh sách ca làm việc</h2>
-		<th:block th:if="${danhSachCa.?[thoiGianKetThuc == null].isEmpty()}">
-			<form action="/warehouse/import/shifts/start" method="post">
-				<button type="submit" class="btn btn-primary">Bắt đầu ca làm việc</button>
-			</form>
-		</th:block>
+		<!-- Cột giả bên trái để giữ cân bằng -->
+		<div class="header-spacer"></div>
 
-		<!-- Hiển thị nút "Kết thúc ca làm việc" nếu ca đang hoạt động và đã kiểm kê -->
-		<!-- Nếu có ca đang hoạt động và đã kiểm kê xong, hiển thị nút Kết thúc ca -->
-		<th:block th:each="ca : ${danhSachCa}">
-			<th:block th:if="${ca.thoiGianKetThuc == null}">
-				<th:block th:if="${caDaKiemKeMap[ca.maLichSu]}">
-					<form th:action="@{/warehouse/import/shifts/end/{id}(id=${ca.maLichSu})}" method="post">
-						<button type="submit" class="btn btn-danger">Kết thúc ca làm việc</button>
-					</form>
+		<!-- Tiêu đề ở giữa -->
+		<div class="header-title-wrapper">
+			<h2 class="header-title">Danh sách ca làm việc</h2>
+		</div>
+
+		<!-- Nút ở bên phải -->
+		<div class="header-buttons">
+			<th:block th:if="${danhSachCa.?[thoiGianKetThuc == null].isEmpty()}">
+				<form action="/warehouse/import/shifts/start" method="post">
+					<button type="submit" class="btn btn-primary">Bắt đầu ca làm việc</button>
+				</form>
+			</th:block>
+
+			<th:block th:each="ca : ${danhSachCa}">
+				<th:block th:if="${ca.thoiGianKetThuc == null}">
+					<th:block th:if="${caDaKiemKeMap[ca.maLichSu]}">
+						<form th:action="@{/warehouse/import/shifts/end/{id}(id=${ca.maLichSu})}" method="post">
+							<button type="submit" class="btn btn-danger">Kết thúc ca làm việc</button>
+						</form>
+					</th:block>
 				</th:block>
 			</th:block>
-		</th:block>
+		</div>
 	</div>
+
+
 	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+
 
 	<div class="container" style="padding-left: 300px;">
 

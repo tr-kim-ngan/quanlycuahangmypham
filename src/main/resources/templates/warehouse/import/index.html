@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Quản lý Đơn Nhập Hàng</title>
+	<title>Hello, Warehouse Staff</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 
 	<style>
@@ -205,7 +205,7 @@
 		<table>
 			<thead>
 				<tr>
-					<th>STT</th>
+					<th>Mã Đơn NH</th>
 					<th>Ngày Nhập</th>
 					<th>Nhà Cung Cấp</th>
 					<th>Tổng Số Tiền</th>
@@ -217,7 +217,7 @@
 					<td colspan="5" class="text-center">Không có đơn nhập hàng.</td>
 				</tr>
 				<tr th:each="donNhapHang, stat : ${listDonNhapHang}">
-					<td th:text="${stat.count}"></td>
+					<td th:text="${donNhapHang.maDonNhapHang}"></td>
 					<td th:text="${formattedNgayNhapHangValues[donNhapHang.maDonNhapHang]}"></td>
 					<td th:text="${donNhapHang.nhaCungCap.tenNhaCungCap}"></td>
 					<td th:text="${formattedTotalValues[donNhapHang.maDonNhapHang]}"></td>
@@ -230,7 +230,7 @@
 		</table>
 	</div>
 	<!-- Điều hướng phân trang -->
-	<div class="pagination">
+	<div class="pagination" style=" padding-left: 150px;">
 		<ul>
 			<li th:if="${currentPage > 0}">
 				<a th:href="@{${searchAction}(page=0, size=${size}, keyword=${keyword})}">«</a>

@@ -4,49 +4,78 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 	<title>Thanh toán thành công</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+	<style>
+		body {
+			background: linear-gradient(to right, #e0f7fa, #fff);
+			font-family: 'Segoe UI', sans-serif;
+		}
+
+		.card {
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+			border-radius: 15px;
+			animation: fadeIn 1s ease-in-out;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.success-icon {
+			font-size: 60px;
+			color: #28a745;
+		}
+
+		.btn-primary {
+			border-radius: 30px;
+			padding: 10px 25px;
+		}
+	</style>
 </head>
 
 <body>
-	<!-- back to top -->
-
-	<!-- start body -->
-	<div class="body py-5">
-		<div class="container">
-			<div class="w-50 m-auto">
-				<!-- Thêm lớp "my-4" để tạo ra khoảng cách trên và dưới tiêu đề trang -->
-				<h1 class="my-3 text-success text-center">Thanh toán thành công</h1>
-				<!-- Sử dụng lớp "alert" và "alert-danger" để tạo ra thông báo lỗi -->
-				<h2 class="my-2">Chi tiết giao dịch</h2>
-				<!-- Sử dụng lớp "table" và "table-bordered" để tạo ra bảng hiển thị thông tin chi tiết đơn hàng -->
-				<table class="table table-bordered">
-					<tbody>
-						<tr>
-							<td>Tổng tiền:</td>
-							<td><span th:text="${totalPrice}">[total price]</span><span> VNĐ</span></td>
-						</tr>
-						<tr>
-							<td>Thời gian thanh toán:</td>
-							<td><span th:text="${paymentTime}">[payment time]</span></td>
-						</tr>
-						<tr>
-							<td>Mã giao dịch:</td>
-							<td><span th:text="${transactionId}">[transaction ID]</span></td>
-						</tr>
-					</tbody>
-				</table>
-				<a th:href="@{http://localhost:8081/}" class="btn btn-primary">Về trang chủ</a>
+	<div class="container py-5">
+		<div class="row justify-content-center">
+			<div class="col-md-8 col-lg-6">
+				<div class="card p-4 text-center">
+					<div class="success-icon mb-3">
+						<i class="fas fa-check-circle"></i>
+					</div>
+					<h1 class="text-success mb-3">Thanh toán thành công</h1>
+					<h5 class="text-muted mb-4">Chi tiết giao dịch của bạn</h5>
+					<table class="table table-bordered">
+						<tbody>
+							<tr>
+								<td><strong>Tổng tiền:</strong></td>
+								<td><span th:text="${totalPrice}">[total price]</span><span> VNĐ</span></td>
+							</tr>
+							<tr>
+								<td><strong>Thời gian thanh toán:</strong></td>
+								<td><span th:text="${paymentTime}">[payment time]</span></td>
+							</tr>
+							<tr>
+								<td><strong>Mã giao dịch:</strong></td>
+								<td><span th:text="${transactionId}">[transaction ID]</span></td>
+							</tr>
+						</tbody>
+					</table>
+					<a th:href="@{http://localhost:8081/}" class="btn btn-primary mt-3">Về trang chủ</a>
+				</div>
 			</div>
 		</div>
 	</div>
-	<!-- end body -->
 
-	<!-- start footer -->
-
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

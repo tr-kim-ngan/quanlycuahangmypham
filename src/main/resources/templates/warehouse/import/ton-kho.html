@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Quản Lý Tồn Kho</title>
+	<title>Hello, Warehouse Staff</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 
 	<style>
@@ -56,34 +56,8 @@
 			background-color: #5a6268;
 		}
 
-		.search-form {
-			position: absolute;
-			left: 300px;
-			/* Đưa ô tìm kiếm về bên trái */
-		}
 
-		.search-input {
-			padding: 8px;
-			font-size: 14px;
-			border: 1px solid #ccc;
-			border-radius: 4px;
-			width: 250px;
-		}
 
-		.search-btn {
-			padding: 8px 12px;
-			font-size: 14px;
-			background-color: #007bff;
-			color: white;
-			border: none;
-			border-radius: 4px;
-			cursor: pointer;
-			transition: background 0.3s ease;
-		}
-
-		.search-btn:hover {
-			background-color: #0056b3;
-		}
 
 		.container {
 			max-width: 1100px;
@@ -159,6 +133,42 @@
 			color: white;
 			font-weight: bold;
 		}
+
+		.search-row {
+			display: flex;
+			justify-content: center;
+			gap: 40px;
+			margin-bottom: 10px;
+			flex-wrap: wrap;
+		}
+
+		.search-form {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.search-form input {
+			padding: 6px 12px;
+			border: 1px solid #ccc;
+			border-radius: 6px;
+			font-size: 14px;
+		}
+
+		.search-form button {
+			padding: 6px 14px;
+			background-color: #007bff;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			cursor: pointer;
+			font-weight: bold;
+			transition: background-color 0.3s ease;
+		}
+
+		.search-form button:hover {
+			background-color: #0056b3;
+		}
 	</style>
 </head>
 
@@ -167,22 +177,42 @@
 	<!-- Thanh tiêu đề -->
 	<div class="header" style="padding-left: 300px;">
 
-		<form th:action="@{/warehouse/import/ton-kho}" method="get" class="search-form">
-			<input type="text" name="keyword" placeholder="Nhập tên sản phẩm..." th:value="${keyword}"
-				class="search-input">
-			<button type="submit" class="search-btn">Tìm kiếm</button>
-		</form>
+
 		<h2>Quản Lý Tồn Kho</h2>
 
 		<div class="header-buttons">
 		</div>
 	</div>
 
+
+
 	<!-- Thanh điều hướng -->
 	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
 
 	<!-- Container chính -->
 	<div class="container" style="padding-left: 300px;">
+		<div class="search-row">
+			<!-- Tìm theo mã -->
+			<form class="search-form" method="get" action="/warehouse/import/ton-kho"
+				onsubmit="return validateMaSanPham();">
+				<input type="text" id="maSanPhamInput" name="maSanPham" placeholder="Mã sản phẩm"
+					style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 5px; width: 150px;">
+				<button type="submit"
+					style="padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 5px;">
+					Tìm theo mã
+				</button>
+			</form>
+
+			<!-- Tìm theo tên -->
+			<form class="search-form" th:action="@{/warehouse/import/ton-kho}" method="get">
+				<input type="text" name="keyword" placeholder="Nhập tên sản phẩm..." th:value="${keyword}"
+					style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 5px; width: 220px;">
+				<button type="submit"
+					style="padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 5px;">
+					Tìm theo tên
+				</button>
+			</form>
+		</div>
 
 		<!-- Bảng hiển thị sản phẩm -->
 		<table>
@@ -232,7 +262,7 @@
 
 	</div>
 	<!-- Điều hướng phân trang -->
-	<div class="pagination">
+	<div class="pagination" style="padding-bottom: 30px;">
 		<ul>
 			<li th:if="${currentPage > 0}">
 				<a th:href="@{/warehouse/import/ton-kho(page=0, size=${size})}">«</a>
@@ -255,7 +285,17 @@
 		</ul>
 	</div>
 
-
+	<!-- Script kiểm tra -->
+	<script>
+		function validateMaSanPham() {
+			const value = document.getElementById("maSanPhamInput").value.trim();
+			if (value !== "" && !/^\d+$/.test(value)) {
+				alert("⚠ Vui lòng chỉ nhập số vào ô Mã sản phẩm!");
+				return false; // Ngăn form gửi nếu nhập sai
+			}
+			return true;
+		}
+	</script>
 </body>
 
 </html>

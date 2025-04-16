@@ -41,14 +41,27 @@ public class ShipperController {
 		}
 	}
 
+//	@GetMapping
+//	public String listShippers(Model model) {
+//		List<NguoiDung> shippers = nguoiDungService.findByRole("SHIPPER").stream().filter(s -> s.isTrangThai())
+//				.sorted(Comparator.comparingInt(NguoiDung::getMaNguoiDung).reversed()).collect(Collectors.toList());
+//
+//		model.addAttribute("shippers", shippers);
+//		return "admin/shipper/index";
+//	}
 	@GetMapping
-	public String listShippers(Model model) {
-		List<NguoiDung> shippers = nguoiDungService.findByRole("SHIPPER").stream().filter(s -> s.isTrangThai())
-				.sorted(Comparator.comparingInt(NguoiDung::getMaNguoiDung).reversed()).collect(Collectors.toList());
+	public String listShippers(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
+		List<NguoiDung> shippers = nguoiDungService.findByRole("SHIPPER").stream()
+			.filter(NguoiDung::isTrangThai)
+			.filter(s -> keyword == null || keyword.isBlank() || s.getHoTen().toLowerCase().contains(keyword.toLowerCase()))
+			.sorted(Comparator.comparingInt(NguoiDung::getMaNguoiDung).reversed())
+			.collect(Collectors.toList());
 
 		model.addAttribute("shippers", shippers);
+		model.addAttribute("keyword", keyword); // để giữ lại giá trị trong ô input tìm kiếm nếu cần
 		return "admin/shipper/index";
 	}
+
 
 	@GetMapping("/add")
 	public String showAddForm(Model model) {

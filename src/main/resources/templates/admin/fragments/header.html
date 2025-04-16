@@ -28,7 +28,7 @@
 
 			<form class="navbar-form nav-search p-0 d-flex align-items-center" th:action="${searchAction}" method="get">
 				<div class="input-group d-flex">
-					
+
 					<!-- Trường hợp tìm kiếm cho từng trang -->
 					<form th:if="${requestUri != null and requestUri.contains('/admin/orders')}"
 						th:action="@{/admin/orders}" method="get" class="d-flex">
@@ -137,14 +137,54 @@
 
 
 					<!-- Nếu không phải trang /admin/orders, /admin/product, hay /admin/hoadon thì hiển thị ô tìm kiếm thông thường -->
-					<div th:unless="${requestUri != null and (requestUri.contains('/admin/orders') or requestUri.contains('/admin/product') or requestUri.contains('/admin/hoadon') or requestUri.contains('/admin/danhgia') 
+					<!--	<div 
+					th:unless="${requestUri != null 
+					and (requestUri.contains('/admin/orders') 
+					or requestUri.contains('/admin/product') 
+					or requestUri.contains('/admin/hoadon') 
+					or requestUri.contains('/admin/danhgia') 
 					or requestUri.contains('/admin/offline-orders'))}" class="d-flex align-items-center me-2">
 						<input type="text" name="keyword" placeholder="Tìm kiếm..." class="form-control"
 							th:value="${keyword != null ? keyword : ''}" />
 						<button type="submit" class="btn btn-search pe-1">
 							<i class="fa fa-search search-icon"></i>
 						</button>
+					</div>-->
+					<div th:unless="${requestUri != null 
+					    and (requestUri.contains('/admin/orders') 
+					        or requestUri.contains('/admin/product') 
+					        or requestUri.contains('/admin/hoadon') 
+					        or requestUri.contains('/admin/danhgia') 
+					        or requestUri.contains('/admin/offline-orders') 
+					        or requestUri.contains('/admin/inventory/kiem-ke-chenh-lech') 
+					        or requestUri.contains('/admin/inventory/kiem-ke-chi-tiet')
+					        or requestUri.contains('/admin/add-product')
+					        or requestUri.contains('/admin/add-category')
+					        or requestUri.contains('/admin/edit-brand')
+					         or requestUri.contains('/admin/add-brand')
+					      or requestUri.contains('/admin/thongke/donhang')
+					       or requestUri.contains('/admin/thongke/nhaphang')
+					       or requestUri.contains('/admin/thongke/nhaphang/tong-gia-tri')
+					       or requestUri.contains('/admin/thongke/nhaphang/xu-huong')
+					       or requestUri.contains('/admin/thongke/xuat-kho')
+					       or requestUri.contains('/admin/thongke/doanhthu-loinhuan')
+					       or requestUri.contains('/admin/thongke/sanpham-banchay')
+					       or requestUri.contains('/admin/thongke/danhgia')
+					        or requestUri.contains('/admin/thongke/trangthai-donhang')
+					        or requestUri.contains('/admin/thongke/doanhthu')
+					         or requestUri.contains('/admin/thongke/khachhang')
+					       or requestUri.contains('/admin/thongke/sanpham-gan-het')
+					       or requestUri.contains('/admin/edit-category')
+					        or requestUri.contains('/admin/view-product'))}" class="d-flex align-items-center me-2">
+
+
+						<input type="text" name="keyword" placeholder="Tìm kiếm..." class="form-control"
+							th:value="${keyword != null ? keyword : ''}" />
+						<button type="submit" class="btn btn-search pe-1">
+							<i class="fa fa-search search-icon"></i>
+						</button>
 					</div>
+
 				</div>
 			</form>
 

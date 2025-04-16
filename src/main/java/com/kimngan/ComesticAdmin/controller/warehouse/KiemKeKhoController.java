@@ -59,48 +59,112 @@ public class KiemKeKhoController {
 		}
 		return null;
 	}
+	@GetMapping("/{id}")
+	public String showKiemKeForm(@PathVariable("id") Integer id,
+	                             @RequestParam(value = "maSanPham", required = false) Integer maSanPham,
+	                             @RequestParam(value = "tenSanPham", required = false) String tenSanPham,
+	                             Model model) {
+
+	    List<SanPham> danhSachSanPham;
+
+	    if (maSanPham != null) {
+	        // Tìm theo mã
+	        danhSachSanPham = sanPhamService
+	                .getProductsInOrderDetails(Pageable.unpaged())
+	                .stream()
+	                .filter(sp -> sp.getMaSanPham().equals(maSanPham))
+	                .toList();
+	        model.addAttribute("maSanPham", maSanPham);
+	    } else if (tenSanPham != null && !tenSanPham.trim().isEmpty()) {
+	        // Tìm theo tên (không phân biệt hoa thường)
+	        String keyword = tenSanPham.trim().toLowerCase();
+	        danhSachSanPham = sanPhamService
+	                .getProductsInOrderDetails(Pageable.unpaged())
+	                .stream()
+	                .filter(sp -> sp.getTenSanPham().toLowerCase().contains(keyword))
+	                .toList();
+	        model.addAttribute("tenSanPham", tenSanPham);
+	    } else {
+	        // Hiển thị tất cả nếu không có tìm kiếm
+	        danhSachSanPham = sanPhamService.getProductsInOrderDetails(Pageable.unpaged()).getContent();
+	    }
+
+	    Map<Integer, Integer> sanPhamSoLuongTonKhoMap = new HashMap<>();
+	    Map<Integer, Integer> soLuongThucTeMap = new HashMap<>();
+	    boolean coSaiSo = false;
+
+	    for (SanPham sp : danhSachSanPham) {
+	        Integer ma = sp.getMaSanPham();
+
+	        int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(ma);
+	        int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(ma);
+	        int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(ma);
+	        int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(ma);
+	        int soLuongTraHang = donHangService.getSoLuongTraHang(ma);
+
+	        Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(ma);
+	        int soLuongTonKho = (tonKhoDaDuyet != null)
+	                ? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+	                : (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
+
+	        sanPhamSoLuongTonKhoMap.put(ma, soLuongTonKho);
+	        soLuongThucTeMap.put(ma, soLuongTonKho);
+
+	        if (soLuongTonKho != sp.getSoLuong()) {
+	            coSaiSo = true;
+	        }
+	    }
+
+	    model.addAttribute("sanPhamSoLuongTonKhoMap", sanPhamSoLuongTonKhoMap);
+	    model.addAttribute("soLuongThucTeMap", soLuongThucTeMap);
+	    model.addAttribute("danhSachSanPham", danhSachSanPham);
+	    model.addAttribute("caLamViecId", id);
+	    model.addAttribute("coSaiSo", coSaiSo);
+
+	    return "warehouse/shifts/kiemke";
+	}
 
 	// Hiển thị form kiểm kê
-	@GetMapping("/{id}")
-	public String showKiemKeForm(@PathVariable("id") Integer id, Model model) {
-		// Lấy danh sách sản phẩm
-		List<SanPham> danhSachSanPham = sanPhamService.getProductsInOrderDetails(Pageable.unpaged()).getContent();
-		Map<Integer, Integer> sanPhamSoLuongTonKhoMap = new HashMap<>();
-		Map<Integer, Integer> soLuongThucTeMap = new HashMap<>();
-		boolean coSaiSo = false;
-
-		for (SanPham sp : danhSachSanPham) {
-			Integer maSanPham = sp.getMaSanPham();
-
-			int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sp.getMaSanPham());
-			int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(sp.getMaSanPham());
-			int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(sp.getMaSanPham());
-			int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
-			int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
-
-			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
-
-			int soLuongTonKho = (tonKhoDaDuyet != null) ? 
-					(tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
-					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe +soLuongTraHang);
-
-			sanPhamSoLuongTonKhoMap.put(sp.getMaSanPham(), soLuongTonKho);
-			soLuongThucTeMap.put(sp.getMaSanPham(), soLuongTonKho);
-
-			// Nếu số lượng thực tế khác số lượng tồn kho => Có sai số
-			if (soLuongTonKho != sp.getSoLuong()) {
-				coSaiSo = true;
-			}
-		}
-
-		model.addAttribute("sanPhamSoLuongTonKhoMap", sanPhamSoLuongTonKhoMap);
-		model.addAttribute("soLuongThucTeMap", soLuongThucTeMap);
-		model.addAttribute("danhSachSanPham", danhSachSanPham);
-		model.addAttribute("caLamViecId", id);
-		model.addAttribute("coSaiSo", coSaiSo);
-
-		return "warehouse/shifts/kiemke"; // Trả về giao diện kiểm kê
-	}
+//	@GetMapping("/{id}")
+//	public String showKiemKeForm(@PathVariable("id") Integer id, Model model) {
+//		// Lấy danh sách sản phẩm
+//		List<SanPham> danhSachSanPham = sanPhamService.getProductsInOrderDetails(Pageable.unpaged()).getContent();
+//		Map<Integer, Integer> sanPhamSoLuongTonKhoMap = new HashMap<>();
+//		Map<Integer, Integer> soLuongThucTeMap = new HashMap<>();
+//		boolean coSaiSo = false;
+//
+//		for (SanPham sp : danhSachSanPham) {
+//			Integer maSanPham = sp.getMaSanPham();
+//
+//			int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sp.getMaSanPham());
+//			int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(sp.getMaSanPham());
+//			int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(sp.getMaSanPham());
+//			int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+//			int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+//
+//			Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+//
+//			int soLuongTonKho = (tonKhoDaDuyet != null) ? 
+//					(tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+//					: (tongSoLuongNhap - soLuongBan - soLuongTrenKe +soLuongTraHang);
+//
+//			sanPhamSoLuongTonKhoMap.put(sp.getMaSanPham(), soLuongTonKho);
+//			soLuongThucTeMap.put(sp.getMaSanPham(), soLuongTonKho);
+//
+//			// Nếu số lượng thực tế khác số lượng tồn kho => Có sai số
+//			if (soLuongTonKho != sp.getSoLuong()) {
+//				coSaiSo = true;
+//			}
+//		}
+//
+//		model.addAttribute("sanPhamSoLuongTonKhoMap", sanPhamSoLuongTonKhoMap);
+//		model.addAttribute("soLuongThucTeMap", soLuongThucTeMap);
+//		model.addAttribute("danhSachSanPham", danhSachSanPham);
+//		model.addAttribute("caLamViecId", id);
+//		model.addAttribute("coSaiSo", coSaiSo);
+//
+//		return "warehouse/shifts/kiemke"; // Trả về giao diện kiểm kê
+//	}
 
 	// Xem danh sách sản phẩm đã kiểm kê trong một ca làm việc
 	@GetMapping("/view/{caLamViecId}")

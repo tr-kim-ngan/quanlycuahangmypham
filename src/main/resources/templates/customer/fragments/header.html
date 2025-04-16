@@ -86,16 +86,17 @@
 					<form id="search-form" th:action="@{/category/search}" method="get" class="row">
 						<!-- Dropdown danh mục -->
 						<div class="col-md-4 d-none d-md-block">
-							<select class="form-select border-0 bg-transparent" id="categorySelect" name="category">
-								<option value="-1" th:selected="${category == -1}" style="font-weight: bold;">Tất cả
+							<select style="font-weight: bold; color: rgb(0, 0, 64); white-space: nowrap; width: auto; max-width: 100%;" class="form-select border-0 bg-transparent" id="categorySelect" name="category">
+								<option value="-1" th:selected="${category == -1}" style="font-weight: bold; color: rgb(0, 0, 64);">Tất cả
 									danh mục</option>
 								<option th:each="cat : ${categories}" th:value="${cat.maDanhMuc}"
 									th:text="${cat.tenDanhMuc}" th:selected="${cat.maDanhMuc == category}"
 									style="font-weight: bold;"></option>
 							</select>
 						</div>
+						
 						<div class="col-11 col-md-7">
-							<input type="text" name="keyword" class="form-control border-0 bg-transparent"
+							<input style="font-weight: bold; color: rgb(0, 0, 64);" type="text" name="keyword" class="form-control border-0 bg-transparent"
 								placeholder="Tìm kiếm" th:value="${keyword}" />
 						</div>
 						<div class="col-2 col-md-1">

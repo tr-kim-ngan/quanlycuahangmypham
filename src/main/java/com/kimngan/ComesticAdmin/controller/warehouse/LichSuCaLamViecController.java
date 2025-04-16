@@ -71,6 +71,10 @@ public class LichSuCaLamViecController {
 	        caDaKiemKeMap.put(ca.getMaLichSu(), daKiemKe);
 	    }
 
+	    // ✅ Thêm dòng này để navbar nhận đúng user
+	    NguoiDung currentUser = nguoiDungService.findByTenNguoiDung(principal.getName());
+	    model.addAttribute("currentWarehouseUser", currentUser);
+
 	    model.addAttribute("danhSachCa", danhSachCaPage.getContent());
 	    model.addAttribute("caDangHoatDong", caDangHoatDong);
 	    model.addAttribute("caDaKiemKeMap", caDaKiemKeMap);
@@ -79,6 +83,7 @@ public class LichSuCaLamViecController {
 
 	    return "warehouse/shifts/list";
 	}
+
 
 
 	// Nhân viên kho bắt đầu ca làm việc

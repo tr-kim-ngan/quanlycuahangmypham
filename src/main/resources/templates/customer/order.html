@@ -130,15 +130,21 @@
 
 
 
-				<p><strong>💰 Tổng tiền:</strong>
+				<p th:if="${order.tongGiaTriDonHang != 0}">
+					<strong>💰 Tổng tiền:</strong>
 					<span
 						th:text="${#numbers.formatDecimal(order.tongGiaTriDonHang, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
 				</p>
 
+				<p th:if="${order.tongGiaTriDonHang == 0}">
+					<strong>💰</strong> <span style="color: green; font-weight: bold;">Đã thanh toán qua VNPay</span>
+				</p>
+
+
 				<!-- 🔹 Nút hành động -->
 				<div style="display: flex; gap: 10px; margin-top: 15px;">
 					<!-- Nút xem chi tiết -->
-				<!--	<a th:href="@{/customer/order/{maDonHang}(maDonHang=${order.maDonHang})}" style="background-color: #007bff; color: white; padding: 8px 12px; border-radius: 5px; 
+					<!--	<a th:href="@{/customer/order/{maDonHang}(maDonHang=${order.maDonHang})}" style="background-color: #007bff; color: white; padding: 8px 12px; border-radius: 5px; 
                   text-decoration: none; transition: 0.3s; font-size: 14px;">
 						Xem Chi Tiết
 					</a>

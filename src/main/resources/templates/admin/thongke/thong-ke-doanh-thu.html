@@ -187,8 +187,55 @@
 			}
 		});
 
+		// Rút gọn tên sản phẩm nếu quá dài
+		const maxLength = 25;
+		const shortProductNames = productNames.map(name => {
+			const match = name.match(/(.+?)\s*(\(\d+\))$/); // tách phần tên và số lượng (nếu có)
+			if (match) {
+				const ten = match[1];
+				const soLuong = match[2];
+				const shortName = ten.length > maxLength ? ten.substring(0, maxLength) + "..." : ten;
+				return shortName + " " + soLuong;
+			} else {
+				return name.length > maxLength ? name.substring(0, maxLength) + "..." : name;
+			}
+		});
+
 		// Biểu đồ doanh thu và lợi nhuận theo sản phẩm (Bar chart)
 		const ctxByProduct = document.getElementById("chartByProduct").getContext("2d");
+		new Chart(ctxByProduct, {
+			type: "bar",
+			data: {
+				labels: shortProductNames, // dùng tên rút gọn ở đây
+				datasets: [
+					{
+						label: "Doanh thu (VNĐ)",
+						backgroundColor: "rgba(54, 162, 235, 0.6)",
+						borderColor: "rgba(54, 162, 235, 1)",
+						borderWidth: 1,
+						data: revenueData
+					},
+					{
+						label: "Lợi nhuận (VNĐ)",
+						backgroundColor: "rgba(255, 99, 132, 0.6)",
+						borderColor: "rgba(255, 99, 132, 1)",
+						borderWidth: 1,
+						data: profitData
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				scales: {
+					y: {
+						beginAtZero: true
+					}
+				}
+			}
+		});
+
+		// Biểu đồ doanh thu và lợi nhuận theo sản phẩm (Bar chart)
+	/*const ctxByProduct = document.getElementById("chartByProduct").getContext("2d");
 		new Chart(ctxByProduct, {
 			type: "bar",
 			data: {
@@ -219,7 +266,7 @@
 				}
 			}
 		});
-
+*/
 		function toggleRightPanel() {
 			const panel = document.getElementById("right-panel");
 			if (panel.style.right === "0px") {

@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Thêm Nhà Cung Cấp</title>
+	<title>Hello, Warehouse Staff</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 
 	<style>
@@ -98,7 +98,7 @@
 
 		<!-- Thanh tiêu đề -->
 		<div class="header" style="padding-left: 300px;">
-			<h2>Thêm Nhà Cung Cấp</h2>
+			<h2 style="transform: translateX(230%);">Thêm Nhà Cung Cấp</h2>
 			<div class="header-buttons">
 				<a href="/warehouse/import/nha-cung-cap" class="btn btn-secondary">Thoát</a>
 				<button type="submit" class="btn btn-primary">Lưu</button>
@@ -109,7 +109,7 @@
 		<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
 
 		<!-- Nội dung chính -->
-		<div class="container">
+		<div class="container" style="transform: translateX(15%);">
 			<div class="form-group">
 				<label for="tenNhaCungCap">Tên nhà cung cấp</label>
 				<input type="text" id="tenNhaCungCap" name="tenNhaCungCap" th:field="*{tenNhaCungCap}" required>

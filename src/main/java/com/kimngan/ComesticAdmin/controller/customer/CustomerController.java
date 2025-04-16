@@ -317,6 +317,7 @@ public class CustomerController {
 			}
 			brandGroups.add(group);
 		}
+	
 		
 		model.addAttribute("sanPhamsSapKhuyenMai", sanPhamsSapKhuyenMai);
 		model.addAttribute("sanPhamSapKhuyenMaiMap", sanPhamSapKhuyenMaiMap);

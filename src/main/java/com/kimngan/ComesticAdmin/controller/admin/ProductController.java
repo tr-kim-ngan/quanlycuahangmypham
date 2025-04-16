@@ -195,6 +195,7 @@ public class ProductController {
 	// Trang thêm sản phẩm
 	@GetMapping("/add-product")
 	public String addProduct(Model model, @RequestParam(value = "keyword", required = false) String keyword,
+			HttpServletRequest request,
 			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "5") int size) {
 
@@ -252,7 +253,7 @@ public class ProductController {
 		model.addAttribute("sanPham", new SanPham());
 		model.addAttribute("listDonViTinh", donViTinhService.getAll());
 		model.addAttribute("listDanhMuc", danhMucService.getAll());
-
+		 model.addAttribute("requestUri", request.getRequestURI());
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);
@@ -567,6 +568,7 @@ public class ProductController {
 	@GetMapping("/view-product/{id}")
 	public String viewProductDetail(@PathVariable("id") Integer productId, Model model,
 			@RequestParam(value = "keyword", required = false) String keyword,
+			HttpServletRequest request,
 			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "5") int size) {
 
@@ -683,7 +685,7 @@ public class ProductController {
 		model.addAttribute("nhaCungCaps", nhaCungCaps);
 		model.addAttribute("chiTietDonNhapHangList", chiTietDonNhapHangList);
 	    model.addAttribute("formattedDonGiaNhapMap", formattedDonGiaNhapMap);
-
+	    model.addAttribute("requestUri", request.getRequestURI());
 		model.addAttribute("soldQuantity", soldQuantity);
 		model.addAttribute("thuongHieu", thuongHieu);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

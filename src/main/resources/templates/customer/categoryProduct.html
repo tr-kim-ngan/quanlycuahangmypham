@@ -30,16 +30,17 @@
 
 <body>
 	<header th:replace="~{customer/fragments/header :: header}"></header>
-	<main style="display: flex; gap: 20px; padding: 0px 50px; padding-top: 180px;">
+	<main style="display: flex; gap: 20px; padding: 0px 50px; padding-top: 180px; align-items: flex-start;">
 
 
 
 		<!-- Cột 1: Danh sách danh mục -->
-		<div style="flex: 1;">
+		<div style="width: 220px; flex-shrink: 0;">
 			<h3 style="font-size: 1.5rem; font-weight: bold; color: #333; margin-bottom: 20px;">Danh mục</h3>
-			<ul style="list-style: none; padding: 0; margin: 0;">
+			<ul style="list-style: none; padding: 0; margin: 0; font-weight: bold !important; color: rgb(0, 0, 64);">
+
 				<!-- Thêm mục "Tất cả" -->
-				<li style="padding: 10px 15px; margin-bottom: 8px; border-radius: 12px; transition: background-color 0.3s ease, transform 0.2s ease; cursor: pointer; font-size: 1.1rem; font-weight: 500; color: #34495e; display: flex; align-items: center;"
+				<li style=" font-weight: bold !important; color: #34495e; padding: 10px 15px; margin-bottom: 8px; border-radius: 12px; transition: background-color 0.3s ease, transform 0.2s ease; cursor: pointer; font-size: 1.1rem; font-weight: 500; color: #34495e; display: flex; align-items: center;"
 					th:classappend="${maDanhMuc == 'all'} ? 'active' : ''"
 					onmouseover="this.style.backgroundColor='#d1e7ef'; this.style.color='#2c3e50'; this.style.transform='scale(1.02)';"
 					onmouseout="this.style.backgroundColor='transparent'; this.style.color='#34495e'; this.style.transform='scale(1)';">
@@ -54,7 +55,7 @@
 				<!-- Các danh mục khác -->
 				<li th:each="category : ${categories}"
 					th:classappend="${category.maDanhMuc == maDanhMuc} ? 'active' : ''"
-					style="padding: 10px 15px; margin-bottom: 8px; border-radius: 12px; transition: background-color 0.3s ease, transform 0.2s ease; cursor: pointer; font-size: 1.1rem; font-weight: 500; color: #34495e; display: flex; align-items: center;"
+					style="font-weight: bold !important; color: #34495e; padding: 10px 15px; margin-bottom: 8px; border-radius: 12px; transition: background-color 0.3s ease, transform 0.2s ease; cursor: pointer; font-size: 1.1rem; font-weight: 500; color: #34495e; display: flex; align-items: center;"
 					onmouseover="this.style.backgroundColor='#d1e7ef'; this.style.color='#2c3e50'; this.style.transform='scale(1.02)';"
 					onmouseout="this.style.backgroundColor='transparent'; this.style.color='#34495e'; this.style.transform='scale(1)';">
 					<a th:href="@{'/category/' + ${category.maDanhMuc}}" th:text="${category.tenDanhMuc}"
@@ -68,55 +69,6 @@
 			</ul>
 		</div>
 
-
-
-
-		<!-- Cột 2: Thanh kéo để chọn khoảng giá 
-		<div style="flex: 1;">
-			<h3 style="font-weight: bold;">Khoảng giá</h3>
-			<label for="priceRange">Chọn giá tối đa:</label>
-			<input type="range" id="priceRange" min="0" max="2000000" value="2000000" step="50000">
-			<p>Giá hiện tại: <span id="priceDisplay" style="font-weight: bold;">2,000,000 VND</span></p>
-
-
-			<div style="margin-top: 20px;">
-				<form method="get" action="" id="sortForm">
-					<label for="sortOrder">Sắp xếp theo giá:</label>
-					<select id="sortOrder" name="sortOrder" onchange="document.getElementById('sortForm').submit()">
-						<option value="asc" th:selected="${sortOrder == 'asc'}">Giá tăng dần</option>
-						<option value="desc" th:selected="${sortOrder == 'desc'}">Giá giảm dần</option>
-					</select>
-				</form>
-
-
-			</div>
-
-
-
-		</div>-->
-
-		<!--<section class="filters">
-			<form th:action="@{'/category/' + ${maDanhMuc != null ? maDanhMuc : 'all'}}" method="get">
-				<div style="display: flex; align-items: center; gap: 10px;">
-					<label>KHOẢNG GIÁ:</label>
-					<input type="number" id="minPrice" name="minPrice" th:value="${minPrice != null ? minPrice : ''}"
-						placeholder="đ TỪ">
-					-
-					<input type="number" id="maxPrice" name="maxPrice" th:value="${maxPrice != null ? maxPrice : ''}"
-						placeholder="đ ĐẾN">
-					<button type="submit">Áp dụng</button>
-				</div>
-
-				<div style="display: flex; align-items: center; gap: 10px;">
-					<label for="sortOrder">SẮP XẾP:</label>
-					<select id="sortOrder" name="sortOrder">
-						<option value="asc" th:selected="${sortOrder == 'asc'}">Giá thấp đến cao</option>
-						<option value="desc" th:selected="${sortOrder == 'desc'}">Giá cao đến thấp</option>
-					</select>
-					<button type="submit">Lọc</button>
-				</div>
-			</form>
-		</section>-->
 
 
 		<!-- Cột 2: Sản phẩm của danh mục đã chọn -->
@@ -139,12 +91,15 @@
 						<div style="display: flex; align-items: center; gap: 10px;">
 							<label style="font-weight: bold; color: #333;">KHOẢNG GIÁ:</label>
 							<input type="number" id="minPrice" name="minPrice"
-								th:value="${minPrice != null ? minPrice : ''}" placeholder="đ TỪ" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; text-align: center; 
-                              font-size: 14px; width: 120px;">
+								th:value="${minPrice != null and minPrice > 0 ? minPrice : ''}" placeholder="đ TỪ"
+								style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; text-align: center; font-size: 14px; width: 120px;">
+
 							-
 							<input type="number" id="maxPrice" name="maxPrice"
-								th:value="${maxPrice != null ? maxPrice : ''}" placeholder="đ ĐẾN" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; text-align: center; 
-                              font-size: 14px; width: 120px;">
+								th:value="${maxPrice != null and maxPrice < 99999999 ? maxPrice : ''}"
+								placeholder="đ ĐẾN"
+								style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; text-align: center; font-size: 14px; width: 120px;">
+
 							<button type="submit" style="padding: 8px 15px; border: none; border-radius: 5px; 
                                background-color: #fbc02d; color: white; font-weight: bold; 
                                cursor: pointer; transition: background-color 0.3s ease;"
@@ -193,7 +148,19 @@
                 border: 1px solid #ddd; 
                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             " onmouseover="this.style.borderColor='#ffc107';" onmouseout="this.style.borderColor='#ddd';">
-
+						<span th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
+							th:text="'-' + ${sanPhamKhuyenMaiMap[sanPham.maSanPham].phanTramGiamGia} + '%'" style="
+			  position: absolute;
+			  top: 8px;
+			  left: 8px;
+			  background: #ff4d4f;
+			  color: white;
+			  padding: 2px 6px;
+			  font-size: 11px;
+			  border-radius: 5px;
+			  font-weight: bold;
+			  z-index: 10;">
+						</span>
 						<!-- Hình ảnh sản phẩm -->
 						<figure style="margin: 0; padding: 0; text-align: center;">
 							<a th:href="@{'/product/' + ${sanPham.maSanPham}}" th:title="${sanPham.tenSanPham}">
@@ -236,23 +203,23 @@
 								<!-- Giá gốc + Khuyến mãi -->
 								<div style="display: flex; align-items: center; gap: 5px;">
 									<div th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
-										style="font-size: 10px; color: #999; text-decoration: line-through;">
+										style="font-size: 12px; color: #999; text-decoration: line-through;">
 										<span
 											th:text="${#numbers.formatDecimal(sanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
 									</div>
 
-									<!-- Phần trăm giảm giá -->
+									<!-- Phần trăm giảm giá 
 									<span th:if="${sanPhamKhuyenMaiMap[sanPham.maSanPham] != null}"
 										th:text="'-' + ${sanPhamKhuyenMaiMap[sanPham.maSanPham].phanTramGiamGia} + '%'"
 										style="background: #ff4d4f; color: white; padding: 2px 6px; font-size: 10px; border-radius: 3px;">
-									</span>
+									</span>-->
 								</div>
 							</div>
 
 							<!-- Số lượng còn lại -->
 							<span class="remaining-quantity"
 								style="font-size: 12px; color: #555; display: block; margin-top: 5px;">
-								Số lượng:<span th:if="${sanPhamSoLuongTonKhoMap != null}"
+								Số lượng: <span th:if="${sanPhamSoLuongTonKhoMap != null}"
 									th:text="${sanPhamSoLuongTonKhoMap[sanPham.maSanPham]}">0</span>
 
 								<span class="qty" th:text="${sanPham.donViTinh.tenDonVi}" style="font-size: 11px;">Đơn

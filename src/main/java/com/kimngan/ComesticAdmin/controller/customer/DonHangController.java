@@ -155,6 +155,9 @@ public class DonHangController {
 		return "customer/order";
 	}
 
+	
+	
+	
 	// Phương thức hiển thị chi tiết đơn hàng
 	@GetMapping("/{maDonHang}")
 	public String viewOrderDetail(@PathVariable Integer maDonHang, Model model) {
@@ -448,21 +451,7 @@ public class DonHangController {
 			for (ChiTietGioHang cartItem : cartItems) {
 				SanPham sanPham = cartItem.getSanPham();
 				Integer maSanPham = sanPham.getMaSanPham();
-//	            // 🔹 Lấy tổng số lượng nhập kho
-//	            int soLuongNhap = Optional.ofNullable(
-//	                    chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(sanPham.getMaSanPham()))
-//	                    .orElse(0);
-//
-//	            // 🔹 Lấy tổng số lượng đã bán trước khi lưu đơn hàng mới
-//	            int soLuongBanTruoc = Optional.ofNullable(
-//	                    chiTietDonHangService.getTotalQuantityBySanPhamId(sanPham.getMaSanPham()))
-//	                    .orElse(0);
-//
-//	            // 🔹 Lấy tổng số lượng trên kệ
-//	            int soLuongTrenKe = Optional.ofNullable(sanPham.getSoLuong()).orElse(0);
-//
-//	            // 🔹 Tính tồn kho thực tế trước khi đặt hàng
-//	            int soLuongTonKho = soLuongNhap - soLuongBanTruoc - soLuongTrenKe;
+
 				int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
 				int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
 				int soLuongTrenKe = sanPhamRepository.getSoLuongTrenKe(maSanPham);

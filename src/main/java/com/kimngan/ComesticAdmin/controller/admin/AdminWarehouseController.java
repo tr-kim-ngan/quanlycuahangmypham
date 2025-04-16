@@ -42,18 +42,16 @@ public class AdminWarehouseController {
 
     // 1. Danh sách nhân viên kho
     @GetMapping
-    public String listWarehouseStaff(Model model) {
+    public String listWarehouseStaff(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
         List<NguoiDung> nhanViens = nguoiDungService.findByRole("NHAP_KHO")
                 .stream()
                 .filter(NguoiDung::isTrangThai)
+                .filter(nv -> keyword == null || nv.getHoTen().toLowerCase().contains(keyword.toLowerCase()))
                 .sorted(Comparator.comparingInt(NguoiDung::getMaNguoiDung).reversed())
                 .collect(Collectors.toList());
 
-        // In ra console để debug
-        System.out.println("⚙️ Danh sách nhân viên kho:");
-        nhanViens.forEach(nv -> System.out.println("- " + nv.getMaNguoiDung() + ": " + nv.getTenNguoiDung()));
-
         model.addAttribute("warehouseStaff", nhanViens);
+        model.addAttribute("keyword", keyword); // để hiển thị lại ô input nếu cần
         return "admin/warehouse/index";
     }
 

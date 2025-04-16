@@ -35,8 +35,8 @@
 						style="background-color: white; border-radius: 8px;">
 						<thead class="thead-dark" style="background-color: #ffc6c7; color: #333;">
 							<tr>
-								<th style="text-align: center;">Stt</th>
-								<th style="text-align: center;">Tên sản phẩm</th>
+								<th style="text-align: center;">Mã SP</th>
+								<th style="text-align: center; width: 25%;">Tên sản phẩm</th>
 								<th style="text-align: center;">Hình ảnh</th>
 								<!--<th style="text-align: center;">Mô tả</th
 								<th style="text-align: center;">Số lượng</th>-->
@@ -58,9 +58,10 @@
 							</tr>
 							<!-- Dùng Thymeleaf để lặp qua danh sách sản phẩm -->
 							<tr th:each="sanPham, iterStat : ${listSanPham}">
-								<!-- Hiển thị số thứ tự -->
+								<!-- Hiển thị số thứ tự 
 								<td style="text-align: center;" th:text="${(currentPage * size) + iterStat.count}"></td>
-
+							-->
+								<td style="text-align: center;" th:text="${sanPham.maSanPham}"></td>
 								<td style="text-align: center;" th:text="${sanPham.tenSanPham}"></td>
 
 								<td style="text-align: center;">
@@ -77,13 +78,14 @@
 										th:text="${sanPham.moTa}"></span>
 								</td>-->
 
-							<!--	<td style="text-align: center;" th:text="${sanPham.soLuong}"></td>-->
+								<!--	<td style="text-align: center;" th:text="${sanPham.soLuong}"></td>-->
 
 								<!-- Đơn giá 
 								<td style="text-align: center;" th:text="${sanPham.donGiaBan} + ' VND'">
 
 								</td>-->
-								<td style="text-align: center; white-space: nowrap;" th:text="${formattedPrices[sanPham.maSanPham]}"></td>
+								<td style="text-align: center; white-space: nowrap;"
+									th:text="${formattedPrices[sanPham.maSanPham]}"></td>
 
 
 

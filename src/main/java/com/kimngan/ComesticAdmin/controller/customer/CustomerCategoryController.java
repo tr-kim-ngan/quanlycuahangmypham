@@ -278,6 +278,37 @@ public class CustomerCategoryController {
 			sanPhamAverageRatingMap.put(sanPham.getMaSanPham(), averageRating);
 		}
 
+		Map<Integer, String> sanPhamThuongHieuMap = new HashMap<>();
+
+		for (SanPham sanPham : searchResults) {
+		    if (sanPham.getThuongHieu() != null) {
+		        sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), sanPham.getThuongHieu().getTenThuongHieu());
+		    } else {
+		        sanPhamThuongHieuMap.put(sanPham.getMaSanPham(), "Không có thương hiệu");
+		    }
+		}
+
+		model.addAttribute("sanPhamThuongHieuMap", sanPhamThuongHieuMap);
+		Map<Integer, Integer> sanPhamSoLuongTonKhoMap = new HashMap<>();
+
+		for (SanPham sanPham : searchResults) {
+		    Integer maSanPham = sanPham.getMaSanPham();
+		    int tongSoLuongNhap = chiTietDonNhapHangService.getTotalImportedQuantityBySanPhamId(maSanPham);
+		    int soLuongBan = chiTietDonHangService.getTotalQuantityBySanPhamId(maSanPham);
+		    int soLuongTrenKe = sanPhamService.getSoLuongTrenKe(maSanPham);
+		    int deltaKiemKe = kiemKeKhoService.getDeltaKiemKe(maSanPham);
+		    int soLuongTraHang = donHangService.getSoLuongTraHang(maSanPham);
+		    Integer tonKhoDaDuyet = kiemKeKhoService.getLastApprovedStock(maSanPham);
+
+		    int soLuongTonKho = (tonKhoDaDuyet != null)
+		        ? (tongSoLuongNhap - soLuongBan - soLuongTrenKe + deltaKiemKe + soLuongTraHang)
+		        : (tongSoLuongNhap - soLuongBan - soLuongTrenKe + soLuongTraHang);
+
+		    sanPhamSoLuongTonKhoMap.put(maSanPham, soLuongTonKho);
+		}
+
+		model.addAttribute("sanPhamSoLuongTonKhoMap", sanPhamSoLuongTonKhoMap);
+
 		// Lấy danh sách danh mục và thêm vào model
 		List<DanhMuc> categories = danhMucService.getAll();
 		model.addAttribute("categories", categories);

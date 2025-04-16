@@ -52,7 +52,7 @@
 						</thead>
 						<tbody>
 							<tr th:each="shipper, iterStat  : ${shippers}">
-								<td style="text-align: center;" th:text="${iterStat.count}"></td>
+								<td style="text-align: center;" th:text="${shipper.maNguoiDung}"></td>
 								<td style="text-align: center;" th:text="${shipper.tenNguoiDung}"></td>
 								<td style="text-align: center;" th:text="${shipper.hoTen}"></td>
 								<td style="text-align: center;" th:text="${shipper.email}"></td>

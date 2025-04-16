@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Chi tiết đơn hàng đã xuất</title>
+	<title>Hello, Warehouse Staff</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 
 	<style>
@@ -98,8 +98,8 @@
 
 
 	<div class="header" style="padding-left: 300px;">
-		<h2>Chi tiết đơn hàng đã xuất</h2>
-		<div style="display: flex; gap: 10px; padding-left: 300px; margin-bottom: 20px; align-items: center;">
+		<h2 style="transform: translateX(170%);">Chi tiết đơn hàng đã xuất</h2>
+		<div style="display: flex; gap: 10px; padding-left: 300px; margin-bottom: 0px; align-items: center;">
 			<a href="/warehouse/import/exported-orders" class="btn btn-primary">Quay lại</a>
 
 
@@ -156,54 +156,50 @@
 		<table class="table table-bordered mt-3">
 			<tbody>
 				<tr>
-					<td><b>Mã đơn hàng:</b></td>
+					<td class="text-start"><b>Mã đơn hàng:</b></td>
 					<td th:text="${donHang.maDonHang}"></td>
 				</tr>
 				<tr>
-					<td><b>Khách hàng:</b></td>
+					<td class="text-start"><b>Khách hàng:</b></td>
 					<td th:if="${donHang.nguoiDung != null}"
 						th:text="${donHang.nguoiDung.hoTen + ' - ' + donHang.nguoiDung.soDienThoai}"></td>
 					<td th:if="${donHang.nguoiDung == null}">Không xác định</td>
 				</tr>
-
 				<tr>
-					<td><b>Ngày đặt:</b></td>
+					<td class="text-start"><b>Ngày đặt:</b></td>
 					<td th:text="${#temporals.format(donHang.ngayDat, 'dd-MM-yyyy HH:mm:ss')}"></td>
 				</tr>
 				<tr>
-					<td><b>Ngày xuất kho:</b></td>
+					<td class="text-start"><b>Ngày xuất kho:</b></td>
 					<td
 						th:text="${donHang.ngayXacNhanXuatKho != null ? #temporals.format(donHang.ngayXacNhanXuatKho, 'dd-MM-yyyy HH:mm:ss') : 'Chưa cập nhật'}">
 					</td>
 				</tr>
 				<tr>
-					<td><b>Trạng thái:</b></td>
+					<td class="text-start"><b>Trạng thái:</b></td>
 					<td th:text="${donHang.trangThaiDonHang}"></td>
 				</tr>
-
 				<tr th:if="${donHang.shipper != null}">
-					<td><b>Giao hàng:</b></td>
+					<td class="text-start"><b>Giao hàng:</b></td>
 					<td>
 						<span th:text="${donHang.shipper.hoTen}"></span> -
 						<span th:text="${donHang.shipper.soDienThoai}"></span>
 					</td>
 				</tr>
-
 				<tr th:if="${donHang.trangThaiDonHang == 'Đã hủy'}">
-					<td><b> Lý Do:</b></td>
+					<td class="text-start"><b> Lý Do:</b></td>
 					<td th:text="${donHang.ghiChu != null ? donHang.ghiChu : 'Không có ghi chú'}"></td>
 				</tr>
 				<tr th:if="${donHang.trangThaiChoXacNhan != null}">
-					<td><b>Trạng thái chờ xác nhận:</b></td>
+					<td class="text-start"><b>Trạng thái chờ xác nhận:</b></td>
 					<td th:text="${donHang.trangThaiChoXacNhan}"></td>
 				</tr>
 				<tr th:if="${donHang.ghiChu != null and donHang.trangThaiDonHang != 'Đã hủy'}">
-					<td><b>Ghi chú:</b></td>
+					<td class="text-start"><b>Ghi chú:</b></td>
 					<td th:text="${donHang.ghiChu}"></td>
 				</tr>
-
 				<tr th:if="${donHang.hinhAnhGiaoHang != null}">
-					<td><b>Ảnh giao hàng:</b></td>
+					<td class="text-start"><b>Ảnh giao hàng:</b></td>
 					<td>
 						<a th:href="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}" target="_blank">
 							<img th:src="@{'/upload/' + ${donHang.hinhAnhGiaoHang}}" alt="Ảnh giao hàng"
@@ -211,6 +207,7 @@
 						</a>
 					</td>
 				</tr>
+
 
 			</tbody>
 		</table>

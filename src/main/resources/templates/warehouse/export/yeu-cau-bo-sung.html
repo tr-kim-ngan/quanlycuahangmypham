@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Yêu Cầu Bổ Sung</title>
+	<title>Hello, Warehouse Staff</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -18,7 +18,7 @@
 		.container {
 			max-width: 1100px;
 			margin: 30px auto;
-			padding: 20px 30px;
+			padding: 0px 10px;
 			border-radius: 8px;
 		}
 
@@ -60,8 +60,8 @@
 		}
 
 		th {
-			background-color: #343a40;
-			color: white;
+			background-color: azure;
+			color: black;
 			text-transform: uppercase;
 		}
 
@@ -94,7 +94,7 @@
 		.header {
 			background-color: #f8f9fa;
 			padding: 10px;
-			display: flex;
+			
 			justify-content: space-between;
 			align-items: center;
 			border-bottom: 2px solid #dee2e6;
@@ -106,70 +106,98 @@
 			color: #333;
 		}
 
-		.pagination {
+
+
+		.search-row {
 			display: flex;
 			justify-content: center;
+			gap: 40px;
+			margin: 20px 0;
+			flex-wrap: wrap;
+		}
+
+		.search-form {
+			display: flex;
 			align-items: center;
-			margin-top: 20px;
 			gap: 10px;
-			font-size: 16px;
 		}
 
-		.pagination a {
-			background-color: #2b3b5b;
-			color: #fff;
-			padding: 8px 16px;
+		.search-form input {
+			padding: 6px 12px;
+			border: 1px solid #ccc;
 			border-radius: 6px;
-			text-decoration: none;
-			transition: background 0.3s ease, transform 0.2s ease;
+			font-size: 14px;
 		}
 
-		.pagination a:hover {
-			background-color: #1a2537;
-			transform: translateY(-2px);
-		}
-
-		.pagination span {
+		.search-form button {
+			padding: 6px 14px;
+			background-color: #007bff;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			cursor: pointer;
 			font-weight: bold;
+			transition: background-color 0.3s ease;
+		}
+
+		.search-form button:hover {
+			background-color: #0056b3;
 		}
 	</style>
 </head>
 
 <body>
-	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
-
-
-
-	<div class="header" style="padding-left: 300px;">
-		<h2>Danh sách Yêu Cầu Bổ Sung Từ Nhân Viên Bán Hàng</h2>
+	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>s
+	<div class="header" style="padding-left: 300px; text-align: center;">
+		<h2>Danh sách yêu cầu bổ sung hàng lên kệ</h2>
 	</div>
-	<div class="container" style="padding-left: 300px;">
+	<div class="container" style="padding-left: 250px;">
 
 
 		<div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 		<div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
-		<table>
+		<div class="search-row">
+			<!-- Tìm kiếm theo mã -->
+			<form method="get" action="/warehouse/import/yeu-cau-bo-sung" class="search-form"
+				onsubmit="return validateMaSanPhamForm()">
+				<input type="text" name="maSanPham" placeholder="Nhập mã sản phẩm" th:value="${maSanPham}">
+				<button type="submit"> Tìm mã SP</button>
+			</form>
+
+			<!-- Tìm kiếm theo tên -->
+			<form method="get" action="/warehouse/import/yeu-cau-bo-sung" class="search-form">
+				<input type="text" name="tenSanPham" placeholder="Nhập tên sản phẩm" th:value="${tenSanPham}">
+				<button type="submit"> Tìm tên SP</button>
+			</form>
+		</div>
+
+
+		<table style="width: 100%; table-layout: fixed;">
 			<thead>
 				<tr>
-					<th>Mã SP</th>
-					<th>Hình ảnh</th>
-					<th>Tên Sản Phẩm</th>
-					<th>Số lượng yêu cầu</th>
-					<th>Người yêu cầu</th>
-					<th>Thời gian yêu cầu</th>
-					<th>Trạng thái</th>
-					<th>Hành động</th>
+					<th style="width: 5%;">Mã SP</th>
+					<th style="width: 10%;">Hình ảnh</th>
+					<th style="width: 25%;">Tên Sản Phẩm</th>
+					<th style="width: 10%;">Số lượng yêu cầu</th>
+					<th style="width: 15%;">Người yêu cầu</th>
+					<th style="width: 15%;">Thời gian yêu cầu</th>
+					<th style="width: 10%;">Trạng thái</th>
+					<th style="width: 12%;">Hành động</th>
 				</tr>
 			</thead>
 			<tbody>
+				<tr th:if="${pageYeuCau.content.size() == 0}">
+					<td colspan="8" class="text-center text-danger fw-bold">Không tìm thấy kết quả nào.</td>
+				</tr>
 				<tr th:each="yc : ${pageYeuCau.content}">
 					<td th:text="${yc.sanPham.maSanPham}"></td>
 					<td>
 						<img th:src="@{'/upload/' + ${yc.sanPham.hinhAnh}}" alt="Ảnh sản phẩm"
 							style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
 					</td>
-					<td th:text="${yc.sanPham.tenSanPham}"></td>
+					<td style="max-width: 200px; word-wrap: break-word; white-space: normal;"
+						th:text="${yc.sanPham.tenSanPham}"></td>
 					<td th:text="${yc.soLuongYeuCau}"></td>
 					<td th:text="${yc.nguoiYeuCau.hoTen}"></td>
 					<td th:text="${#temporals.format(yc.thoiGianYeuCau, 'dd/MM/yyyy HH:mm')}"></td>
@@ -191,15 +219,42 @@
 
 
 	</div>
-	<div class="pagination">
-		<a th:if="${currentPage > 0}" th:href="@{'/warehouse/import/yeu-cau-bo-sung'(page=${currentPage - 1})}">&laquo;
-			Trước</a>
+	<div class="pagination" style="padding-bottom: 20px; text-align: center;">
+		<nav>
+			<ul style="list-style: none; padding: 0; display: inline-flex; gap: 10px;">
+				<li th:if="${currentPage > 0}">
+					<a th:href="@{'/warehouse/import/yeu-cau-bo-sung'(page=${currentPage - 1})}"
+						style="text-decoration: none; padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px;">
+						&laquo; Trước
+					</a>
+				</li>
 
-		<span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
+				<li>
+					<span style="padding: 5px 10px; font-weight: bold;">
+						Trang <span th:text="${currentPage + 1}"></span>/<span th:text="${totalPages}"></span>
+					</span>
+				</li>
 
-		<a th:if="${currentPage + 1 < totalPages}"
-			th:href="@{'/warehouse/import/yeu-cau-bo-sung'(page=${currentPage + 1})}">Tiếp &raquo;</a>
+				<li th:if="${currentPage + 1 < totalPages}">
+					<a th:href="@{'/warehouse/import/yeu-cau-bo-sung'(page=${currentPage + 1})}"
+						style="text-decoration: none; padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px;">
+						Tiếp &raquo;
+					</a>
+				</li>
+			</ul>
+		</nav>
 	</div>
+
+	<script>
+		function validateMaSanPhamForm() {
+			const value = document.querySelector('input[name="maSanPham"]').value;
+			if (value && isNaN(value)) {
+				alert("❗ Vui lòng chỉ nhập số vào ô mã sản phẩm!");
+				return false;
+			}
+			return true;
+		}
+	</script>
 
 </body>
 

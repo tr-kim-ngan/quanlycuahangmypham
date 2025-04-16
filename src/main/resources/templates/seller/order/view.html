@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Chi tiết đơn hàng</title>
+	<title>Hello Seller</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/sale.png}">
 
 	<style>
@@ -44,7 +44,7 @@
 
 
 	<div class="header" style="padding-left: 250px;">
-		<h2>Chi tiết đơn hàng</h2>
+		<h2  style="transform: translateX(200%); font-weight: bold;">Chi tiết đơn hàng</h2>
 		<a href="/seller/orders" class="btn btn-success btn-lg back-btn">Quay về</a>
 	</div>
 	<!-- Sidebar bên trái -->
@@ -68,7 +68,7 @@
 			</div>
 			<div><strong> Địa chỉ giao hàng:</strong> <span th:text="${donHang.diaChiGiaoHang}"></span></div>
 			<div><strong> Trạng thái:</strong> <span th:text="${donHang.trangThaiDonHang}"></span></div>
-			<div><strong>📅 Ngày đặt:</strong>
+			<div><strong>Ngày đặt:</strong>
 				<span th:text="${#temporals.format(donHang.ngayDat, 'dd-MM-yyyy HH:mm')}"></span>
 			</div>
 		</div>
@@ -109,7 +109,7 @@
 			style="width: 100%; margin-top: 20px; background-color: white;">
 			<thead style="background-color: #1f2a40; color: white;">
 				<tr>
-					<th>STT</th>
+					<th>Mã SP</th>
 					<th>Hình ảnh</th>
 					<th>Tên sản phẩm</th>
 					<th>Số lượng</th>
@@ -119,7 +119,7 @@
 			</thead>
 			<tbody>
 				<tr th:each="chiTiet, iterStat : ${donHang.chiTietDonHangs}">
-					<td th:text="${iterStat.count}"></td>
+					<td th:text="${chiTiet.sanPham.maSanPham}"></td>
 					<td><img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}" alt="ảnh"
 							style="width: 60px; height: 60px;"></td>
 					<td th:text="${chiTiet.sanPham.tenSanPham}"></td>

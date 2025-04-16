@@ -97,7 +97,7 @@
 						<table class="table table-striped mt-3">
 							<thead class="table-light">
 								<tr>
-									<th>#</th>
+									<th>STT</th>
 									<th>Hình Ảnh</th>
 									<th>Sản Phẩm</th>
 
@@ -113,7 +113,7 @@
 										<img th:src="@{'/upload/' + ${chiTiet.sanPham.hinhAnh}}"
 											class="rounded shadow-sm" style="width: 80px; height: auto;">
 									</td>
-									<td class="fw-bold">
+									<td class="fw-bold" style="max-width: 250px; word-wrap: break-word; word-break: break-word;" >
 										<span th:text="${chiTiet.sanPham.tenSanPham}"></span>
 										<br>
 										<span class="text-muted">Số lượng: <span

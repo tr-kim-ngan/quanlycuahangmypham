@@ -1,6 +1,6 @@
 <head>
 	<meta charset="UTF-8">
-	<title>Tạo Đơn Hàng</title>
+	<title>Hello Seller</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/sale.png}">
 
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -62,7 +62,7 @@
 
 <body>
 	<div class="header" style="padding-left: 250px;">
-		<h2>Tạo đơn hàng</h2>
+		<h2 style="transform: translateX(270%); font-weight: bold;">Tạo đơn hàng</h2>
 		<a href="/seller/offline-orders/confirm" class="btn btn-success btn-lg">Xác Nhận</a>
 	</div>
 	<div class="container" style="margin-left: 240px;">
@@ -118,21 +118,22 @@
 					<tr th:each="sp : ${sanPhamList}">
 						<td th:text="${sp.maSanPham}"></td>
 						<td class="text-center"><img th:src="@{/upload/} + ${sp.hinhAnh}" style="width: 80px;"></td>
-						<td th:text="${sp.tenSanPham}"></td>
+						<td style="max-width: 250px;" th:text="${sp.tenSanPham}"></td>
 						<td>
 							<span
 								th:utext="${formattedDiscountPrices != null and formattedDiscountPrices.containsKey(sp.maSanPham) ? formattedDiscountPrices[sp.maSanPham] : 'Không có giá'}"></span>
 						</td>
-						<td class="text-center" th:text="${sp.soLuong}"></td>
+						<td style="max-width: 150px;" class="text-center" th:text="${sp.soLuong}"></td>
 						<td>
 							<form th:action="@{/seller/offline-orders/add}" method="post"
-								class="d-flex flex-column align-items-center">
+								class="d-flex align-items-center justify-content-center gap-2">
 								<input type="hidden" name="sanPhamId" th:value="${sp.maSanPham}" />
-								<input type="number" name="soLuong" class="form-control mb-2" value="1" min="1"
-									th:attr="max=${sp.soLuong}" style="width: 80px;">
+								<input type="number" name="soLuong" class="form-control" value="1" min="1"
+									th:attr="max=${sp.soLuong}" style="width: 70px;">
 								<button type="submit" class="btn btn-sm btn-success">Thêm</button>
 							</form>
 						</td>
+
 					</tr>
 					<tr th:if="${sanPhamList.isEmpty()}">
 						<td colspan="5" class="text-center text-muted fw-bold">Không tìm thấy sản phẩm nào.</td>

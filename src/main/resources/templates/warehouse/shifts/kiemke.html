@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Kiểm kê kho</title>
+	<title>Hello, Warehouse Staff</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 
 	<style>
@@ -18,22 +18,22 @@
 			background-color: #f8f9fa;
 			padding: 15px 20px;
 			display: flex;
-			justify-content: space-between;
+			justify-content: flex-end;
+			/* Để nút nằm bên phải */
 			align-items: center;
 			border-bottom: 2px solid #dee2e6;
+			position: relative;
 		}
 
-		.header-buttons {
-			display: flex;
-			gap: 10px;
-			margin-right: 20px;
-		}
-
-		.header h2 {
+		.header-title {
+			position: absolute;
+			left: 55%;
+			transform: translateX(-50%);
 			margin: 0;
 			font-size: 20px;
 			color: #333;
 		}
+
 
 		.container {
 			max-width: 1100px;
@@ -101,49 +101,109 @@
 			margin-top: 20px;
 			text-align: center;
 		}
+
+		.search-form {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.search-form input {
+			padding: 6px 12px;
+			border: 1px solid #ccc;
+			border-radius: 6px;
+			font-size: 14px;
+		}
+
+		.search-form button {
+			padding: 6px 14px;
+			background-color: #007bff;
+			color: white;
+			border: none;
+			border-radius: 6px;
+			cursor: pointer;
+			font-weight: bold;
+			transition: background-color 0.3s ease;
+		}
+
+		.search-form button:hover {
+			background-color: #0056b3;
+		}
 	</style>
 </head>
 
 <body>
-	<form th:action="@{/warehouse/import/kiemke/save}" method="post">
-		<!-- Thanh điều hướng -->
-		<div class="header" style="padding-left: 300px;">
-			<h2>Kiểm Tra Tồn Kho</h2>
-			<div class="header-buttons">
-				<button class="btn btn-primary" type="submit">Gửi kiểm kê</button>
-			</div>
+
+
+	<!-- Thanh điều hướng -->
+	<div class="header" style="padding-left: 300px; position: relative;">
+		<!-- Tiêu đề căn giữa -->
+		<h2 class="header-title">Kiểm Tra Tồn Kho</h2>
+
+		<!-- Nút gửi vẫn nằm bên phải -->
+		<div class="header-buttons">
+			<button form="kiemKeForm" class="btn btn-primary" type="submit">Gửi kiểm kê</button>
 		</div>
+	</div>
 
-		<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+	<!-- Form tìm kiếm nằm ngay dưới header -->
+	<div class="container" style="padding-left: 300px; margin-top: 30px;">
+		<div style="justify-content: center;margin-bottom: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
+			<form class="search-form" method="get" th:action="@{/warehouse/import/kiemke/{id}(id=${caLamViecId})}"
+				style="display: flex; gap: 10px;">
+				<input type="number" name="maSanPham" placeholder="Nhập mã sản phẩm" th:value="${maSanPham}"
+					style="padding: 6px 10px; border-radius: 5px; border: 1px solid #ccc;">
+				<button type="submit"
+					style="padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 5px;">
+					Tìm mã
+				</button>
+			</form>
 
+			<form class="search-form" method="get" th:action="@{/warehouse/import/kiemke/{id}(id=${caLamViecId})}"
+				style="display: flex; gap: 10px;">
+				<input type="text" name="tenSanPham" placeholder="Nhập tên sản phẩm" th:value="${tenSanPham}"
+					style="padding: 6px 10px; border-radius: 5px; border: 1px solid #ccc;">
+				<button type="submit"
+					style="padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 5px;">
+					Tìm tên
+				</button>
+			</form>
+		</div>
+	</div>
+	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
+	<form id="kiemKeForm" th:action="@{/warehouse/import/kiemke/save}" method="post">
 		<div class="container" style="padding-left: 300px;">
 			<input type="hidden" name="caLamViecId" th:value="${caLamViecId}">
 
 			<table>
 				<thead>
 					<tr>
-						<th>STT</th>
-						<th>Hình ảnh</th>
-						<th>Sản phẩm</th>
-						<th>Tồn kho</th>
-						<th>Số lượng thực tế</th>
-						<th>Chênh lệch</th>
-						<th>Chọn</th>
-						<th>Lý do kiểm kê</th>
+						<th style="width: 5%;">Mã SP</th>
+						<th style="width: 20%;">Hình ảnh</th>
+						<th style="width: 25%;">Tên sản phẩm</th>
+						<th style="width: 10%;">Tồn kho</th>
+						<th style="width: 15%;">Số lượng thực tế</th>
+						<th style="width: 10%;">Chênh lệch</th>
+						<th style="width: 5%;">Chọn</th>
+						<th style="width: 20%;">Lý do kiểm kê</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:each="sp, iterStat : ${danhSachSanPham}">
-						<td th:text="${iterStat.count}"></td>
+					<tr th:if="${danhSachSanPham.isEmpty()}">
+						<td colspan="8" class="text-center text-danger fw-bold">Không tìm thấy sản phẩm nào.</td>
+					</tr>
+
+					<tr th:each="sp : ${danhSachSanPham}">
+						<td th:text="${sp.maSanPham}"></td>
 						<td>
 							<img th:src="@{'/upload/' + ${sp.hinhAnh}}" alt="Hình ảnh sản phẩm"
-								style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd; padding: 3px;">
+								style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd; padding: 3px;">
 						</td>
 						<td th:text="${sp.tenSanPham}"></td>
 						<td th:text="${sanPhamSoLuongTonKhoMap[sp.maSanPham]}" class="tonKho"></td>
 						<td>
 							<input type="hidden" name="maSanPham" th:value="${sp.maSanPham}">
-							<input type="number" name="soLuongThucTe" class="soLuongThucTe"
+							<input style="width: 60px;" type="number" name="soLuongThucTe" class="soLuongThucTe"
 								th:value="${soLuongThucTeMap[sp.maSanPham] != null ? soLuongThucTeMap[sp.maSanPham] : 0}"
 								required>
 						</td>

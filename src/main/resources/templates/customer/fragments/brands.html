@@ -3,7 +3,18 @@
 		<div class="container">
 			<div class="row mb-4">
 				<h2 class="section-title text-center text-uppercase fw-bold" style="color: #444;">
-					Danh sách Thương hiệu
+
+					<a th:href="@{/brands/all}" style="
+    color: black; 
+    font-weight: bold; 
+    display: inline-block; 
+    text-decoration: underline; 
+    text-decoration-color: transparent; 
+    text-underline-offset: 3px; 
+    transition: text-decoration-color 0.3s;
+  " onmouseover="this.style.textDecorationColor='black';" onmouseout="this.style.textDecorationColor='transparent';">
+						Danh sách Thương hiệu
+					</a>
 				</h2>
 			</div>
 			<div class="row justify-content-center">
@@ -48,6 +59,7 @@
 				</div>
 			</div>
 		</div>
+
 	</section>
 
 	<style>

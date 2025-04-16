@@ -5,6 +5,8 @@ import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.services.DanhMucService;
 import com.kimngan.ComesticAdmin.services.StorageService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,9 +80,9 @@ public class CategoryController {
 
 // thêm danh mục
 	@GetMapping("/add-category")
-	public String addCategoryPage(Model model) {
+	public String addCategoryPage(Model model,HttpServletRequest request) {
 		model.addAttribute("danhMuc", new DanhMuc());
-
+		model.addAttribute("requestUri", request.getRequestURI());
 		// Thêm đoạn code lấy thông tin người dùng
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
@@ -149,7 +151,9 @@ public class CategoryController {
 
 // sửa danh mục
 	@GetMapping("/edit-category/{id}")
-	public String edit(@PathVariable("id") Integer id, Model model) {
+	public String edit(@PathVariable("id") Integer id,
+			HttpServletRequest request,
+			Model model) {
 		// Tìm danh mục theo ID
 		DanhMuc danhMuc = danhMucService.findById(id);
 
@@ -160,7 +164,7 @@ public class CategoryController {
 
 		// Đưa danh mục vào Model để hiển thị
 		model.addAttribute("danhMuc", danhMuc);
-
+		model.addAttribute("requestUri", request.getRequestURI());
 		// Thêm thông tin người dùng (nếu cần)
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();

@@ -60,7 +60,7 @@
 								<tr th:each="donNhapHang, stat : ${listDonNhapHang}"
 									th:if="${donNhapHang.trangThai== true}">
 									<!-- STT (Số thứ tự) -->
-									<td style="text-align: center;" th:text="${stat.count}"></td>
+									<td style="text-align: center;" th:text="${donNhapHang.maDonNhapHang}"></td>
 									<!-- Mã Đơn Nhập là tên nhà cung cấp -->
 									<!--<td th:text="${donNhapHang.maDonNhapHang}"></td>-->
 									<!-- Ngày nhập hàng -->

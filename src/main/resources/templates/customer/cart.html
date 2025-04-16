@@ -48,14 +48,15 @@
 						<tbody>
 							<tr th:each="item : ${cartItems}" style="border-bottom: 1px solid #ddd;">
 								<!-- Hình ảnh sản phẩm -->
-								<td class="d-flex align-items-center">
+								<td class="d-flex align-items-center" style="max-width: 350px;">
 									<a th:href="@{'/product/' + ${item.sanPham.maSanPham}}" class="me-3">
 										<img th:src="@{'/upload/' + ${item.sanPham.hinhAnh}}" class="img-thumbnail"
 											style="width: 80px; height: 80px; object-fit: cover; border: 1px solid #ddd;">
 									</a>
-									<div>
-										<h6 class="fw-bold" style="color: #000;" th:text="${item.sanPham.tenSanPham}">
-										</h6>
+									<div
+										style="margin-left: 10px; max-width: 220px; word-wrap: break-word; white-space: normal;">
+										<h6 class="fw-bold mb-2" style="color: #000;"
+											th:text="${item.sanPham.tenSanPham}"></h6>
 
 										<form th:action="@{/customer/cart/remove}" method="POST"
 											style="display: inline;">
@@ -67,6 +68,8 @@
 										</form>
 									</div>
 								</td>
+
+
 
 								<!-- Giá tiền -->
 								<td class="text-center">

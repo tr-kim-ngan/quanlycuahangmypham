@@ -161,11 +161,27 @@
 		let labels = /*[[${labels}]]*/[];
 		let values = /*[[${values}]]*/[];
 
+		const maxLength = 25;
+
+		const shortLabels = labels.map(name => {
+			// Giả sử format: "Tên sản phẩm (SP001)"
+			const match = name.match(/(.+?)\s*(\(\w+\))$/); // tách tên và mã (VD: "Tên (SP001)")
+			if (match) {
+				const ten = match[1];
+				const ma = match[2];
+				const shortName = ten.length > maxLength ? ten.substring(0, maxLength) + "..." : ten;
+				return shortName + " " + ma;
+			} else {
+				// Nếu không khớp pattern trên, chỉ rút gọn tên
+				return name.length > maxLength ? name.substring(0, maxLength) + "..." : name;
+			}
+		});
+
 		const ctx = document.getElementById('importChart').getContext('2d');
 		new Chart(ctx, {
 			type: 'bar',
 			data: {
-				labels: labels,
+				labels: shortLabels,
 				datasets: [{
 					label: 'Số lượng nhập',
 					data: values,
@@ -195,6 +211,7 @@
 				}
 			}
 		});
+
 		function toggleRightPanel() {
 			const panel = document.getElementById("right-panel");
 			if (panel.style.right === "0px") {

@@ -20,11 +20,11 @@
 						<div>
 							<h6 class="op-7 mb-2">Danh sách sản phẩm trong kho</h6>
 						</div>
-						<!-- Ô tìm kiếm -->
+						<!-- Ô tìm kiếm 
 						<form th:action="@{/admin/inventory}" method="get" class="d-flex">
 							<input type="text" name="keyword" class="form-control me-2" placeholder="Nhập tên sản phẩm..." th:value="${keyword}">
 							<button type="submit" class="btn btn-primary">Tìm kiếm</button>
-						</form>
+						</form>-->
 					</div>
 
 					<!-- Bảng hiển thị sản phẩm tồn kho -->
@@ -35,14 +35,14 @@
 									<th>STT</th>
 									<th>Hình ảnh</th>
 									<th>Tên sản phẩm</th>
-								<!--	<th>Số lượng trên kệ</th>-->
+									<th>Số lượng trên kệ</th>
 									<th>Số lượng tồn kho</th>
 									
 								</tr>
 							</thead>
 							<tbody>
 								<tr th:each="sanPham, stat : ${danhSachSanPham}">
-									<td th:text="${stat.count}"></td>
+									<td th:text="${sanPham.maSanPham}"></td>
 									<td>
 										<img th:src="@{'/upload/' + ${sanPham.hinhAnh}}" alt="Hình ảnh sản phẩm"
 											style="width: 60px; height: auto; border-radius: 5px;">
@@ -52,15 +52,15 @@
 										<span th:if="${soLuongTonKhoMap[sanPham.maSanPham] == 0 and sanPham.soLuong == 0}"
 											style="color: red; font-size: 12px; font-weight: bold;">(Hết hàng)</span>
 									</td>
-									<!--<td>
+									<td>
 										<form th:action="@{/admin/inventory/update-stock}" method="post" class="d-flex justify-content-center">
 											<input type="hidden" name="maSanPham" th:value="${sanPham.maSanPham}">
 											<input type="number" name="soLuongMoi" th:value="${sanPham.soLuong}" min="0"
-												th:max="${tongSoLuongNhapMap[sanPham.maSanPham]}" required class="form-control text-center"
+												th:max="${soLuongTonKhoMap[sanPham.maSanPham]}" required class="form-control text-center"
 												style="width: 70px;">
 											<button type="submit" class="btn btn-primary ms-2">Lưu</button>
 										</form>
-									</td>-->
+									</td>
 									<td th:text="${soLuongTonKhoMap[sanPham.maSanPham]}"></td>
 								</tr>
 							</tbody>

@@ -158,11 +158,25 @@
 		let soLuongTras = /*[[${soLuongTras}]]*/[];
 
 
+		// Giới hạn độ dài tên sản phẩm để không bị tràn trục X
+		const maxLength = 25;
+		const shortTenSanPhams = tenSanPhams.map(name => {
+			const match = name.match(/(.+?)\s*(\(\d+\))$/); // tách phần tên và số lượng nếu có
+			if (match) {
+				const ten = match[1];
+				const soLuong = match[2];
+				const shortName = ten.length > maxLength ? ten.substring(0, maxLength) + "..." : ten;
+				return shortName + " " + soLuong;
+			} else {
+				return name.length > maxLength ? name.substring(0, maxLength) + "..." : name;
+			}
+		});
+
 		const ctx = document.getElementById('sanPhamChart').getContext('2d');
 		new Chart(ctx, {
 			type: 'bar',
 			data: {
-				labels: tenSanPhams,
+				labels: shortTenSanPhams, // dùng tên đã rút gọn
 				datasets: [{
 					label: 'Số lượng bán',
 					data: soLuongs,
@@ -196,11 +210,26 @@
 			}
 		});
 
+
+		// Rút gọn tên sản phẩm trả nếu quá dài
+		
+		const shortTenSanPhamsTra = tenSanPhamsTra.map(name => {
+			const match = name.match(/(.+?)\s*(\(\d+\))$/); // tách phần tên và số lượng (nếu có)
+			if (match) {
+				const ten = match[1];
+				const soLuong = match[2];
+				const shortName = ten.length > maxLength ? ten.substring(0, maxLength) + "..." : ten;
+				return shortName + " " + soLuong;
+			} else {
+				return name.length > maxLength ? name.substring(0, maxLength) + "..." : name;
+			}
+		});
+
 		const ctxTra = document.getElementById('sanPhamTraChart').getContext('2d');
 		new Chart(ctxTra, {
 			type: 'bar',
 			data: {
-				labels: tenSanPhamsTra,
+				labels: shortTenSanPhamsTra, // sử dụng tên đã rút gọn
 				datasets: [{
 					label: 'Số lượng trả',
 					data: soLuongTras,
@@ -233,6 +262,7 @@
 				}
 			}
 		});
+
 
 		function toggleRightPanel() {
 			const panel = document.getElementById("right-panel");

@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Thêm Đơn Nhập Hàng</title>
+	<title>Hello, Warehouse Staff</title>
 
 	<link rel="icon" type="image/png" th:href="@{/fe/images/warehouse.png}">
 
@@ -117,14 +117,14 @@
 
 	<!-- Thanh tiêu đề -->
 	<div class="header" style="padding-left: 300px;">
-		<h2>Thêm Đơn Nhập Hàng</h2>
+		<h2 style="transform: translateX(230%);">Thêm Đơn Nhập Hàng</h2>
 	</div>
 
 	<!-- Navbar -->
 	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
 
 	<!-- Container chính -->
-	<div class="container">
+	<div class="container" style="transform: translateX(20%);">
 
 		<!-- Hiển thị thông báo lỗi hoặc thành công -->
 		<div th:if="${errorMessage}" class="alert alert-danger">

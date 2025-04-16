@@ -152,11 +152,11 @@ public class InventoryController {
 	public String hienThiKiemKeChenhLech(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "10") int size) {
 
-		// ✅ Lấy tất cả các ca làm có kiểm kê (cả đã duyệt và chưa duyệt)
+		//  Lấy tất cả các ca làm có kiểm kê (cả đã duyệt và chưa duyệt)
 		Page<LichSuCaLamViec> danhSachCaLam = lichSuCaLamViecService
 				.getAllShiftsWithInventory(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "thoiGianBatDau")));
 
-		// ✅ Tạo map lưu dữ liệu kiểm kê theo từng ca
+		//  Tạo map lưu dữ liệu kiểm kê theo từng ca
 		Map<Integer, List<KiemKeKho>> kiemKeTheoCa = new HashMap<>();
 		Map<Integer, String> nhanVienThucHien = new HashMap<>();
 		Map<Integer, LocalDateTime> thoiGianBatDauMap = new HashMap<>();
@@ -175,7 +175,7 @@ public class InventoryController {
 				thoiGianBatDauMap.put(caLam.getMaLichSu(), caLam.getThoiGianBatDau());
 				thoiGianKetThucMap.put(caLam.getMaLichSu(), caLam.getThoiGianKetThuc());
 
-				// ✅ Lấy trạng thái xét duyệt của ca
+				//  Lấy trạng thái xét duyệt của ca
 				daXetDuyetMap.put(caLam.getMaLichSu(), danhSachKiemKe.get(0).getDaXetDuyet());
 			}
 		}
@@ -191,6 +191,7 @@ public class InventoryController {
 		model.addAttribute("thoiGianBatDauMap", thoiGianBatDauMap);
 		model.addAttribute("thoiGianKetThucMap", thoiGianKetThucMap);
 		model.addAttribute("daXetDuyetMap", daXetDuyetMap);
+		model.addAttribute("requestUri", "/admin/inventory/kiem-ke-chenh-lech");
 
 		return "admin/inventory/kiem-ke-chenh-lech";
 	}
@@ -258,6 +259,8 @@ public class InventoryController {
 
 		model.addAttribute("thoiGianBatDau", caLamViec.getThoiGianBatDau());
 		model.addAttribute("thoiGianKetThuc", caLamViec.getThoiGianKetThuc());
+		model.addAttribute("requestUri", "/admin/inventory/kiem-ke-chi-tiet");
+
 		return "admin/inventory/kiem-ke-chi-tiet";
 	}
 

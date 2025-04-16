@@ -52,8 +52,8 @@
 								</tr>
 								<!-- Loop through supplier list and add Số thứ tự -->
 								<tr th:each="supplier, stat : ${listNhaCungCap}">
-									<td style="text-align: center;" th:text="${stat.count}"></td> <!-- Số thứ tự -->
-									<!--<td th:text="${supplier.maNhaCungCap}"></td>-->
+								<!--	<td style="text-align: center;" th:text="${stat.count}"></td> -->
+									<td style="text-align: center;" th:text="${supplier.maNhaCungCap}"></td>
 									<td style="text-align: center;" th:text="${supplier.tenNhaCungCap}"></td>
 									<td style="text-align: center;" th:text="${supplier.emailNhaCungCap}"></td>
 									<td style="text-align: center;" th:text="${supplier.sdtNhaCungCap}"></td>

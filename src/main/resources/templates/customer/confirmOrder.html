@@ -3,6 +3,8 @@
 
 <head th:replace="customer/fragments/head :: head"></head>
 
+
+
 <body>
 	<header th:replace="customer/fragments/header :: header"></header>
 
@@ -11,6 +13,7 @@
 
 		<!-- Danh sách sản phẩm đã chọn -->
 		<table class="table table-bordered align-middle text-center">
+
 			<thead class="table-light">
 				<tr>
 					<th scope="col" class="text-dark fw-bold">Sản phẩm</th>
@@ -35,13 +38,14 @@
 						<!-- Nếu có khuyến mãi -->
 						<div th:if="${phanTramGiamMap != null and phanTramGiamMap[item.sanPham.maSanPham] > 0}"
 							class="d-flex justify-content-center align-items-center gap-2">
-							<small class="text-muted" style="text-decoration: line-through; font-size: 0.85rem;  color: gray; "
+							<small class="text-muted"
+								style="text-decoration: line-through; font-size: 0.85rem;  color: gray; "
 								th:text="${#numbers.formatDecimal(item.sanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">
 							</small>
 							<span class="fw-bold text-dark"
 								th:text="${#numbers.formatDecimal(sanPhamGiaSauGiamMap[item.sanPham.maSanPham], 0, 'COMMA', 0, 'POINT')} + ' đ'">
 							</span>
-							
+
 						</div>
 
 						<!-- Nếu không có khuyến mãi -->

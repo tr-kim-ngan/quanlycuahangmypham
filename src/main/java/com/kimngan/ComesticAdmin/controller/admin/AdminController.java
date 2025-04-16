@@ -16,6 +16,8 @@ import com.kimngan.ComesticAdmin.services.NhaCungCapService;
 import com.kimngan.ComesticAdmin.services.SanPhamService;
 import com.kimngan.ComesticAdmin.services.YeuCauBoSungService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -115,7 +117,9 @@ public class AdminController {
 	}
 
 	@GetMapping("/thongke/sanpham-gan-het")
-	public String thongBaoSanPhamGanHet(Model model) {
+	public String thongBaoSanPhamGanHet(
+			HttpServletRequest request,
+			Model model) {
 		int nguong = 10;
 
 		List<SanPham> sapHetHangRaw = sanPhamService.getSanPhamGanHetHang(nguong);
@@ -185,6 +189,7 @@ public class AdminController {
 		model.addAttribute("tenSanPhams", tenSanPhams);
 		model.addAttribute("tonKhos", tonKhos);
 		model.addAttribute("chuaNhap", chuaNhap);
+		model.addAttribute("requestUri", request.getRequestURI());
 
 		model.addAttribute("tenSanPhamsAll", tenSanPhamsAll);
 		model.addAttribute("tonKhosAll", tonKhosAll);
@@ -194,6 +199,7 @@ public class AdminController {
 
 	@GetMapping("/thongke/nhaphang")
 	public String thongKeNhapHang(
+			HttpServletRequest request,
 			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 			Model model) {
@@ -231,12 +237,14 @@ public class AdminController {
 		model.addAttribute("danhSachBaoCao", danhSachBaoCao);
 		model.addAttribute("topSuppliers", topSuppliers);
 		model.addAttribute("topProducts", topProducts);
+		model.addAttribute("requestUri", request.getRequestURI());
 
 		return "admin/thongke/nhaphang";
 	}
 
 	@GetMapping("/thongke/nhaphang/tong-gia-tri")
 	public String getTotalImportValueForAdmin(
+			HttpServletRequest request,
 			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 			Model model) {
@@ -266,12 +274,14 @@ public class AdminController {
 		model.addAttribute("fromDate", fromDate);
 		model.addAttribute("toDate", toDate);
 		model.addAttribute("reportData", reportData);
+		model.addAttribute("requestUri", request.getRequestURI());
 
 		return "admin/thongke/tong-gia-tri-nhap"; // Chuyển sang file HTML bên admin
 	}
 
 	@GetMapping("/thongke/nhaphang/xu-huong")
 	public String getImportTrendForAdmin(
+			HttpServletRequest request,
 			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 			Model model) {
@@ -310,6 +320,8 @@ public class AdminController {
 		model.addAttribute("totalValues", totalValues);
 		model.addAttribute("fromDate", fromDate);
 		model.addAttribute("toDate", toDate);
+		model.addAttribute("requestUri", request.getRequestURI());
+
 		model.addAttribute("reportData", reportData);
 
 		return "admin/thongke/xu-huong-nhap";
@@ -317,6 +329,7 @@ public class AdminController {
 
 	@GetMapping("/thongke/xuat-kho")
 	public String getExportStatisticsForAdmin(
+			HttpServletRequest request,
 			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 			Model model) {
@@ -377,12 +390,13 @@ public class AdminController {
 		model.addAttribute("danhSachBaoCao", danhSachBaoCao);
 		model.addAttribute("topCustomers", topCustomers);
 		model.addAttribute("topProducts", topProducts);
-
+		model.addAttribute("requestUri", request.getRequestURI());
 		return "admin/thongke/thong-ke-xuat";
 	}
 
 	@GetMapping("/thongke/donhang")
 	public String thongKeDonHang(
+			HttpServletRequest request,
 			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 			Model model) {
@@ -420,6 +434,7 @@ public class AdminController {
 		for (Object[] row : topNhanVien) {
 			System.out.println("NV: " + row[0] + ", Số đơn: " + row[1]);
 		}
+		model.addAttribute("requestUri", request.getRequestURI());
 
 		model.addAttribute("fromDate", fromDate);
 		model.addAttribute("toDate", toDate);
@@ -435,6 +450,7 @@ public class AdminController {
 
 	@GetMapping("/thongke/doanhthu-loinhuan")
 	public String thongKeDoanhThuVaLoiNhuan(
+			HttpServletRequest request,
 			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 			Model model) {
@@ -497,12 +513,14 @@ public class AdminController {
 		model.addAttribute("productNames", productNames);
 		model.addAttribute("revenueList", revenueList);
 		model.addAttribute("profitList", profitList);
+		model.addAttribute("requestUri", request.getRequestURI());
 
 		return "admin/thongke/thong-ke-doanh-thu";
 	}
 
 	@GetMapping("/thongke/sanpham-banchay")
 	public String thongKeSanPhamBanChay(
+			HttpServletRequest request,
 			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 			Model model) {
@@ -588,12 +606,14 @@ public class AdminController {
 		model.addAttribute("tenSanPhamsTra", tenSanPhamsTra);
 		model.addAttribute("soLuongTras", soLuongTras);
 		model.addAttribute("sanPhamHoanTra", sanPhamHoanTra);
-
+		model.addAttribute("requestUri", request.getRequestURI());
 		return "admin/thongke/thong-ke-san-pham-ban-chay";
 	}
 
 	@GetMapping("/thongke/trangthai-donhang")
-	public String thongKeTrangThaiDonHang(Model model) {
+	public String thongKeTrangThaiDonHang(
+			HttpServletRequest request,
+			Model model) {
 		List<Object[]> thongKe = donHangService.thongKeDonHangTheoTrangThai();
 
 		List<String> labels = new ArrayList<>();
@@ -608,11 +628,13 @@ public class AdminController {
 		model.addAttribute("user", nguoiDungDetails);
 		model.addAttribute("labels", labels);
 		model.addAttribute("values", values);
+		model.addAttribute("requestUri", request.getRequestURI());
 		return "admin/thongke/thong-ke-trang-thai-don-hang";
 	}
 
 	@GetMapping("/thongke/doanhthu")
 	public String thongKeDoanhThuNhanVien(
+			HttpServletRequest request,
 			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 			Model model) {
@@ -671,12 +693,13 @@ public class AdminController {
 		model.addAttribute("doanhThus", doanhThus);
 		model.addAttribute("bangChiTiet", bangChiTiet);
 		model.addAttribute("tongDoanhThu", tongDoanhThu);
-
+		model.addAttribute("requestUri", request.getRequestURI());
 		return "admin/thongke/thong-ke-doanh-thu-nhan-vien";
 	}
 
 	@GetMapping("/thongke/khachhang")
 	public String thongKeKhachHang(
+			HttpServletRequest request,
 			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 
 			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
@@ -775,12 +798,14 @@ public class AdminController {
 		model.addAttribute("bangChiTietHuy", bangChiTietHuy);
 		model.addAttribute("fromDate", fromDate);
 		model.addAttribute("toDate", toDate);
+		model.addAttribute("requestUri", request.getRequestURI());
 
 		return "admin/thongke/thong-ke-khach-hang";
 	}
 
 	@GetMapping("/thongke/danhgia")
 	public String thongKeDanhGiaSanPham(
+			HttpServletRequest request,
 			@RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
 			@RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
 			Model model) {
@@ -848,7 +873,7 @@ public class AdminController {
 		model.addAttribute("lowRatingLabels", lowRatingLabels);
 		model.addAttribute("lowRatingValues", lowRatingValues);
 
-		
+		model.addAttribute("requestUri", request.getRequestURI());
 		model.addAttribute("fromDate", fromDate);
 		model.addAttribute("toDate", toDate);
 		model.addAttribute("danhSachThongKe", danhSachThongKe);

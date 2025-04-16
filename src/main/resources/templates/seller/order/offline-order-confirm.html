@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Xác nhận đơn hàng</title>
+	<title>Hello Seller</title>
 	<link rel="icon" type="image/png" th:href="@{/fe/images/sale.png}">
 
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -84,7 +84,7 @@
 <body>
 
 	<div class="header d-flex justify-content-between align-items-center" style="padding-left: 250px;">
-		<h2 class="m-0">Tạo đơn hàng</h2>
+		<h2 style="transform: translateX(300%); font-weight: bold;">Tạo đơn hàng</h2>
 
 		<div class="d-flex align-items-center gap-2" style=" padding-right: 10px;">
 			<a href="/seller/offline-orders" class="btn btn-secondary">
@@ -126,8 +126,9 @@
 					th:if="${orderItems != null and not #lists.isEmpty(orderItems)}">
 					<thead class="custom-thead">
 						<tr>
+							<th>Mã SP</th>
 							<th>Hình ảnh</th>
-							<th>Sản phẩm</th>
+							<th style="width: 50%;">Sản phẩm</th>
 							<th>Giá</th>
 							<th>Số lượng</th>
 							<th>Hành động</th>
@@ -135,6 +136,7 @@
 					</thead>
 					<tbody>
 						<tr th:each="item : ${orderItems}">
+							<td th:text="${item.sanPham.maSanPham}"></td>
 							<td><img th:src="@{/upload/} + ${item.sanPham.hinhAnh}"></td>
 							<td th:text="${item.sanPham.tenSanPham}"></td>
 							<td th:text="${formattedDiscountPrices[item.sanPham.maSanPham]}"></td>
@@ -165,7 +167,7 @@
 			<!-- Tên khách hàng -->
 			<div class="text-center" th:if="${tenKhachHang != null}">
 				<span class="fw-bold"
-					th:classappend="${tenKhachHang == 'Khách vãng lai'} ? 'text-danger' : 'text-success'">
+					th:classappend="${tenKhachHang == 'Khách vãng lai'} ? 'text-success' : 'text-success'">
 					Khách hàng: <span th:text="${tenKhachHang}"></span>
 				</span>
 			</div>

@@ -158,10 +158,14 @@
 		var stockValuesBefore = /*[[${stockValuesBefore}]]*/[];
 		var stockValuesAfter = /*[[${stockValuesAfter}]]*/[];
 
+		const maxLength = 25;
+		const shortLabels = labels.map(name =>
+			name.length > maxLength ? name.substring(0, maxLength) + "..." : name
+		);
 		new Chart(document.getElementById('exportChart').getContext('2d'), {
 			type: 'bar',
 			data: {
-				labels: labels,
+				labels: shortLabels,
 				datasets: [{
 					label: 'Số lượng xuất',
 					data: values,
@@ -179,10 +183,13 @@
 			}
 		});
 
+		const shortStockLabels = stockLabels.map(name =>
+			name.length > maxLength ? name.substring(0, maxLength) + "..." : name
+		);
 		new Chart(document.getElementById('stockChart').getContext('2d'), {
 			type: 'bar',
 			data: {
-				labels: stockLabels,
+				labels: shortStockLabels,
 				datasets: [
 					{
 						label: 'Tồn kho trước kiểm kê',
