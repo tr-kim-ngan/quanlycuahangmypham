@@ -12,11 +12,11 @@
 			<!-- Header -->
 			<div th:replace="~{admin/fragments/header :: header}"></div>
 
-			<div class="container" style="background-color: #faeee7; border-radius: 0px;">
+			<div class="container" style="background-color: #fafcff; border-radius: 0px;">
 				<div class="page-inner">
-					<h3 class="mb-4 text-center">Tạo Đơn Hàng Offline</h3>
+					<h3 class="mb-4">Tạo Đơn Hàng Trực Tiếp</h3>
 
-					<!-- 🔥 Thanh tìm kiếm sản phẩm -->
+					<!-- 🔥 Thanh tìm kiếm sản phẩm 
 					<form th:action="@{/admin/offline-orders}" method="get" class="d-flex mb-3">
 						<input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm sản phẩm..."
 							class="form-control me-2" style="max-width: 300px;">
@@ -24,38 +24,41 @@
 							<i class="fa fa-search"></i> Tìm kiếm
 						</button>
 
-						<!-- 🟢 Input ẩn để giữ danh sách sản phẩm đã chọn -->
+					
 						<input type="hidden" name="selectedProductIds"
 							th:value="${#strings.listJoin(selectedProductIds, ',')}">
 						<input type="hidden" name="selectedQuantities"
 							th:value="${#strings.listJoin(selectedQuantities, ',')}">
-					</form>
+					</form>-->
 
 
 					<!-- 🔥 Chọn sản phẩm trước -->
 					<div class="mb-3">
-						<h4 class="text-center">Sản phẩm đã chọn</h4>
+
 						<table class="table table-bordered">
 							<thead>
 								<tr>
-									<th>Hình ảnh</th>
-									<th>Sản phẩm</th>
-									<th>Giá</th>
-									<th>Số lượng còn lại</th>
-									<th>Số lượng</th>
+									<th style="text-align: center">Mã SP</th>
+									<th style="text-align: center">Hình ảnh</th>
+									<th style="width: 25%;">Sản phẩm</th>
+									<th style="text-align: center">Giá</th>
+									<th style="width: 15%; text-align: center;">Số lượng còn lại</th>
+									<th style="text-align: center">Số lượng</th>
 
 								</tr>
 							</thead>
 							<tbody>
 								<tr th:each="sp : ${sanPhamList}">
-									<td><img th:src="@{/upload/} + ${sp.hinhAnh}" style="width: 80px;"></td>
+									<td style="text-align: center" th:text="${sp.maSanPham}"></td>
+									<td style="text-align: center"><img th:src="@{/upload/} + ${sp.hinhAnh}"
+											style="width: 80px;"></td>
 									<td th:text="${sp.tenSanPham}"></td>
-									<td>
+									<td style="text-align: center">
 										<span
 											th:utext="${formattedDiscountPrices != null and formattedDiscountPrices.containsKey(sp.maSanPham) ? formattedDiscountPrices[sp.maSanPham] : 'Không có giá'}"></span>
 									</td>
-									<td th:text="${sp.soLuong}"></td>
-									<td>
+									<td style="text-align: center" th:text="${sp.soLuong}"></td>
+									<td style="text-align: center">
 										<form th:action="@{/admin/offline-orders/add}" method="post">
 											<input type="hidden" name="sanPhamId" th:value="${sp.maSanPham}">
 											<input type="number" class="form-control" name="soLuong" value="1" min="1"
@@ -127,6 +130,37 @@
 			<div th:replace="admin/fragments/footer :: footer"></div>
 		</div>
 	</div>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		const successMessage = /*[[${successMessage != null}]]*/ false;
+		const errorMessage = /*[[${errorMessage != null}]]*/ false;
+
+		if (successMessage) {
+			Swal.fire({
+				title: '🎉 Thành công!',
+				text: '[[${successMessage}]]',
+				icon: 'success',
+				timer: 1500,
+				showConfirmButton: false,
+				timerProgressBar: true
+			});
+		}
+
+		if (errorMessage) {
+			Swal.fire({
+				title: '❌ Lỗi',
+				text: '[[${errorMessage}]]',
+				icon: 'error',
+				timer: 500,
+				showConfirmButton: false,
+				timerProgressBar: true
+			});
+		}
+		/*]]>*/
+	</script>
+
 
 	<div th:replace="admin/fragments/script :: script"></div>
 </body>

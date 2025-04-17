@@ -94,10 +94,13 @@ public class ChatBotProductService {
 //        return openAIService.askChatbot(fullPrompt);
 //    }
 	private String formatResponse(List<SanPham> products, String prompt, boolean useCurrentPromotion) {
+	    List<SanPham> limitedProducts = products.size() > 4 ? products.subList(0, 4) : products;
+
+		
 		StringBuilder context = new StringBuilder("Dưới đây là danh sách sản phẩm trong cửa hàng Kim Ngân Cosmetic:\n");
 		LocalDate today = LocalDate.now();
 
-		for (SanPham sp : products) {
+		for (SanPham sp : limitedProducts) {
 			BigDecimal donGia = sp.getDonGiaBan();
 			String giaHienThi = "";
 
@@ -136,8 +139,14 @@ public class ChatBotProductService {
 
 			}
 
-			context.append("- Tên: ").append(sp.getTenSanPham()).append("\n").append(" ").append(sp.getMoTa())
-					.append("\n").append("  ").append(giaHienThi).append("\n\n");
+			   // ✂️ Rút gọn mô tả sản phẩm
+	        String moTaRutGon = sp.getMoTa() != null && sp.getMoTa().length() > 100
+	                ? sp.getMoTa().substring(0, 100) + "..."
+	                : sp.getMoTa();
+
+	        context.append("Tên: ").append(sp.getTenSanPham())
+	               .append("\n ").append(moTaRutGon)
+	               .append("\n  ").append(giaHienThi).append("\n\n");
 		}
 
 		String fullPrompt = "Khách hàng hỏi: " + prompt + "\n"

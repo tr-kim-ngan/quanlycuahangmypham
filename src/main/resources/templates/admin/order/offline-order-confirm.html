@@ -12,7 +12,7 @@
 			<!-- Header -->
 			<div th:replace="~{admin/fragments/header :: header}"></div>
 
-			<div class="container" style="background-color: #faeee7; border-radius: 0px;">
+			<div class="container" style="background-color: #fafcff; border-radius: 0px;">
 				<div class="page-inner">
 					<h3 class="mb-4 text-center">Xác nhận sản phẩm đã chọn</h3>
 
@@ -74,7 +74,7 @@
 					<!-- 🔥 Chỉ hiển thị nếu đã kiểm tra số điện thoại -->
 					<div class="text-center" th:if="${tenKhachHang != null}">
 						<span class="fw-bold"
-							th:classappend="${tenKhachHang == 'Khách vãng lai'} ? 'text-danger' : 'text-success'">
+							th:classappend="${tenKhachHang == 'Khách vãng lai'} ? 'text-success' : 'text-success'">
 							Khách hàng: <span th:text="${tenKhachHang}"></span>
 						</span>
 					</div>
@@ -83,7 +83,7 @@
 
 					<!-- 🔥 Tổng tiền và nút hành động -->
 					<div class="text-center mb-4">
-						<h4 style="color: #007bff;">Tổng tiền: <span th:text="${totalPrice} + ' VND'"></span></h4>
+						<h4 style="color: #007bff;">Tổng tiền: <span th:text="${totalPrice} + ''"></span></h4>
 					</div>
 
 					<!-- 🔥 Nút "Xác nhận đơn hàng" & "Quay lại" -->

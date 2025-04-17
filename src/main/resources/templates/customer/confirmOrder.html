@@ -16,7 +16,7 @@
 
 			<thead class="table-light">
 				<tr>
-					<th scope="col" class="text-dark fw-bold">Sản phẩm</th>
+					<th style="width: 50%;" scope="col" class="text-dark fw-bold">Sản phẩm</th>
 					<th scope="col" class="text-dark fw-bold">Giá tiền</th>
 					<th scope="col" class="text-dark fw-bold">Số lượng</th>
 					<th scope="col" class="text-dark fw-bold">Thành tiền</th>
@@ -75,7 +75,7 @@
 					<td colspan="3" class="text-end fw-bold text-dark">Tổng tiền sản phẩm:</td>
 					<td class="fw-bold text-dark">
 						<span
-							th:text="${totalPrice != null ? #numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + ' VND' : 'Đang cập nhật'}">
+							th:text="${totalPrice != null ? #numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + ' đ' : 'Đang cập nhật'}">
 						</span>
 					</td>
 				</tr>

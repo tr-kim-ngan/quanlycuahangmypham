@@ -155,7 +155,7 @@
 					        or requestUri.contains('/admin/product') 
 					        or requestUri.contains('/admin/hoadon') 
 					        or requestUri.contains('/admin/danhgia') 
-					        or requestUri.contains('/admin/offline-orders') 
+					        
 					        or requestUri.contains('/admin/inventory/kiem-ke-chenh-lech') 
 					        or requestUri.contains('/admin/inventory/kiem-ke-chi-tiet')
 					        or requestUri.contains('/admin/add-product')
@@ -173,6 +173,7 @@
 					        or requestUri.contains('/admin/thongke/trangthai-donhang')
 					        or requestUri.contains('/admin/thongke/doanhthu')
 					         or requestUri.contains('/admin/thongke/khachhang')
+					          or requestUri.contains('/admin/customers/view')
 					       or requestUri.contains('/admin/thongke/sanpham-gan-het')
 					       or requestUri.contains('/admin/edit-category')
 					        or requestUri.contains('/admin/view-product'))}" class="d-flex align-items-center me-2">
@@ -221,11 +222,14 @@
 					<a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" th:href="@{#}"
 						aria-expanded="false">
 						<div class="avatar-sm">
-							<img th:src="@{/assets/img/profile.png}" alt="..." class="avatar-img rounded-circle" />
+							<img th:src="${user.nguoiDung.avatar != null and !#strings.isEmpty(user.nguoiDung.avatar)} ? 
+              @{/upload/{img}(img=${user.nguoiDung.avatar})} : 
+              @{/assets/img/profile.png}" alt="..." class="avatar-img rounded-circle avatar-border" />
+
 						</div>
 						<span class="profile-username">
 							<span class="op-7">Hi,</span>
-							<span class="fw-bold" th:text="${user.nguoiDung.tenNguoiDung}"></span>
+							<span class="fw-bold" th:text="${user.nguoiDung.hoTen}"></span>
 						</span>
 					</a>
 					<ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -233,29 +237,27 @@
 							<li>
 								<div class="user-box">
 									<div class="avatar-lg">
-										<img th:src="@{/assets/img/profile.png}" alt="image profile"
-											class="avatar-img rounded" />
+										<img th:src="${user.nguoiDung.avatar != null and !#strings.isEmpty(user.nguoiDung.avatar)} ? 
+              @{/upload/{img}(img=${user.nguoiDung.avatar})} : 
+              @{/assets/img/profile.png}" alt="image profile" class="avatar-img rounded" />
+
 									</div>
 									<div class="u-text">
 										<!-- Hiển thị tên người dùng -->
-										<h4 th:text="${user.nguoiDung.tenNguoiDung}"></h4>
+										<h4 th:text="${user.nguoiDung.hoTen}"></h4>
 
 										<!-- Hiển thị email người dùng -->
 										<p class="text-muted" th:text="${user.nguoiDung.email}"></p>
 
-										<!-- Nút xem hồ sơ người dùng -->
-										<a th:href="@{#}" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+
 									</div>
 
 								</div>
 							</li>
 							<li>
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" th:href="@{#}">My Profile</a>
-								<a class="dropdown-item" th:href="@{#}">My Balance</a>
-								<a class="dropdown-item" th:href="@{#}">Inbox</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" th:href="@{#}">Account Setting</a>
+
+								<a class="dropdown-item" th:href="@{/admin/account}">Account Setting</a>
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item" th:href="@{/admin/logout}">Logout</a>
 							</li>
@@ -265,5 +267,16 @@
 			</ul>
 		</div>
 	</nav>
+	<style>
+		.avatar-border {
+			border: 1px solid rgb(0, 0, 255);
+			/* màu đỏ đậm như ảnh mẫu */
+			padding: 2px;
+			/* nếu muốn thêm khoảng trắng giữa ảnh và viền */
+			box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+			/* tuỳ chọn bóng */
+		}
+	</style>
+
 	<!-- End Navbar -->
 </div>

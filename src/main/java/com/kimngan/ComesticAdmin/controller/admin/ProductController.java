@@ -38,6 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -92,6 +93,8 @@ public class ProductController {
 
 		Page<SanPham> pageSanPham = Page.empty();
 
+		
+		
 		if (maDanhMuc != null && maDanhMuc > 0) {
 			if (keyword != null && !keyword.isEmpty()) {
 				// Tìm kiếm theo danh mục và từ khóa
@@ -110,7 +113,9 @@ public class ProductController {
 			model.addAttribute("keyword", keyword);
 		} else {
 			// Tìm tất cả sản phẩm hoạt động
-			pageSanPham = sanPhamService.findAllActive(PageRequest.of(page, size));
+			Sort sortByMaSanPhamDesc = Sort.by(Sort.Direction.DESC, "maSanPham");
+			PageRequest pageRequest = PageRequest.of(page, size, sortByMaSanPhamDesc);
+			pageSanPham = sanPhamService.findAllActive(pageRequest);
 		}
 
 		// Kiểm tra nếu không có sản phẩm nào được tìm thấy
@@ -127,6 +132,7 @@ public class ProductController {
 		DecimalFormat decimalFormat = new DecimalFormat("#,###.##");
 		Map<Integer, String> formattedPrices = new HashMap<>();
 		Map<Integer, String> formattedDiscountPrices = new HashMap<>();
+		
 		for (SanPham sanPham : sanPhams) {
 			// Định dạng giá bán
 			// Kiểm tra và định dạng giá gốc

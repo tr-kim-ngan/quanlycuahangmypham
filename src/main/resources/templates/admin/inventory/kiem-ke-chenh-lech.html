@@ -14,11 +14,11 @@
 			<div th:replace="admin/fragments/header :: header"></div>
 			<!-- End Header -->
 
-			<div class="container" style="background-color: #faeee7;">
+			<div class="container" style="background-color: #fafcff;">
 				<div class="page-inner">
 					<div class="d-flex justify-content-between align-items-center">
 						<div>
-							<h6 class="op-7 mb-2">Danh sách kiểm kê sản phẩm</h6>
+							<h3 class="mb-2">Danh sách kiểm kê sản phẩm</h3>
 						</div>
 
 
@@ -80,16 +80,29 @@
 					</div>
 
 					<!-- Điều hướng phân trang -->
-					<div class="pagination mt-3">
+					<div class="d-flex justify-content-center mt-4">
+						<nav>
+							<ul class="pagination">
+								<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+									<a class="page-link"
+										th:href="@{/admin/inventory/kiem-ke-chenh-lech(page=${currentPage - 1})}">Trước</a>
+								</li>
 
-						<a th:if="${currentPage > 0}"
-							th:href="@{/admin/inventory/kiem-ke-chenh-lech(page=${currentPage - 1})}">Trước</a>
-						<span>Trang <span th:text="${currentPage + 1}"></span> / <span
-								th:text="${totalPages}"></span></span>
-						<a th:if="${currentPage + 1 < totalPages}"
-							th:href="@{/admin/inventory/kiem-ke-chenh-lech(page=${currentPage + 1})}">Tiếp</a>
+								<li class="page-item disabled">
+									<a class="page-link" href="#">
+										Trang <span th:text="${currentPage + 1}"></span> / <span
+											th:text="${totalPages}"></span>
+									</a>
+								</li>
 
+								<li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+									<a class="page-link"
+										th:href="@{/admin/inventory/kiem-ke-chenh-lech(page=${currentPage + 1})}">Tiếp</a>
+								</li>
+							</ul>
+						</nav>
 					</div>
+
 
 				</div>
 			</div>

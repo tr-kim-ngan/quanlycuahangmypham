@@ -77,7 +77,7 @@
 
 		.pagination {
 			display: flex;
-			justify-content: center;
+			justify-content: center !important;
 			align-items: center;
 			margin-top: 20px;
 			padding: 10px;
@@ -138,7 +138,7 @@
 		}
 
 		.header-title {
-			font-weight: bold; 
+			font-weight: bold;
 			margin: 0;
 			font-size: 20px;
 			color: #333;
@@ -234,22 +234,24 @@
 		</table>
 		<!-- PHÂN TRANG -->
 		<!-- PHÂN TRANG -->
-		<div class="pagination">
-			<!-- Nút "Trang trước" -->
-			<span th:if="${currentPage > 0}">
-				<a th:href="@{/warehouse/import/shifts(page=${currentPage - 1})}">⬅ Trang trước</a>
-			</span>
+		<div style="display: flex; justify-content: center !important;">
+			<div class="pagination">
+				<!-- Nút "Trang trước" -->
+				<span th:if="${currentPage > 0}">
+					<a th:href="@{/warehouse/import/shifts(page=${currentPage - 1})}">⬅ Trang trước</a>
+				</span>
 
-			<!-- Hiển thị danh sách trang -->
-			<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-				<a th:href="@{/warehouse/import/shifts(page=${i})}" th:text="${i + 1}"
-					th:classappend="${i == currentPage} ? 'active' : ''"></a>
-			</span>
+				<!-- Hiển thị danh sách trang -->
+				<span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+					<a th:href="@{/warehouse/import/shifts(page=${i})}" th:text="${i + 1}"
+						th:classappend="${i == currentPage} ? 'active' : ''"></a>
+				</span>
 
-			<!-- Nút "Trang sau" -->
-			<span th:if="${currentPage < totalPages - 1}">
-				<a th:href="@{/warehouse/import/shifts(page=${currentPage + 1})}">Trang sau ➡</a>
-			</span>
+				<!-- Nút "Trang sau" -->
+				<span th:if="${currentPage < totalPages - 1}">
+					<a th:href="@{/warehouse/import/shifts(page=${currentPage + 1})}">Trang sau ➡</a>
+				</span>
+			</div>
 		</div>
 
 </body>

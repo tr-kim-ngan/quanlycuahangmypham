@@ -43,15 +43,40 @@ public class CustomerUserController {
 
 	// Phương thức hiển thị trang đăng ký
 	@GetMapping("/register")
-	public String showRegistrationForm(Model model) {
+	public String showRegistrationForm(@RequestParam(value = "success", required = false) Boolean success,
+			Model model) {
 		model.addAttribute("nguoiDung", new NguoiDung());
+		if (Boolean.TRUE.equals(success)) {
+			model.addAttribute("successMessage", "🎉 Đăng ký thành công! Đang chuyển đến trang đăng nhập...");
+		}
+
 		return "customer/register"; // Trả về tên của file view để hiển thị form đăng ký
 	}
 
 	// Phương thức xử lý đăng ký
 	@PostMapping("/register")
-	public String registerCustomer(@ModelAttribute("nguoiDung") NguoiDung nguoiDung,
+	public String registerCustomer(@ModelAttribute("nguoiDung") NguoiDung nguoiDung, Model model,
 			@RequestParam("avatarFile") MultipartFile avatarFile) {
+
+		// Kiểm tra tên đăng nhập trùng
+		if (nguoiDungService.existsByTenNguoiDung(nguoiDung.getTenNguoiDung())) {
+			model.addAttribute("error", "⚠️ Tên đăng nhập đã tồn tại.");
+			return "customer/register";
+		}
+
+		// Kiểm tra email trùng
+		if (nguoiDungService.existsByEmail(nguoiDung.getEmail())) {
+			model.addAttribute("error", "⚠️ Email đã được sử dụng.");
+
+			return "customer/register";
+		}
+
+		// Kiểm tra số điện thoại trùng
+		if (nguoiDungService.existsBySoDienThoai(nguoiDung.getSoDienThoai())) {
+			model.addAttribute("error", "⚠️ Số điện thoại đã được đăng ký.");
+			return "customer/register";
+		}
+
 		// Mã hóa mật khẩu trước khi lưu
 		nguoiDung.setMatKhau(passwordEncoder.encode(nguoiDung.getMatKhau()));
 
@@ -78,7 +103,8 @@ public class CustomerUserController {
 		nguoiDungService.saveCustomer(nguoiDung);
 
 		// Chuyển hướng về trang đăng nhập sau khi đăng ký thành công
-		return "redirect:/customer/login";
+		return "redirect:/customer/register?success=true";
+
 	}
 
 	// Phương thức hiển thị trang đăng nhập

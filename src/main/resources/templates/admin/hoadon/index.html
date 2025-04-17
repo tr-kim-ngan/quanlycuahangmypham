@@ -17,7 +17,7 @@
 			<!-- Header -->
 			<div th:replace="admin/fragments/header :: header"></div>
 			<!-- End Header -->
-			<div class="container" style="background-color: #faeee7;">
+			<div class="container" style="background-color: #fafcff;">
 				<div class="container">
 					<h2 class="mt-5">Danh Sách Hóa Đơn</h2>
 					<div th:if="${errorMessage}" class="alert alert-danger" role="alert">
@@ -84,7 +84,7 @@
 
 					<div class="mt-4">
 						<nav aria-label="Page navigation">
-							<ul class="pagination">
+							<ul class="pagination justify-content-center">
 								<li th:classappend="${currentPage == 0} ? 'disabled'">
 									<a th:href="@{|/admin/hoadon?page=${currentPage - 1}&size=${size}|}"
 										class="page-link">Trước</a>

@@ -770,6 +770,7 @@ public class OrderController {
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", sanPhamPage.getTotalPages());
 		model.addAttribute("formattedDiscountPrices", formattedDiscountPrices);
+		model.addAttribute("keyword", keyword);
 
 		return "admin/order/offline-order";
 	}

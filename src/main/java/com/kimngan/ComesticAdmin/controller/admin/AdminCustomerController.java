@@ -4,6 +4,9 @@ import com.kimngan.ComesticAdmin.entity.NguoiDung;
 import com.kimngan.ComesticAdmin.entity.NguoiDungDetails;
 import com.kimngan.ComesticAdmin.services.DonHangService;
 import com.kimngan.ComesticAdmin.services.NguoiDungService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import com.kimngan.ComesticAdmin.repository.QuyenTruyCapRepository;
 
 import java.math.BigDecimal;
@@ -45,13 +48,29 @@ public class AdminCustomerController {
 		}
 	}
 
+//	@GetMapping
+//	public String listCustomers(Model model) {
+//		List<NguoiDung> customers = nguoiDungService.findByRole("CUSTOMER").stream().filter(NguoiDung::isTrangThai)
+//				.sorted(Comparator.comparingInt(NguoiDung::getMaNguoiDung).reversed()).collect(Collectors.toList());
+//		model.addAttribute("customers", customers);
+//		return "admin/customer/index";
+//	}
 	@GetMapping
-	public String listCustomers(Model model) {
-		List<NguoiDung> customers = nguoiDungService.findByRole("CUSTOMER").stream().filter(NguoiDung::isTrangThai)
-				.sorted(Comparator.comparingInt(NguoiDung::getMaNguoiDung).reversed()).collect(Collectors.toList());
-		model.addAttribute("customers", customers);
-		return "admin/customer/index";
+	public String listCustomers(
+			HttpServletRequest request,
+			@RequestParam(name = "keyword", required = false) String keyword, Model model) {
+	    List<NguoiDung> customers = nguoiDungService.findByRole("CUSTOMER").stream()
+	            .filter(NguoiDung::isTrangThai)
+	            .filter(nd -> keyword == null || nd.getHoTen().toLowerCase().contains(keyword.toLowerCase()))
+	            .sorted(Comparator.comparingInt(NguoiDung::getMaNguoiDung).reversed())
+	            .collect(Collectors.toList());
+	    model.addAttribute("requestUri", request.getRequestURI());
+
+	    model.addAttribute("customers", customers);
+	    model.addAttribute("keyword", keyword); // để giữ lại input khi tìm
+	    return "admin/customer/index";
 	}
+
 
 	@GetMapping("/add")
 	public String showAddForm(Model model) {
@@ -87,7 +106,10 @@ public class AdminCustomerController {
 	}
 
 	@GetMapping("/view/{id}")
-	public String viewCustomerDetail(@PathVariable("id") Integer id, Model model) {
+	public String viewCustomerDetail(@PathVariable("id") Integer id, 
+			
+			HttpServletRequest request,
+			Model model) {
 	    NguoiDung customer = nguoiDungService.findById(id);
 	    model.addAttribute("customer", customer);
 
@@ -115,7 +137,7 @@ public class AdminCustomerController {
 	    model.addAttribute("soDonMua", soDonMua);
 	    model.addAttribute("tongTienMua", tongTienMua);
 	    model.addAttribute("soDonHuy", soDonHuy);
-
+	    model.addAttribute("requestUri", request.getRequestURI());
 	    return "admin/customer/view";
 	}
 
