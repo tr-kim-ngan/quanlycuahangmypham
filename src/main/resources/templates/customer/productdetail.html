@@ -282,10 +282,17 @@
 												th:text="${danhGia.noiDung}"></span></p>
 
 										<!-- Phần hiển thị phản hồi của Admin nếu có -->
-										<div th:if="${danhGia.adminReply != null}" class="admin-reply-box mt-3 p-3"
+										<!--<div th:if="${danhGia.adminReply != null}" class="admin-reply-box mt-3 p-3"
 											style="background-color: #f1f1f1; border-radius: 10px;">
 											<p><strong></strong> <span th:text="${danhGia.adminReply}"></span></p>
-										</div>
+										</div>-->
+										<!-- Phần hiển thị phản hồi của Admin nếu có -->
+										<p th:if="${danhGia.adminReply != null}"
+											style="color: #6c63ff; font-style: italic; margin-top: 10px;">
+											&#8627; <strong>Phản hồi:</strong> <span
+												th:text="${danhGia.adminReply}"></span>
+										</p>
+
 									</div>
 								</div>
 							</div>
@@ -379,8 +386,7 @@
 					<div class="mt-4">
 						<h3>Sản phẩm xem cùng</h3>
 						<div class="related-category-products-list row row-cols-1 row-cols-md-2 g-4">
-							<div th:each="topCategoryProduct : ${topCategoryProducts}"
-								th:if="${topCategoryProduct.soLuong > 0}" class="col mb-1">
+							<div th:each="topCategoryProduct : ${topCategoryProducts}" class="col mb-1">
 								<div class="product-item card h-100 position-relative"
 									style="padding: 0; max-width: 100%; margin: auto; border: 1px solid #ddd; border-radius: 5px; transition: border-color 0.3s ease;"
 									onmouseover="this.style.borderColor='#ffc107';"
@@ -466,7 +472,7 @@
 												style="color: #f1c40f; font-size: 14px; margin-top: 2px;"></span>
 										</div>
 
-										<div
+										<!--<div
 											style="display: flex; align-items: center; font-size: 12px; color: #555; margin-bottom: 5px;">
 											<span>Số lượng còn lại: <span
 													th:text="${topCategoryProduct.soLuong}"></span></span>
@@ -476,25 +482,25 @@
 										<p style="font-size: 12px; color: #555; margin-bottom: 1px;">
 											Số lượng bán: <span
 												th:text="${topCategoryProductsSoLuongBanMap[topCategoryProduct.maSanPham]}"></span>
-										</p>
+										</p>-->
 
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-					<h3 style="margin-top: 20px;">Sản phẩm cùng thương hiệu</h3>
-					<div class="top-sold-products-list row row-cols-1 row-cols-md-2 g-4">
-						<div th:each="topSoldSanPham : ${topSoldProducts}" th:if="${topSoldSanPham.soLuong > 0}"
-							class="col mb-1">
-							<div class="product-item card h-100 position-relative"
-								style="padding: 0; max-width: 100%; margin: auto; border: 1px solid #ddd; border-radius: 5px; transition: border-color 0.3s ease;"
-								onmouseover="this.style.borderColor='#ffc107';"
-								onmouseout="this.style.borderColor='#ddd';">
+					<div th:if="${not #lists.isEmpty(topSoldProducts)}">
+						<h3 style="margin-top: 20px;">Sản phẩm cùng thương hiệu</h3>
+						<div class="top-sold-products-list row row-cols-1 row-cols-md-2 g-4">
+							<div th:each="topSoldSanPham : ${topSoldProducts}" class="col mb-1">
+								<div class="product-item card h-100 position-relative"
+									style="padding: 0; max-width: 100%; margin: auto; border: 1px solid #ddd; border-radius: 5px; transition: border-color 0.3s ease;"
+									onmouseover="this.style.borderColor='#ffc107';"
+									onmouseout="this.style.borderColor='#ddd';">
 
-								<!-- Hình ảnh sản phẩm -->
-								<figure>
-									<span th:if="${topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] != null 
+									<!-- Hình ảnh sản phẩm -->
+									<figure>
+										<span th:if="${topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] != null 
 		        && topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] > 0}" style="
 			position: absolute;
 			top: 8px;
@@ -506,103 +512,94 @@
 			border-radius: 4px;
 			font-weight: bold;
 			z-index: 10;" th:text="'-' + ${topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham]} + '%'">
-									</span> <a th:href="@{'/product/' + ${topSoldSanPham.maSanPham}}"
-										title="Top Sold Product">
-										<img th:src="@{'/upload/' + ${topSoldSanPham.hinhAnh}}"
-											style="width: 100%; height: 100%; object-fit: cover;"
-											class="tab-image card-img-top" alt="Product Image">
-									</a>
-								</figure>
+										</span> <a th:href="@{'/product/' + ${topSoldSanPham.maSanPham}}"
+											title="Top Sold Product">
+											<img th:src="@{'/upload/' + ${topSoldSanPham.hinhAnh}}"
+												style="width: 100%; height: 100%; object-fit: cover;"
+												class="tab-image card-img-top" alt="Product Image">
+										</a>
+									</figure>
 
-								<!-- Hiển thị giá -->
-								<div>
-									<div class="product-pricing"
-										style="display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-left: 5px;">
-										<!-- Giá sau giảm -->
+									<!-- Hiển thị giá -->
+									<div>
+										<div class="product-pricing"
+											style="display: flex; align-items: center; gap: 10px; justify-content: space-between; margin-left: 5px;">
+											<!-- Giá sau giảm -->
 
-										<div class="product-price"
-											style="font-size: 14px; font-weight: bold; color: #e74c3c;">
-											<span
-												th:text="${#numbers.formatDecimal(topSoldSanPhamGiaSauGiamMap[topSoldSanPham.maSanPham], 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
-										</div>
-
-
-										<!-- Giá gốc và phần trăm giảm giá -->
-										<div style="display: flex; align-items: center; gap: 5px;">
-											<!-- Giá gốc -->
-
-
-											<div th:if="${topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] != null && topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] > 0}"
-												style="font-size: 12px; color: #999; text-decoration: line-through;">
+											<div class="product-price"
+												style="font-size: 14px; font-weight: bold; color: #e74c3c;">
 												<span
-													th:text="${#numbers.formatDecimal(topSoldSanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+													th:text="${#numbers.formatDecimal(topSoldSanPhamGiaSauGiamMap[topSoldSanPham.maSanPham], 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
 											</div>
 
 
-											<!-- Phần trăm giảm giá 
+											<!-- Giá gốc và phần trăm giảm giá -->
+											<div style="display: flex; align-items: center; gap: 5px;">
+												<!-- Giá gốc -->
+
+
+												<div th:if="${topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] != null && topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] > 0}"
+													style="font-size: 12px; color: #999; text-decoration: line-through;">
+													<span
+														th:text="${#numbers.formatDecimal(topSoldSanPham.donGiaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+												</div>
+
+
+												<!-- Phần trăm giảm giá 
 											<span
 												th:if="${topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] != null && topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham] > 0}"
 												style="background: #ff4d4f; color: white; padding: 2px 6px; font-size: 10px; border-radius: 3px; font-weight: bold; margin-right: 5px;"
 												th:text="'-' + ${topSoldSanPhamPhanTramGiamMap[topSoldSanPham.maSanPham]} + '%'"></span>
 									
 									-->
+											</div>
 										</div>
 									</div>
-								</div>
 
 
-								<!-- Thông tin sản phẩm -->
-								<div class="card-body"
-									style="margin-left: 5px;padding: 0px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
-									<!-- Thương hiệu -->
-									<p th:text="${topSoldSanPham.thuongHieu.tenThuongHieu}"
-										style="font-size: 12px; font-weight: bold; color: green; margin-bottom: 0px;">
-										Thương hiệu
-									</p>
+									<!-- Thông tin sản phẩm -->
+									<div class="card-body"
+										style="margin-left: 5px;padding: 0px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
+										<!-- Thương hiệu -->
+										<p th:text="${topSoldSanPham.thuongHieu.tenThuongHieu}"
+											style="font-size: 12px; font-weight: bold; color: green; margin-bottom: 0px;">
+											Thương hiệu
+										</p>
 
-									<!-- Tên sản phẩm -->
-									<p th:text="${topSoldSanPham.tenSanPham}"
-										style="font-size: 12px; font-weight: bold; color: #333; margin-top: 1px; margin-bottom:0px ;overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-										Tên sản phẩm
-									</p>
-									<!-- Hiển thị số sao -->
-									<!-- Hiển thị số sao -->
-									<div class="product-rating"
-										style="color: #f1c40f; font-size: 14px; margin-top: 2px;">
-										<span
-											th:text="${topSoldSanPhamAverageRatingMap[topSoldSanPham.maSanPham]} + ' ★' "
-											style="color: #f1c40f; font-size: 14px; margin-top: 2px;"></span>
+										<!-- Tên sản phẩm -->
+										<p th:text="${topSoldSanPham.tenSanPham}"
+											style="font-size: 12px; font-weight: bold; color: #333; margin-top: 1px; margin-bottom:0px ;overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+											Tên sản phẩm
+										</p>
+										<!-- Hiển thị số sao -->
+										<!-- Hiển thị số sao -->
+										<div class="product-rating"
+											style="color: #f1c40f; font-size: 14px; margin-top: 2px;">
+											<span
+												th:text="${topSoldSanPhamAverageRatingMap[topSoldSanPham.maSanPham]} + ' ★' "
+												style="color: #f1c40f; font-size: 14px; margin-top: 2px;"></span>
+										</div>
+
+
+
+
+
+
+
 									</div>
-
-
-
-
-									<!-- Số lượng còn lại -->
-									<p style="font-size: 12px; color: #555; margin-bottom: 1px;">
-										Số lượng: <span th:text="${topSoldSanPham.soLuong}"></span>
-										<span th:text="${topSoldSanPham.donViTinh.tenDonVi}"></span>
-									</p>
-									<p style="font-size: 12px; color: #555; margin-bottom: 1px;">
-										Số lượng bán: <span
-											th:text="${topSoldSanPhamSoLuongBanMap[topSoldSanPham.maSanPham]}"></span>
-									</p>
-
-
-
 								</div>
 							</div>
 						</div>
-					</div>
-					<!-- Nút Xem Thêm -->
-					<!-- Nút Xem Thêm -->
-					<div style="text-align: center; margin-top: 20px;">
-						<a th:href="@{'/brands/' + ${sanPham.thuongHieu.maThuongHieu}}" class="btn btn-primary"
-							style="padding: 10px 20px; font-size: 14px;">
-							Xem thêm
-						</a>
-					</div>
+						<!-- Nút Xem Thêm -->
+						<!-- Nút Xem Thêm -->
+						<div style="text-align: center; margin-top: 20px;">
+							<a th:href="@{'/brands/' + ${sanPham.thuongHieu.maThuongHieu}}" class="btn btn-primary"
+								style="padding: 10px 20px; font-size: 14px;">
+								Xem thêm
+							</a>
+						</div>
 
-
+					</div>
 				</div>
 
 

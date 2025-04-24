@@ -91,6 +91,7 @@ public interface SanPhamService {
 	 List<SanPham> getSanPhamGanHetHang(int nguongCanhBao);
 	 List<SanPham> getSanPhamsCoTrongChiTietNhapVaDangHoatDong();
 
-	 
+	 List<SanPham> findByThuongHieuAndTrangThai(Integer maThuongHieu, Boolean trangThai);
+
 	 
 }

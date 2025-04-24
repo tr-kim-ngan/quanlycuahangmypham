@@ -85,6 +85,8 @@ public class OrderController {
 		model.addAttribute("size", size);
 		model.addAttribute("selectedStatus", status);
 		model.addAttribute("searchAction", "/admin/orders");
+		model.addAttribute("requestUri", request.getRequestURI());
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		NguoiDungDetails userDetails = (NguoiDungDetails) authentication.getPrincipal();
 		model.addAttribute("user", userDetails);

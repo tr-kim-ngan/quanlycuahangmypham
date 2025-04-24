@@ -408,6 +408,10 @@ public class SanPhamServiceImpl implements SanPhamService {
 	public List<SanPham> getSanPhamsCoTrongChiTietNhapVaDangHoatDong() {
 	    return sanPhamRepository.findActiveProductsInOrderDetails(Pageable.unpaged()).getContent();
 	}
+	@Override
+	public List<SanPham> findByThuongHieuAndTrangThai(Integer maThuongHieu, Boolean trangThai) {
+	    return sanPhamRepository.findByThuongHieu_MaThuongHieuAndTrangThai(maThuongHieu, trangThai);
+	}
 
 
 }

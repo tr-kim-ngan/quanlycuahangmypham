@@ -106,7 +106,32 @@
 <body>
 	<div th:replace="/warehouse/import/fragments/navbar :: navbar"></div>
 	<div class="header" style="padding-left: 300px;">
-		<h2 style="transform: translateX(130%);">Danh sách đơn hàng đã xuất kho</h2>
+		<div class="filter-form" style="margin-bottom: 20px; padding-left: 30px;">
+			<form method="get" th:action="@{/warehouse/import/exported-orders}"
+				style="display: flex; align-items: center; gap: 10px;">
+				<label for="status" style="font-weight: 500; font-size: 16px;">Lọc theo trạng thái:</label>
+				<select id="status" name="status" onchange="this.form.submit()"
+					style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px;">
+					<option value="all" th:selected="${selectedStatus == null or selectedStatus == 'all'}">Tất cả
+					</option>
+					<option value="Đã xác nhận" th:selected="${selectedStatus == 'Đã xác nhận'}">Đã xác nhận</option>
+					<option value="Đang xử lý" th:selected="${selectedStatus == 'Đang xử lý'}">Đang xử lý</option>
+					<option value="Đang chuẩn bị hàng" th:selected="${selectedStatus == 'Đang chuẩn bị hàng'}">Đang
+						chuẩn bị hàng</option>
+					<option value="Đang giao hàng" th:selected="${selectedStatus == 'Đang giao hàng'}">Đang giao hàng
+					</option>
+					<option value="Đã hoàn thành" th:selected="${selectedStatus == 'Đã hoàn thành'}">Đã hoàn thành
+					</option>
+					<option value="Đã hủy" th:selected="${selectedStatus == 'Đã hủy'}">Đã hủy</option>
+				</select>
+			</form>
+		</div>
+
+
+		<h2 style="text-align: center; transform: translateX(-140%); font-weight: bold; margin-bottom: 20px;">
+			Danh sách đơn hàng đã xuất kho
+		</h2>
+
 	</div>
 	<div class="container" style="padding-left: 300px;">
 		<table>
@@ -120,7 +145,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="donHang : ${donHangPage}">
+				<tr th:each="donHang : ${donHangPage.content}">
 					<td th:text="${donHang.maDonHang}"></td>
 					<td th:text="${donHang.nguoiDung != null ? donHang.nguoiDung.hoTen : 'Không xác định'}"></td>
 					<td
@@ -154,8 +179,9 @@
 			<div class="pagination" style="display: flex; gap: 8px;">
 				<div th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
 					th:classappend="${i} == ${currentPage} ? 'active-page' : ''">
-					<a class="page-link" th:href="@{/warehouse/import/exported-orders(page=${i})}" th:text="${i + 1}"
-						style="border-radius: 6px;
+					<a class="page-link"
+						th:href="@{/warehouse/import/exported-orders(page=${i}, status=${selectedStatus})}"
+						th:text="${i + 1}" style="border-radius: 6px;
 					  min-width: 36px;
 					  height: 36px;
 					  display: flex;

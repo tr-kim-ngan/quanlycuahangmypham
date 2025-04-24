@@ -5,7 +5,7 @@
 
 <body>
 	<!-- Header -->
-    <div th:replace="~{customer/fragments/header :: header}"></div>
+	<div th:replace="~{customer/fragments/header :: header}"></div>
 	<!-- End Header -->
 
 	<main class="container py-5">
@@ -31,8 +31,15 @@
 				</div>
 
 				<!-- Nội dung đánh giá -->
-				<p class="text-dark"><strong>Nội Dung:</strong> <span class="text-muted" th:text="${danhGia.noiDung}"></span>
+				<p class="text-dark"><strong>Nội Dung:</strong> <span class="text-muted"
+						th:text="${danhGia.noiDung}"></span>
 				</p>
+				<!-- Phản hồi của Admin/Nhân viên bán hàng -->
+				<p th:if="${danhGia.adminReply != null}" style="color: #6c63ff; font-style: italic; margin-top: 10px;">
+					&#8627; <strong>Phản hồi:</strong> <span th:text="${danhGia.adminReply}"></span>
+				</p>
+
+
 				<p class="text-dark"><strong>Thời Gian:</strong>
 					<span class="text-dark fw-bold"
 						th:text="${#temporals.format(danhGia.thoiGianDanhGia, 'dd/MM/yyyy HH:mm')}"></span>

@@ -214,12 +214,20 @@
 
 					<!-- Cột Kiểm kê kho -->
 					<td>
-						<span th:if="${ca.thoiGianKetThuc == null}">
+						<!--<span th:if="${ca.thoiGianKetThuc == null}">
+							<a th:href="@{/warehouse/import/kiemke/{id}(id=${ca.maLichSu})}"
+								class="btn btn-info btn-sm">
+								Thực hiện kiểm kê
+							</a>
+						</span>-->
+						<span th:if="${ca.thoiGianKetThuc == null 
+	&& ca.nhanVien.maNguoiDung == currentWarehouseUser.maNguoiDung}">
 							<a th:href="@{/warehouse/import/kiemke/{id}(id=${ca.maLichSu})}"
 								class="btn btn-info btn-sm">
 								Thực hiện kiểm kê
 							</a>
 						</span>
+
 						<span th:unless="${ca.thoiGianKetThuc == null}">
 							Đã kiểm kê
 							<a th:href="@{/warehouse/import/kiemke/view/{id}(id=${ca.maLichSu})}"

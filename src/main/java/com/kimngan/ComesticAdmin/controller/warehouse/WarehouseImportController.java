@@ -1116,17 +1116,29 @@ public class WarehouseImportController {
 
 	// Hiển thị danh sách hàng đã xuất kho
 	@GetMapping("/exported-orders")
-	public String listExportedOrders(@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "5") int size, Model model) {
-		Pageable pageable = PageRequest.of(page, size, Sort.by("maDonHang").descending());
-		Page<DonHang> donHangPage = donHangService.findDonHangsDaXuatKho(pageable);
+	public String listExportedOrders(
+	        @RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "10") int size,
+	        @RequestParam(value = "status", required = false, defaultValue = "all") String status,
+	        Model model) {
 
-		model.addAttribute("donHangPage", donHangPage);
-		model.addAttribute("currentPage", page);
-		model.addAttribute("totalPages", donHangPage.getTotalPages());
+	    Pageable pageable = PageRequest.of(page, size, Sort.by("maDonHang").descending());
+	    Page<DonHang> donHangPage;
 
-		return "warehouse/export/confirmed-orders";
+	    if (status != null && !status.equals("all")) {
+	        donHangPage = donHangService.getDonHangsByStatus(status, pageable); // dùng lại service cũ
+	    } else {
+	        donHangPage = donHangService.findDonHangsDaXuatKho(pageable); // mặc định là đã xuất kho
+	    }
+
+	    model.addAttribute("donHangPage", donHangPage);
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", donHangPage.getTotalPages());
+	    model.addAttribute("selectedStatus", status);
+
+	    return "warehouse/export/confirmed-orders";
 	}
+
 
 	@GetMapping("/exported-order-details/{maDonHang}")
 	public String viewExportedOrderDetails(@PathVariable("maDonHang") Integer maDonHang, Model model) {

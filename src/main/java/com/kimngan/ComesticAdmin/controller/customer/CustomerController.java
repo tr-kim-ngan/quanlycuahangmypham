@@ -403,14 +403,26 @@ public class CustomerController {
 			model.addAttribute("averageRating", averageRating);
 
 			// Lấy danh sách sản phẩm cùng danh mục được bán nhiều nhất
-			List<SanPham> topCategoryProducts = hoaDonService
-					.findTopSoldProductsByCategory(sanPham.getDanhMuc().getMaDanhMuc(), 4);
+//			List<SanPham> topCategoryProducts = hoaDonService
+//					.findTopSoldProductsByCategory(sanPham.getDanhMuc().getMaDanhMuc(), 4);
+//
+//			// Loại bỏ sản phẩm hiện tại khỏi danh sách
+//			topCategoryProducts = topCategoryProducts.stream()
+//					.filter(product -> !product.getMaSanPham().equals(sanPham.getMaSanPham())).limit(4) // Lấy tối đa 4
+//																										// sản phẩm
+//					.collect(Collectors.toList());
+//			
+			List<SanPham> topCategoryProducts = sanPhamService
+				    .findByDanhMucAndTrangThai(sanPham.getDanhMuc().getMaDanhMuc(), true)
+				    .stream()
+				    .filter(product -> !product.getMaSanPham().equals(sanPham.getMaSanPham())) // bỏ chính sản phẩm đang xem
+				    .limit(4) // lấy đúng 4 sản phẩm bất kỳ
+				    .collect(Collectors.toList());
 
-			// Loại bỏ sản phẩm hiện tại khỏi danh sách
-			topCategoryProducts = topCategoryProducts.stream()
-					.filter(product -> !product.getMaSanPham().equals(sanPham.getMaSanPham())).limit(4) // Lấy tối đa 4
-																										// sản phẩm
-					.collect(Collectors.toList());
+
+
+			
+			
 			model.addAttribute("topCategoryProducts", topCategoryProducts);
 			Map<Integer, BigDecimal> topCategoryProductsGiaSauGiamMap = new HashMap<>();
 			Map<Integer, BigDecimal> topCategoryProductsPhanTramGiamMap = new HashMap<>();
@@ -517,14 +529,21 @@ public class CustomerController {
 			model.addAttribute("sanPhamKhuyenMaiMap", sanPhamKhuyenMaiMap);
 			model.addAttribute("sanPhamGiaSauGiamMap", sanPhamGiaSauGiamMap);
 
-			// Lấy danh sách sản phẩm cùng danh mục với sản phẩm hiện tại
+//			// Lấy danh sách sản phẩm cùng danh mục với sản phẩm hiện tại
+//			List<SanPham> relatedSanPhams = sanPhamService
+//					.findByDanhMucAndTrangThai(sanPham.getDanhMuc().getMaDanhMuc(), true);
+//
+//			relatedSanPhams = relatedSanPhams.stream()
+//					.filter(relatedSanPham -> !relatedSanPham.getMaSanPham().equals(sanPham.getMaSanPham()))
+//					.filter(relatedSanPham -> chiTietDonNhapHangService.existsBySanPham(relatedSanPham))
+//					.collect(Collectors.toList());
 			List<SanPham> relatedSanPhams = sanPhamService
-					.findByDanhMucAndTrangThai(sanPham.getDanhMuc().getMaDanhMuc(), true);
+			        .findByDanhMucAndTrangThai(sanPham.getDanhMuc().getMaDanhMuc(), true)
+			        .stream()
+			        .filter(relatedSanPham -> !relatedSanPham.getMaSanPham().equals(sanPham.getMaSanPham()))
+			        .limit(4)
+			        .collect(Collectors.toList());
 
-			relatedSanPhams = relatedSanPhams.stream()
-					.filter(relatedSanPham -> !relatedSanPham.getMaSanPham().equals(sanPham.getMaSanPham()))
-					.filter(relatedSanPham -> chiTietDonNhapHangService.existsBySanPham(relatedSanPham))
-					.collect(Collectors.toList());
 
 			Map<Integer, KhuyenMai> relatedSanPhamKhuyenMaiMap = new HashMap<>();
 			Map<Integer, BigDecimal> relatedSanPhamGiaSauGiamMap = new HashMap<>();
@@ -574,14 +593,19 @@ public class CustomerController {
 
 			Integer maThuongHieu = sanPham.getThuongHieu().getMaThuongHieu();
 
-			// Lấy danh sách top sản phẩm bán chạy nhất theo thương hiệu
-			List<SanPham> topSoldProducts = hoaDonService.findTopSoldProductsByBrand(maThuongHieu, 7);
+			// Lấy 4 sản phẩm cùng thương hiệu (KHÔNG cần bán chạy)
+			List<SanPham> topSoldProducts = sanPhamService
+			        .findByThuongHieuAndTrangThai(maThuongHieu, true)
+			        .stream()
+			        .filter(product -> !product.getMaSanPham().equals(sanPham.getMaSanPham())) // Bỏ sản phẩm hiện tại
+			        .limit(4)
+			        .collect(Collectors.toList());
 
-			// Loại bỏ sản phẩm hiện tại khỏi danh sách
-			topSoldProducts = topSoldProducts.stream()
-					.filter(product -> !product.getMaSanPham().equals(sanPham.getMaSanPham())) // Bỏ sản phẩm hiện tại
-					.limit(7) // Lấy tối đa 4 sản phẩm
-					.collect(Collectors.toList());
+			model.addAttribute("topSoldProducts", topSoldProducts);
+
+			
+			
+			
 			model.addAttribute("topSoldProducts", topSoldProducts);
 
 			// Tính giá sau giảm cho các sản phẩm bán chạy

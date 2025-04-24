@@ -29,7 +29,7 @@
 			<form class="navbar-form nav-search p-0 d-flex align-items-center" th:action="${searchAction}" method="get">
 				<div class="input-group d-flex">
 
-					<!-- Trường hợp tìm kiếm cho từng trang -->
+					<!-- Trường hợp tìm kiếm cho từng trang 
 					<form th:if="${requestUri != null and requestUri.contains('/admin/orders')}"
 						th:action="@{/admin/orders}" method="get" class="d-flex">
 						<select name="status" class="form-control me-2" onchange="this.form.submit()">
@@ -48,26 +48,24 @@
 								th:selected="${selectedStatus == 'Bị hủy do không đủ hàng'}">Bị hủy do không đủ hàng
 							</option>
 						</select>
-					</form>
+					</form>-->
 
 					<!-- Nếu URL là /admin/orders thì hiển thị dropdown chọn trạng thái -->
 					<div th:if="${requestUri != null and requestUri.contains('/admin/orders')}"
 						class="d-flex align-items-center me-2">
-						<select name="status" class="form-control" onchange="this.form.submit()">
+						<label for="status" class="me-2 fw-bold" style="white-space: nowrap;">Lọc theo trạng thái:</label>
+						<select id="status" name="status" class="form-control" onchange="this.form.submit()">
 							<option value="all" th:selected="${selectedStatus == null || selectedStatus.equals('all')}">
-								Tất cả trạng thái</option>
-							<option value="Đang xử lý" th:selected="${selectedStatus == 'Đang xử lý'}">Đang xử lý
-							</option>
+								Tất cả</option>
 							<option value="Đã xác nhận" th:selected="${selectedStatus == 'Đã xác nhận'}">Đã xác nhận
+							</option>
+							<option value="Đang xử lý" th:selected="${selectedStatus == 'Đang xử lý'}">Đang xử lý
 							</option>
 							<option value="Đang giao hàng" th:selected="${selectedStatus == 'Đang giao hàng'}">Đang giao
 								hàng</option>
 							<option value="Đã hoàn thành" th:selected="${selectedStatus == 'Đã hoàn thành'}">Đã hoàn
 								thành</option>
 							<option value="Đã hủy" th:selected="${selectedStatus == 'Đã hủy'}">Đã hủy</option>
-							<option value="Bị hủy do không đủ hàng"
-								th:selected="${selectedStatus == 'Bị hủy do không đủ hàng'}">Bị hủy do không đủ hàng
-							</option>
 						</select>
 					</div>
 
