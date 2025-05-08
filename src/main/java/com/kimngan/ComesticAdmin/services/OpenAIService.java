@@ -14,7 +14,8 @@ public class OpenAIService {
     private final OpenAiService openAiService;
 
     public OpenAIService(@Value("${openai.api.key}") String apiKey) {
-        this.openAiService = new OpenAiService(apiKey);
+    	
+    	this.openAiService = new OpenAiService(apiKey);
     }
 
     public String askChatbot(String prompt) {
